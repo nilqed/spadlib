@@ -1,5 +1,5 @@
 (in-package :common-lisp-user)
-(asdf:defsystem #:quicklisp
+(asdf:defsystem #:quicklsp
   :serial t
   :description "Short description"
   :version "1.0.0"
@@ -7,4 +7,4 @@
   :license "MIT"
   :depends-on ()
   :pathname "src/"
-  :components ((:file "quicklisp")))
+  :components ((:file "quicklsp")))

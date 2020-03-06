@@ -9,6 +9,16 @@ Install
 		  
 Usage
 
+  Add the following function to your .fricas.input:
+  
+  quickLoad(s:String):Void ==
+    syscmd(s) ==> systemCommand(s)$MoreSystemCommands
+    lisp2(f,a) ==> syscmd string(FORMAT('NIL,"lisp (~A _"~A_")",f,a)$Lisp)
+    lisp2("load", "~/quicklisp/setup")
+    lisp2("ql:quickload",s)
+
+  Then
+  
   ()-> quickLoad "packageName"
   
   
@@ -19,4 +29,23 @@ Create a package
   type fripac.sh -h for more options.
 
 
----  
+---
+NOTES 
+
+Before creating a new package check if "packageName" is not  already in use:
+  Either by  )lisp (ql:system-apropos "packageName") or
+  by  
+      quickLoad "quicklsp"
+	  qlApropos "packageName".
+	  
+  Also notice the name "quicklsp", because "quicklisp" is already taken,
+  of course.
+  
+After a package has been loaded by "quickLoad" the followinf functions are
+available in the Lisp "BOOT" package, i.e. in FriCAS:
+
+  compile_packageName()$Lisp
+  load_packageName()$Lisp 
+  test_packageName()$Lisp
+  
+---
