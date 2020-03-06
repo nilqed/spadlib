@@ -1,0 +1,21 @@
+(1) -> quickLoad "pipe"
+
+Value = T
+To load "pipe":
+  Load 1 ASDF system:
+    pipe
+; Loading "pipe"
+
+Value = ("pipe")
+                                                                   Type: Void
+(2) -> )sh PIPE
+ SpadPipe is a package constructor
+ Abbreviation for SpadPipe is PIPE
+ This constructor is exposed in this frame.
+------------------------------- Operations --------------------------------
+
+ close : SExpression -> SExpression    readNoHang : SExpression -> String
+ readln : SExpression -> String
+ run : (String, List(String)) -> SExpression
+ write : (String, SExpression) -> SExpression
+ writeln : (String, SExpression) -> SExpression

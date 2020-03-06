@@ -1,0 +1,25 @@
+(1) -> quickLoad "ltxpv"
+
+Value = T
+To load "ltxpv":
+  Load 1 ASDF system:
+    ltxpv
+; Loading "ltxpv"
+
+Value = ("ltxpv")
+                                                                   Type: Void
+(2) -> )sh LTXPV
+ LatexPreview is a package constructor
+ Abbreviation for LatexPreview is LTXPV
+ This constructor is exposed in this frame.
+------------------------------- Operations --------------------------------
+
+ dviupd : Record(yapbn: String,yapdata: List(String)) -> Void
+ edit : Record(yapbn: String,yapdata: List(String)) -> Void
+ equation : (Record(yapbn: String,yapdata: List(String)), String) -> Void
+ framed : (Record(yapbn: String,yapdata: List(String)), String) -> Void
+ newline : Record(yapbn: String,yapdata: List(String)) -> Void
+ push : (Record(yapbn: String,yapdata: List(String)), String) -> Void
+ verbatim : (Record(yapbn: String,yapdata: List(String)), String) -> Void
+ yap : () -> Record(yapbn: String,yapdata: List(String))
+

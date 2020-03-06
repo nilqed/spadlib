@@ -1,0 +1,26 @@
+(1) -> quickLoad "idxobj"
+
+Value = T
+To load "idxobj":
+  Load 1 ASDF system:
+    idxobj
+; Loading "idxobj"
+
+Value = ("idxobj")
+                                                                   Type: Void
+(2) -> )sh IDXOBJ
+ IndexedObject is a domain constructor.
+ Abbreviation for IndexedObject is IDXOBJ
+ This constructor is exposed in this frame.
+ 12 Names for 14 Operations in this Domain.
+------------------------------- Operations --------------------------------
+
+ ?=? : (%, %) -> Boolean               coerce : % -> OutputForm
+ coerce : List(Integer) -> %           construct : List(Integer) -> %
+ convert : % -> TexFormat              getIndexes : % -> List(Integer)
+ hash : % -> SingleInteger             latex : % -> String
+ lowerIndex : (%, Integer) -> %        raiseIndex : (%, Integer) -> %
+ ?~=? : (%, %) -> Boolean
+ display : (%, Symbol, List(Symbol)) -> OutputForm
+ hashUpdate! : (HashState, %) -> HashState
+ latex : (%, String, List(String)) -> String

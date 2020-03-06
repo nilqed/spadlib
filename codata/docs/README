@@ -1,0 +1,35 @@
+(1) -> quickLoad "codata"
+
+Value = T
+To load "codata":
+  Load 1 ASDF system:
+    codata
+; Loading "codata"
+
+Value = ("codata")
+                                                                   Type: Void
+(2) -> )sh CODATA
+ Codata is a package constructor
+ Abbreviation for Codata is CODATA
+ This constructor is exposed in this frame.
+------------------------------- Operations --------------------------------
+
+ F : () -> PhysQty(SIunit)             G : () -> PhysQty(SIunit)
+ G_0 : () -> PhysQty(SIunit)           K_J : () -> PhysQty(SIunit)
+ L : () -> PhysQty(SIunit)             Phi_0 : () -> PhysQty(SIunit)
+ R : () -> PhysQty(SIunit)             R_K : () -> PhysQty(SIunit)
+ R_inf : () -> PhysQty(SIunit)         alpha : () -> PhysQty(SIunit)
+ c : () -> PhysQty(SIunit)             c0 : () -> PhysQty(SIunit)
+ e : () -> PhysQty(SIunit)             eV : () -> PhysQty(SIunit)
+ eps_0 : () -> PhysQty(SIunit)         h : () -> PhysQty(SIunit)
+ hbar : () -> PhysQty(SIunit)          k : () -> PhysQty(SIunit)
+ m_e : () -> PhysQty(SIunit)           m_n : () -> PhysQty(SIunit)
+ m_p : () -> PhysQty(SIunit)           mu_0 : () -> PhysQty(SIunit)
+ sigma : () -> PhysQty(SIunit)         u : () -> PhysQty(SIunit)
+ codata : () -> Table(Symbol,PhysQty(SIunit))
+
+(3) -> c0()
+
+                        - 1
+   (14)  299792458.0 m s
+                                                        Type: PhysQty(SIunit)

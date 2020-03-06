@@ -1,0 +1,71 @@
+(1) -> quickLoad "dform"
+
+Value = T
+To load "dform":
+  Load 1 ASDF system:
+    dform
+; Loading "dform"
+
+Value = ("dform")
+                                                                   Type: Void
+(2) -> )sh DFORM
+ DifferentialForms(R: Join(IntegralDomain,Comparable),v: List(Symbol)) is a pack
+age constructor
+ Abbreviation for DifferentialForms is DFORM
+ This constructor is exposed in this frame.
+------------------------------- Operations --------------------------------
+
+ coordSymbols : () -> List(Symbol)     one : () -> DeRhamComplex(R,v)
+ zero : () -> DeRhamComplex(R,v)
+ ?*? : (Vector(DeRhamComplex(R,v)), Vector(DeRhamComplex(R,v))) -> DeRhamComplex
+(R,v)
+ Gramian : SquareMatrix(#(v),Expression(R)) -> Matrix(DeRhamComplex(R,v))
+ Omega : SquareMatrix(#(v),Expression(R)) -> Matrix(DeRhamComplex(R,v))
+ atomizeBasisTerm : DeRhamComplex(R,v) -> List(DeRhamComplex(R,v))
+ basisForms : Integer -> List(DeRhamComplex(R,v))
+ codifferential : (SquareMatrix(#(v),Expression(R)), DeRhamComplex(R,v)) -> DeRh
+amComplex(R,v)
+ coefficients : (NonNegativeInteger, DeRhamComplex(R,v)) -> List(Expression(R))
+ convert : Matrix(Expression(R)) -> Matrix(DeRhamComplex(R,v))
+ coordVector : () -> Vector(Expression(R))
+ covectorField : Symbol -> Vector(DeRhamComplex(R,v))
+ d : Expression(R) -> DeRhamComplex(R,v)
+ d : DeRhamComplex(R,v) -> DeRhamComplex(R,v)
+ d : Vector(DeRhamComplex(R,v)) -> Vector(DeRhamComplex(R,v))
+ d : Matrix(DeRhamComplex(R,v)) -> Matrix(DeRhamComplex(R,v))
+ degrees : (DeRhamComplex(R,v), List(NonNegativeInteger)) -> List(NonNegativeInt
+eger)
+ dot : (DeRhamComplex(R,v), DeRhamComplex(R,v)) -> Expression(R)
+ dot : (SquareMatrix(#(v),Expression(R)), DeRhamComplex(R,v), DeRhamComplex(R,v)
+) -> Expression(R)
+ dotg : (SquareMatrix(#(v),Expression(R)), DeRhamComplex(R,v), DeRhamComplex(R,v
+)) -> Expression(R)
+ dual : DeRhamComplex(R,v) -> DeRhamComplex(R,v)
+ frameVectors : SquareMatrix(#(v),Expression(R)) -> List(Vector(Expression(R)))
+ genericInverseMetric : Symbol -> SquareMatrix(#(v),Expression(R))
+ genericMetric : Symbol -> SquareMatrix(#(v),Expression(R))
+ hodgeLaplacian : (SquareMatrix(#(v),Expression(R)), DeRhamComplex(R,v)) -> DeRh
+amComplex(R,v)
+ hodgeStar : (SquareMatrix(#(v),Expression(R)), DeRhamComplex(R,v)) -> DeRhamCom
+plex(R,v)
+ indices : Integer -> List(List(Integer))
+ interiorProduct : (Vector(Expression(R)), DeRhamComplex(R,v)) -> DeRhamComplex(
+R,v)
+ invHodgeStar : (SquareMatrix(#(v),Expression(R)), DeRhamComplex(R,v)) -> DeRham
+Complex(R,v)
+ lieDerivative : (Vector(Expression(R)), DeRhamComplex(R,v)) -> DeRhamComplex(R,
+v)
+ movingFrame : SquareMatrix(#(v),Expression(R)) -> Matrix(Expression(R))
+ oneForms : () -> Vector(DeRhamComplex(R,v))
+ proj : (NonNegativeInteger, DeRhamComplex(R,v)) -> DeRhamComplex(R,v)
+ retract : Matrix(DeRhamComplex(R,v)) -> Matrix(Expression(R))
+ s : SquareMatrix(#(v),Expression(R)) -> Expression(R)
+ scalarField : Symbol -> Expression(R)
+ sigma : SquareMatrix(#(v),Expression(R)) -> Matrix(DeRhamComplex(R,v))
+ vectorField : Symbol -> Vector(Expression(R))
+ volumeForm : () -> DeRhamComplex(R,v)
+ volumeForm : SquareMatrix(#(v),Expression(R)) -> DeRhamComplex(R,v)
+ zeroForm : Symbol -> DeRhamComplex(R,v)
+ zeroForms : () -> Vector(DeRhamComplex(R,v))
+
+

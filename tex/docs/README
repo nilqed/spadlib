@@ -1,0 +1,30 @@
+(1) -> quickLoad "tex"
+
+Value = T
+To load "tex":
+  Load 1 ASDF system:
+    tex
+; Loading "tex"
+
+Value = ("tex")
+                                                                   Type: Void
+(2) -> )sh TEX
+ TexFormat is a domain constructor.
+ Abbreviation for TexFormat is TEX
+ This constructor is exposed in this frame.
+ 15 Names for 18 Operations in this Domain.
+------------------------------- Operations --------------------------------
+
+ ?=? : (%, %) -> Boolean               coerce : % -> OutputForm
+ coerce : OutputForm -> %              display : (%, Integer) -> Void
+ display : % -> Void                   epilogue : % -> List(String)
+ hash : % -> SingleInteger             latex : % -> String
+ new : () -> %                         prologue : % -> List(String)
+ tex : % -> List(String)               ?~=? : (%, %) -> Boolean
+ convert : (OutputForm, Integer, OutputForm) -> %
+ convert : (OutputForm, Integer) -> %
+ hashUpdate! : (HashState, %) -> HashState
+ setEpilogue! : (%, List(String)) -> List(String)
+ setPrologue! : (%, List(String)) -> List(String)
+ setTex! : (%, List(String)) -> List(String)
+

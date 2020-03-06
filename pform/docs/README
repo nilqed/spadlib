@@ -1,0 +1,26 @@
+(1) -> quickLoad "pform"
+
+Value = T
+To load "pform":
+  Load 1 ASDF system:
+    pform
+; Loading "pform"
+
+Value = ("pform")
+                                                                   Type: Void
+(2) -> )sh PFORM
+ Pform is a domain constructor.
+ Abbreviation for Pform is PFORM
+ This constructor is exposed in this frame.
+ 13 Names for 13 Operations in this Domain.
+------------------------------- Operations --------------------------------
+
+ ?=? : (%, %) -> Boolean               closed? : % -> Boolean
+ coerce : % -> OutputForm              d : % -> %
+ deg : % -> Polynomial(Integer)        exact? : % -> Boolean
+ hash : % -> SingleInteger             latex : % -> String
+ null? : % -> Boolean                  nullForm : () -> %
+ ?~=? : (%, %) -> Boolean
+ hashUpdate! : (HashState, %) -> HashState
+ pform : (Polynomial(Integer), Symbol, String, Boolean) -> %
+

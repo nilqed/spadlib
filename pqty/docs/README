@@ -1,0 +1,28 @@
+(1) -> quickLoad "pqty"
+
+Value = T
+To load "pqty":
+  Load 1 ASDF system:
+    pqty
+; Loading "pqty"
+
+Value = ("pqty")
+                                                                   Type: Void
+(2) -> )sh PQTY
+ PhysQty(U: PhysicalUnit) is a domain constructor
+ Abbreviation for PhysQty is PQTY
+ This constructor is exposed in this frame.
+------------------------------- Operations --------------------------------
+
+ ?*? : (%, %) -> %                     ?+? : (%, %) -> %
+ -? : % -> %                           ?-? : (%, %) -> %
+ ?/? : (%, %) -> %                     ?^? : (%, Integer) -> %
+ coerce : % -> OutputForm              elt : (Float, U) -> %
+ elt : (Interval(Float), U) -> %       ival : % -> Interval(Float)
+ magnitude : % -> Float                uncertainty : % -> Float
+ unit : % -> U
+ ?*? : (Union(Float,DoubleFloat,Integer,Fraction(Integer),PositiveInteger), %) -
+> %
+ ?/? : (%, Union(Float,DoubleFloat,Integer,Fraction(Integer),PositiveInteger)) -
+> %
+ setOutputMode : PositiveInteger -> PositiveInteger

@@ -1,0 +1,46 @@
+(1) -> quickLoad "tmspt"
+
+Value = T
+To load "tmspt":
+  Load 1 ASDF system:
+    tmspt
+; Loading "tmspt"
+
+Value = ("tmspt")
+                                                                   Type: Void
+(2) -> )sh TMSPT
+ TexmacsSupport is a package constructor
+ Abbreviation for TexmacsSupport is TMSPT
+ This constructor is exposed in this frame.
+------------------------------- Operations --------------------------------
+
+ addDefaultStyle : () -> Void          addStyle : String -> Void
+ changeZoomFactor : Float -> Void      clearAllFields : () -> Void
+ closeSession : () -> Void             command : String -> Void
+ createSubsession : () -> Void         evaluateAbove : () -> Void
+ evaluateAll : () -> Void              evaluateBelow : () -> Void
+ evaluateFieldsInOrder : () -> Void    firstField : () -> Void
+ fitAllToScreen : () -> Void           fitToScreen : () -> Void
+ fitToScreenHeight : () -> Void        fitToScreenWidth : () -> Void
+ foldAllFields : () -> Void            html : String -> Void
+ inlineImage : String -> Void          input : String -> Void
+ insertFieldAbove : () -> Void         insertFieldBelow : () -> Void
+ insertTextFieldAbove : () -> Void     insertTextFieldBelow : () -> Void
+ lastField : () -> Void                latex : String -> Void
+ linkImage : String -> Void            mathInput : String -> String
+ message : (String, String) -> Void    nextField : () -> Void
+ output : String -> Void               previousField : () -> Void
+ prompt : String -> Void               ps : String -> Void
+ removeBanner : () -> Void             removeDefaultStyle : () -> Void
+ removeLastField : () -> Void          removeNextField : () -> Void
+ removePreviousField : () -> Void      removeStyle : String -> Void
+ scheme : String -> Void               sessionEval : () -> Void
+ showTimings : () -> Void              splitSession : () -> Void
+ tmActive? : () -> Boolean             toggleFooter : () -> Void
+ toggleFullScreenMode : () -> Void     toggleHeader : () -> Void
+ toggleMathInput : () -> Void          toggleMathOutput : () -> Void
+ toggleMultilineInput : () -> Void     toggleTreeOutput : () -> Void
+ unfoldAllFields : () -> Void          verbatim : String -> Void
+ zoomIn : Float -> Void                zoomOut : Float -> Void
+ toggleSchemeTreeOutput : () -> Void
+

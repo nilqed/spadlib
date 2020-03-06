@@ -1,0 +1,45 @@
+(1) -> quickLoad "ratival"
+
+Value = T
+To load "ratival":
+  Load 1 ASDF system:
+    ratival
+; Loading "ratival"
+
+Value = ("ratival")
+                                                                   Type: Void
+(2) -> )sh RATIVAL
+ RationalInterval is a domain constructor.
+ Abbreviation for RationalInterval is RATIVAL
+ This constructor is exposed in this frame.
+ 41 Names for 48 Operations in this Domain.
+------------------------------- Operations --------------------------------
+
+ #? : % -> Fraction(Integer)           ?*? : (%, %) -> %
+ ?+? : (%, %) -> %                     ?-? : (%, %) -> %
+ -? : % -> %                           ?/? : (%, %) -> %
+ ?<? : (%, %) -> Boolean               ?<<? : (%, %) -> Boolean
+ ?<=? : (%, %) -> Boolean              ?=? : (%, %) -> Boolean
+ ?>? : (%, %) -> Boolean               ?>=? : (%, %) -> Boolean
+ 1 : () -> %                           0 : () -> %
+ ?^? : (%, Integer) -> %               abs : % -> %
+ coerce : % -> OutputForm              coerce : DoubleFloat -> %
+ coerce : Float -> %                   coerce : Fraction(Integer) -> %
+ coerce : Integer -> %                 coerce : Interval(Float) -> %
+ concise : % -> OutputForm             convert : % -> Interval(Float)
+ floatRep : % -> OutputForm            halfLeft : % -> %
+ halfRight : % -> %                    hash : % -> SingleInteger
+ intersection : (%, %) -> %            latex : % -> String
+ lb : % -> Fraction(Integer)           max : (%, %) -> %
+ midpoint : % -> Fraction(Integer)     min : (%, %) -> %
+ one : () -> %                         one? : % -> Boolean
+ ub : % -> Fraction(Integer)           union : (%, %) -> %
+ zero : () -> %                        zero? : % -> Boolean
+ ?~=? : (%, %) -> Boolean
+ coerce : List(Fraction(Integer)) -> %
+ elt : (Fraction(Integer), %) -> %
+ hashUpdate! : (HashState, %) -> HashState
+ member? : (Fraction(Integer), %) -> Boolean
+ mki : (Fraction(Integer), Fraction(Integer)) -> %
+ slice : (%, Fraction(Integer)) -> Fraction(Integer)
+ uncertainty : % -> Fraction(Integer)

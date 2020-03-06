@@ -1,0 +1,79 @@
+(1) -> quickLoad "extcalc"
+
+Value = T
+To load "extcalc":
+  Load 1 ASDF system:
+    extcalc
+; Loading "extcalc"
+
+Value = ("extcalc")
+                                                                   Type: Void
+(12) -> )sh EXTCALC
+ ExteriorCalculus(v: List(Symbol)) is a package constructor
+ Abbreviation for ExteriorCalculus is EXTCALC
+ This constructor is exposed in this frame.
+------------------------------- Operations --------------------------------
+
+ coordSymbols : () -> List(Symbol)
+ ?*? : (Vector(DeRhamComplex(Integer,v)), Vector(DeRhamComplex(Integer,v))) -> D
+eRhamComplex(Integer,v)
+ Gramian : SquareMatrix(#(v),Expression(Integer)) -> Matrix(DeRhamComplex(Intege
+r,v))
+ Omega : SquareMatrix(#(v),Expression(Integer)) -> Matrix(DeRhamComplex(Integer,
+v))
+ atomizeBasisTerm : DeRhamComplex(Integer,v) -> List(DeRhamComplex(Integer,v))
+ basisForms : Integer -> List(DeRhamComplex(Integer,v))
+ codifferential : (SquareMatrix(#(v),Expression(Integer)), DeRhamComplex(Integer
+,v)) -> DeRhamComplex(Integer,v)
+ coefficients : (NonNegativeInteger, DeRhamComplex(Integer,v)) -> List(Expressio
+n(Integer))
+ convert : Matrix(Expression(Integer)) -> Matrix(DeRhamComplex(Integer,v))
+ coordVector : () -> Vector(Expression(Integer))
+ covectorField : Symbol -> Vector(DeRhamComplex(Integer,v))
+ d : Expression(Integer) -> DeRhamComplex(Integer,v)
+ d : DeRhamComplex(Integer,v) -> DeRhamComplex(Integer,v)
+ d : Vector(DeRhamComplex(Integer,v)) -> Vector(DeRhamComplex(Integer,v))
+ d : Matrix(DeRhamComplex(Integer,v)) -> Matrix(DeRhamComplex(Integer,v))
+ degrees : (DeRhamComplex(Integer,v), List(NonNegativeInteger)) -> List(NonNegat
+iveInteger)
+ dot : (DeRhamComplex(Integer,v), DeRhamComplex(Integer,v)) -> Expression(Intege
+r)
+ dot : (SquareMatrix(#(v),Expression(Integer)), DeRhamComplex(Integer,v), DeRham
+Complex(Integer,v)) -> Expression(Integer)
+ dotg : (SquareMatrix(#(v),Expression(Integer)), DeRhamComplex(Integer,v), DeRha
+mComplex(Integer,v)) -> Expression(Integer)
+ dual : DeRhamComplex(Integer,v) -> DeRhamComplex(Integer,v)
+ frameVectors : SquareMatrix(#(v),Expression(Integer)) -> List(Vector(Expression
+(Integer)))
+ genericInverseMetric : Symbol -> SquareMatrix(#(v),Expression(Integer))
+ genericMetric : Symbol -> SquareMatrix(#(v),Expression(Integer))
+ hodgeLaplacian : (SquareMatrix(#(v),Expression(Integer)), DeRhamComplex(Integer
+,v)) -> DeRhamComplex(Integer,v)
+ hodgeStar : (SquareMatrix(#(v),Expression(Integer)), DeRhamComplex(Integer,v))
+-> DeRhamComplex(Integer,v)
+ indices : Integer -> List(List(Integer))
+ interiorProduct : (Vector(Expression(Integer)), DeRhamComplex(Integer,v)) -> De
+RhamComplex(Integer,v)
+ invHodgeStar : (SquareMatrix(#(v),Expression(Integer)), DeRhamComplex(Integer,v
+)) -> DeRhamComplex(Integer,v)
+ lieDerivative : (Vector(Expression(Integer)), DeRhamComplex(Integer,v)) -> DeRh
+amComplex(Integer,v)
+ movingFrame : SquareMatrix(#(v),Expression(Integer)) -> Matrix(Expression(Integ
+er))
+ one : () -> DeRhamComplex(Integer,v)
+ oneForms : () -> Vector(DeRhamComplex(Integer,v))
+ proj : (NonNegativeInteger, DeRhamComplex(Integer,v)) -> DeRhamComplex(Integer,
+v)
+ retract : Matrix(DeRhamComplex(Integer,v)) -> Matrix(Expression(Integer))
+ s : SquareMatrix(#(v),Expression(Integer)) -> Expression(Integer)
+ scalarField : Symbol -> Expression(Integer)
+ sigma : SquareMatrix(#(v),Expression(Integer)) -> Matrix(DeRhamComplex(Integer,
+v))
+ vectorField : Symbol -> Vector(Expression(Integer))
+ volumeForm : () -> DeRhamComplex(Integer,v)
+ volumeForm : SquareMatrix(#(v),Expression(Integer)) -> DeRhamComplex(Integer,v)
+
+ zero : () -> DeRhamComplex(Integer,v)
+ zeroForm : Symbol -> DeRhamComplex(Integer,v)
+ zeroForms : () -> Vector(DeRhamComplex(Integer,v))
+

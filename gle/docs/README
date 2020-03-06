@@ -1,0 +1,65 @@
+(1) -> quickLoad "gle"
+
+Value = T
+To load "gle":
+  Load 1 ASDF system:
+    gle
+; Loading "gle"
+
+Value = ("gle")
+                                                                   Type: Void
+(2) -> )sh GLE
+ GraphicsLayoutEngine is a package constructor
+ Abbreviation for GraphicsLayoutEngine is GLE
+ This constructor is exposed in this frame.
+------------------------------- Operations --------------------------------
+
+ display : FileName -> Void
+ create : Record(glefile: String,pre: String,xsize: String,ysize: String,xtitle:
+ String,ytitle: String,title: String,data: String,cmds: List(String)) -> FileNam
+e
+ create : Record(glefile: String,pre: String,xsize: String,ysize: String,xtitle:
+ String,ytitle: String,ztitle: String,title: String,data: String,cmds: List(Stri
+ng)) -> FileName
+ display : Record(glefile: String,pre: String,xsize: String,ysize: String,xtitle
+: String,ytitle: String,title: String,data: String,cmds: List(String)) -> Void
+ display : Record(glefile: String,pre: String,xsize: String,ysize: String,xtitle
+: String,ytitle: String,ztitle: String,title: String,data: String,cmds: List(Str
+ing)) -> Void
+ format : (String, String) -> String
+ format : (String, List(String)) -> String
+ graph : () -> Record(glefile: String,pre: String,xsize: String,ysize: String,xt
+itle: String,ytitle: String,title: String,data: String,cmds: List(String))
+ letz : (FileName, Expression(DoubleFloat), SegmentBinding(DoubleFloat), Segment
+Binding(DoubleFloat), DoubleFloat, DoubleFloat) -> String
+ plot : Plot -> Record(glefile: String,pre: String,xsize: String,ysize: String,x
+title: String,ytitle: String,title: String,data: String,cmds: List(String))
+ plot : ((DoubleFloat -> DoubleFloat), Segment(DoubleFloat)) -> Record(glefile:
+String,pre: String,xsize: String,ysize: String,xtitle: String,ytitle: String,tit
+le: String,data: String,cmds: List(String))
+ plot : List(List(DoubleFloat)) -> Record(glefile: String,pre: String,xsize: Str
+ing,ysize: String,xtitle: String,ytitle: String,title: String,data: String,cmds:
+ List(String))
+ plot : (((DoubleFloat, DoubleFloat) -> DoubleFloat), Segment(DoubleFloat), Segm
+ent(DoubleFloat), DoubleFloat, DoubleFloat) -> Record(glefile: String,pre: Strin
+g,xsize: String,ysize: String,xtitle: String,ytitle: String,ztitle: String,title
+: String,data: String,cmds: List(String))
+ push : (Record(glefile: String,pre: String,xsize: String,ysize: String,xtitle:
+String,ytitle: String,title: String,data: String,cmds: List(String)), String) ->
+ Record(glefile: String,pre: String,xsize: String,ysize: String,xtitle: String,y
+title: String,title: String,data: String,cmds: List(String))
+ push : (Record(glefile: String,pre: String,xsize: String,ysize: String,xtitle:
+String,ytitle: String,ztitle: String,title: String,data: String,cmds: List(Strin
+g)), String) -> Record(glefile: String,pre: String,xsize: String,ysize: String,x
+title: String,ytitle: String,ztitle: String,title: String,data: String,cmds: Lis
+t(String))
+ splot : (((DoubleFloat, DoubleFloat) -> DoubleFloat), Segment(DoubleFloat), Seg
+ment(DoubleFloat), DoubleFloat, DoubleFloat) -> Record(data: List(List(DoubleFlo
+at)),nx: Integer,ny: Integer,xmin: DoubleFloat,xmax: DoubleFloat,ymin: DoubleFlo
+at,ymax: DoubleFloat)
+ surface : () -> Record(glefile: String,pre: String,xsize: String,ysize: String,
+xtitle: String,ytitle: String,ztitle: String,title: String,data: String,cmds: Li
+st(String))
+ writeZfile : (FileName, Record(data: List(List(DoubleFloat)),nx: Integer,ny: In
+teger,xmin: DoubleFloat,xmax: DoubleFloat,ymin: DoubleFloat,ymax: DoubleFloat))
+-> Void

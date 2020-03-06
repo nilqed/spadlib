@@ -1,0 +1,93 @@
+(1) -> quickLoad "tensalg"
+
+Value = T
+To load "tensalg":
+  Load 1 ASDF system:
+    tensalg
+; Loading "tensalg"
+
+Value = ("tensalg")
+                                                                   Type: Void
+(2) -> )sh TENSALG
+ TensorAlgebra(M: FreeModuleCategory(R,B),R: CommutativeRing,B: OrderedSet) is a
+ domain constructor
+ Abbreviation for TensorAlgebra is TENSALG
+ This constructor is exposed in this frame.
+------------------------------- Operations --------------------------------
+
+ ?*? : (%, %) -> %                     ?*? : (Integer, %) -> %
+ ?*? : (B, %) -> %                     ?*? : (FreeMonoid(B), R) -> %
+ ?*? : (R, FreeMonoid(B)) -> %         ?*? : (%, R) -> %
+ ?*? : (R, %) -> %                     ?*? : (PositiveInteger, %) -> %
+ ?+? : (%, %) -> %                     ?-? : (%, %) -> %
+ -? : % -> %                           ?=? : (%, %) -> Boolean
+ 1 : () -> %                           0 : () -> %
+ ?^? : (%, PositiveInteger) -> %       annihilate? : (%, %) -> Boolean
+ antiCommutator : (%, %) -> %          associator : (%, %, %) -> %
+ coef : (%, FreeMonoid(B)) -> R        coef : (%, %) -> R
+ coefficients : % -> List(R)           coerce : Integer -> %
+ coerce : R -> %                       coerce : FreeMonoid(B) -> %
+ coerce : B -> %                       coerce : % -> OutputForm
+ commutator : (%, %) -> %              constant : % -> R
+ constant? : % -> Boolean              degree : % -> NonNegativeInteger
+ hash : % -> SingleInteger             latex : % -> String
+ lquo : (%, B) -> %                    lquo : (%, FreeMonoid(B)) -> %
+ lquo : (%, %) -> %                    map : ((R -> R), %) -> %
+ mindeg : % -> FreeMonoid(B)           mirror : % -> %
+ monom : (FreeMonoid(B), R) -> %       monomial? : % -> Boolean
+ monomials : % -> List(%)              one? : % -> Boolean
+ opposite? : (%, %) -> Boolean         product : (%, %) -> %
+ quasiRegular : % -> %                 quasiRegular? : % -> Boolean
+ recip : % -> Union(%,"failed")        retract : % -> R
+ retract : % -> FreeMonoid(B)          rquo : (%, B) -> %
+ rquo : (%, FreeMonoid(B)) -> %        rquo : (%, %) -> %
+ sample : () -> %                      varList : % -> List(B)
+ zero? : % -> Boolean                  ?~=? : (%, %) -> Boolean
+ ?*? : (NonNegativeInteger, %) -> %
+ ?<? : (%, %) -> Boolean if R has OAMON and FreeMonoid(B) has ORDSET or R has OA
+MONS and FreeMonoid(B) has ORDSET
+ ?<=? : (%, %) -> Boolean if R has OAMON and FreeMonoid(B) has ORDSET or R has O
+AMONS and FreeMonoid(B) has ORDSET
+ ?>? : (%, %) -> Boolean if R has OAMON and FreeMonoid(B) has ORDSET or R has OA
+MONS and FreeMonoid(B) has ORDSET
+ ?>=? : (%, %) -> Boolean if R has OAMON and FreeMonoid(B) has ORDSET or R has O
+AMONS and FreeMonoid(B) has ORDSET
+ ?^? : (%, NonNegativeInteger) -> %
+ characteristic : () -> NonNegativeInteger
+ coefficient : (%, FreeMonoid(B)) -> R
+ construct : List(Record(k: FreeMonoid(B),c: R)) -> %
+ constructOrdered : List(Record(k: FreeMonoid(B),c: R)) -> % if FreeMonoid(B) ha
+s COMPAR
+ convert : FreeMonoid(B) -> OutputForm
+ hashUpdate! : (HashState, %) -> HashState
+ leadingCoefficient : % -> R if FreeMonoid(B) has COMPAR
+ leadingMonomial : % -> % if FreeMonoid(B) has COMPAR
+ leadingSupport : % -> FreeMonoid(B) if FreeMonoid(B) has COMPAR
+ leadingTerm : % -> Record(k: FreeMonoid(B),c: R) if FreeMonoid(B) has COMPAR
+ leftPower : (%, PositiveInteger) -> %
+ leftPower : (%, NonNegativeInteger) -> %
+ leftRecip : % -> Union(%,"failed")
+ linearExtend : ((FreeMonoid(B) -> R), %) -> R if R has COMRING
+ listOfTerms : % -> List(Record(k: FreeMonoid(B),c: R))
+ max : (%, %) -> % if R has OAMON and FreeMonoid(B) has ORDSET or R has OAMONS a
+nd FreeMonoid(B) has ORDSET
+ min : (%, %) -> % if R has OAMON and FreeMonoid(B) has ORDSET or R has OAMONS a
+nd FreeMonoid(B) has ORDSET
+ mindegTerm : % -> Record(k: FreeMonoid(B),c: R)
+ monomial : (R, FreeMonoid(B)) -> %
+ numberOfMonomials : % -> NonNegativeInteger
+ reductum : % -> % if FreeMonoid(B) has COMPAR
+ retractIfCan : % -> Union(R,"failed")
+ retractIfCan : % -> Union(FreeMonoid(B),"failed")
+ rightPower : (%, PositiveInteger) -> %
+ rightPower : (%, NonNegativeInteger) -> %
+ rightRecip : % -> Union(%,"failed")
+ sh : (%, %) -> % if R has COMRING
+ sh : (%, NonNegativeInteger) -> % if R has COMRING
+ smaller? : (%, %) -> Boolean if R has COMPAR and FreeMonoid(B) has COMPAR or R
+has OAMON and FreeMonoid(B) has ORDSET or R has OAMONS and FreeMonoid(B) has ORD
+SET
+ subtractIfCan : (%, %) -> Union(%,"failed")
+ sup : (%, %) -> % if R has OAMONS and FreeMonoid(B) has ORDSET
+ support : % -> List(FreeMonoid(B))
+

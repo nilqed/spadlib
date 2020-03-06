@@ -1,0 +1,32 @@
+(1) -> quickLoad "strspt"
+
+Value = T
+To load "strspt":
+  Load 1 ASDF system:
+    strspt
+; Loading "strspt"
+
+Value = ("strspt")
+                                                                   Type: Void
+(2) -> )sh STRSPT
+ StringSupport is a package constructor
+ Abbreviation for StringSupport is STRSPT
+ This constructor is exposed in this frame.
+------------------------------- Operations --------------------------------
+
+ ascii : String -> List(Integer)       atomize : String -> List(String)
+ fmtStrIter : String -> String         freshline : () -> String
+ last : String -> String               natoAlphabet : Character -> String
+ newline : () -> String                newpage : () -> String
+ radixEnglish : Integer -> String      radixOldRoman : Integer -> String
+ radixRoman : Integer -> String        rest : String -> String
+ spellMorse : String -> String         spellNATO : String -> String
+ tilde : () -> String
+ format : (String, String) -> String
+ format : (String, List(String)) -> String
+ format : (String, Integer) -> String
+ join : (String, List(String)) -> String
+ morseAlphabet : Character -> String
+ proj : (List(Character), String) -> String
+ subst : (String, String, String) -> String
+ substOnce : (String, String, String) -> String

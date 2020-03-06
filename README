@@ -2,6 +2,11 @@
 SPADLIB V0.1
 ============
 
+Required
+
+  QuickLisp https://www.quicklisp.org/beta/
+  FriCAS    http://fricas.sourceforge.net/ 
+  
 Install  
 
   $ cd ~/quicklisp/local-projects
@@ -41,11 +46,14 @@ Before creating a new package check if "packageName" is not  already in use:
   Also notice the name "quicklsp", because "quicklisp" is already taken,
   of course.
   
-After a package has been loaded by "quickLoad" the followinf functions are
+After a package has been loaded by "quickLoad", the following functions are
 available in the Lisp "BOOT" package, i.e. in FriCAS:
 
   compile_packageName()$Lisp
   load_packageName()$Lisp 
   test_packageName()$Lisp
-  
+ 
+These functions may be used to recompile/reload the package if necessary
+(e.g after FriCAS upgrades).   
+
 ---

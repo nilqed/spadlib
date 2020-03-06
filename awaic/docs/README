@@ -1,0 +1,31 @@
+(1) -> quickLoad "awaic"
+
+Value = T
+To load "awaic":
+  Load 1 ASDF system:
+    awaic
+; Loading "awaic"
+
+Value = ("awaic")
+                                                                   Type: Void
+
+
+                                                Type: Void
+(1) -> )sh AWAIC
+ AtomicWeights is a package constructor
+ Abbreviation for AtomicWeights is AWAIC
+ This constructor is exposed in this frame.
+------------------------------- Operations --------------------------------
+
+ readDataAsInput : String -> Void      str2float : String -> Float
+ atomicMass : (String, StringTable(List(String))) -> Float
+ atomicMassUnc : (String, StringTable(List(String))) -> Float
+ atomicNumber : (String, StringTable(List(String))) -> Integer
+ atomicSymbol : (String, StringTable(List(String))) -> Symbol
+ elements : StringTable(List(String)) -> List(String)
+ isotopeSymbol : (String, StringTable(List(String))) -> Symbol
+ massNumber : (String, StringTable(List(String))) -> Integer
+ readDefault : () -> StringTable(List(String))
+ readRawDataFile : String -> StringTable(List(String))
+ str2floatUncertainty : String -> Float
+

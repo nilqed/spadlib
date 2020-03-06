@@ -1,0 +1,21 @@
+(1) -> quickLoad "quicklsp"
+
+Value = T
+To load "quicklsp":
+  Load 1 ASDF system:
+    quicklsp
+; Loading "quicklsp"
+
+Value = ("quicklsp")
+                                                                   Type: Void
+(2) -> )sh QL
+ QuickLisp is a package constructor
+ Abbreviation for QuickLisp is QL
+ This constructor is exposed in this frame.
+------------------------------- Operations --------------------------------
+
+ qlApropos : String -> Void            qlSetup : () -> Void
+ qlUninstall : String -> Void          qlUpdateAll : () -> Void
+ qlUpdateClient : () -> Void           qlWhoDependsOn : String -> Void
+ quickLoad : String -> Void
+

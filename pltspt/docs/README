@@ -1,0 +1,22 @@
+(1) -> quickLoad "pltspt"
+
+Value = T
+To load "pltspt":
+  Load 1 ASDF system:
+    pltspt
+; Loading "pltspt"
+
+Value = ("pltspt")
+                                                                   Type: Void
+(2) -> )sh PLTSPT
+ PlotSupport is a package constructor
+ Abbreviation for PlotSupport is PLTSPT
+ This constructor is exposed in this frame.
+------------------------------- Operations --------------------------------
+
+ numOfBranches : Plot -> Integer
+ combineBranches : Plot -> List(Point(DoubleFloat))
+ convert : (Point(DoubleFloat), String) -> String
+ convert : (Plot, String) -> List(List(String))
+ convertBranch : (List(Point(DoubleFloat)), String) -> List(String)
+ createDataFile : (FileName, List(String)) -> Void
