@@ -1,0 +1,291 @@
+)abbrev package GLE GraphicsLayoutEngine
+++ Author: Kurt Pagani
+++ Date Created: Mon Aug 06 18:17:40 CEST 2018
+++ License: BSD
+++ References:
+++ Description:
+++   GLE - Graphics Layout Engine
+++   Debian: sudo apt install gle-graphics  (ghostscript,...)
+++ We will build on PLOT, PLOT3D domains.
+++
+++
+GraphicsLayoutEngine : Exports == Implementation where
+
+  MSC   ==> MoreSystemCommands
+  STR   ==> String
+  INT   ==> Integer
+  LDF   ==> List DoubleFloat
+  LLDF  ==> List LDF
+  LSTR  ==> List STR
+  LLSTR ==> List LSTR
+  PI    ==> PositiveInteger
+  DF    ==> DoubleFloat
+  XDF   ==> Expression DF
+  SDF   ==> Segment DF
+  SBDF  ==> SegmentBinding DF
+  
+  PLTSPT ==> PlotSupport  -- required
+  
+  GRAPH ==> Record(glefile:STR, pre:STR, xsize:STR, ysize:STR, xtitle:STR,_
+                   ytitle:STR, title:STR, data:STR, cmds:LSTR)
+
+  ZFILE ==> Record(data:LLDF,nx:INT,ny:INT,xmin:DF,xmax:DF,_
+                   ymin:DF,ymax:DF)
+
+  SURFACE ==> Record(glefile:STR, pre:STR, xsize:STR, ysize:STR, xtitle:STR,_
+                   ytitle:STR, ztitle:STR, title:STR, data:STR, cmds:LSTR)
+  
+  
+  Exports == with
+
+    format : (STR,STR) -> STR
+      ++ format("CL format string","string to format") returns a
+      ++ formatted string (like FORMAT('NIL,fmt,r)$Lisp)
+    format : (STR,List STR) -> STR
+      ++ format("CL format string",["strings to format"])
+    graph  : () -> GRAPH 
+      ++ graph() will create a new instance of a GRAPH object. This
+      ++ object may be filled with gle commands and parameterized.
+      ++ Note that nothing will be performed before 'create'.
+    create : GRAPH -> FileName
+      ++ create(g) will actually create the graph object, i.e writing
+      ++ the source file *.gle.
+    display : FileName -> Void
+      ++ display(file.gle) opens the interactive QGLE window and displays
+      ++ the graph.
+    display : GRAPH -> Void
+      ++ display(g) opens the interactive QGLE windows and displays the
+      ++ graph g. QGLE allows interactive changes to data as well as the
+      ++ GLE source file. For this, you have to set a default editor.
+    plot : Plot -> GRAPH
+      ++ plot(p) creates graph from a Plot object.
+    plot : (DF -> DF, Segment DF) -> GRAPH
+      ++ plot(x+->f(x),x1..x2)$GLE creates a graph for the function
+      ++ f(x).
+    plot : LLDF -> GRAPH
+      ++ plot([[x1,y11,y12,...],[x2,y21,y22,...]]) creates data
+      ++ representing graphs with (n-1) branches (datasets), where
+      ++ n is the common length of the sublists.
+    push : (GRAPH,STR) -> GRAPH
+      ++ push(g,cmd) adds a GLE command (string) to the end of g.cmds.
+    push : (SURFACE,STR) -> SURFACE
+      ++ push(s,cmd) adds a GLE command (string) to the end of s.cmds.
+    surface : () -> SURFACE
+      ++ surface() will create a new instance of a SURFACE object. This
+      ++ object may be filled with gle commands and parameterized.
+      ++ Note that nothing will be performed before 'create'.
+    create : SURFACE -> FileName
+      ++ create(s) will actually create the surface object, i.e writing
+      ++ the source file *.gle.
+    display : SURFACE -> Void
+      ++ display(s) opens the interactive QGLE windows and displays the
+      ++ surface s. QGLE allows interactive changes to data as well as the
+      ++ GLE source file. For this, you have to set a default editor.
+    letz : (FileName, XDF, SBDF, SBDF, DF, DF) -> STR
+      ++ GLE letz
+    splot : ((DF,DF)->DF,SDF,SDF,DF,DF) -> ZFILE
+      ++ splot creates a ZFILE object
+    writeZfile : (FileName,ZFILE) -> Void
+      ++ writeZfile writes the ZFILE object to a file *.z
+    plot :((DF,DF)->DF,SDF,SDF,DF,DF) -> SURFACE
+      ++ plot((x,y)+->f(x,y),xr,yr,stx,sty)$GLE creates a surface for the 
+      ++ function z=f(x,y), where xr,yr are x-range, y-range and stx,sty
+      ++ denote the stepzize for each direction.
+  
+	
+  Implementation ==  add 
+
+    format(s:STR,t:STR):STR == string FORMAT('NIL,s,t)$Lisp
+      -- format("<title>~a</title>","'Hello'")
+      
+    format(s:STR,l:List STR) == string FORMAT('NIL,s,l)$Lisp
+      -- FORMAT('NIL,"~{~a ~a ~a ~}",["x","y","z"])$Lisp
+      -- format("~{~a ~a ~a ~}",["One", "two", "three"])
+      -- format("~{~A~^, ~}",["a","b","c","d","e"]) (ITERATION)
+      --  format("~{~A~^~% ~}",["a","b","c","d","e"]) (newlines)
+      -- https://stackoverflow.com/questions/8830888/
+      --   whats-the-canonical-way-to-join-strings-in-a-list
+
+    
+    getUTC():Integer == 
+      utc:SExpression:=GET_-UNIVERSAL_-TIME()$Lisp
+      integer utc
+
+    graph():GRAPH ==
+      -- seed:String:=string random(1234567890)
+      -- better? CL universal time
+      seed:String:=convert(getUTC())@String
+      glefn:="GLE" seed ".gle"
+      datfn:="GLE" seed ".dat"
+      --nl:String:=(char 10)$Character::String
+      cmds:LSTR:= ["dn line color black", "d1 line color red"]
+      pre:STR:="! pre"
+      construct(glefn,pre,"12","8","x","y","Title",datfn,cmds)$GRAPH
+      
+
+    surface():SURFACE ==
+      seed:String:=convert(getUTC())@String
+      glefn:="GLE" seed ".gle"
+      datfn:="GLE" seed ".z"
+      cmds:LSTR:= ["top color orange", "underneath color blue"]
+      pre:STR:="size 12 9"
+      construct(glefn,pre,"12","8","x","y","z","Title",datfn,cmds)$SURFACE
+
+
+    graph1:="~{~a_
+      ~%size ~a ~a_
+      ~%begin graph_
+      ~%  xtitle _"~a_"_
+      ~%  ytitle _"~a_"_
+      ~%  title _"~a_"_
+      ~%  data _"~a_"_
+      ~%  ~a_
+      ~%end graph~}"
+
+
+    letz1:="~{_
+      ~%begin letz_
+      ~%  data _"~a_" _
+      ~%  z = ~a _
+      ~%  x from ~a to ~a step ~a _
+      ~%  y from ~a to ~a step ~a _
+      ~%end letz~}"  
+      
+
+    surface1:="~{~a_
+      ~%begin surface_
+      ~%  size ~a ~a_
+      ~%  xtitle _"~a_"_
+      ~%  ytitle _"~a_"_
+      ~%  ztitle _"~a_"_
+      ~%  title _"~a_"_
+      ~%  data _"~a_"_
+      ~%  ~a_
+      ~%end surface~}"
+
+    create(g:GRAPH):FileName ==
+      fn:FileName:=g.glefile::FileName
+      tf:TextFile:=open(fn,"output")
+      put(s) ==> writeLine!(tf,s)
+      code:String:= format("~{~A~^~%  ~}",g.cmds)
+      init:LSTR:=[g.pre,g.xsize,g.ysize,g.xtitle,g.ytitle,g.title,g.data,code]
+      s:=format(graph1,init)
+      put(s)
+      close!(tf)
+      return fn
+      
+    create(s:SURFACE):FileName ==
+      fn:FileName:=s.glefile::FileName
+      tf:TextFile:=open(fn,"output")
+      put(t) ==> writeLine!(tf,t)
+      code:String:= format("~{~A~^~%  ~}",s.cmds)
+      init:LSTR:=[s.pre,s.xsize,s.ysize,s.xtitle,s.ytitle,s.ztitle,s.title,_
+        s.data,code]
+      t:=format(surface1,init)
+      put(t)
+      close!(tf)
+      return fn
+    
+    display(f:FileName):Void ==
+      cmd:=format("system qgle -f ~a",f::STR)
+      systemCommand(cmd)$MSC
+
+
+    display(g:GRAPH):Void ==
+      display(create g)
+
+    display(s:SURFACE):Void ==
+      display(create s)
+
+    plot(p:Plot):GRAPH ==
+      g:GRAPH:=graph()
+      fn:FileName:=g.data::FileName
+      if numOfBranches(p)$PLTSPT <= 1 then
+        d:LSTR:=first convert(p," ")$PLTSPT
+      else
+        c:List Point DF:=combineBranches(p)$PLTSPT
+        d:LSTR:=convertBranch(c," ")$PLTSPT
+      createDataFile(fn,d)$PLTSPT
+      return g      
+
+    plot(f:DF->DF,s:Segment DF):GRAPH ==
+      g:GRAPH:=graph()
+      fn:FileName:=g.data::FileName
+      p:Plot:=plot(f,s)$Plot
+      d:LSTR:=first convert(p," ")$PLTSPT
+      createDataFile(fn,d)$PLTSPT
+      return g
+      
+    plot(l:LLDF):GRAPH ==
+      g:GRAPH:=graph()
+      fn:FileName:=g.data::FileName
+      lp:=[point(x)$Point(DF) for x in l]
+      d:LSTR:=convertBranch(lp," ")$PLTSPT
+      createDataFile(fn,d)$PLTSPT
+      return g 
+      
+    push(g:GRAPH,s:STR):GRAPH ==
+      l:LSTR:=concat(g.cmds,s)   
+      g.cmds:=l
+      g
+   
+    push(s:SURFACE,c:STR):SURFACE ==
+      l:LSTR:=concat(s.cmds,c)   
+      s.cmds:=l
+      s
+
+    letz(fn:FileName,e:XDF,xx:SBDF,yy:SBDF,xstep:DF,ystep:DF):STR ==
+      ie:=convert(e)@InputForm
+      z:STR:=unparse(ie)
+      xs:Symbol:=variable xx
+      ys:Symbol:=variable yy
+      sx:Segment DF:=segment xx
+      sy:Segment DF:=segment yy
+      xa:DF:=low(sx)
+      xb:DF:=high(sx)
+      ya:DF:=low(sy)
+      yb:DF:=high(sy)  
+      --
+      params:LSTR:=[fn::STR,z,"x1","x2","xs","y1","y2","ys"]
+      s:=format(letz1,params)
+      
+      
+    splot(f:(DF,DF)->DF,sx:SDF,sy:SDF,xstep:DF,ystep:DF):ZFILE ==
+      xa:DF:=low(sx)
+      xb:DF:=high(sx)
+      ya:DF:=low(sy)
+      yb:DF:=high(sy)  
+      --
+      nxf:DF:=floor((xb-xa)/xstep)
+      nyf:DF:=floor((yb-ya)/ystep)
+      nx:INT:=integer(nxf)$ IntegerRetractions(DF)
+      ny:INT:=integer(nyf)$ IntegerRetractions(DF)
+      SI==>SingleInteger
+      gr:LLDF:=[[f(float(u,0)$DF*xstep, float(v,0)$DF*ystep) _
+          for u in 1..coerce(nx)$SI] for v in 1..coerce(ny)$SI]
+      [gr,nx,ny,xa,xb,ya,yb]$ZFILE
+      
+
+    writeZfile(fn:FileName, zdf:ZFILE):Void ==
+      zf:TextFile:=open(fn,"output")
+      hdfmt:String:="~{! nx ~a  ny ~a  xmin ~a  xmax ~a  ymin ~a  ymax ~a ~}"
+      hd:STR:=format(hdfmt,[string(zdf.nx),string(zdf.ny), _
+        toString(zdf.xmin),toString(zdf.xmax),toString(zdf.ymin), _
+        toString(zdf.ymax)])
+      fmt:STR:=concat ["~{~A~^", " ", "~}"]
+      data:LSTR:=[format(fmt,[toString(x)$DF for x in y]) for y in zdf.data]
+      w0:STR:=writeLine!(zf,hd)
+      wl:LSTR:=[writeLine!(zf,s) for s in data]
+      close!(zf)
+      void()   
+    
+    plot(f:(DF,DF)->DF,sx:SDF,sy:SDF,xstep:DF,ystep:DF):SURFACE ==
+      z:ZFILE:=splot(f,sx,sy,xstep,ystep)
+      s:SURFACE:=surface()
+      fn:FileName:=(s.data)::FileName
+      writeZfile(fn, z)
+      s
+      
+
+
+  

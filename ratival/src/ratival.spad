@@ -1,0 +1,187 @@
+)abbrev domain RATIVAL RationalInterval
+++ Verified Real Number Calculations: A Library for Interval Arithmetic
+++ Marc Daumas, David Lester, César Muñoz
+++ Cite as: arXiv:0708.3721 [cs.MS]
+++ https://arxiv.org/pdf/0708.3721.pdf
+++ --
+++ Marc Daumas, Guillaume Melquiond, Cesar Munoz. 
+++ Guaranteed Proofs Using Interval Arithmetic. 17th IEEE Symposium on 
+++ Computer Arithmetic, 2005, Cape Cod, Massachusetts, United States. 
+++ IEEE, pp.188-195, <10.1109/ARITH.2005.25>. <hal-00164621>
+++ HAL Id: hal-00164621 https://hal.archives-ouvertes.fr/hal-00164621
+++ --
+++ NASA PVS Library of Formal Developments 
+++ https://github.com/nasa/pvslib & http://shemesh.larc.nasa.gov/fm/ftp/
+++ https://github.com/nasa/pvslib/blob/master/interval_arith/interval.pvs
+++ 
+RationalInterval: Exports == Implementation where
+
+    Q ==> Fraction(Integer)
+    I ==> Integer
+    F ==> Float
+    
+    OF ==> OutputForm
+    DF ==> DoubleFloat
+    
+    Exports == Join(SetCategory) with
+           
+        "+" : (%,%) -> %
+        "-" : (%,%) -> %
+        "*" : (%,%) -> %
+        "/" : (%,%) -> %
+        "^" : (%,I) -> %
+        "-" :  % -> %
+        "=" :  (%,%) -> Boolean
+        "#" : % -> Q
+        
+        "<=": (%,%) -> Boolean
+        ">=": (%,%) -> Boolean
+        "<" : (%,%) -> Boolean
+        ">" : (%,%) -> Boolean
+        
+        
+        "<<": (%,%) -> Boolean
+        abs :  % -> %
+        
+        one  : () -> %
+        One  : () -> %
+        one? : % -> Boolean
+        
+        zero  : () -> %
+        Zero  : () -> %
+        zero? : % -> Boolean
+        
+        member? : (Q,%) -> Boolean
+        
+        halfLeft : % -> %
+        halfRight : % -> %
+        
+        union : (%,%) -> %
+        intersection : (%,%) -> %
+        min : (%,%) -> %
+        max : (%,%) -> %
+        
+        
+        elt : (Q, %) -> %
+        
+        coerce: % -> OutputForm
+        coerce: List Q -> %
+        coerce: Float -> %
+        coerce: DoubleFloat -> %
+        coerce: I -> %
+        coerce: Q -> %
+        
+        convert: % -> Interval(Float)
+        coerce : Interval(Float) -> %
+        
+        concise : % -> OutputForm
+            
+        mki : (Q,Q) -> %
+        lb  :  % -> Q
+        ub  :  % -> Q
+        
+        slice : (%,Q) -> Q
+        midpoint : % -> Q
+        uncertainty : % -> Q
+       
+        
+        floatRep:  % -> OF
+        concise: % -> OF
+        
+    Implementation == Q add 
+    
+        Rep := Record(lb:Q, ub:Q)
+        
+        mki(a:Q,b:Q):% == [a,b]@Rep
+        
+        lb x == x.lb
+        ub x == x.ub
+        
+        MIN(a:Q,b:Q,c:Q,d:Q):Q == min(min(a,b),min(c,d))
+        MAX(a:Q,b:Q,c:Q,d:Q):Q == max(max(a,b),max(c,d))
+        
+        x+y == [x.lb+y.lb,x.ub+y.ub]$Rep
+        x-y == [x.lb-y.ub,x.ub-y.lb]$Rep
+        x*y == [MIN(x.lb*y.lb,x.lb*y.ub, x.ub*y.lb,x.ub*y.ub), _
+                MAX(x.lb*y.lb,x.lb*y.ub,x.ub*y.lb,x.ub*y.ub)]
+        x/y == y.lb*y.ub > 0$Q => x*[1/y.ub,1/y.lb]
+        - x == [-x.ub,-x.lb]
+        
+        abs(x) == 
+          x.lb*x.ub >= 0$Q =>[min(abs(x.lb),abs(x.ub)),_
+                              max(abs(x.lb),abs(x.ub))]
+          [0$Q, max(abs(x.lb), abs(x.ub))]
+          
+        one() == [1$Q,1$Q]
+        One() == one()
+        one?(x) == x=one()
+        
+        zero() == [0$Q,0$Q]
+        Zero() == zero()
+        zero?(x) == x=zero()
+          
+        x^n ==
+          n <0 => (one() / x)^abs(n)
+          zero? n   => one()
+          one?  n   => x
+          x.lb>=0 or odd?  n => [x.lb^n,x.ub^n] 
+          x.ub<=0 and even? n => [x.ub^n,x.lb^n]
+          [0,max(x.lb^n,x.ub^n)]
+        
+        x=y == x.lb=y.lb and y.ub=y.ub
+        
+        # x == x.ub-x.lb 
+        
+        -- Inclusion
+        x << y == y.lb <= x.lb and x.ub <= y.ub
+        
+        x <= y == x.ub <= y.lb
+        x >= y == x.lb >= y.ub
+        x < y  == x.ub < y.lb
+        x > y  == x.lb > y.ub
+
+        member?(q:Q,x:%):Boolean == q >= x.lb and q <= x.ub 
+        
+        slice(x,p) == ((p-1)*x.lb + x.ub)/p
+        midpoint(x) == slice(x,2::Q)
+        uncertainty(x) == x.ub - midpoint(x)
+        
+        halfLeft x == [x.lb,midpoint x]
+        halfRight x == [midpoint x, x.ub] 
+        
+        union(x,y) == [min(x.lb,y.lb),max(x.ub,y.ub)]
+        intersection(x,y) == [max(x.lb,y.lb),min(x.ub,y.ub)]
+        min(x:%,y:%):% == [min(x.lb,y.lb),min(x.ub,y.ub)]
+        max(x:%,y:%):% == [max(x.lb,y.lb),max(x.ub,y.ub)]
+
+        coerce(q:Q):% == [q,q] 
+        coerce(n:I):% == [n::Q,n::Q]
+        
+        coerce(r:DF):% ==
+          rc:Q:=retract r
+          [rc,rc]
+          
+        coerce(r:Float):% ==
+          rc:Q:=retract r
+          [rc,rc]    
+          
+        convert(x:%):Interval(Float) ==
+          interval(x.lb::Float,x.ub::Float)
+        
+        coerce(f:Interval Float):% ==
+          [retract(inf f), retract(sup f)]
+          
+      
+        coerce(x:List Q):% == 
+          #x=2 and (x.1<=x.2) => [x.1,x.2]$Rep
+          error "[a,b] with a<=b required."
+        
+        coerce(x:%):OF == bracket [(x.lb)::OF,(x.ub)::OF]
+        
+        floatRep(x:%):OF ==
+          pm:Character:=char(177)
+          sep:=concat [" ",pm::String," "]::Symbol
+          hconcat [midpoint(x)::DF::OF, sep::OF, (#x/2::Q)::DF::OF]
+          
+        concise(x:%):OF == floatRep(x)  -- to do
+        

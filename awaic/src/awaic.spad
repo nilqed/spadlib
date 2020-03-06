@@ -1,0 +1,147 @@
+)abbrev package AWAIC AtomicWeights  
+++ Author: Kurt Pagani
+++ Date Created: Fri Jun 01 01:30:45 CEST 2018
+++ License: BSD
+++ References: 
+++   https://www.nist.gov/pml/
+++     atomic-weights-and-isotopic-compositions-relative-atomic-masses
+++   https://physics.nist.gov/cgi-bin/Compositions/
+++     stand_alone.pl?ele=&all=all&ascii=ascii2&isotype=all
+++   https://www.nist.gov/pml/
+++     atomic-weights-and-isotopic-compositions-version-history
+++   Cite as:
+++   Coursey, J.S., Schwab, D.J., Tsai, J.J., and Dragoset, R.A. (2015), 
+++   Atomic Weights and Isotopic Compositions (version 4.1). [Online] 
+++   Available: http://physics.nist.gov/Comp [year, month, day]. 
+++   National Institute of Standards and Technology, Gaithersburg, MD.
+++ Description:
+++
+++   Raw data (@end)
+++   Sample:
+++      Atomic Number = 1
+++      Atomic Symbol = H
+++      Mass Number = 1
+++      Relative Atomic Mass = 1.00782503223(9)
+++      Isotopic Composition = 0.999885(70)
+++      Standard Atomic Weight = [1.00784,1.00811]
+++      Notes = m
+++
+++   ==> ["H1",["1","H","1","1.00782503223(9)","0.999885(70)",
+++                             "[1.00784,1.00811]","m"]]$RKE,_
+++
+AtomicWeights: Exports == Implementation where
+
+    OF  ==> OutputForm
+    LLOF ==> List List OF
+
+    RKE ==> Record(key: String,entry: List(String))
+    STS ==> StringTable(List String)
+    MSC ==> MoreSystemCommands
+    TXT ==> TextFile
+    
+
+    Exports == with
+    
+      str2float : String -> Float
+      str2floatUncertainty : String -> Float
+    
+      readDataAsInput  : String -> Void
+      readRawDataFile  : String -> STS
+      readDefault      : () -> STS
+      
+      elements  : STS -> List String
+      
+      atomicNumber  : (String,STS) -> Integer
+      massNumber    : (String,STS) -> Integer
+      atomicSymbol  : (String,STS) -> Symbol
+      isotopeSymbol : (String,STS) -> Symbol
+      atomicMass    : (String,STS) -> Float
+      atomicMassUnc : (String,STS) -> Float
+      
+    Implementation == add
+    
+      readDataAsInput(fn:String):Void ==
+        systemCommand("read "  fn ")quiet")$MSC
+      
+      --rd:Void:=readData("awaic.input")
+      
+      txtfile2buf(fn:String):List String ==
+        f:TXT:=open(fn::FileName,"input")
+        buf:List(String):=[]
+        while true repeat
+          l:=readLineIfCan!(f)
+          l case "failed" => break
+          --buf:=concat(buf,l)
+          buf:=concat!(buf,l)
+        close! f
+        return buf  
+      
+      readBlock(block:List String):List List String ==
+        b:=[split(s,char "=") for s in block]
+        -- check entries, :todo:
+  
+      block2record(b:List List String):RKE ==
+        v:=[trim(trim(x.2,char 13),char 32) for x in b]  
+        k:=v.2 v.3
+        s:=[v.i for i in 1..7]
+        [k,s]$RKE
+
+
+      readRawDataFile(fn:String):STS ==
+        buf:List String:=txtfile2buf(fn)
+        N:=#buf
+        range:=[8*j+1 for j in 0..(N-1) quo 8]
+        blocks:=[readBlock buf.(i..i+6) for i in range]
+        DATA:STS:=table([block2record b for b in blocks])$STS
+      
+      readDefault():STS == readRawDataFile("awaic.txt") 
+
+      elements(t) == keys(t)
+      
+      atomicNumber(k:String,t:STS):Integer ==
+        integer parse(t.k.1)$InputForm
+        
+      massNumber(k:String,t:STS):Integer ==
+        integer parse(t.k.3)$InputForm
+        
+      atomicSymbol(k:String,t:STS):Symbol ==
+        coerce(t.k.2)$Symbol
+        
+      isotopeSymbol(k:String,t:STS):Symbol ==
+        a:=atomicSymbol(k,t)
+        z:=atomicNumber(k,t)
+        m:=massNumber(k,t)
+        r:LLOF:=[[],[],[m::OF],[z::OF],[]]
+        script(a,r)$Symbol
+        -- isotopeSymbol("U232",AWAIC_TABLE())
+
+      -- helper function (impl later to STRSPT)
+      -- str2float "1222222.3333333333333333"
+      -- str2float "3.141592(8)"
+      str2float(s:String):Float ==
+        sf:String:=split(s,char "(").1
+        sfp:InputForm:=parse(sf)$InputForm
+        a:List InputForm:=rest(destruct sfp)
+        b:List Integer:=[integer(x)$InputForm for x in a]
+        f:Float:=float(b.1,b.2,(b.3)::PositiveInteger)$Float
+
+      -- helper function (impl later to STRSPT)
+      -- str2floatUncertainty "3.141592(8)" -> 0.000008
+      str2floatUncertainty(s:String):Float ==
+        sf:List String:=split(s,char "(")
+        empty?(sf) or #sf=1 => 0$Float
+        fracPart:String:=split(sf.1,char ".").2
+        uncPart:String:= split(sf.2,char ")").1
+        pad0:String:=concat ["0" for i in 1..(#fracPart - #uncPart)]
+        sfp:InputForm:=parse("0." pad0 uncPart)$InputForm
+        a:List InputForm:=rest(destruct sfp)
+        b:List Integer:=[integer(x)$InputForm for x in a]
+        f:Float:=float(b.1,b.2,(b.3)::PositiveInteger)$Float
+
+
+      atomicMass(k:String,t:STS):Float ==
+        str2float(t.k.4)   
+        
+      atomicMassUnc(k:String,t:STS):Float ==
+        str2floatUncertainty(t.k.4)
+

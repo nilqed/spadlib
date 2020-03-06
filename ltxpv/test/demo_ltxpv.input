@@ -1,0 +1,16 @@
+)co ../pipe
+)co ../ltxpv
+
+pp:=yap()
+
+push(pp,"\section{Start}")
+push(pp,"\begin{equation}\frac{x^n+sin x}{1-x^2}\end{equation}")
+newline(pp)
+framed(pp, "$$ \Omega_i^v$$") 
+verbatim(pp,"This is verbatim text.")
+edit(pp)
+
+-- ok, works :)
+
+
+

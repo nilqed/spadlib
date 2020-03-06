@@ -1,0 +1,84 @@
+)co ../ratival
+
+Q ==> Fraction Integer
+QI ==> RationalInterval
+
+-- Creating an interval
+A:=[1/2,3/4]::QI
+B:=[1/4,5/8]::QI
+C:=[-1/2,1]::QI
+D:=6::QI
+E:=6$QI
+F:=123.4567::QI
+G:=convert interval(6.789)$Interval(Float)
+H:=numeric(%pi)::QI
+J:=[5/8,3/4]
+
+-- Operations
+R1:=A+B
+R2:=A-B
+R3:=A*B
+R4:=A/B
+R5:=A^3
+R6:=abs(C)
+R7:=-C
+R8:=4*A
+R9:=1.23 * B
+
+-- Equality 
+test(D=E)
+test(A=B)
+
+-- Inclusion
+J << A
+J << B
+0$QI << C
+(5/8)$QI << A
+
+-- Membership
+member?(1/10,A)
+member?(1/10,C)
+
+-- Union/Intersection
+BJ:=union(B,J)
+intersection(A,BJ)
+intersection(A,B)
+
+-- Size, length
+#A
+#B
+#C
+#J
+
+-- Misc
+max(A,J)
+min(B,J)
+
+
+-- Midpoint, uncertainty, half intervals
+midpoint A
+uncertainty A
+midpoint C
+uncertainty C
+midpoint(A*C)
+uncertainty(A*C)
+
+halfLeft A
+halfRight B
+halfLeft C
+
+midpoint(A*C) - midpoint(A)*midpoint(C)
+
+-- Representation
+floatRep A
+floatRep B
+floatRep H
+concise G
+
+
+
+
+
+
+
+

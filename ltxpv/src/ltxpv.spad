@@ -1,0 +1,106 @@
+)abbrev package LTXPV LatexPreview
+++ Author: Kurt Pagani
+++ Date Created: Sun Feb 23 02:36:00 CET 2020
+++ License: BSD
+++ References:
+++ Description:
+++ yap/xdvi guide
+++    https://en.wikipedia.org/wiki/Yet_Another_Previewer
+++    http://tex.imm.uran.ru/texserver/graph/yap.html#SEC25
+++    https://linux.die.net/man/1/xdvi
+++
+++ Requirements: pipe.spad
+++
+LatexPreview() : Exports == Implementation where
+
+  MSC ==> MoreSystemCommands
+  
+  YAP ==> Record(yapbn:String, yapdata:List String)
+
+  Exports ==  with
+    
+    yap: YAP
+    dviupd: YAP -> Void
+    push: (YAP,String) -> Void
+    verbatim: (YAP,String) -> Void 
+    equation: (YAP,String) -> Void
+    framed: (YAP,String) -> Void
+    newline: YAP -> Void
+    edit: YAP -> Void
+	
+  Implementation ==  add 
+  
+    getUTC():Integer == 
+      utc:SExpression:=GET_-UNIVERSAL_-TIME()$Lisp
+      integer utc
+
+    yap():YAP ==
+      seed:String:=convert(getUTC())@String
+      incfn:="yap" seed
+      fninc:=incfn ".inc"
+      fntex:=incfn ".tex"
+      fndvi:=incfn ".dvi"
+      incpt:=open(coerce(fntex)$FileName,"output")$TextFile
+      writeLine!(incpt,"\documentclass{article}")
+      writeLine!(incpt,"\usepackage{framed}")
+      writeLine!(incpt,"\usepackage{amsmath}")
+      writeLine!(incpt,"\usepackage{amssymb}")
+      writeLine!(incpt,"\def\({\left(}") 
+      writeLine!(incpt,"\def\){\right)}")
+      writeLine!(incpt,"\def\atan{\operatorname{atan}}")
+      writeLine!(incpt,"\begin{document}")
+      writeLine!(incpt,"\input{"  fninc  "}") 
+      writeLine!(incpt,"\end{document}")
+      close!(incpt)
+      return [incfn,[]]$YAP
+      
+
+    dviupd(yap:YAP):Void ==
+      fntex:=yap.yapbn ".tex"
+      fndvi:=yap.yapbn ".dvi"
+      --stream:=run("latex",["-interaction=nonstopmode",fntex])$SpadPipe
+      --readNoHang(stream)
+      --close(stream)
+      systemCommand("system latex -interaction=nonstopmode " fntex)$MSC
+      stream:=run("yap",["-1",fndvi])$SpadPipe
+      --stream:=run("xdvi",["-unique","-nofork",fndvi])$SpadPipe 
+      readNoHang(stream)
+      close(stream)
+      void()
+      --systemCommand("system latex -interaction=nonstopmode " fntex)$MSC
+      --systemCommand("system yap -1 " fndvi)$MSC
+	  
+    push(yap,texstr) ==
+      yap.yapdata:=append(yap.yapdata,[texstr])
+      fninc:=yap.yapbn ".inc"
+      fp:=open(coerce(fninc)$FileName,"output")$TextFile
+      for s in yap.yapdata repeat writeLine!(fp,s)
+      close!(fp)
+      dviupd yap
+
+    verbatim(yap,texstr) ==
+      t:="\begin{verbatim}" texstr "\end{verbatim}"
+      push(yap,t)
+      
+    equation(yap,texstr) ==
+      t:="\begin{equation}" texstr "\end{equation}"
+      push(yap,t)
+
+    framed(yap,texstr) ==
+      t:="\begin{framed}" texstr "\end{framed}"
+      push(yap,t)
+
+    newline(yap) == push(yap,"\newline")
+    
+    edit(yap) == systemCommand("edit " yap.yapbn ".inc")$MSC
+
+-- pp:=yap()
+-- push(pp,"\begin{equation}\frac{x^n+sin x}{1-x^2}\end{equation}")
+-- verbatim(pp,"Das ist verbatim ...")
+-- newline(pp)
+-- framed(pp, "$$ \Omega_i^v$$") 
+-- edit(pp)
+
+-- stream:=run("xdvi",["-unique","-nofork",fndvi])$SpadPipe      
+
+

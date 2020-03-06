@@ -1,0 +1,21 @@
+)co ../awaic
+
+-- AW:=readDefault();  only working if awaic.txt in the same directory !!
+
+AW:=readRawDataFile("../awaic.txt");  -- be patient , some seconds
+
+#AW  -- 3352
+
+AW."He4"
+AW."U232"
+
+atomicSymbol("U232",AW)
+
+isotopeSymbol("U232",AW)
+
+atomicMass("U232",AW)
+
+atomicMassUnc("U232",AW)
+
+reverse elements AW         
+        

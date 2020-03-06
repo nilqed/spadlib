@@ -1,0 +1,70 @@
+)co ../pform
+
+PINT ==> Polynomial Integer
+PFX  ==> PformComplex
+
+-- Defining a Pform
+-- Arguments: degree=PI, symbol/string, latex string, closed?=Boolean
+x:=pform(0,"x","x",false)::PFX
+u:=pform(r,"u","\nu",false)::PFX
+y:=pform(q,"y","\omega",false)::PFX
+m:=pform(p,"m","\mu",false)::PFX
+
+
+-- Exterior differential operator d (extdf)
+dx:=d x
+
+-- Get degree
+deg x
+deg dx
+
+
+-- Wedge product
+f1:=dx*x*dx*(d dx)*u
+deg f1
+
+--
+E:=pform(2,'E,"E",false)
+deg (dE:=d E)
+length dE
+
+-- Check if closed
+closed? x
+closed? dx
+
+-- Scripted symbols
+XX:=subscript('X,[i,j])
+PX:=pform(p,XX,"X",false)
+dPX:=d PX
+
+-- Check if exact
+exact? dPX
+
+-- Get internals 
+factors f1
+varList f1
+
+-- Misc
+u*x
+x*x
+u*x*x*u
+
+-- Module
+F:=FreeModule(EXPR INT,PFEXPR)
+a:=f1::F
+b:=b:=(m*u*x)::F
+
+a+b
+
+
+-- Equations
+dx=u*m
+
+coefficients(u)
+coefficient(u,retract u)
+x*m+u
+monomial?(u)
+monomial?(u+x)
+monomial?(u*x)
+
+

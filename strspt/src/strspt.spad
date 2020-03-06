@@ -1,0 +1,229 @@
+)abbrev package STRSPT StringSupport
+++ Author: Kurt Pagani
+++ Date Created: Sat Jan 25 20:11:03 CET 2020
+++ License: BSD
+++ References: 
+++   http://clhs.lisp.se/Body/22_c.htm
+++   https://en.wikipedia.org/wiki/String_operations
+++ Description:
+++
+StringSupport() : Exports == Implementation where
+  
+  --optional type declarations, e.g.
+  STR  ==> String
+  INT  ==> Integer
+  LSTR ==> List String
+  CHAR ==> Character
+  
+  
+  Exports ==  with
+    
+    format : (STR,STR) -> STR
+      ++ format(fmt,str) returns a formatted string according to the
+      ++ format instructions in 'fmt'.
+    format : (STR,LSTR) -> STR
+      ++ format(fmt,[s1,s2,..]) returns a formatted string according to the
+      ++ format instructions in 'fmt'.   
+    fmtStrIter : STR -> STR
+      ++ fmtStrIter(sep) provides a format string that can be used
+      ++ in 'format' to iterate over a list of strings.
+    join : (STR,LSTR) -> STR
+      ++ join(sep,[s1,s2,s3,...]) joins the strings s1,s2,... by the
+      ++ separator string 'sep'.     
+    atomize : STR -> LSTR
+      ++ atomize(str) segments the string 'str' into a list of character
+      ++ string (not the same as Character!). Applying 'concat' to the 
+      ++ resulting list will restore the string.
+    ascii : STR -> List Integer
+      ++ ascii(str) returns the ASCII code (ord) of each character as
+      ++ a list of positive integers.
+    radixEnglish : Integer -> STR
+      ++ radix(n) gives a sring represenation of an integer as an English
+      ++ numeral.
+    radixRoman : Integer -> STR
+      ++ radix(n) gives a sring represenation of an integer as a Roman
+      ++ numeral.    
+    radixOldRoman : Integer -> STR
+      ++ radix(n) gives a sring represenation of an integer as an old Roman
+      ++ numeral.
+    format : (STR,INT) -> STR
+      ++ format(fmt,n) formats an integer number according to fmt:
+      ++ Radix ~R, Decimal ~D, Binary ~B, Octal ~O, ~Hex ~X. Modifiers:
+      ++ "@":sign, ":":commas, prefix: mincols, padchar ...: e.g. ~12@:D
+      ++ yields "+44,452,666,888,888".
+    newline : STR
+      ++ newline() -> "~%"
+    freshline : STR
+      ++ freshline() -> "~&"
+    newpage : STR
+      ++ newpage() -> "~|"
+    tilde : STR
+      ++ tilde() -> "~~"
+    natoAlphabet: CHAR -> STR
+      ++ https://en.wikipedia.org/wiki/NATO_phonetic_alphabet
+      ++ Try natoAlphabet (char "a")
+    morseAlphabet: CHAR -> STR
+      ++ https://en.wikipedia.org/wiki/Morse_code
+      ++ Try morseAlphabet (char "k")
+    spellNATO : STR -> STR
+      ++ spellNATO(str) spells the string 'str' as ICAO sequence.
+    spellMorse : STR -> STR
+      ++ spellMorse(str) spells the string 'str' as Morse sequence.
+    substOnce : (STR,STR,STR) -> STR
+      ++ substOnce(a,b,c) substitute once a for b in c.
+    subst : (STR,STR,STR) -> STR
+      ++ subst(a,b,c) substitute all a for b in c.
+    rest : STR -> STR
+      ++ rest(s) is all but the first character of the string.
+    last : STR -> STR
+      ++ last(s) is the last character of the string s.
+    proj : (List CHAR,STR) -> STR
+      ++ proj(A,s) is the string that results by removing all characters that 
+      ++ are not in the alphabet A. 
+    
+    
+	
+  Implementation ==  add 
+    
+    format(s:STR,t:STR):STR  == string FORMAT('NIL,s,t)$Lisp  
+    format(s:STR,l:List STR) == string FORMAT('NIL,s,l)$Lisp
+    format(s:STR,n:INT):STR  == string FORMAT('NIL,s,n)$Lisp 
+     
+      
+    fmtStrIter(sep:STR):STR == "~{~A~^"  sep "~}" 
+    
+    join(sep:STR,ls:LSTR):STR == format(fmtStrIter(sep),ls)
+    
+    atomize(s:STR):LSTR == [coerce(s.i)$STR for i in 1..#s]
+    
+    ascii(s:STR):List Integer == [ord(a) for a in members s]
+    
+    radixEnglish(n:Integer) == string FORMAT('NIL,"~R",n)$Lisp 
+    radixRoman(n:Integer) == string FORMAT('NIL,"~@R",n)$Lisp 
+    radixOldRoman(n:Integer) == string FORMAT('NIL,"~:@R",n)$Lisp 
+    
+    newline() == "~%"
+    freshline() == "~&"
+    newpage() == "~|"
+    tilde() == "~~"   
+    
+    substOnce(a:STR,b:STR,c:STR):STR ==
+      pa:=position(b,c,1)
+      pa=0 => c
+      ns:=c.(1..pa-1) a c.(pa+#b..)
+    
+    subst(a:STR,b:STR,c:STR):STR ==
+      pa:=position(b,c,1)
+      pa=0 => c
+      ns1:=c.(1..pa-1) a 
+      ns2:=c.(pa+#b..)
+      ns1 subst(a,b,ns2)
+      
+      
+    natoAlphabet(c:CHAR):STR ==
+      not alphanumeric? c => coerce(c)$STR
+      cs:STR:=coerce(upperCase c)$STR
+      cs="A" => "Alpha"
+      cs="B" => "Bravo"
+      cs="C" => "Charlie"
+      cs="D" => "Delta"
+      cs="E" => "Echo"
+      cs="F" => "Foxtrott"
+      cs="G" => "Golf"
+      cs="H" => "Hotel"
+      cs="I" => "India"
+      cs="J" => "Juliett"
+      cs="K" => "Kilo"
+      cs="L" => "Lima"
+      cs="M" => "Mike"
+      cs="N" => "November"
+      cs="O" => "Oscar"
+      cs="P" => "Papa"
+      cs="Q" => "Quebec"
+      cs="R" => "Romeo"
+      cs="S" => "Sierra"
+      cs="T" => "Tango"
+      cs="U" => "Uniform"
+      cs="V" => "Viktor"
+      cs="W" => "Whiskey"
+      cs="X" => "Xray"
+      cs="Y" => "Yankee"
+      cs="Z" => "Zulu"
+      cs="1" => "One"
+      cs="2" => "Two"
+      cs="3" => "Three"
+      cs="4" => "Four"
+      cs="5" => "Five"
+      cs="6" => "Six"
+      cs="7" => "Seven"
+      cs="8" => "Eight"
+      cs="9" => "Nine"
+      cs="0" => "Ten"
+      "huh?"
+              
+    
+    spellNATO(s:STR):STR == 
+      ls:LSTR:=[natoAlphabet x for x in members s]
+      join("-",ls)
+   
+   
+    morseAlphabet(c:CHAR):STR ==
+      not alphanumeric? c => coerce(c)$STR
+      cs:STR:=coerce(upperCase c)$STR
+      cs="A" => "*-"
+      cs="B" => "-***"
+      cs="C" => "-*-*"
+      cs="D" => "-**"
+      cs="E" => "*"
+      cs="F" => "**-*"
+      cs="G" => "--*"
+      cs="H" => "****"
+      cs="I" => "**"
+      cs="J" => "*---"
+      cs="K" => "-*-"
+      cs="L" => "*-**"
+      cs="M" => "--"
+      cs="N" => "-*"
+      cs="O" => "---"
+      cs="P" => "*--*"
+      cs="Q" => "--*-"
+      cs="R" => "*-*"
+      cs="S" => "***"
+      cs="T" => "-"
+      cs="U" => "**-"
+      cs="V" => "***-"
+      cs="W" => "*--"
+      cs="X" => "-**-"
+      cs="Y" => "-*--"
+      cs="Z" => "--**"
+      cs="1" => "*----"
+      cs="2" => "**---"
+      cs="3" => "***--"
+      cs="4" => "****-"
+      cs="5" => "*****"
+      cs="6" => "-****"
+      cs="7" => "--***"
+      cs="8" => "---**"
+      cs="9" => "----*"
+      cs="0" => "-----"
+      "huh?"
+                 
+   
+    spellMorse(s:STR):STR == 
+      ls:LSTR:=[morseAlphabet x for x in members s]
+      join(" ",ls)
+      
+    rest(s:STR):STR ==
+      s="" => s
+      s.(2..#s)
+    
+    last(s:STR):STR ==
+      s="" => s
+      s.(#s..#s)
+
+    proj(A:List CHAR,s:STR):STR ==
+      s="" => s
+      not member?(char(last s),A) => proj(A,s.(1..#s-1)) 
+      proj(A,s.(1..#s-1)) (last s)
+    -- proj([char x for x in ["x","y","z"]],"abxhyynzux" )
+      

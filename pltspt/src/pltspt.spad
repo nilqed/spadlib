@@ -1,0 +1,84 @@
+)abbrev package PLTSPT PlotSupport
+++ Author: Kurt Pagani
+++ Date Created: Wed Jan 22 22:02:57 CET 2020
+++ License: BSD
+++ References:
+++ Description:
+++
+PlotSupport() : Exports == Implementation where
+  
+  DF    ==> DoubleFloat
+  PDF   ==> Point DF
+  STR   ==> String
+  LSTR  ==> List String
+  LLSTR ==> List List String
+  
+  Exports ==  with
+    
+    convert : (PDF, String) -> String
+      ++ convert(P,sep) converts a point P to a string of 'sep' separated
+      ++ double floats. Example: P:=convert([1.0,2.0,3.0,4.5])$Point(DF),
+      ++ then convert(P," ") => "1.0 2.0 3.0 4.5". 
+    convertBranch : (List PDF, String) -> LSTR
+      ++ convertBranch(p,sep) converts a list of points to a list of 
+      ++ strings. Each string corresponds to a point. The 'sep' string
+      ++ separates each coordinate (e.g. blank, comma, semicolon etc.)
+    convert : (Plot, String) -> LLSTR
+      ++ convert(p,sep) converts a PLOT to a list of lists of strings. For
+      ++ each branch a list of strings (of 'sep' double floats) will be
+      ++ generated.
+    combineBranches : Plot -> List PDF 
+      ++ combineBranches(p) combines all branches in a Plot such that
+      ++ the first column are the common x-values and all other columns
+      ++ represent the y-values. That is all branches must have the same
+      ++ xRange and therefore the same number of points.
+    createDataFile : (FileName, LSTR) -> Void
+	  ++ createDataFile(fn,data) creates and writes the list of strings (data) 
+	  ++ to the file named 'fn'.
+    numOfBranches : Plot -> Integer
+	  ++ numOfBranches(p) returns the number of branches in the Plot p.
+	
+  Implementation ==  add
+  
+    format(s:STR,t:STR):STR == string FORMAT('NIL,s,t)$Lisp 
+    format(s:STR,l:LSTR):STR == string FORMAT('NIL,s,l)$Lisp
+    
+    
+    convert(p:PDF, sep:String):String ==
+      fmt:String:=concat ["~{~A~^", sep, "~}"]
+      format(fmt,[toString(x)$DF for x in entries p])
+      
+    
+    convertBranch(b:List PDF, sep:String):LSTR ==
+      [convert(x, sep) for x in b]
+          
+      
+    convert(p:Plot, sep:String):LLSTR ==
+      b:List List Point(DF):=listBranches p
+      [convertBranch(x,sep) for x in b]
+
+
+    combineBranches(p:Plot):List PDF ==
+      b:List List PDF:=listBranches p
+      x:List DF:=[first entries t for t in first b]
+      y:List List DF:=[[second entries t for t in u] for u in b]
+      z:List List DF:=concat(x,y)
+      M:Matrix DF:=matrix z
+      [point(u) for u in listOfLists(transpose M)]
+      
+
+    createDataFile(fn:FileName,data:LSTR):Void ==
+      df:TextFile:=open(fn,"output")
+      wl:List String:=[writeLine!(df,s) for s in data]
+      close!(df)
+      void()   
+      
+      
+    numOfBranches(p:Plot):Integer ==
+      b:List List PDF:=listBranches p
+      #b
+      
+-- DF==>DoubleFloat 
+-- p:=plot([(x:DF):DF+->sin(x),(x:DF):DF+->cos(x)],1.0::DF..2.0)$PLOT
+-- r:=combineBranches(p)
+-- s:=convertBranch(r," ")

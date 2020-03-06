@@ -1,0 +1,157 @@
+)abbrev domain IDXOBJ IndexedObject
+++ Author: Kurt Pagani <nilqed@gmail.com>
+++ Date Created: Fri Sep 21 00:08:06 CEST 2018
+++ License: BSD
+++ References:
+++ Description:
+++   Alternative to supersub of output form (commas for derivs). 
+++
+IndexedObject() : Exports == Implementation where
+   
+  OF   ==> OutputForm
+  LOF  ==> List OF
+  INT  ==> Integer
+  SYM  ==> Symbol
+  STR  ==> String
+  CTOF ==> CoercibleTo OutputForm
+  CTEX ==> ConvertibleTo TexFormat
+ 
+  Exports == Join(SetCategory, CTOF, CTEX) with
+ 
+    construct : List Integer -> %
+      ++ Constructs an index object. Example: [[1,1,-1,1]]$IDXOBJ,
+      ++ where (-1) indicates a lower index, (+1) an upperc index.
+    display : (%, Symbol, List Symbol) -> OutputForm
+      ++ Displays an indexed object when given a base symbol and a 
+      ++ list of indices.
+    latex : (%, String, List String) -> String
+      ++ Returns a LaTeX string of the object (see display).
+    coerce : List Integer -> %
+      ++ Coerces a list of consecutive intergers to an indexed object.
+      ++ Example: [1,2,-3,4]::IDXOBJ, gives the same object as in
+      ++ the example of construct.
+    getIndexes : % -> List Integer
+      ++ Return the index pattern.
+    raiseIndex : (%,Integer) -> %
+      ++ Raise index number n.
+    lowerIndex : (%,Integer) -> %
+      ++ Lower index number n.
+    
+   
+  Implementation == List Integer add  -- to define =
+ 
+    -- [n1,n2,...]; nj=+-1 ; +1:upper, -1:lower
+    Rep := List Integer
+   
+    construct(x:List Integer):% ==
+      empty? x => x
+      x1:List Integer:=[abs n for n in x]
+      x1 = [1 for m in 1..#x1] => x@%
+      error "Expecting [+- 1, +- 1, +- 1, +- 1,...]"     
+     
+    coerce(x:List Integer):% ==
+      empty? x => x
+      x1:List Integer:=[abs n for n in x]
+      --x1 = expand(1..#x1) => x@%
+      x1 = [m for m in 1..#x1] => [sign n for n in x]@%
+      error "Expecting [+- 1, +- 2, +- 3, +- 4,...]" 
+     
+    label(x:%):List Integer == [n*x.n for n in 1..#x]
+         
+    dispLower(x:%,il:List Symbol):OF ==
+      #x ~= #il => error "err ..."
+      L:(INT,SYM)->OF:= (m,s)+->if m<0 then outputForm(s)$OF else hspace(1)$OF
+      LX:OF:=hconcat [L(n,il.(abs n)) for n in label x]
+      
+    dispUpper(x:%,il:List Symbol):OF ==
+      #x ~= #il => error "err ..."
+      U:(INT,SYM)->OF:= (m,s)+->if m>0 then outputForm(s)$OF else hspace(1)$OF
+      UX:OF:=hconcat [U(n,il.(abs n)) for n in label x]     
+      
+    display(x:%,b:Symbol,il:List Symbol):OF ==
+      LX:OF:=dispLower(x,il)
+      UX:OF:=dispUpper(x,il)
+      bas:OF:=outputForm(b)$OF
+      scripts(bas, [LX,UX])$OF      
+
+    coerce(x:%):OF ==
+      S:List Symbol:=[string(n)$String::Symbol for n in 1..#x]
+      display(x,'X,S)
+
+    format(s:STR,t:STR):STR == string FORMAT('NIL,s,t)$Lisp
+    format(s:STR,l:List STR):STR == string FORMAT('NIL,s,l)$Lisp
+
+    latex(x:%,b:String,il:List String):String ==
+      fmtl:String:= "~{"
+      fmtr:String:= "~}"
+      loidx:String := "{\!}__{~a}"
+      upidx:String := "{\!}^{~a}"
+      uporlow:INT->String:= (k:INT):String+->if k<0 then loidx else upidx
+      idxpat:List String := [uporlow m for m in x]
+      fmtstr0:String:= concat idxpat
+      fmtstr1:String:= fmtl fmtstr0 fmtr
+      ltxidx:String:= format(fmtstr1,il)
+      return(b ltxidx)
+
+    latex(x:%):String == latex(x,"X\,",[string(j) for j in 1..#x])
+    
+    getIndexes(x:%):List Integer == label x
+    
+    raiseIndex(x:%,n:Integer):% == 
+      cx:=copy x
+      y:List Integer:=[cx.j for j in 1..#x]
+      setelt!(y,n,1)
+      return construct(y)
+    
+    lowerIndex(x:%,n:Integer):% == 
+      cx:=copy x
+      y:List Integer:=[cx.j for j in 1..#x]
+      setelt!(y,n,-1)
+      return construct(y)
+      
+      
+      
+)abbrev domain DIDXOBJ DerivedIndexedObject
+++ Description:
+++   Derivatives of indexed objects 
+++
+DerivedIndexedObject() : Exports == Implementation where
+   
+  OF   ==> OutputForm
+  LOF  ==> List OF
+  INT  ==> Integer
+  SYM  ==> Symbol
+  STR  ==> String
+  CTOF ==> CoercibleTo OutputForm
+  CTEX ==> ConvertibleTo TexFormat
+  IDXOBJ ==> IndexedObject
+  
+  DIOR ==> Record(dtype:INT, idx:IDXOBJ, didx:IDXOBJ)
+ 
+  Exports == Join(SetCategory, CTOF, CTEX) with  
+  
+    D : (IDXOBJ, List Integer) -> %
+    COVD: (IDXOBJ, List Integer) -> % 
+    rep : % -> DIOR
+ 
+  Implementation == add  -- to define =
+ 
+    Rep := DIOR
+    
+    D(x:IDXOBJ,l:List Integer):% == [0, x, coerce(l)$IDXOBJ]@Rep
+      
+    COVD(x:IDXOBJ,l:List Integer):% == [1, x, coerce(l)$IDXOBJ]@Rep
+    
+    rep(x:%):DIOR == x@Rep
+    
+    coerce(x:%):OF ==
+      N:=#(getIndexes x.didx)
+      N=0 => coerce(x.idx)$IDXOBJ
+      S:List Symbol:=[string(n)$String::Symbol for n in 1..N]
+      ndf:OF:=sub(""::Symbol::OF,","::Symbol::OF)
+      cdf:OF:=sub(""::Symbol::OF,";"::Symbol::OF)
+      blk:SYM:=""::Symbol
+      x.dtype=0 => hconcat [(x.idx)::OF, ndf, display(x.didx, blk, S)]
+      x.dtype=1 => hconcat [(x.idx)::OF, cdf, display(x.didx, blk, S)]
+    
+    

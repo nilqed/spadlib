@@ -1,0 +1,50 @@
+)abbrev domain TENSALG TensorAlgebra
+++ Author: Kurt Pagani
+++ Date Created: Thu Jan 30 23:04:02 CET 2020
+++ License: BSD
+++ References:
+++ Description: Option 1
+++
+TensorAlgebra(M,R,B) : Exports == Implementation where
+
+  M:FreeModuleCategory(R, B)
+  R:CommutativeRing
+  B:OrderedSet
+  
+  OF     ==> OutputForm
+  NNI    ==> NonNegativeInteger
+  FMB    ==> FreeMonoid B
+  CTOF   ==> CoercibleTo OutputForm
+  FMCRB  ==> FreeModuleCategory(R,FMB)
+  GRALR  ==> GradedAlgebra(R,NNI)
+  XFABR  ==> XFreeAlgebra(B,R)
+  XDPBR  ==> XDistributedPolynomial(B,R)
+  TERM   ==> Record(k:FMB,c:R)  
+  
+  Exports == Join(FMCRB, XFABR, GRALR) with
+    
+    coerce : B -> %
+    convert : FMB -> OutputForm
+	
+  Implementation ==  XDPBR add 
+ 
+    Rep := XDPBR
+    
+    product(x,y) == x*y  -- GradedAlgebra, pro forma
+    
+    convert(x:FMB):OutputForm ==
+      x=1$FMB => empty()$OF 
+      length(x)$FMB = 1 => x::OF
+      length(x)$FMB = 2 => tensor(first(x)::OF,rest(x)::OF)$OF
+      tensor(first(x)::OF, convert(rest x))
+      
+    coerce(x:%):OutputForm ==
+      zero? x => empty()$OF
+      x=1$% => outputForm(1)$OF
+      c:R:=leadingCoefficient(x)
+      if c=1 then cof:=empty()$OF else cof:=c::OF 
+      kof:OF:=cof * convert(leadingSupport(x))
+      zero? reductum(x) => kof
+      kof + reductum(x)::OF
+      
+   

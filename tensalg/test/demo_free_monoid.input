@@ -1,0 +1,64 @@
+-- FreeMonoid(S: SetCategory)
+-- S can be almost anything
+
+X:=FreeMonoid(Symbol)
+e:=[e[i]::X for i in 1..5]
+
+-- Some terms
+t1:= e.1*e.2
+t2:= t1^3
+
+-- Equality
+eq1:=t1=e.2*e.1
+test(eq1)
+
+eq2:=t2=t1*t1*t1
+test(eq2)
+
+-- Any symbol admissible ;)
+s::X
+s*t1 
+a*%
+first %
+
+-- Methods
+varList t1
+varList t2
+
+retractIfCan t1
+retract e.1
+
+length t1
+length t2
+size t2
+
+factors t2
+
+-- etc.
+
+-- Restrict to b_1, b_2, b_3.
+B:=OrderedVariableList [b[i] for i in 1..3]
+
+Y:=FreeMonoid(B)
+b:=[x::Y for x in enumerate()$B]
+t3:=b.1*b.2*b.3*b.1
+factors t3
+t3*b.1  -- note exps
+
+test(b.1*b.2=b.2*b.1)
+
+--  FreeModule(R: Join(SemiRng,AbelianMonoid),S: SetCategory) 
+--  combine
+
+R:=Expression Integer
+Z:=FreeModule(R,Y)
+
+bb:=[x::Z for x in b]
+
+t4:=bb.1 + t3::Z
+t5:=sin(x*y)*t4+z^k*bb.2
+
+-- Conclusion: combine FreeMonoid/FreeModule -> Algebra impl.
+-- Products e.g 'product' from GradedAlgebra then take quotients.
+
+

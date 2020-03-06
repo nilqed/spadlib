@@ -1,0 +1,55 @@
+)co ../pipe
+)co ../ltxpv
+)co ../tex
+
+f:=operator 'f
+
+eq1:=D(f(x),x) = x^n
+eq2:=D(eq1,x)
+eq3:=D(eq2,x)
+eq4:=D(eq3,x)
+
+X:=map(operator,[X[i] for i in 1..3])
+eq5:=D((X.1)(t),t) = t^a%
+eq6:=D(eq5,t)
+eq7:=D(eq6,t)
+eq8:=D(eq7,t)
+eq9:=D(eq8,t,2)
+
+pp:=yap()
+push(pp, "\section{Testing new tex.spad}")
+equation(pp, latex eq1)
+equation(pp, latex eq2)
+equation(pp, latex eq3)
+equation(pp, latex eq4)
+newline(pp)
+
+push(pp, "\subsection{Indexed operators}")
+equation(pp, latex eq5)
+equation(pp, latex eq6)
+equation(pp, latex eq7)
+equation(pp, latex eq8)
+equation(pp, latex eq9)
+newline(pp)
+
+
+push(pp, "\subsection{Greek letters and other symbols}")
+
+
+glc:=[a%,b%,g%,d%,e%,z%,ee%,th%,i%,k%,l%,m%,n%,x%,o%,p%,r%,s%, _
+t%,y%,ph%,ch%,ps%,oo%]
+
+guc:=[G%,D%,Th%,L%,X%,P%,S%,Ph%,Ch%,Ps%,OO%,hbar%]
+     
+csglc:=commaSeparate([s::OutputForm for s in glc])
+csguc:=commaSeparate([s::OutputForm for s in guc])
+
+framed(pp, latex(csglc) "\\" latex(csguc))
+newline(pp)
+
+equation(pp, latex(D% + u = hbar%^2 + OO%^g%))
+newline(pp)
+
+verbatim(pp, "*** End of story ***")
+newline(pp)
+

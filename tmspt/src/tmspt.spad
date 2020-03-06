@@ -1,0 +1,273 @@
+)abbrev package TMSPT TexmacsSupport
+++ Author: Kurt Pagani
+++ Date Created: Sun Jan 19 02:19:26 CET 2020
+++ License: BSD
+++ References:
+++   https://github.com/texmacs/texmacs/tree/master/TeXmacs/progs
+++ Description:
+++   TeXmacs support package.
+++   Control of TeXmacs Interface/GUI from FriCAS.
+++   E.g. toggling header/footer, including images,
+++   adding/removing style files and so on.
+++
+TexmacsSupport() : Exports == Implementation where
+  
+  -- DECLARE
+  
+  Exports ==  with
+    
+    
+    message  : (String,String) -> Void 
+    
+    verbatim : String -> Void
+    command  : String -> Void
+    latex    : String -> Void
+    scheme   : String -> Void
+    html     : String -> Void
+    ps       : String -> Void
+	
+    output   : String -> Void
+    prompt   : String -> Void
+    input    : String -> Void
+    
+    addStyle    : String -> Void
+    removeStyle : String -> Void
+    
+    toggleHeader : () -> Void
+    toggleFooter : () -> Void
+    
+    insertTextFieldAbove : () -> Void
+    insertTextFieldBelow : () -> Void
+    
+    addDefaultStyle    : () -> Void
+    removeDefaultStyle : () -> Void
+    
+    inlineImage : String -> Void
+    linkImage : String -> Void
+    
+    tmActive? : () -> Boolean
+
+    toggleMathInput   :  () -> Void
+    toggleMultilineInput   :  () -> Void
+    toggleMathOutput   :  () -> Void
+    toggleTreeOutput   :  () -> Void
+    toggleSchemeTreeOutput   :  () -> Void
+    showTimings   :  () -> Void
+    clearAllFields   :  () -> Void
+    foldAllFields   :  () -> Void
+    unfoldAllFields   :  () -> Void
+    evaluateFieldsInOrder   :  () -> Void
+    createSubsession   :  () -> Void
+    splitSession   :  () -> Void 
+    sessionEval   :  () -> Void
+    evaluateAll   :  () -> Void
+    evaluateAbove   :  () -> Void
+    evaluateBelow   :  () -> Void
+    previousField   :  () -> Void
+    nextField   :  () -> Void
+    firstField   :  () -> Void
+    lastField   :  () -> Void
+    insertFieldAbove   :  () -> Void
+    insertFieldBelow   :  () -> Void
+    removePreviousField   :  () -> Void
+    removeNextField   :  () -> Void
+    removeBanner   :  () -> Void
+    removeLastField   :  () -> Void
+    closeSession   :  () -> Void
+    toggleFullScreenMode : () -> Void
+    
+    -- https://github.com/texmacs/texmacs/blob/master/TeXmacs/progs/texmacs/
+    -- texmacs/tm-view.scm
+    
+    changeZoomFactor : Float -> Void
+    zoomIn : Float -> Void
+    zoomOut: Float -> Void
+    fitAllToScreen : () -> Void
+    fitToScreen : () -> Void
+    fitToScreenWidth : () -> Void
+    fitToScreenHeight : () -> Void
+    
+    mathInput : String -> String
+    
+	
+  Implementation ==  add 
+    
+    -- TeXmacs interface protocol
+    -- Message types: verbatim, latex, ps, html, scheme, command 
+    -- Channels: channel#message (input,prompt,output)
+    
+    DATA_BEGIN:String := coerce(char 2)$String
+    DATA_END:String := coerce(char 5)$String
+    
+    defaultstyle:String := "fricas-session"
+    
+    format(s:String,t:String):String == string FORMAT('NIL,s,t)$Lisp
+    format(s:String,l:List String):String == string FORMAT('NIL,s,l)$Lisp
+    
+    message(type:String, msg:String):Void == 
+      data:String := concat [DATA_BEGIN, type, msg, DATA_END] 
+      output(data)$OutputPackage
+      
+    verbatim(msg:String):Void == message("verbatim:", msg)
+    
+    command(msg:String):Void  == message("command:", msg)
+    latex(msg:String):Void    == message("latex:", msg)
+    scheme(msg:String):Void   == message("scheme:", msg)
+    html(msg:String):Void     == message("html:", msg)
+    ps(msg:String):Void       == message("ps:", msg)
+    
+    output(msg:String):Void   == message("output#", msg)
+    prompt(msg:String):Void   == message("prompt#", msg)
+    input(msg:String):Void    == message("input#", msg)
+   
+    addStyle(sty:String):Void ==
+      msg:=concat["(add-style-package ", "_"", sty, "_")"]
+      command(msg)
+      
+    removeStyle(sty:String):Void ==
+      msg:=concat["(remove-style-package ", "_"", sty, "_")"]
+      command(msg)     
+
+    toggleHeader():Void == command "(toggle-visible-header)"
+    toggleFooter():Void == command "(toggle-visible-footer)" 
+
+    insertTextFieldAbove():Void == 
+      command "(field-insert-text (focus-tree) #f))"
+      
+    insertTextFieldBelow():Void ==
+      command "(field-insert-text (focus-tree) #t))"
+      
+    addDefaultStyle():Void == addStyle defaultstyle
+    removeDefaultStyle():Void == removeStyle defaultstyle  
+    
+    inlineImage(url:String):Void ==
+      insertTextFieldAbove()
+      options:=" _"_" _"_" _"_" _"_" ))"
+      q:="_""
+      command(concat ["(make-inline-image (list ", q, url, q, options])
+   
+    linkImage(url:String):Void ==
+      options:=" _"_" _"_" _"_" _"_" ))"
+      q:="_""
+      command(concat ["(make-link-image (list ", q, url, q, options])
+   
+    tmActive?():Boolean ==
+      import  MoreSystemCommands 
+      systemCommand "lisp (defun tmactive () |$texmacsFormat|)"
+      not null?(TMACTIVE()$Lisp)$SExpression
+      
+    toggleMathInput():Void ==
+      command "(toggle-session-math-input)"
+      
+    toggleMultilineInput():Void ==
+      command "(toggle-session-multiline-input)"
+
+    toggleMathOutput():Void ==
+      command "(toggle-session-scheme-math)"
+      
+    toggleTreeOutput():Void ==
+      command "(toggle-session-scheme-trees)"  
+      
+    toggleSchemeTreeOutput():Void ==
+      command "(toggle-session-scheme-strees)"  
+      
+    showTimings():Void ==
+      command "(toggle-session-output-timings)"
+      
+    clearAllFields():Void ==
+      command "(session-clear-all)"
+      
+    foldAllFields():Void ==
+      command "(session-fold-all)"
+      
+    unfoldAllFields():Void ==
+      command "(session-unfold-all)"
+      
+    evaluateFieldsInOrder():Void ==
+      command "(toggle-session-program)"
+      
+    createSubsession():Void ==
+      command "(field-insert-fold (focus-tree))"
+      
+    splitSession():Void == 
+      command "(session-split)"
+      
+    sessionEval():Void ==
+      command "(session-evaluate)"
+      
+    evaluateAll():Void ==
+      command "(session-evaluate-all)"
+      
+    evaluateAbove():Void ==
+      command "(session-evaluate-above)"
+  
+    evaluateBelow():Void ==
+      command "(session-evaluate-below)"
+      
+    previousField():Void ==
+      command "(traverse-previous)"
+      
+    nextField():Void ==
+      command "(traverse-next)"
+      
+    firstField():Void ==
+      command "(traverse-first)"
+      
+    lastField():Void ==
+      command "(traverse-last)"
+      
+    insertFieldAbove():Void ==
+      command "(field-insert (focus-tree) #f)"
+      
+    insertFieldBelow():Void ==
+      command "(field-insert (focus-tree) #t)"
+      
+    removePreviousField():Void ==
+      command "(field-remove (focus-tree) #f)"
+      
+    removeNextField():Void ==
+      command "(field-remove (focus-tree) #t)"
+      
+    removeBanner():Void ==
+      command "(field-remove-banner (focus-tree))"
+      
+    removeLastField():Void ==
+      command "(field-remove-extreme (focus-tree) #t)"
+      
+    closeSession():Void ==
+      command "(plugin-stop)"
+      
+    toggleFullScreenMode():Void ==
+      command "(toggle-full-screen-mode)"
+      
+    changeZoomFactor(z:Float):Void ==
+      z:=max((min(z, 25.0),0.04))
+      zs:String:=convert(z)$Float
+      command( concat ["(change-zoom-factor ",zs,")"])
+      
+    zoomIn(z:Float):Void ==
+      zs:String:=convert(z)$Float
+      command( concat ["(zoom-in ",zs,")"])
+      
+    zoomOut(z:Float):Void ==
+      zs:String:=convert(z)$Float
+      command( concat ["(zoom-out ",zs,")"])   
+    
+    fitAllToScreen():Void ==
+      command "(fit-all-to-screen)"
+      
+    fitToScreen():Void ==
+      command "(fit-to-screen)"
+      
+    fitToScreenWidth():Void ==
+      command "(fit-to-screen-width)"
+      
+    fitToScreenHeight():Void ==
+      command "fit-to-screen-height"
+      
+    mathInput(s:String):String == s
+      
+
+      
+
+      

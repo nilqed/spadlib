@@ -1,0 +1,46 @@
+)co ../tensalg
+
+B:=OrderedVariableList [e[i] for i in 1..5]
+e:=enumerate()$B
+
+R:=Expression Integer
+R has CommutativeRing
+
+M:=FreeModule(R, B)
+
+-- This is the object of interest
+TA:=TensorAlgebra(M,R,B)
+
+-- coerce basis to TA
+b:=[a::TA for a in e]
+
+
+v1:=x*b.1+y*b.2-z*b.3
+v2:=y^n*b.1-cos(x)*b.2
+v3:=sin(x+y+z)*b.3
+
+t0:=exp(-x-y-z)*1$TA
+t1:=b.1*b.2*b.3*b.4+v1
+
+t2:=v1*v2+v1*v3*b.5+t0*b.4*b.3
+
+-- product(x,y) same as x*y
+p1:=product(v1,v2)
+p2:=product(product(v1,v3),t1)
+p3:=tan(x)*1$TA
+
+s1:=p1+p2+p3
+
+---
+degree(v1*v2*v3*t1)
+listOfTerms (v1*v1*v2*v3)
+degree (1$TA)
+
+v1+1$TA
+listOfTerms %
+
+-- degree (0$TA) ---> err in XDP ?? 
+
+-- projection to TensorPower(n...) easy : filter degree = n
+
+)show TENSALG

@@ -1,0 +1,163 @@
+)abbrev domain PFORM Pform
+Pform() : Exports == Implementation where
+  
+  IF   ==> InputForm
+  OF   ==> OutputForm
+  INT  ==> Integer
+  SYM  ==> Symbol
+  STR  ==> String
+  CTOF ==> CoercibleTo OF
+  BOOL ==> Boolean
+  X    ==> Expression Integer
+  
+  POLI ==> Polynomial Integer
+  
+  
+  REP  ==> Record(deg:POLI,sym:SYM,ltx:STR,cld:BOOL)
+  
+  Exports == Join(SetCategory, BasicType, CTOF) with  
+  -- w/o Comparable some functions are not available in FreeModuleCategory 
+    
+    pform : (POLI,SYM,STR,BOOL) -> %
+    nullForm : %  -- the zero-form which is =0
+    null? : % -> Boolean
+    deg : % -> POLI
+    latex : % -> String
+    closed? : % -> BOOL
+    exact? : % -> BOOL
+    _= : (%,%) -> Boolean
+    
+    d : % -> %
+	
+  Implementation == add 
+
+    Rep := REP 
+    
+    pform(p:POLI,s:SYM,l:STR,b:BOOL) == 
+      pr:Union(INT,"failed"):=retractIfCan(p)$POLI
+      if pr case INT then
+        if pr<0 then
+          error "Degree should be non-negative."
+      ss:STR:=string (name s) -- use name!
+      cc:Character:=first ss
+      cc=char "0" => [0,"0"::Symbol,"0",true]
+      alphabetic?(cc) and not (cc=char "d") => [p,s,l,b]$Rep
+      error "Symbol may start with any alphabetic character but 'd'."
+    
+    nullForm() == pform(0,"0"::Symbol,"0",true)
+    null? x == x.sym = "0"::Symbol 
+
+    deg(x) == x.deg
+    latex(x) == x.ltx
+    closed?(x) == x.cld
+    exact?(x) == first (string (name x.sym)) = (char "d")
+    x = y == (x.deg=y.deg) and (x.sym=y.sym) and (x.cld=y.cld)
+    coerce(x:%):OF == coerce(x.sym)$Symbol 
+    
+    prefixSym(pre:SYM, s:SYM):SYM ==
+      -- prefix the symbol s with pre (e.g. d X -> dX)
+      not scripted?(s) => coerce(string(pre) string(s))$Symbol
+      head:=name s
+      scr:=scripts(s)
+      script(prefixSym(pre,head),scr)
+      
+    d(x:%):% == [x.deg+1,prefixSym('d,x.sym),"d" x.ltx,true]$Rep
+    
+
+)abbrev domain PFCMPLX PformComplex
+PformComplex() : Exports == Implementation where
+  
+  IF   ==> InputForm
+  OF   ==> OutputForm
+  SYM  ==> Symbol
+  STR  ==> String
+  NNI  ==> NonNegativeInteger
+  CTOF ==> CoercibleTo OF
+  R    ==> Expression Integer
+  
+  PINT ==> Polynomial Integer
+  
+  PFORM  ==> Pform
+  TERM   ==> Record(k:FMP,c:R)
+  FACS   ==> List Record(gen: Pform, exp: NNI)
+  FMP    ==> FreeMonoid Pform
+  FMC    ==> FreeModuleCategory(R, FMP)
+  
+  REP  ==> FreeModule(R,FMP)
+  
+  Exports == Join(FMC, Monoid, CTOF) with
+  
+    --_* : (Pform,Pform) -> %
+    --_* : (%,Pform) -> %
+    --_* : (Pform,%) -> %
+    --_* : (%,%) -> %
+    
+    --TODO reconsider nullForm !!!
+    
+    degree  : % -> PINT
+    degrees : % -> List PINT
+  
+    coerce : PFORM -> FMP  -- necessary
+    coerce : PFORM -> %    --
+    coerce : FMP -> OF
+  
+  Implementation == REP add 
+
+    Rep := REP 
+    
+    coerce(f:Pform):FMP == coerce(f)$FMP
+    coerce(f:Pform):% ==
+      null? f => construct [[1$FMP,0$R]$TERM]
+      f::FMP::%
+    
+ 
+    -- generic: mult TERMS then define _*
+    -- probably better than recursive?
+    mult(x:TERM,y:TERM):TERM == [x.k*y.k,x.c*y.c]$TERM
+        
+    x * y ==
+      tx:List TERM:=listOfTerms x
+      ty:List TERM:=listOfTerms y
+      empty? tx or empty? ty => nullForm()$Pform::Rep
+      pxy:List List TERM:=[[mult(a,b) for b in ty] for a in tx]
+      r:=[construct(a) for a in pxy]
+      reduce(_+,r)
+      
+    join(sep:OF,l:List OF):OF ==
+      #l<2 => hconcat l
+      #l=2 => hconcat [first l, sep, last l]
+      l1:=[hconcat(sep,l.k) for k in 2..#l]
+      hconcat [l.1,hconcat l1]
+      
+    deg(x:FMP):PINT ==
+      f:FACS:=factors(x)
+      degs:List PINT:=[(u.exp)*deg(u.gen)$Pform for u in f]
+      reduce(_+,degs)
+      
+
+    degree(x:%):PINT == 
+      monomial?(x) => deg retract(x)
+      error "Not a monomial."
+      
+    degrees(x:%):List PINT ==
+      tx:List TERM:=listOfTerms x
+      [deg(t.k) for t in tx]
+      
+
+    coerce(x:FMP):OF ==
+      sep:=outputForm(" /\ "::SYM)$OF
+      f:FACS:=factors(x)
+      empty? f => empty()$OF
+      join(sep, [join(sep,[(s.gen)::OF for k in 1..s.exp]) for s in f])
+    
+
+    suppress1(r:R):OF ==
+      r=1$R => empty()$OF
+      r::OF
+
+    coerce(x:%):OF ==
+      tx:List TERM:=listOfTerms x
+      empty? tx => outputForm(0)
+      tof:List OF:=[suppress1(t.c) * coerce(t.k) for t in tx]
+      reduce(_+,tof)
+      

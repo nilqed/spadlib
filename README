@@ -1,0 +1,22 @@
+============
+SPADLIB V0.1
+============
+
+Install  
+
+  $ cd ~/quicklisp/local-projects
+  $ git clone https://github.com/nilqed/spadlib.git
+		  
+Usage
+
+  ()-> quickLoad "packageName"
+  
+  
+Create a package
+
+  $ fripac.sh "packageName" 
+  
+  type fripac.sh -h for more options.
+
+
+---  

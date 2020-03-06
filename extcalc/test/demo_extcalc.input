@@ -1,0 +1,16 @@
+)co ../extcalc
+
+-- We start in two dimensions
+U:=EXTCALC [x,y]
+
+-- the displacement one-form dP : (moving point P)
+P:=coordVector()$U
+dP:=basisForms(1)$U  -- note: a list
+-- or
+dP:=d(P)$U -- note: a vector
+
+-- Vector field
+V(x,y) == vectorField(V)$U
+
+
+
