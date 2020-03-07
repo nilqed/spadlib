@@ -24,8 +24,10 @@ Usage
 
   Then
   
-  ()-> quickLoad "packageName"
+  () -> quickLoad "packageName"
   
+  Note: if "quickLoad" is unknown after FriCAS start, you have to enter
+        ")frame next" under certain circumstances (depends on start parameters).
   
 Create a package
 

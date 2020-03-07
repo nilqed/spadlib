@@ -1,0 +1,69 @@
+quickLoad "trivsh"
+
+Value = ("trivsh")
+                                                                   Type: Void
+(4) -> shellCommand "ps -a"
+
+Value = SHELL-COMMAND
+Value = WITH-TIMEOUT
+Value = GET-ENV-VAR
+Value = *BOURNE-COMPATIBLE-SHELL*
+Value = *SHELL-SEARCH-PATHS*
+
+   (4)
+  "   PID TTY          TIME CMD
+ 42956 pts/0    00:00:00 sman
+ 42962 pts/0    0
+  0:00:00 session
+ 42963 pts/0    00:00:00 clef
+ 42966 pts/0    00:00:00 sman
+
+  43029 pts/1    00:00:00 sh
+ 43031 pts/1    00:00:00 ps
+"
+                                                            Type: SExpression
+(5) -> ax:=getEnvVar "AXIOM"
+
+   (5)  ()
+                                                            Type: SExpression
+(6) -> ax
+
+   (6)  ()
+                                                            Type: SExpression
+(7) -> ax:=getEnvVar "FRICAS"
+
+   (7)  "/tmp/usr/lib/fricas/target/x86_64-linux-gnu"
+                                                            Type: SExpression
+(8) -> bourneCompatibleShell? ()
+
+   (8)  "/bin/sh"
+                                                            Type: SExpression
+(9) -> shellSearchPaths()
+
+   (9)  ("/usr/bin/" "/usr/local/bin/")
+                                                            Type: SExpression
+(10) -> car %
+
+   (10)  "/usr/bin/"
+                                                            Type: SExpression
+(11) -> )system date
+Sat Mar  7 19:25:20 CET 2020
+(11) ->  sleep 10.0
+
+   (11)  ()
+                                                            Type: SExpression
+(12) -> )system date
+Sat Mar  7 19:25:36 CET 2020
+(12) -> )sh TRIVSH
+ TrivialShell is a package constructor
+ Abbreviation for TrivialShell is TRIVSH
+ This constructor is exposed in this frame.
+------------------------------- Operations --------------------------------
+
+ getEnvVar : String -> SExpression     sleep : DoubleFloat -> SExpression
+ bourneCompatibleShell? : () -> SExpression
+ shellCommand : String -> SExpression
+ shellSearchPaths : () -> SExpression
+ withTimeout : (DoubleFloat, SExpression) -> SExpression
+
+(12) ->
