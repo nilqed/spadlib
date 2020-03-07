@@ -92,10 +92,10 @@ fi
 
 if [ -d  $NAME ]; then
   cd $NAME;
-  mkdir -v -p ./docs ;
+  mkdir -v -p ./docs ; touch ./docs/README ;
   mkdir -v -p ./src  ;
-  mkdir -v -p ./lib  ;
-  mkdir -v -p ./test ;
+  mkdir -v -p ./lib  ; touch ./lib/README ;
+  mkdir -v -p ./test ; touch ./test/README ;
 else
   exit 1  
 fi
