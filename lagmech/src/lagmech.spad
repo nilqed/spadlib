@@ -1,0 +1,64 @@
+)abbrev package LAGMECH LagrangianMechanics
+++ Author: Kurt Pagani
+++ Date Created: Fri Feb 28 20:00:44 CET 2020
+++ License: BSD
+++ References:
+++ Description:
+++
+LagrangianMechanics() : Exports == Implementation where
+  
+  R ==> Expression Integer
+  PI ==> PositiveInteger 
+  LR ==> List R
+  VR ==> Vector R
+  OF ==> OutputForm
+  SYM ==> Symbol
+  BOP ==> BasicOperator 
+  LBOP ==> List BOP
+  VBOP ==> Vector BOP
+  
+  Exports ==  with
+    
+    generalizedCoordinates : (SYM,PI) -> VBOP
+    generalizedCoordinateFunctions : (SYM,PI,R) -> VR
+    vectorFunction : (SYM,PI,VR) -> VR
+    vectorConstant : (SYM,PI) -> VR
+    scalarFunction : (SYM,VR) -> R
+    
+    DF : (R,R) -> R
+    DF : (LR,R) -> LR
+    DF : (VR,R) -> VR
+	
+	
+  Implementation == R add 
+  
+    generalizedCoordinates(s,n) == 
+      S:List SYM:=[subscript(s,[i::OF]) for i in 1..n]
+      vector [operator(x)$BOP for x in S]
+      
+    generalizedCoordinateFunctions(s,n,t) ==
+      gc:=generalizedCoordinates(s,n)
+      vector [f(t) for f in entries gc]
+    
+    vectorFunction(s,n,v) ==
+      gc:=generalizedCoordinates(s,n) 
+      vector [f(entries v) for f in entries gc]
+      
+    vectorConstant(s,n) ==
+      S:List SYM:=[subscript(s,[i::OF]) for i in 1..n]
+      vector [x::R for x in S]
+      
+    scalarFunction(s,v) ==
+      op:=operator(s)$BOP
+      op(entries v)
+ 
+    DF(f:R,g:R):R == 
+      s:=new()$Symbol -- generate new unique symbol
+      fs:=subst(f,g=s::R)
+      rs:=D(fs,s)
+      r:=subst(rs,s::R=g)
+      return r
+
+    DF(lf:LR,g:R):LR == [DF(f,g) for f in lf]
+    DF(vf:VR,g:R):VR == vector [DF(f,g) for f in entries vf]
+   
