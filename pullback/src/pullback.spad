@@ -1,0 +1,78 @@
+)abbrev package PBACK PullBack
+++ Author: Kurt Pagani <nilqed@gmail.com>
+++ Date Created: Wed Jun 10 19:16:01 CEST 2020
+++ License: BSD
+++ References:
+++ Description:
+++  Given a mapping f:S->T, where S,T are presumed vector spaces,
+++  represented by the list of coordinate symbols S:=[u_1,..,u_m] and 
+++  T:=[x_1,..,x_n], this package "PullBack(S,T)" provides functions
+++  that pull elements from DeRhamComplex(INT,T) back to elements
+++  of DeRhamComplex(INT,S) by the usual rules of exterior calculus. 
+++  Instead of a mapping f, one can also provide a list of equations of 
+++  the form [x_1=x_1(u),..,x_n=x_n(u)].
+++
+PullBack(S,T) : Exports == Implementation where
+  
+  S: List Symbol
+  T: List Symbol
+  
+  X  ==> Expression Integer
+  VX ==> Vector X
+  
+  DRCS ==> DeRhamComplex(Integer,S)
+  DRCT ==> DeRhamComplex(Integer,T)
+  
+  EAB  ==> ExtAlgBasis
+  TERM ==> Record(k : EAB, c : X)
+  
+   
+  Exports ==  with
+    
+    pullBack : (VX->VX, DRCT) -> DRCS
+      ++ pullBack(f,w) returns the pulled back form f*(w).
+    pullBack : (List Equation X, DRCT) -> DRCS
+      ++ pullBack([x=f(u)],w) returns the pulled back form f*(w).
+    pullBack : (VX->VX, X) -> X
+      ++ pullBack(f,g(x)) returns the expression g(f(u)).
+    basisForms : Record(bs:List DRCS, bt:List DRCT)
+      ++ basisForms() returns a record containing the list of basis
+      ++ forms of DeRhamComplex(INT,S) and DeRhamComplex(INT,T).
+	
+	
+  Implementation ==  DRCS add 
+    
+    getSterms(x:DRCS):List TERM == x pretend List(TERM)
+    getTterms(x:DRCT):List TERM == x pretend List(TERM)   
+    makeSForm(l:List TERM):DRCS == l pretend DRCS
+    makeSForm(l:List TERM):DRCT == l pretend DRCT  
+    
+    SX:List X:= [coerce(s)$X for s in S]
+    TX:List X:= [coerce(s)$X for s in T]
+ 
+    pullBackTerm(f:VX->VX,t:TERM):DRCS ==
+      Y:List X:= entries(f (vector SX))
+      DY:List DRCS:= [exteriorDifferential(s*1$DRCS)$DRCS for s in Y]
+      nc:X:=subst(t.c,[TX.j = Y.j for j in 1..#TX])
+      tk:=exponents(t.k)
+      yl:List DRCS:=[DY.j for j in 1..#tk | tk.j=1]
+      empty? yl => 0@DRCS
+      nbt:DRCS:=nc * reduce("*",yl)
+
+    pullBack(f:VX->VX,x:DRCT):DRCS ==
+      xt:=getTterms(x)
+      empty? xt => 0@DRCS
+      reduce("+",[pullBackTerm(f,t) for t in xt])
+      
+    pullBack(l:List Equation X, x:DRCT):DRCS ==
+      f:VX->VX:=SX+->vector [rhs eq for eq in l]
+      pullBack(f,x)
+      
+    pullBack(f:VX->VX,x:X):X ==
+      Y:List X:= entries(f (vector SX))
+      nx:X:=subst(x,[TX.j = Y.j for j in 1..#TX])
+
+    basisForms():Record(bs:List DRCS, bt:List DRCT) ==
+      bfs:List DRCS:=[generator(i)$DRCS for i in 1..#S]
+      bft:List DRCT:=[generator(i)$DRCT for i in 1..#T]
+      [bfs,bft]

@@ -1,0 +1,58 @@
+)co pullback
+
+X ==> EXPR INT
+VX ==> Vector X
+
+S:=[u,v]
+T:=[x,y,z]
+
+DRCS ==> DeRhamComplex(Integer,S)
+DRCT ==> DeRhamComplex(Integer,T)
+
+PB ==> PullBack(S,T)
+
+B:=basisForms()$PB
+
+f:=(q:VX):VX+->vector[0,q.1,q.2]
+g:=(q:VX):VX+->vector[cos(q.1)*sin(q.2),sin(q.1)*cos(q.2),sin(q.2)]
+
+dT:=B.bt
+dS:=B.bs
+
+pullBack(f,dT.1)$PB
+pullBack(f,0$DRCT)$PB
+pullBack(g,dT.1)$PB
+
+pullBack(g,dT.1*dT.2)$PB
+
+
+-- Example 1
+-- https://math.stackexchange.com/questions/576638/
+-- how-to-calculate-the-pullback-of-a-k-form-explicitly
+
+omega:=x::X*y::X*dT.1 + 2*z::X*dT.2 - y::X*dT.3
+--
+--    (1)  - y dz + 2 z dy + x y dx
+-- Type: DeRhamComplex(Integer,[x,y,z])
+
+alpha:=(q:VX):VX+->vector[q.1*q.2,q.1^2,3*q.1+q.2]
+
+pullBack(alpha,omega)$PB
+
+--
+sbst:=(s:X):X+->subst(s,[T.j = (alpha vector(S)).j for j in 1..#T])
+map(sbst,omega)
+
+-- same space
+beta:=(q:VX):VX+->vector[q.2,q.1,q.3]
+pullBack(beta,dT.1*dT.3)$PullBack(T,T)
+pullBack(beta,dT.1*dT.2*dT.3)$PullBack(T,T)
+
+eqs:=[x=u*v,y=u^2,z=3*u+v::X]
+pullBack(eqs,omega)$PB
+
+
+--
+G:=operator 'G
+pullBack(alpha,G(x,y,z))$PB
+
