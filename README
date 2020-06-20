@@ -11,6 +11,9 @@ Install
 
   $ cd ~/quicklisp/local-projects
   $ git clone https://github.com/nilqed/spadlib.git
+  
+  Add the contents of spadlib/system-index.txt to 
+  local-projects/system-index.txt (or only those you like).
 		  
 Usage
 
