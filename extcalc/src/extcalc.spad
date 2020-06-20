@@ -2,6 +2,8 @@
 -- revised 26-NOV-2019 (added d: X -> DRC)
 -- revised 11-DEC-2019 (added moving frames code)
 -- revised 04-FEB-2019 (renamed from DFORM; fixed ring now)
+-- revised 09-JUN-2020 (added getDRC() the assoc. DeRhamCurrent)
+-- revised 21-JUN-2020 (added generators(), EAB, TERM, getTerms, makeForm)
 )abbrev package EXTCALC ExteriorCalculus
 ExteriorCalculus(v) : Exports == Implementation where
     
@@ -18,11 +20,13 @@ ExteriorCalculus(v) : Exports == Implementation where
   NNI ==> NonNegativeInteger
   OVL ==> OrderedVariableList
   SMR ==> SquareMatrix(#v,X)
+  EAB ==> ExtAlgBasis
   VDRC ==> Vector DRC
   LDRC ==> List DRC
   MDRC ==> Matrix DRC
   LINT ==> List INT
   PINT ==> PositiveInteger
+  TERM ==> Record(k : EAB, c : X)
   LPINT ==> List PINT
   SGCF ==> SymmetricGroupCombinatoricFunctions
   
@@ -67,7 +71,10 @@ ExteriorCalculus(v) : Exports == Implementation where
       ++ of integers representing the the m-element subsets of {1..n}.
     basisForms    : INT -> List DRC
       ++ basisForms()$M returns a list of all base forms in the
-      ++ space M=DFORM(Ring,Coordinates).    
+      ++ space M=DFORM(Ring,Coordinates). 
+    generators : List DRC
+      ++ generators() returns the list of basis one forms. Same as 
+      ++ the function basisForms(1).
     vectorField   : SYM -> Vector X
       ++ vectorField(V) creates a vector (actually a list) whose
       ++ components are given by V[j](x[1],...,x[n]), j=1..n, 
@@ -165,17 +172,26 @@ ExteriorCalculus(v) : Exports == Implementation where
     Gramian : SMR -> MDRC
       ++ Gramian(A), A in GL(n), returns the Gramian of the corresponding
       ++ moving frame (see movingFrame(A)).
-      
+    getDRC : Type
+      ++ getDRC() returns the associated DeRhamComplex
+    getTerms : DRC -> List(TERM)
+      ++ getTerms(x) returns x in the form of a list of records
+      ++ of coefficient and ExtAlgBasis.
+    makeForm : List(TERM) -> DRC
+      ++ makeForm(lt) returns a form from a list of terms.
+    getDRCvarList : Any -> List Symbol
+      ++ getDRCvarList() returns       
       
   Implementation == DRC add 
   
     --n:NNI:=#v
     one() == 1@DRC
-    zero() == 0@DRC
+    zero() == 0@DRC  
     coordSymbols() == v 
     coordVector() == vector [s::X for s in v]
     zeroForms() == vector [s::X * one() for s in v]
-    oneForms() == vector [generator(j)$DRC for j in 1..#v]
+    generators() == [generator(j)$DRC for j in 1..#v]
+    oneForms() == vector generators()
     
     d(f:X):DRC == totalDifferential(f)
     d(f:DRC):DRC == exteriorDifferential(f)
@@ -183,7 +199,8 @@ ExteriorCalculus(v) : Exports == Implementation where
     d(mf:MDRC):MDRC == map(d,mf)
     
     (x:VDRC * y:VDRC):DRC == reduce(_+,[x.i*y.i for i in 1..#x | #x=#y])
-    
+
+    getDRC() == DRC
     
     multiIndices(n:PINT,k:PINT):List LPINT ==
       --ss:=[reverse subSet(n,k,i)$SGCF for i in 0..binomial(n,k)-1]
@@ -439,3 +456,8 @@ ExteriorCalculus(v) : Exports == Implementation where
       AX:Matrix X:=A::Matrix X
       G:Matrix X:=AX*transpose(AX)
       return convert(G)
+      
+    getTerms(x:DRC):List TERM == x pretend List(TERM)
+    
+    makeForm(l:List TERM):DRC == l pretend DRC
+ 
