@@ -1,9 +1,10 @@
--- revised 25-JUN-2019 (indices, multiindices)
--- revised 26-NOV-2019 (added d: X -> DRC)
--- revised 11-DEC-2019 (added moving frames code)
--- revised 04-FEB-2019 (renamed from DFORM; fixed ring now)
--- revised 09-JUN-2020 (added getDRC() the assoc. DeRhamCurrent)
--- revised 21-JUN-2020 (added generators(), EAB, TERM, getTerms, makeForm)
+-- revised 25-JUN-2019  indices, multiindices
+-- revised 26-NOV-2019  add d: X -> DRC
+-- revised 11-DEC-2019  add moving frames code
+-- revised 04-FEB-2019  ren from DFORM; fixed ring now
+-- revised 09-JUN-2020  add getDRC() the assoc. DeRhamCurrent
+-- revised 21-JUN-2020  add generators(), EAB, TERM, getTerms, makeForm
+-- revised 15-JUL-2020  add jacobiMatrix of a mapping
 )abbrev package EXTCALC ExteriorCalculus
 ExteriorCalculus(v) : Exports == Implementation where
     
@@ -180,7 +181,9 @@ ExteriorCalculus(v) : Exports == Implementation where
     makeForm : List(TERM) -> DRC
       ++ makeForm(lt) returns a form from a list of terms.
     getDRCvarList : Any -> List Symbol
-      ++ getDRCvarList() returns       
+      ++ getDRCvarList() returns
+    jacobiMatrix : Vector X -> MDRC
+      ++ jacobiMatrix(f) returns the Jacobi matrix of f:X-X.
       
   Implementation == DRC add 
   
@@ -461,3 +464,7 @@ ExteriorCalculus(v) : Exports == Implementation where
     
     makeForm(l:List TERM):DRC == l pretend DRC
  
+    jacobiMatrix(f:Vector X):MDRC ==
+      vx:List X:=entries f
+      matrix [[D(x,s)*1@DRC for s in v] for x in vx] 
+      
