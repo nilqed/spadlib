@@ -1,0 +1,100 @@
+(3) -> quickLoad "oobj"
+
+Value = T
+
+   >> System error:
+   System "oobj" not found
+
+(3) -> quickLoad "oobj"
+
+Value = T
+To load "oobj":
+  Load 1 ASDF system:
+    oobj
+; Loading "oobj"
+   The current FriCAS default directory is
+      C:/Users/kfp/quicklisp/local-projects/spadlib/oobj/lib
+   Compiling FriCAS source code from file
+      C:/Users/kfp/quicklisp/local-projects/spadlib/oobj/lib/../src/oobj.spad
+      using old system compiler.
+   OOBJ abbreviates domain OrderedObjectList
+------------------------------------------------------------------------
+   initializing NRLIB OOBJ for OrderedObjectList
+   compiling into NRLIB OOBJ
+****** Domain: T$ already in scope
+   compiling exported convert : $ -> T$
+Time: 0.03 SEC.
+
+   compiling exported coerce : $ -> OutputForm
+Time: 0 SEC.
+
+   compiling exported index : PositiveInteger -> $
+      OOBJ;index;Pi$;3 is replaced by i
+Time: 0 SEC.
+
+   compiling exported lookup : $ -> PositiveInteger
+      OOBJ;lookup;$Pi;4 is replaced by j
+Time: 0 SEC.
+
+   compiling exported size : () -> NonNegativeInteger
+Time: 0 SEC.
+
+   compiling exported object : T$ -> Union($,failed)
+Time: 0.01 SEC.
+
+   compiling exported < : ($,$) -> Boolean
+      OOBJ;<;2$B;7 is replaced by <s2s1
+Time: 0 SEC.
+
+   compiling exported = : ($,$) -> Boolean
+      OOBJ;=;2$B;8 is replaced by EQL
+Time: 0 SEC.
+
+   compiling exported latex : $ -> String
+Time: 0 SEC.
+
+   compiling exported hashUpdate! : (HashState,$) -> HashState
+Time: 0 SEC.
+
+(time taken in buildFunctor:  0)
+
+;;;     ***       |OrderedObjectList| REDEFINED
+
+;;;     ***       |OrderedObjectList| REDEFINED
+Time: 0 SEC.
+
+
+   Cumulative Statistics for Constructor OrderedObjectList
+      Time: 0.05 seconds
+
+   finalizing NRLIB OOBJ
+   Processing OrderedObjectList for Browser database:
+--------constructor---------
+--------(object ((Union % failed) T$))---------
+------------------------------------------------------------------------
+   OrderedObjectList is now explicitly exposed in frame initial
+   OrderedObjectList will be automatically loaded when needed from
+      /Users/kfp/quicklisp/local-projects/spadlib/oobj/lib/OOBJ.NRLIB/OOBJ
+
+
+Value = ("oobj")
+                                                                   Type: Void
+(4) -> )sh OOBJ
+ OrderedObjectList(T$: Comparable,ObjectList: List(T$)) is a domain constructor
+ Abbreviation for OrderedObjectList is OOBJ
+ This constructor is exposed in this frame.
+------------------------------- Operations --------------------------------
+
+ ?<? : (%, %) -> Boolean               ?<=? : (%, %) -> Boolean
+ ?=? : (%, %) -> Boolean               ?>? : (%, %) -> Boolean
+ ?>=? : (%, %) -> Boolean              coerce : % -> OutputForm
+ convert : % -> T$                     convert : % -> InputForm
+ enumerate : () -> List(%)             hash : % -> SingleInteger
+ index : PositiveInteger -> %          latex : % -> String
+ lookup : % -> PositiveInteger         max : (%, %) -> %
+ min : (%, %) -> %                     object : T$ -> Union(%,"failed")
+ random : () -> %                      size : () -> NonNegativeInteger
+ smaller? : (%, %) -> Boolean          ?~=? : (%, %) -> Boolean
+ hashUpdate! : (HashState, %) -> HashState
+
+(4) ->

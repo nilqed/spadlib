@@ -1,0 +1,9 @@
+)co ../src/oobj
+
+B:=OrderedObjectList(BOP, map(operator,[a,b,c]))
+index(1)$B
+enumerate()$B        
+size()$B       
+object(operator a)$B
+
+B has OrderedSet

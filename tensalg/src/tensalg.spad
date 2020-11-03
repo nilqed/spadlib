@@ -3,12 +3,22 @@
 ++ Date Created: Thu Jan 30 23:04:02 CET 2020
 ++ License: BSD
 ++ References:
-++ Description: Option 1
+++   https://en.wikipedia.org/wiki/Tensor_algebra
+++ Description: 
+++  Quote Ref:
+++  -- Non-commutative polynomials 
+++  -- Quotients
+++  Because of the generality of the tensor algebra, many other algebras 
+++  of interest can be constructed by starting with the tensor algebra and 
+++  then imposing certain relations on the generators, i.e. by constructing 
+++  certain quotient algebras of T(V). Examples of this are the 
+++  exterior algebra, the symmetric algebra, Clifford algebras, 
+++  the Weyl algebra and universal enveloping algebras.  
 ++
 TensorAlgebra(M,R,B) : Exports == Implementation where
 
   M:FreeModuleCategory(R, B)
-  R:CommutativeRing
+  R:Ring
   B:OrderedSet
   
   OF     ==> OutputForm
@@ -16,12 +26,11 @@ TensorAlgebra(M,R,B) : Exports == Implementation where
   FMB    ==> FreeMonoid B
   CTOF   ==> CoercibleTo OutputForm
   FMCRB  ==> FreeModuleCategory(R,FMB)
-  GRALR  ==> GradedAlgebra(R,NNI)
   XFABR  ==> XFreeAlgebra(B,R)
   XDPBR  ==> XDistributedPolynomial(B,R)
   TERM   ==> Record(k:FMB,c:R)  
   
-  Exports == Join(FMCRB, XFABR, GRALR) with
+  Exports == Join(FMCRB, XFABR) with
     
     coerce : B -> %
     convert : FMB -> OutputForm
@@ -29,8 +38,6 @@ TensorAlgebra(M,R,B) : Exports == Implementation where
   Implementation ==  XDPBR add 
  
     Rep := XDPBR
-    
-    product(x,y) == x*y  -- GradedAlgebra, pro forma
     
     convert(x:FMB):OutputForm ==
       x=1$FMB => empty()$OF 
@@ -47,4 +54,38 @@ TensorAlgebra(M,R,B) : Exports == Implementation where
       zero? reductum(x) => kof
       kof + reductum(x)::OF
       
-   
+
+
+
+)abbrev domain OOBJ OrderedObjectList
+++ Description:
+++   This domain implements ordered objects such that the type
+++   has OrderedSet. Adapted from OrderedVariableList.
+OrderedObjectList(T:Comparable, ObjectList : List T):
+  Join(OrderedFinite, ConvertibleTo T) with
+         object : T -> Union(%,"failed")
+           ++ object(s) returns a member of the object set or failed
+    == add
+       ObjectList := removeDuplicates ObjectList
+       Rep := PositiveInteger
+       s1, s2 : %
+       convert(s1) : T == ObjectList.((s1::Rep)::PositiveInteger)
+       coerce(s1) : OutputForm == (convert(s1)@T)::OutputForm
+       index i   == i::%
+       lookup j  == j :: Rep
+       size ()   == #ObjectList
+       object(exp : T) ==
+            for i in 1.. for exp2 in ObjectList repeat
+                if exp = exp2 then return i::PositiveInteger::%
+            "failed"
+       s1 < s2 == s2 <$Rep s1
+       s1 = s2 == s1 =$Rep s2
+       latex(x : %) : String      == latex(convert(x)@T)
+       hashUpdate!(hs, s) == update!(hs, SXHASH(s)$Lisp)$HashState
+       
+       
+-- B:=OrderedObjectList(BOP, map(operator,[a,b,c]))
+-- index(1)$B
+-- enumerate()$B        
+-- size()$B       
+-- object(operator a)$B

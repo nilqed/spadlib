@@ -1,0 +1,37 @@
+   OrderedObjectList is already explicitly exposed in frame initial
+   OrderedObjectList will be automatically loaded when needed from
+      /Users/kfp/quicklisp/local-projects/spadlib/oobj/test/OOBJ.NRLIB/OOBJ
+
+
+B:=OrderedObjectList(BOP, map(operator,[a,b,c]))
+
+
+   (4)  OrderedObjectList(BasicOperator,[a,b,c])
+                                                                   Type: Type
+index(1)$B
+
+
+   (5)  a
+                               Type: OrderedObjectList(BasicOperator,[a,b,c])
+enumerate()$B
+
+
+   (6)  [a, b, c]
+                         Type: List(OrderedObjectList(BasicOperator,[a,b,c]))
+size()$B
+
+
+   (7)  3
+                                                     Type: NonNegativeInteger
+object(operator a)$B
+
+
+   (8)  a
+                    Type: Union(OrderedObjectList(BasicOperator,[a,b,c]),...)
+
+B has OrderedSet
+
+
+   (9)  true
+                                                                Type: Boolean
+(10) ->

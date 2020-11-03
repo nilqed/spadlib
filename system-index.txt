@@ -19,3 +19,4 @@ spadlib\tensalg\tensalg.asd
 spadlib\webspad\webspad.asd
 spadlib\pullback\pullback.asd
 spadlib\quicklsp\quicklsp.asd
+spadlib\oobj\oobj.asd

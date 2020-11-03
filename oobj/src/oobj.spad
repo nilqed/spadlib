@@ -1,0 +1,32 @@
+)abbrev domain OOBJ OrderedObjectList
+++ Description:
+++   This domain implements ordered objects such that the type
+++   has OrderedSet. Adapted from OrderedVariableList.
+OrderedObjectList(T:Comparable, ObjectList : List T):
+  Join(OrderedFinite, ConvertibleTo T) with
+         object : T -> Union(%,"failed")
+           ++ object(s) returns a member of the object set or failed
+    == add
+       ObjectList := removeDuplicates ObjectList
+       Rep := PositiveInteger
+       s1, s2 : %
+       convert(s1) : T == ObjectList.((s1::Rep)::PositiveInteger)
+       coerce(s1) : OutputForm == (convert(s1)@T)::OutputForm
+       index i   == i::%
+       lookup j  == j :: Rep
+       size ()   == #ObjectList
+       object(exp : T) ==
+            for i in 1.. for exp2 in ObjectList repeat
+                if exp = exp2 then return i::PositiveInteger::%
+            "failed"
+       s1 < s2 == s2 <$Rep s1
+       s1 = s2 == s1 =$Rep s2
+       latex(x : %) : String      == latex(convert(x)@T)
+       hashUpdate!(hs, s) == update!(hs, SXHASH(s)$Lisp)$HashState
+       
+       
+-- B:=OrderedObjectList(BOP, map(operator,[a,b,c]))
+-- index(1)$B
+-- enumerate()$B        
+-- size()$B       
+-- object(operator a)$B

@@ -145,7 +145,7 @@ PformComplex() : Exports == Implementation where
       
 
     coerce(x:FMP):OF ==
-      sep:=outputForm(" /\ "::SYM)$OF
+      sep:=outputForm("\wedge "::SYM)$OF
       f:FACS:=factors(x)
       empty? f => empty()$OF
       join(sep, [join(sep,[(s.gen)::OF for k in 1..s.exp]) for s in f])
