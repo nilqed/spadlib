@@ -1,0 +1,290 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>AWAIC - Atomic Weights and Isotope Compositions &#8212; SPADLib 0.8 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Welcome to SPADLib’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="awaic-atomic-weights-and-isotope-compositions">
+<h1>AWAIC - Atomic Weights and Isotope Compositions<a class="headerlink" href="#awaic-atomic-weights-and-isotope-compositions" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="developers-and-contributors">
+<h2>Developers and Contributors:<a class="headerlink" href="#developers-and-contributors" title="Permalink to this headline">¶</a></h2>
+<p>J. S. Coursey, D. J. Schwab, J. J. Tsai, and R. A. Dragoset
+NIST Physical Measurement Laboratory</p>
+<p>The atomic weights are available for elements 1 through 118 and isotopic
+compositions or abundances are given when appropriate. The atomic weights
+data were published by J. Meija et al in Atomic Weights of the Elements 2013,
+and the isotopic compositions data were published by M. Berglund and
+M.E. Wieser in Isotopic Compositions of the Elements 2009. The relative
+atomic masses of the isotopes data were published by M. Wang, G. Audi,
+A.H. Wapstra, F.G. Kondev, M. MacCormick, X. Xu1, and B. Pfeiffer in
+The AME2012 Atomic Mass Evaluation.</p>
+<p>These data have been compiled from the above sources for the user’s
+convenience and does not represent a critical evaluation by the
+NIST Physical Measurement Laboratory.</p>
+</div>
+<div class="section" id="get-up-to-date-data-file-from-nist">
+<h2>Get up-to-date data file from NIST<a class="headerlink" href="#get-up-to-date-data-file-from-nist" title="Permalink to this headline">¶</a></h2>
+<p>Goto <a class="reference external" href="https://www.nist.gov/pml/atomic-weights-and-isotopic-compositions-relative-atomic-masses">NIST</a>
+and select (Search the Database):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Output</span> <span class="n">Type</span><span class="p">:</span> <span class="n">Linearized</span> <span class="n">ASCII</span> <span class="n">Output</span>
+<span class="n">Isotopes</span><span class="p">:</span> <span class="n">All</span> <span class="n">isotopes</span>
+<span class="o">--&gt;</span> <span class="n">Get</span> <span class="n">Data</span>
+</pre></div>
+</div>
+<p>Then <code class="docutils literal notranslate"><span class="pre">save</span></code> the output as a text file and remove the heading and trailing
+lines.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Atomic</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">Atomic</span> <span class="n">Symbol</span> <span class="o">=</span> <span class="n">H</span>
+<span class="n">Mass</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">Relative</span> <span class="n">Atomic</span> <span class="n">Mass</span> <span class="o">=</span> <span class="mf">1.00782503223</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
+<span class="n">Isotopic</span> <span class="n">Composition</span> <span class="o">=</span> <span class="mf">0.999885</span><span class="p">(</span><span class="mi">70</span><span class="p">)</span>
+<span class="n">Standard</span> <span class="n">Atomic</span> <span class="n">Weight</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.00784</span><span class="p">,</span><span class="mf">1.00811</span><span class="p">]</span>
+<span class="n">Notes</span> <span class="o">=</span> <span class="n">m</span>
+
+<span class="o">...</span>
+
+<span class="n">Atomic</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">118</span>
+<span class="n">Atomic</span> <span class="n">Symbol</span> <span class="o">=</span> <span class="n">Og</span>
+<span class="n">Mass</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">295</span>
+<span class="n">Relative</span> <span class="n">Atomic</span> <span class="n">Mass</span> <span class="o">=</span> <span class="mf">295.21624</span><span class="p">(</span><span class="mi">69</span><span class="c1">#)</span>
+<span class="n">Isotopic</span> <span class="n">Composition</span> <span class="o">=</span>
+<span class="n">Standard</span> <span class="n">Atomic</span> <span class="n">Weight</span> <span class="o">=</span>
+<span class="n">Notes</span> <span class="o">=</span>
+</pre></div>
+</div>
+<p>There is already a file <code class="docutils literal notranslate"><span class="pre">awaic.txt</span></code> in <code class="docutils literal notranslate"><span class="pre">awaic/src/</span></code>, however, it is
+recommended to fetch the latest version if th``last update`` on the NIST
+page is newer.</p>
+</div>
+<div class="section" id="load-the-awaic-package">
+<h2>Load the AWAIC package<a class="headerlink" href="#load-the-awaic-package" title="Permalink to this headline">¶</a></h2>
+<p>In FriCAS do</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">quickLoad</span> <span class="s2">&quot;awaic&quot;</span>
+   <span class="n">Compiling</span> <span class="n">function</span> <span class="n">quickLoad</span> <span class="k">with</span> <span class="nb">type</span> <span class="n">String</span> <span class="o">-&gt;</span> <span class="n">Void</span>
+<span class="n">Value</span> <span class="o">=</span> <span class="n">T</span>
+<span class="n">To</span> <span class="n">load</span> <span class="s2">&quot;awaic&quot;</span><span class="p">:</span>
+  <span class="n">Load</span> <span class="mi">1</span> <span class="n">ASDF</span> <span class="n">system</span><span class="p">:</span>
+    <span class="n">awaic</span>
+<span class="p">;</span> <span class="n">Loading</span> <span class="s2">&quot;awaic&quot;</span>
+   <span class="n">AtomicWeights</span> <span class="ow">is</span> <span class="n">now</span> <span class="n">explicitly</span> <span class="n">exposed</span> <span class="ow">in</span> <span class="n">frame</span> <span class="n">initial</span>
+   <span class="n">AtomicWeights</span> <span class="n">will</span> <span class="n">be</span> <span class="n">automatically</span> <span class="n">loaded</span> <span class="n">when</span> <span class="n">needed</span> <span class="kn">from</span>
+      <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">kfp</span><span class="o">/</span><span class="n">quicklisp</span><span class="o">/</span><span class="n">local</span><span class="o">-</span><span class="n">projects</span><span class="o">/</span><span class="n">spadlib</span><span class="o">/</span><span class="n">awaic</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">AWAIC</span><span class="o">.</span><span class="n">NRLIB</span><span class="o">/</span><span class="n">AWAIC</span>
+
+<span class="n">Value</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;awaic&quot;</span><span class="p">)</span>
+                                                                   <span class="n">Type</span><span class="p">:</span> <span class="n">Void</span>
+<span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">)</span><span class="n">sh</span> <span class="n">AWAIC</span>
+ <span class="n">AtomicWeights</span> <span class="ow">is</span> <span class="n">a</span> <span class="n">package</span> <span class="n">constructor</span>
+ <span class="n">Abbreviation</span> <span class="k">for</span> <span class="n">AtomicWeights</span> <span class="ow">is</span> <span class="n">AWAIC</span>
+ <span class="n">This</span> <span class="n">constructor</span> <span class="ow">is</span> <span class="n">exposed</span> <span class="ow">in</span> <span class="n">this</span> <span class="n">frame</span><span class="o">.</span>
+<span class="o">-------------------------------</span> <span class="n">Operations</span> <span class="o">--------------------------------</span>
+
+ <span class="n">readDataAsInput</span> <span class="p">:</span> <span class="n">String</span> <span class="o">-&gt;</span> <span class="n">Void</span>      <span class="n">str2float</span> <span class="p">:</span> <span class="n">String</span> <span class="o">-&gt;</span> <span class="n">Float</span>
+ <span class="n">atomicMass</span> <span class="p">:</span> <span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">StringTable</span><span class="p">(</span><span class="n">List</span><span class="p">(</span><span class="n">String</span><span class="p">)))</span> <span class="o">-&gt;</span> <span class="n">Float</span>
+ <span class="n">atomicMassUnc</span> <span class="p">:</span> <span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">StringTable</span><span class="p">(</span><span class="n">List</span><span class="p">(</span><span class="n">String</span><span class="p">)))</span> <span class="o">-&gt;</span> <span class="n">Float</span>
+ <span class="n">atomicNumber</span> <span class="p">:</span> <span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">StringTable</span><span class="p">(</span><span class="n">List</span><span class="p">(</span><span class="n">String</span><span class="p">)))</span> <span class="o">-&gt;</span> <span class="n">Integer</span>
+ <span class="n">atomicSymbol</span> <span class="p">:</span> <span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">StringTable</span><span class="p">(</span><span class="n">List</span><span class="p">(</span><span class="n">String</span><span class="p">)))</span> <span class="o">-&gt;</span> <span class="n">Symbol</span>
+ <span class="n">elements</span> <span class="p">:</span> <span class="n">StringTable</span><span class="p">(</span><span class="n">List</span><span class="p">(</span><span class="n">String</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">(</span><span class="n">String</span><span class="p">)</span>
+ <span class="n">isotopeSymbol</span> <span class="p">:</span> <span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">StringTable</span><span class="p">(</span><span class="n">List</span><span class="p">(</span><span class="n">String</span><span class="p">)))</span> <span class="o">-&gt;</span> <span class="n">Symbol</span>
+ <span class="n">massNumber</span> <span class="p">:</span> <span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">StringTable</span><span class="p">(</span><span class="n">List</span><span class="p">(</span><span class="n">String</span><span class="p">)))</span> <span class="o">-&gt;</span> <span class="n">Integer</span>
+ <span class="n">readDefault</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">StringTable</span><span class="p">(</span><span class="n">List</span><span class="p">(</span><span class="n">String</span><span class="p">))</span>
+ <span class="n">readRawDataFile</span> <span class="p">:</span> <span class="n">String</span> <span class="o">-&gt;</span> <span class="n">StringTable</span><span class="p">(</span><span class="n">List</span><span class="p">(</span><span class="n">String</span><span class="p">))</span>
+ <span class="n">str2floatUncertainty</span> <span class="p">:</span> <span class="n">String</span> <span class="o">-&gt;</span> <span class="n">Float</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="read-the-data-file-into-fricas">
+<h2>Read the data file into FriCAS<a class="headerlink" href="#read-the-data-file-into-fricas" title="Permalink to this headline">¶</a></h2>
+<p>First of all tell FriCAS where your data file can be found (e.g.):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="p">:</span><span class="o">=</span> <span class="s2">&quot;C:/Users/kfp/quicklisp/local-projects/spadlib/awaic/src/awaic.txt&quot;</span>
+</pre></div>
+</div>
+<p>Then we can read it by:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">aw</span><span class="p">:</span><span class="o">=</span><span class="n">readRawDataFile</span> <span class="n">data</span><span class="p">;</span>
+
+                                          <span class="n">Type</span><span class="p">:</span> <span class="n">StringTable</span><span class="p">(</span><span class="n">List</span><span class="p">(</span><span class="n">String</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Now <code class="docutils literal notranslate"><span class="pre">aw</span></code> is a string table:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>(14) -&gt; )sh StringTable
+ StringTable(Entry: Type) is a domain constructor
+ Abbreviation for StringTable is STRTBL
+ This constructor is not exposed in this frame.
+------------------------------- Operations --------------
+ copy : % -&gt; %                         dictionary : () -&gt; %
+ elt : (%, String, Entry) -&gt; Entry     ?.? : (%, String) -&gt; Entry
+ empty : () -&gt; %                       empty? : % -&gt; Boolean
+ entries : % -&gt; List(Entry)
+ ...
+</pre></div>
+</div>
+<p>The size is (for instance)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="mi">15</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="c1">#aw</span>
+
+<span class="p">(</span><span class="mi">15</span><span class="p">)</span>  <span class="mi">3352</span>
+                                                    <span class="n">Type</span><span class="p">:</span> <span class="n">PositiveInteger</span>
+</pre></div>
+</div>
+<p>To get the keys:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="p">(</span><span class="mi">16</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">keys</span> <span class="n">aw</span>
+
+<span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+<span class="p">[</span><span class="s2">&quot;Og295&quot;</span><span class="p">,</span> <span class="s2">&quot;Og294&quot;</span><span class="p">,</span> <span class="s2">&quot;Og293&quot;</span><span class="p">,</span> <span class="s2">&quot;Uus294&quot;</span><span class="p">,</span> <span class="s2">&quot;Ts293&quot;</span><span class="p">,</span> <span class="s2">&quot;Ts292&quot;</span><span class="p">,</span> <span class="s2">&quot;Ts291&quot;</span><span class="p">,</span> <span class="s2">&quot;Lv293&quot;</span><span class="p">,</span>
+ <span class="s2">&quot;Lv292&quot;</span><span class="p">,</span> <span class="s2">&quot;Lv291&quot;</span><span class="p">,</span> <span class="s2">&quot;Lv290&quot;</span><span class="p">,</span> <span class="s2">&quot;Lv289&quot;</span><span class="p">,</span> <span class="s2">&quot;Uup291&quot;</span><span class="p">,</span> <span class="s2">&quot;Mc290&quot;</span><span class="p">,</span> <span class="s2">&quot;Mc289&quot;</span><span class="p">,</span> <span class="s2">&quot;Mc288&quot;</span><span class="p">,</span>
+ <span class="s2">&quot;Mc287&quot;</span><span class="p">,</span> <span class="s2">&quot;Fl289&quot;</span><span class="p">,</span> <span class="s2">&quot;Fl288&quot;</span><span class="p">,</span> <span class="s2">&quot;Fl287&quot;</span><span class="p">,</span> <span class="s2">&quot;Fl286&quot;</span><span class="p">,</span> <span class="s2">&quot;Fl285&quot;</span><span class="p">,</span> <span class="s2">&quot;Nh287&quot;</span><span class="p">,</span> <span class="s2">&quot;Nh286&quot;</span><span class="p">,</span>
+ <span class="s2">&quot;Nh285&quot;</span><span class="p">,</span> <span class="s2">&quot;Nh284&quot;</span><span class="p">,</span> <span class="s2">&quot;Nh283&quot;</span><span class="p">,</span> <span class="s2">&quot;Nh282&quot;</span><span class="p">,</span> <span class="s2">&quot;Nh281&quot;</span><span class="p">,</span> <span class="s2">&quot;Nh280&quot;</span><span class="p">,</span> <span class="s2">&quot;Nh279&quot;</span><span class="p">,</span> <span class="s2">&quot;Nh278&quot;</span><span class="p">,</span>
+ <span class="s2">&quot;Cn285&quot;</span><span class="p">,</span> <span class="s2">&quot;Cn284&quot;</span><span class="p">,</span> <span class="s2">&quot;Cn283&quot;</span><span class="p">,</span> <span class="s2">&quot;Cn282&quot;</span><span class="p">,</span> <span class="s2">&quot;Cn281&quot;</span><span class="p">,</span> <span class="s2">&quot;Cn280&quot;</span><span class="p">,</span> <span class="s2">&quot;Cn279&quot;</span><span class="p">,</span> <span class="s2">&quot;Cn278&quot;</span><span class="p">,</span>
+ <span class="s2">&quot;Cn277&quot;</span><span class="p">,</span> <span class="s2">&quot;Cn276&quot;</span><span class="p">,</span> <span class="s2">&quot;Rg283&quot;</span><span class="p">,</span> <span class="s2">&quot;Rg282&quot;</span><span class="p">,</span> <span class="s2">&quot;Rg281&quot;</span><span class="p">,</span> <span class="s2">&quot;Rg280&quot;</span><span class="p">,</span> <span class="s2">&quot;Rg279&quot;</span><span class="p">,</span> <span class="s2">&quot;Rg278&quot;</span><span class="p">,</span>
+ <span class="s2">&quot;Rg277&quot;</span><span class="p">,</span> <span class="s2">&quot;Rg276&quot;</span><span class="p">,</span> <span class="s2">&quot;Rg275&quot;</span><span class="p">,</span> <span class="s2">&quot;Rg274&quot;</span><span class="p">,</span> <span class="s2">&quot;Rg273&quot;</span><span class="p">,</span> <span class="s2">&quot;Rg272&quot;</span><span class="p">,</span> <span class="s2">&quot;Ds281&quot;</span><span class="p">,</span> <span class="s2">&quot;Ds280&quot;</span><span class="p">,</span>
+ <span class="s2">&quot;Ds279&quot;</span><span class="p">,</span> <span class="s2">&quot;Ds278&quot;</span><span class="p">,</span> <span class="s2">&quot;Ds277&quot;</span><span class="p">,</span> <span class="s2">&quot;Ds276&quot;</span><span class="p">,</span> <span class="s2">&quot;Ds275&quot;</span><span class="p">,</span> <span class="s2">&quot;Ds274&quot;</span><span class="p">,</span> <span class="s2">&quot;Ds273&quot;</span><span class="p">,</span> <span class="s2">&quot;Ds272&quot;</span><span class="p">,</span>
+ <span class="s2">&quot;Ds271&quot;</span><span class="p">,</span> <span class="s2">&quot;Ds270&quot;</span><span class="p">,</span> <span class="s2">&quot;Ds269&quot;</span><span class="p">,</span> <span class="s2">&quot;Ds268&quot;</span><span class="p">,</span> <span class="s2">&quot;Ds267&quot;</span><span class="p">,</span> <span class="s2">&quot;Mt279&quot;</span><span class="p">,</span> <span class="s2">&quot;Mt278&quot;</span><span class="p">,</span> <span class="s2">&quot;Mt277&quot;</span><span class="p">,</span>
+ <span class="s2">&quot;Mt276&quot;</span><span class="p">,</span> <span class="s2">&quot;Mt275&quot;</span><span class="p">,</span> <span class="s2">&quot;Mt274&quot;</span><span class="p">,</span> <span class="s2">&quot;Mt273&quot;</span><span class="p">,</span> <span class="s2">&quot;Mt272&quot;</span><span class="p">,</span> <span class="s2">&quot;Mt271&quot;</span><span class="p">,</span> <span class="s2">&quot;Mt270&quot;</span><span class="p">,</span> <span class="s2">&quot;Mt269&quot;</span><span class="p">,</span>
+ <span class="s2">&quot;Mt268&quot;</span><span class="p">,</span> <span class="o">....</span>
+</pre></div>
+</div>
+<p>To obtain a record to a key (Symbol):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="mi">17</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">aw</span> <span class="s2">&quot;Og295&quot;</span>
+
+<span class="p">(</span><span class="mi">17</span><span class="p">)</span>  <span class="p">[</span><span class="s2">&quot;118&quot;</span><span class="p">,</span> <span class="s2">&quot;Og&quot;</span><span class="p">,</span> <span class="s2">&quot;295&quot;</span><span class="p">,</span> <span class="s2">&quot;295.21624(69#)&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+                                                       <span class="n">Type</span><span class="p">:</span> <span class="n">List</span><span class="p">(</span><span class="n">String</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>One may use the specific accessor functions, e.g.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="mi">18</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">atomicNumber</span><span class="p">(</span><span class="s2">&quot;Og295&quot;</span><span class="p">,</span><span class="n">aw</span><span class="p">)</span>
+
+<span class="p">(</span><span class="mi">18</span><span class="p">)</span>  <span class="mi">118</span>
+                                                    <span class="n">Type</span><span class="p">:</span> <span class="n">PositiveInteger</span>
+<span class="p">(</span><span class="mi">19</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">atomicSymbol</span><span class="p">(</span><span class="s2">&quot;Og295&quot;</span><span class="p">,</span><span class="n">aw</span><span class="p">)</span>
+
+<span class="p">(</span><span class="mi">19</span><span class="p">)</span>  <span class="n">Og</span>
+                                                             <span class="n">Type</span><span class="p">:</span> <span class="n">Symbol</span>
+<span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">atomicMass</span><span class="p">(</span><span class="s2">&quot;Og295&quot;</span><span class="p">,</span><span class="n">aw</span><span class="p">)</span>
+
+<span class="p">(</span><span class="mi">20</span><span class="p">)</span>  <span class="mf">295.21624</span>
+                                                              <span class="n">Type</span><span class="p">:</span> <span class="n">Float</span>
+
+<span class="p">(</span><span class="mi">21</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">atomicMassUnc</span><span class="p">(</span><span class="s2">&quot;H1&quot;</span><span class="p">,</span><span class="n">aw</span><span class="p">)</span>
+
+<span class="p">(</span><span class="mi">21</span><span class="p">)</span>  <span class="mf">0.9</span> <span class="n">E</span> <span class="o">-</span><span class="mi">10</span>
+                                                              <span class="n">Type</span><span class="p">:</span> <span class="n">Float</span>
+<span class="p">(</span><span class="mi">22</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">isotopeSymbol</span><span class="p">(</span><span class="s2">&quot;He4&quot;</span><span class="p">,</span><span class="n">aw</span><span class="p">)</span>
+
+     <span class="mi">4</span>
+<span class="p">(</span><span class="mi">22</span><span class="p">)</span>  <span class="n">He</span>
+     <span class="mi">2</span>
+                                                             <span class="n">Type</span><span class="p">:</span> <span class="n">Symbol</span>
+</pre></div>
+</div>
+<p>and so on.</p>
+<p>The correspondence is as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Atomic</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">.........................</span> <span class="n">atomicNumber</span> <span class="o">-&gt;</span> <span class="mi">1</span>
+<span class="n">Atomic</span> <span class="n">Symbol</span> <span class="o">=</span> <span class="n">H</span> <span class="o">.........................</span> <span class="n">atomicSymbol</span> <span class="o">-&gt;</span> <span class="n">H</span>
+<span class="n">Mass</span> <span class="n">Number</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">...........................</span> <span class="n">massNumber</span> <span class="o">-&gt;</span> <span class="mi">1</span>
+<span class="n">Relative</span> <span class="n">Atomic</span> <span class="n">Mass</span> <span class="mf">1.00782503223</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span> <span class="o">.....</span> <span class="n">atomicMass</span> <span class="o">-&gt;</span> <span class="mf">1.00782503223</span>
+                                      <span class="o">.....</span> <span class="n">atomicMassUnc</span> <span class="o">-&gt;</span>  <span class="mf">0.9</span> <span class="n">E</span> <span class="o">-</span><span class="mi">10</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">SPADLib</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">AWAIC - Atomic Weights and Isotope Compositions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#developers-and-contributors">Developers and Contributors:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get-up-to-date-data-file-from-nist">Get up-to-date data file from NIST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#load-the-awaic-package">Load the AWAIC package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#read-the-data-file-into-fricas">Read the data file into FriCAS</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to SPADLib’s documentation!</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Kurt Pagani.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/awaic.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

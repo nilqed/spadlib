@@ -12,8 +12,12 @@ Install
   $ cd ~/quicklisp/local-projects
   $ git clone https://github.com/nilqed/spadlib.git
   
-  Add the contents of spadlib/system-index.txt to 
-  local-projects/system-index.txt (or only those you like).
+  Note: Add/merge the contents of spadlib/system-index.txt to 
+  local-projects/system-index.txt (or only those you like), so that
+  quicklisp can find the ASDF files. This will not ne necessary if the
+  packages are move to 'local-project/<item>', i.e without the 'spadlib'
+  folder.  
+  
 		  
 Usage
 

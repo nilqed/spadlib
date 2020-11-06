@@ -29,3 +29,9 @@ Value = ("awaic")
  readRawDataFile : String -> StringTable(List(String))
  str2floatUncertainty : String -> Float
 
+
+Goto: https://www.nist.gov/pml/atomic-weights-and-isotopic-compositions-relative-atomic-masses
+-- Linearized ASCII Output
+-- All isotopes
+-- Get Data
+-- Save file -> paste in awaic.txt (remove header/footer)

@@ -1,0 +1,426 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>CODATA - values of the fundamental physical constants &#8212; SPADLib 0.8 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="AWAIC - Atomic Weights and Isotope Compositions" href="awaic.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="codata-values-of-the-fundamental-physical-constants">
+<h1>CODATA - values of the fundamental physical constants<a class="headerlink" href="#codata-values-of-the-fundamental-physical-constants" title="Permalink to this headline">¶</a></h1>
+<p>Reference: <a class="reference external" href="https://www.nist.gov/programs-projects/codata-values-fundamental-physical-constants">CODATA&#64;NIST</a></p>
+<div class="section" id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
+<p>Every four years, the Committee on Data for Science and Technology
+(<a class="reference external" href="https://codata.org/initiatives/strategic-programme/fundamental-physical-constants/">CODATA</a>)
+issues recommended values of the fundamental physical constants. The values
+are determined by a least-squares adjustment, based on all the available
+theoretical and experimental information. The selection and assessment of
+data is done under the auspices of the CODATA Task Group on Fundamental
+Constants.</p>
+</div>
+<div class="section" id="loading">
+<h2>Loading<a class="headerlink" href="#loading" title="Permalink to this headline">¶</a></h2>
+<dl class="field-list simple">
+<dt class="field-odd">Requires</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">PHYSQTY</span></code> (automatic when using quickLoad).</p>
+</dd>
+</dl>
+<p>Using <code class="docutils literal notranslate"><span class="pre">quickLoad</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">quickLoad</span> <span class="s2">&quot;codata&quot;</span>
+   <span class="n">Codata</span> <span class="n">will</span> <span class="n">be</span> <span class="n">automatically</span> <span class="n">loaded</span> <span class="n">when</span> <span class="n">needed</span> <span class="kn">from</span>
+      <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">kfp</span><span class="o">/</span><span class="n">quicklisp</span><span class="o">/</span><span class="n">local</span><span class="o">-</span><span class="n">projects</span><span class="o">/</span><span class="n">spadlib</span><span class="o">/</span><span class="n">codata</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">CODATA</span><span class="o">.</span><span class="n">NRLIB</span><span class="o">/</span><span class="n">CODATA</span>
+
+<span class="n">Value</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;codata&quot;</span><span class="p">)</span>
+                                                                <span class="n">Type</span><span class="p">:</span> <span class="n">Void</span>
+<span class="o">&gt;</span> <span class="p">)</span><span class="n">sh</span> <span class="n">CODATA</span>
+ <span class="n">Codata</span> <span class="ow">is</span> <span class="n">a</span> <span class="n">package</span> <span class="n">constructor</span>
+ <span class="n">Abbreviation</span> <span class="k">for</span> <span class="n">Codata</span> <span class="ow">is</span> <span class="n">CODATA</span>
+ <span class="n">This</span> <span class="n">constructor</span> <span class="ow">is</span> <span class="n">exposed</span> <span class="ow">in</span> <span class="n">this</span> <span class="n">frame</span><span class="o">.</span>
+<span class="o">-----------------------------------------------------</span> <span class="n">Operations</span> <span class="o">-------</span>
+ <span class="n">F</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>                                   <span class="n">G</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>
+ <span class="n">G_0</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>                                 <span class="n">K_J</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>
+ <span class="n">L</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>                                   <span class="n">Phi_0</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>
+ <span class="n">R</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>                                   <span class="n">R_K</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>
+ <span class="n">R_inf</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>                               <span class="n">alpha</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>
+ <span class="n">c</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>                                   <span class="n">c0</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>
+ <span class="n">codata</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Table</span><span class="p">(</span><span class="n">Symbol</span><span class="p">,</span><span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">))</span>                <span class="n">e</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>
+ <span class="n">eV</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>                                  <span class="n">eps_0</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>
+ <span class="n">h</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>                                   <span class="n">hbar</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>
+ <span class="n">k</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>                                   <span class="n">m_e</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>
+ <span class="n">m_n</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>                                 <span class="n">m_p</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>
+ <span class="n">mu_0</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>                                <span class="n">sigma</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>
+ <span class="n">u</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>
+
+<span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>The general form to get the value of a constant is</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">symbol</span><span class="o">&gt;</span><span class="p">()</span><span class="nd">@CODATA</span>
+</pre></div>
+</div>
+<p>whereby the package selector <code class="docutils literal notranslate"><span class="pre">&#64;CODATA</span></code> may usually be neglected</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">F</span><span class="p">()</span>
+                           <span class="o">-</span> <span class="mi">1</span>
+   <span class="p">(</span><span class="mi">4</span><span class="p">)</span>  <span class="mf">96485.33212</span> <span class="n">s</span> <span class="n">A</span> <span class="n">mol</span>
+                                                    <span class="n">Type</span><span class="p">:</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="n">eV</span>
+
+   <span class="p">(</span><span class="mi">5</span><span class="p">)</span>  <span class="n">eV</span>
+                                                    <span class="n">Type</span><span class="p">:</span> <span class="n">Variable</span><span class="p">(</span><span class="n">eV</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="n">eV</span><span class="p">()</span>
+
+                            <span class="mi">2</span>    <span class="o">-</span> <span class="mi">2</span>
+   <span class="p">(</span><span class="mi">6</span><span class="p">)</span>  <span class="mf">0.1602176634</span> <span class="n">E</span> <span class="o">-</span><span class="mi">18</span> <span class="n">m</span> <span class="n">kg</span> <span class="n">s</span>
+                                                    <span class="n">Type</span><span class="p">:</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="n">m_e</span><span class="p">()</span>  <span class="o">*</span> <span class="n">c</span><span class="p">()</span><span class="o">^</span><span class="mi">2</span>
+
+                                       <span class="mi">2</span>    <span class="o">-</span> <span class="mi">2</span>
+   <span class="p">(</span><span class="mi">7</span><span class="p">)</span>  <span class="mf">0.8187105776_8238859678</span> <span class="n">E</span> <span class="o">-</span><span class="mi">13</span> <span class="n">m</span> <span class="n">kg</span> <span class="n">s</span>
+                                                    <span class="n">Type</span><span class="p">:</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A table with all avialable constants can be called by</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>  <span class="o">&gt;</span> <span class="n">CT</span><span class="p">:</span><span class="o">=</span><span class="n">codata</span><span class="p">()</span>
+
+ <span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+ <span class="n">table</span>
+                       <span class="mi">2</span>    <span class="o">-</span> <span class="mi">3</span>
+    <span class="n">R_K</span> <span class="o">=</span> <span class="mf">25812.80745</span> <span class="n">m</span> <span class="n">kg</span> <span class="n">s</span>   <span class="n">A</span>
+<span class="p">,</span>
+                       <span class="o">-</span> <span class="mi">2</span>  <span class="o">-</span> <span class="mi">1</span> <span class="mi">2</span>
+    <span class="n">K_J</span> <span class="o">=</span> <span class="mf">483597.8484</span> <span class="n">m</span>   <span class="n">kg</span>   <span class="n">s</span> <span class="n">A</span>
+<span class="p">,</span>
+                                  <span class="o">-</span> <span class="mi">3</span> <span class="o">-</span> <span class="mi">4</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.5670374419</span> <span class="n">E</span> <span class="o">-</span><span class="mi">7</span> <span class="n">kg</span> <span class="n">s</span>   <span class="n">K</span>
+<span class="p">,</span>
+                        <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">c0</span> <span class="o">=</span> <span class="mf">299792458.0</span> <span class="n">m</span> <span class="n">s</span>
+<span class="p">,</span>
+                       <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="mf">299792458.0</span> <span class="n">m</span> <span class="n">s</span>
+<span class="p">,</span> <span class="o">....</span>
+
+                    <span class="n">Type</span><span class="p">:</span> <span class="n">Table</span><span class="p">(</span><span class="n">Symbol</span><span class="p">,</span><span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Then</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="o">&gt;</span> <span class="n">CT</span><span class="o">.</span><span class="n">hbar</span>
+
+                          <span class="mi">2</span>    <span class="o">-</span> <span class="mi">1</span>
+<span class="p">(</span><span class="mi">19</span><span class="p">)</span>  <span class="mf">0.1054571817</span> <span class="n">E</span> <span class="o">-</span><span class="mi">33</span> <span class="n">m</span> <span class="n">kg</span> <span class="n">s</span>
+                                              <span class="n">Type</span><span class="p">:</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>
+ <span class="o">&gt;</span> <span class="n">CT</span><span class="o">.</span><span class="n">k</span>
+
+                       <span class="mi">2</span>    <span class="o">-</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="p">(</span><span class="mi">20</span><span class="p">)</span>  <span class="mf">0.1380649</span> <span class="n">E</span> <span class="o">-</span><span class="mi">22</span> <span class="n">m</span> <span class="n">kg</span> <span class="n">s</span>   <span class="n">K</span>
+                                              <span class="n">Type</span><span class="p">:</span> <span class="n">PhysQty</span><span class="p">(</span><span class="n">SIunit</span><span class="p">)</span>
+ <span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>For output with <code class="docutils literal notranslate"><span class="pre">uncertainty</span></code>, we have to use options in <code class="docutils literal notranslate"><span class="pre">PQTY</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> &gt; setOutputMode(1)$PhysQty(SIunit)
+
+(9)  1
+                                                                                                Type: PositiveInteger
+&gt; F()
+
+                                     - 1
+(10)  96485.33212 +- 0.4 E -15 s A mol
+
+                            Type: PhysQty(SIunit)
+</pre></div>
+</div>
+</div>
+<div class="section" id="definitions">
+<h2>Definitions<a class="headerlink" href="#definitions" title="Permalink to this headline">¶</a></h2>
+<p>(see source code)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>-- atomic mass constant
+-- $m_{\rm u}$
+-- Value   1.660 539 066 60 x 10-27 kg
+-- Standard uncertainty    0.000 000 000 50 x 10-27 kg
+-- Relative standard uncertainty    1.2 x 10-8
+-- Concise form    1.660 539 066 60(50) x 10-27 kg
+ct.&#39;m_u := CT(1.66053906660,0.00000000050, %kg(1))
+
+-- Avogadro constant
+-- $N_{\rm A},L$
+-- Value   6.022 140 76 x 10+23 mol-1
+-- Standard uncertainty    0.0 x 10+23 mol-1
+-- Relative standard uncertainty    exact
+-- Concise form    6.022 140 76 x 10+23 mol-1
+ct.&#39;L  := CT(6.02214076E23, 0.0, %mol(-1))
+
+-- Boltzmann constant
+-- $k$
+-- Value   1.380 649 x 10+23 J K-1
+-- Standard uncertainty    0.0 x 10-23 J K-1
+-- Relative standard uncertainty    exact
+-- Concise form    1.380 649 x 10-23 J K-1
+ct.&#39;k  := CT(1.380649E-23, 0.0E-23, %m(2)*%kg(1)*%s(-2)*%K(-1))
+
+-- conductance quantum
+-- $G_0$
+-- Value   7.748 091 7310 x 10-5 S
+-- Standard uncertainty    0.0 x 10-5 S
+-- Relative standard uncertainty    exact
+-- Concise form    7.748 091 729 x 10-5 S
+ct.&#39;G_0 := CT(7.748091729E-5, 0.0E-5, %m(-2)*%kg(-1)*%s(3)*%A(2))
+
+-- electric constant
+-- $\varepsilon_0$
+-- Value   8.854 187 8128 x 10-12 F m-1
+-- Standard uncertainty 0.000 000 0013 x 10-12 F m-1
+-- Relative standard uncertainty  1.5 x 10-10
+-- Concise form 8.854 187 8128(13) x 10-12 F m-1
+ct.&#39;eps_0 := CT(8.8541878128E-12,0.0000000013E-12 , %m(-3)*%kg(-1)*%s(4)*%A(2))
+
+-- electron mass
+-- $m_{\rm e}$
+-- Value   9.109 383 7015 x 10-31 kg
+-- Standard uncertainty    0.000 000 0028 x 10-31 kg
+-- Relative standard uncertainty    3.0 x 10-10
+-- Concise form   9.109 383 7015(28) x 10-31 kg
+ct.&#39;m_e := CT(9.1093837015E-31, 0.0000000028E-31, %kg(1))
+
+-- electron volt
+-- eV
+-- Value   1.602 176 634 x 10-19 J
+-- Standard uncertainty    0.0 x 10-19 J
+-- Relative standard uncertainty    exact
+-- Concise form   1.602 176 634 x 10-19 J
+ct.&#39;eV := CT(1.602176634E-19, 0.0E-19, %m(2)*%kg(1)*%s(-2))
+
+-- elementary charge
+-- $e$
+-- Value    1.602 176 634 x 10-19  C
+-- Standard uncertainty    0.0 x 10-19 C
+-- Relative standard uncertainty    exact
+-- Concise form     1.602 176 634  x 10-19 C
+ct.&#39;e  := CT(1.602176634E-19, 0.0E-19, %A(1)*%s(1))
+
+-- Faraday constant
+-- $F$
+-- Value   96 485.332 12 C mol-1
+-- Standard uncertainty         0.0 C mol-1
+-- Relative standard uncertainty    exact
+-- Concise form   96 485.332 12 C mol-1
+ct.&#39;F := CT(96485.33212, 0.0, %s(1)*%A(1)*%mol(-1))
+
+-- fine-structure constant
+-- $\alpha$
+-- Value   7.297 352 5693 x 10-3
+-- Standard uncertainty    0.000 000 0011 x 10-3
+-- Relative standard uncertainty    1.5 x 10-10
+-- Concise form    7.297 352 5693(11) x 10-3
+ct.&#39;alpha := CT(7.2973525693E-3, 0.0000000011E-3,%m(0)$SI)
+
+-- magnetic constant
+-- $\mu_0$
+-- Value   1.256 637 062 12 x 10-6 N A-2
+-- Standard uncertainty 0.000 000 000 19 x 10-6 N A-2
+-- Relative standard uncertainty  1.5 x 10-10
+-- Concise form  1.256 637 062 12(19) x 10-6 N A-2
+ct.&#39;mu_0 := CT(1.25663706212E-6, 0.00000000019E-6, %m(1)*%kg(1)*%s(-2)*%A(-2))
+
+-- magnetic flux quantum
+-- ${\it \Phi}_0$
+-- Value   2.067 833 848 x 10-15 Wb
+-- Standard uncertainty exact
+-- Relative standard uncertainty  exact
+-- Concise form    2.067 833 848 x 10-15 Wb
+ct.&#39;Phi_0 := CT(2.067833848E-15, 0.0E-15, %m(2)*%kg(1)*%s(-2)*%A(-1))
+
+-- molar gas constant
+-- $R$
+-- Value   8.314 462 618 J mol-1 K-1
+-- Standard uncertainty   exact
+-- Relative standard uncertainty    exact
+-- Concise form   8.314 462 618... J mol-1 K-1
+ct.&#39;R  := CT(8.314462618, 0.0, %m(2)*%kg(1)*%s(-2)*%mol(-1)*%K(-1))
+
+-- neutron mass CODATA2014
+-- $m_{\rm n}$
+-- Value   1.674 927 351 x 10-27 kg
+-- Standard uncertainty    0.000 000 074 x 10-27 kg
+-- Relative standard uncertainty    4.4 x 10-8
+-- Concise form    1.674 927 351(74) x 10-27 kg
+ct.&#39;m_n := CT(1.674927351E-27, 0.000000074E-27, %kg(1))
+
+-- Newtonian constant of gravitation
+-- $ G $
+-- Value   6.674 30 x 10-11 m3 kg-1 s-2
+-- Standard uncertainty    0.000 15 x 10-11 m3 kg-1 s-2
+-- Relative standard uncertainty    2.2 x 10-5
+-- Concise form    6.674 30(31) x 10-11 m3 kg-1 s-2
+ct.&#39;G  := CT(6.67430E-11, 0.00015E-11, %m(3)*%kg(-1)*%s(-2))
+
+-- Planck constant
+-- $ h $
+-- Value   6.626 070 15 x 10-34 J s
+-- Standard uncertainty    exact
+-- Relative standard uncertainty  exact
+-- Concise form    6.626 070 15 x 10-34 J s
+ct.&#39;h  := CT(6.62607015E-34, 0.0E-34, %m(2)*%kg(1)*%s(-1))
+
+-- Planck constant over 2 pi
+-- $\hbar$
+-- Value   1.054 571 817 x 10-34 J s
+-- Standard uncertainty exact
+-- Relative standard  exact
+-- Concise form    1.054 571 817... x 10-34 J s
+ct.&#39;hbar := CT(1.054571817E-34, 0.0E-34,%m(2)*%kg(1)*%s(-1))
+
+-- proton mass
+-- $m_{\rm p}$
+-- Value   1.672 621 923 69 x 10-27 kg
+-- Standard uncertainty   0.000 000 000 51 x 10-27 kg
+-- Relative standard uncertainty    3.1 x 10-8
+-- Concise form 1.672 621 923 69(51) x 10-27 kg
+ct.&#39;m_p := CT(1.67262192369E-27, 0.00000000051E-27, %kg(1))
+
+-- Rydberg constant
+-- $R_\infty$
+-- Value   10 973 731.568 508 m-1
+-- Standard uncertainty             0.000 065 m-1
+-- Relative standard uncertainty    5.9 x 10-12
+-- Concise form    10 973 731.568 539(55) m-1
+ct.&#39;R_inf := CT(10973731.568508, 0.000065, %m(-1))
+
+-- speed of light in vacuum
+-- $ c,c_0 $
+-- Value   299 792 458 m s-1
+-- Standard uncertainty    (exact)
+-- Relative standard uncertainty   (exact)
+-- Concise form    299 792 458 m s-1
+ct.&#39;c  := CT(299792458.0, 0.0, %m(1)*%s(-1))
+ct.&#39;c0 := CT(299792458.0, 0.0, %m(1)*%s(-1))
+
+-- Stefan-Boltzmann constant
+-- $\sigma$
+-- Value   5.670 374 419 x 10-8 W m-2 K-4
+-- Standard uncertainty   exact
+-- Relative standard uncertainty    exact
+-- Concise form   5.670 374 419... x 10-8 W m-2 K-4
+ct.&#39;sigma := CT(5.670374419E-8,0.000013E-8,%kg(1)*%s(-3)*%K(-4))
+
+-- Josephson constant
+-- $K_J$
+-- Numerical value         483 597.848 4...  x 109 Hz V-1
+-- Standard uncertainty    (exact)
+-- Relative standard uncertainty   (exact)
+--  Concise form   483 597.848 4... x 109 Hz V-1
+ct.&#39;K_J := CT(483597.8484,0.0,%m(-2)*%kg(-1)*%s(2)*%A(1))
+
+-- von Klitzing constant
+-- $R_K$
+-- Numerical value         25 812.807 45... Ohm
+-- Standard uncertainty    (exact)
+-- Relative standard uncertainty   (exact)
+-- Concise form    25 812.807 45... Ohm
+ct.&#39;R_K := CT(25812.80745,0.0,%m(2)*%kg(1)*%s(-3)*%A(1))
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">SPADLib</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="awaic.html">AWAIC - Atomic Weights and Isotope Compositions</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">CODATA - values of the fundamental physical constants</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#loading">Loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#definitions">Definitions</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="awaic.html" title="previous chapter">AWAIC - Atomic Weights and Isotope Compositions</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Kurt Pagani.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/codata.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
