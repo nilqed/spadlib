@@ -1,0 +1,33 @@
+)co ../pipe
+
+stream:=run("pure",["-i","-q"])
+readNoHang(stream)
+writeln("1+2;",stream)
+readln(stream)
+writeln("quit",stream)
+close(stream)
+
+stream:=run("python",["-i"])
+readNoHang(stream)
+writeln("1+2",stream)
+readln(stream)
+writeln("quit()",stream)
+close(stream)
+
+stream:=run("maxima",["--very-quiet"])
+readNoHang(stream)
+writeln("diff(x^n,x);",stream)
+readln(stream)
+writeln("quit();",stream)
+close(stream)
+
+--stream:=run("asy",[])
+--readNoHang(stream)
+--writeln("import graph;",stream)
+--writeln(" size(200,150,IgnoreAspect);",stream)
+--writeln("real[] x={0,1,2,3};",stream)
+--writeln("real[] y=x^2;",stream)
+--writeln("xaxis(_"$x$_",BottomTop,LeftTicks);",stream)
+--writeln("yaxis(_"$y$_",LeftRight,RightTicks(Label(fontsize(8pt)),new real[]{0,4,9}));",stream)
+--readNoHang(stream)
+--writeln("draw(graph(x,y),red);",stream)

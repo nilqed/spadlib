@@ -1,11 +1,8 @@
---)lisp (defun |spadPipe| (app &optional args)(let ((proc (sb-ext:run-program app args :input :stream :output :stream :wait nil :search t)))(when proc (make-two-way-stream (sb-ext:process-output proc) (sb-ext:process-input proc)))))
---)lisp (defun |readPipe| (stream)(with-output-to-string (out)(loop for c = (read-char-no-hang stream) while c do (write-char c out))))
---)lisp (load "pipe.lisp")
 )abbrev package PIPE SpadPipe 
 ++ Author: Kurt Pagani <nilqed@gmail.com>
 ++ Date Created: Mon Nov 23 13:30:24 CET 2015
 ++ License: BSD
-++ Date Last Updated: 
+++ Date Last Updated: 08-MAR-2021
 ++ Keywords: 
 ++ Examples: 
 ++ References: 
@@ -13,65 +10,81 @@
 ++ Description: interfacing interactive programs     
 ++ Notes: SBCL only at the moment
 SpadPipe() : Exports == Implementation where
- 
+
   MSC ==> MoreSystemCommands
-  LISP(s) ==> systemCommand("lisp " s)$MSC  
+  LISP(s) ==> systemCommand("lisp " s)$MSC 
  
   Exports ==  with
        
     run : (String,List String) -> SExpression
-    write : (String,SExpression) -> SExpression
+    writepipe : (String,SExpression) -> SExpression
     writeln : (String,SExpression) -> SExpression
-    readNoHang : SExpression -> String
-    readln : SExpression -> String
+    readpipe : SExpression -> String
+    readtimeout : (SExpression, NonNegativeInteger) -> String 
+    flushpipe : SExpression -> SExpression
+    sleep : NonNegativeInteger -> SExpression
     close : SExpression -> SExpression
         	
   Implementation ==  add 
-
+  
     LISP(concat ["(defun |spadPipe| (app &optional args) ",_
      "(let ((proc (sb-ext:run-program app args ",_
      ":input :stream :output :stream :wait nil ",_
      ":search t)))(when proc (make-two-way-stream ",_
      "(sb-ext:process-output proc) (sb-ext:process-input proc)))))"])
     
-    LISP(concat ["(defun |readPipe| (stream)(with-output-to-string (out)",_
-     "(loop for c = (read-char-no-hang stream) while c do ",_
-     "(write-char c out))))"])
 
+    LISP(concat ["(defun |readPipe| (stream)(with-output-to-string (out)",_
+     "(if (listen stream) ",_
+     "(loop for c = (read-char-no-hang stream nil nil) while c do ",_
+     "(write-char c out)) ",_
+     "(format t _"No output available.~%_"))))"])
+    
+    LISP(concat ["(defun |readSilent| (stream)(with-output-to-string (out)",_
+     "(if (listen stream) ",_
+     "(loop for c = (read-char-no-hang stream nil nil) while c do ",_
+     "(write-char c out)) ",_
+     ")))"])    
+    
     run(s:String,a:List String):SExpression ==
       stream:=spadPipe(s,a)$Lisp
       
-    write(s,x) == FORMAT(x,"~a~%",s)$Lisp
-    writeln(s,x) ==
-      write(s,x)
-      FINISH_-OUTPUT(x)$Lisp
+    writepipe(s,x) == FORMAT(x,"~a~%",s)$Lisp
     
-    readln(x) == READ_-LINE(x)$Lisp
-    readNoHang(x) == readPipe(x)$Lisp
+    writeln(s,x) ==
+      writepipe(s,x)
+      FINISH_-OUTPUT(x)$Lisp
+      
+    readpipe(x) == 
+      FORCE_-OUTPUT(x)$Lisp 
+      readPipe(x)$Lisp
+
+    ITUPS:SExpression := INTERNAL_-TIME_-UNITS_-PER_-SECOND$Lisp
+    ITUPSI:Integer := integer(ITUPS)$SExpression
+    
+    getRealTime():Integer == 
+      t:SExpression := GET_-INTERNAL_-REAL_-TIME()$Lisp
+      integer(t)$SExpression
+
+    readtimeout(x,ms) ==
+      t0:Integer := getRealTime() 
+      t1:Integer := getRealTime()
+      s:String:=""
+      while ((t1-t0) quo ITUPSI)*1000 <= ms repeat
+        s := readSilent(x)$Lisp
+        if s ~= "" then break
+        t1 := integer GET_-INTERNAL_-REAL_-TIME()$Lisp
+      return s  
+      
+    flushpipe(x) == FORCE_-OUTPUT(x)$Lisp
+    
+    sleep(ms) ==
+      r:DoubleFloat := (ms / 1000)::Fraction Integer::DoubleFloat 
+      SLEEP(r)$Lisp
+      
+    -- GET_-INTERNAL_-REAL_-TIME()$Lisp
+    -- INTERNAL_-TIME_-UNITS_-PER_-SECOND$Lisp --> 1000
+        
     close(x) == CLOSE(x)$Lisp
-   
--- stream:=run("pure",["-i","-q"])
--- readNoHang(stream)
--- writeln("1+2;",stream)
--- readln(stream)
--- writeln("quit",stream)
--- close(stream)
 
--- stream:=run("python",["-i"])
--- readNoHang(stream)
--- writeln("1+2",stream)
--- readln(stream)
--- writeln("quit()",stream)
--- close(stream)
 
--- stream:=run("asy",[])
--- readNoHang(stream)
--- writeln("import graph;",stream)
--- writeln(" size(200,150,IgnoreAspect);",stream)
--- writeln("real[] x={0,1,2,3};",stream)
--- writeln("real[] y=x^2;",stream)
--- writeln("xaxis(\"$x$\",BottomTop,LeftTicks);",stream)
--- writeln("yaxis(\"$y$\",LeftRight,RightTicks(Label(fontsize(8pt)),new real[]{0,4,9}));",stream)
--- readlnNoHang(stream)
--- writeln("draw(graph(x,y),red);",stream)
---
