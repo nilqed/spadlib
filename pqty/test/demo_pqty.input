@@ -1,0 +1,50 @@
+quickLoad "pqty"
+
+l := 10.2 %m(1)
+t := 0.6 %s(1)
+v := l/t
+
+rho := 1.006 (%kg(1)/%m(3))
+vol := 765.6 %m(3)
+M   := rho * vol
+
+ival M
+magnitude rho
+uncertainty M
+unit vol
+
+setOutputMode(1)$PQTY SI
+M
+
+setOutputMode(2)$PQTY SI
+M
+
+setOutputMode(3)$PQTY SI
+M
+
+setOutputMode(2)$PQTY SI
+
+P := (355/133) pascal()
+A := (133/355) %m(2)
+P*A
+
+--
+-- Dimensional analysis (Buckingham PI)
+--
+)clear values l t v L A P M g
+
+D==> DIMAN(SI)
+t:Table(Symbol,SI):=table()
+t.L:=%m(1)$SI ; t.M:=%kg(1)$SI; t.T:=%s(1)$SI; t.g:=%m(1)$SI/%s(2)$SI
+buckingham(t)
+
+
+-- New systems
+-- Ec. CGS
+
+CGS := PUSYS [cm, g, s]
+U:= baseUnits()$CGS
+l := 4.0 U.1
+m := (34/7) U.2
+l*m
+uncertainty %
