@@ -1,0 +1,63 @@
+
+
+Pipe to an external application from FriCAS
+- interactive
+- within package (use readtimeout)
+
+
+========
+EXAMPLES
+========
+
+-- Julia, Pure, Python, Asymptote
+-- Low level functions (show PIPE)
+
+
+)co pipe
+
+stream:=run("julia",[])
+sleep(1000);
+readpipe(stream);
+writeln("2333*44444",stream);
+sleep(1000);
+readpipe(stream)
+writeln("2333+44444",stream);
+sleep(1000);
+readpipe(stream)
+writeln("[1,2,3,4,5]",stream);
+sleep(1000);
+readpipe(stream)
+writeln("2^12",stream)
+readtimeout(stream,1000)
+writeln("exit()",stream)
+close(stream)
+
+
+stream:=run("pure",["-i","-q"])
+readtimeout(stream,600)  -- 600ms timeout
+writeln("1+2;",stream)
+readtimeout(stream,600)
+writeln("quit",stream)
+close(stream)
+
+stream:=run("python",["-i"])
+readtimeout(stream,500)
+writeln("1+2",stream)
+readtimeout(stream,500)
+writeln("quit()",stream)
+close(stream)
+
+stream:=run("asy",[])
+readtimeout(stream,1000)
+writeln("import graph;",stream)
+writeln(" size(200,150,IgnoreAspect);",stream)
+writeln("real[] x={0,1,2,3};",stream)
+writeln("real[] y=x^2;",stream)
+writeln("xaxis(_"$x$_",BottomTop,LeftTicks);",stream)
+writeln("yaxis(_"$y$_",LeftRight,RightTicks(Label(fontsize(8pt)),new real[]{0,4,9}));",stream)
+readtimeout(stream,1000)
+writeln("draw(graph(x,y),red);",stream)
+writeln("quit",stream)
+
+
+
