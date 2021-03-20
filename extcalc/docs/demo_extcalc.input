@@ -1,0 +1,87 @@
+)co ../extcalc
+
+-- 
+U:=EXTCALC [x,y,z]
+dX:=generators()$U
+
+-- the displacement one-form dP : (moving point P)
+P:=coordVector()$U
+dP:=basisForms(1)$U  -- note: a list
+-- or
+dP:=d(P)$U -- note: a vector, same as dX
+test(dP=dX)
+
+-- Vector field
+VF := vectorField(V)$U
+VF.1 -- components 
+
+-- A one form
+f1:=VF*dX
+d(f1)$U -- d f1
+
+-- A two form (dual of f1)
+-- The "dual" is the Hodge star with the Euclidean metric
+f2 := dual f1
+
+-- A three form 
+f3 := f1*f2 
+
+-- or
+
+ff3 := d f2 -- this is div(V) times volume form
+
+-- Subst the coeffs in f1
+fs1 := substCoeffs(f1, [VF.1=A,VF.2=B,VF.3=C])
+
+-----------------------------
+-- Example 2: Minkowski space
+-----------------------------
+)clear completely
+
+M:=EXTCALC [x[i] for i in 1..4]
+dX:=generators()$M  -- dX.1 ... dX.4 basis one forms
+
+-- Metric
+g:=diagonalMatrix([-1,-1,-1,1])::SquareMatrix(4,EXPR INT)
+
+-- Volume form
+eta:=volumeForm(g)$M
+
+-- Hodge star examples
+hs1:=[hodgeStar(g,dX.i)$M for i in 1..4]
+basisForms(2)$M
+hs2:=[hodgeStar(g,b)$M for b in basisForms(2)$M]
+
+-- Duals of each basis form
+hsAll:=[[hodgeStar(g,b)$M for b in basisForms(i)$M] for i in 0..4]
+
+-- Check if a/\*a = dot(g,a,a)*volumeForm
+chkAll:=[[test(b*hodgeStar(g,b)$M = _
+  dot(g,b,b)$M*eta) for b in basisForms(i)$M] for i in 0..4]
+
+
+-- Vector fields
+E:=vectorField(E)$M
+B:=vectorField(B)$M
+
+-- Faraday 2-form
+F:=reduce(_+,[E.i*dX.i for i in 1..3])*dX.4 + B.1*dX.2*dX.3 -B.2*dX.1*dX.3 + _
+               B.3*dX.1*dX.2
+
+dF:= d(F)$M
+
+HM:=matrix [[H[i,j]*dX.i*dX.j for i in 1..4] for j in 1..4]
+
+HL:=[[H[i,j]*dX.i*dX.j for i in 1..4] for j in 1..4]
+
+map(x+->reduce(_+,x),HL)
+
+v := vectorField(v)$M
+
+ivF := interiorProduct(v,F)$M ;  -- long output, that's why suppress by ";"
+
+-- define a substitution list (purpose: pretty printing output)
+substList:=concat([[E.i=e[i],B.i=b[i],v.i=V[i]] for i in 1..4])
+
+substCoeffs(ivF, substList)$M
+

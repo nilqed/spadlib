@@ -5,7 +5,6 @@
 -- revised 09-JUN-2020  add getDRC() the assoc. DeRhamCurrent
 -- revised 21-JUN-2020  add generators(), EAB, TERM, getTerms, makeForm
 -- revised 15-JUL-2020  add jacobiMatrix of a mapping
--- revised 20-MAR-2021  add substCoeff (see docs/demo_extcalc)
 )abbrev package EXTCALC ExteriorCalculus
 ExteriorCalculus(v) : Exports == Implementation where
     
@@ -185,8 +184,6 @@ ExteriorCalculus(v) : Exports == Implementation where
       ++ getDRCvarList() returns
     jacobiMatrix : Vector X -> MDRC
       ++ jacobiMatrix(f) returns the Jacobi matrix of f:X-X.
-    substCoeffs : (DRC, List Equation X) -> DRC
-      ++ substCoeffs(x,[a=b,...]) substitutes b for a in all coefficients, 
       
   Implementation == DRC add 
   
@@ -470,10 +467,4 @@ ExteriorCalculus(v) : Exports == Implementation where
     jacobiMatrix(f:Vector X):MDRC ==
       vx:List X:=entries f
       matrix [[D(x,s)*1@DRC for s in v] for x in vx] 
-      
-    substCoeffs(x:DRC, eqs:List Equation X):DRC ==
-      lt:List TERM:=getTerms x
-      st:List TERM:=[[t.k, subst(t.c,eqs)]$TERM for t in lt]
-      makeForm st
-      
       

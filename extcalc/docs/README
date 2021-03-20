@@ -77,3 +77,330 @@ v))
  zeroForm : Symbol -> DeRhamComplex(Integer,v)
  zeroForms : () -> Vector(DeRhamComplex(Integer,v))
 
+
+
+
+Ex: Output of demo_extcalc.input
+--------------------------------
+
+; compilation finished in 0:00:00.259
+------------------------------------------------------------------------
+   ExteriorCalculus is now explicitly exposed in frame initial 
+   ExteriorCalculus will be automatically loaded when needed from 
+      /Users/kfp/Desktop/work/spadlib/demos/EXTCALC.NRLIB/EXTCALC
+
+
+-- 
+U:=EXTCALC [x,y,z]
+ 
+
+   (3)  ExteriorCalculus([x,y,z])
+                                                                   Type: Type
+dX:=generators()$U
+ 
+
+   (4)  [dx, dy, dz]
+                                   Type: List(DeRhamComplex(Integer,[x,y,z]))
+
+-- the displacement one-form dP : (moving point P)
+P:=coordVector()$U
+ 
+
+   (5)  [x, y, z]
+                                            Type: Vector(Expression(Integer))
+dP:=basisForms(1)$U  -- note: a list
+ 
+
+   (6)  [dx, dy, dz]
+                                   Type: List(DeRhamComplex(Integer,[x,y,z]))
+-- or
+dP:=d(P)$U -- note: a vector, same as dX
+ 
+
+   (7)  [dx, dy, dz]
+                                 Type: Vector(DeRhamComplex(Integer,[x,y,z]))
+test(dP=dX)
+ 
+
+   (8)  true
+                                                                Type: Boolean
+
+-- Vector field
+VF := vectorField(V)$U
+ 
+
+   (9)  [V (x,y,z), V (x,y,z), V (x,y,z)]
+          1          2          3
+                                            Type: Vector(Expression(Integer))
+VF.1 -- components 
+ 
+
+   (10)  V (x,y,z)
+          1
+                                                    Type: Expression(Integer)
+
+-- A one form
+f1:=VF*dX
+ 
+
+   (11)  V (x,y,z)dz + V (x,y,z)dy + V (x,y,z)dx
+          3             2             1
+                                         Type: DeRhamComplex(Integer,[x,y,z])
+d(f1)$U -- d f1
+ 
+
+   (12)
+     (V   (x,y,z) - V   (x,y,z))dy dz + (V   (x,y,z) - V   (x,y,z))dx dz
+       3,2           2,3                  3,1           1,3
+   + 
+     (V   (x,y,z) - V   (x,y,z))dx dy
+       2,1           1,2
+                                         Type: DeRhamComplex(Integer,[x,y,z])
+
+-- A two form (dual of f1)
+-- The "dual" is the Hodge star with the Euclidean metric
+f2 := dual f1
+ 
+
+   (13)  V (x,y,z)dy dz - V (x,y,z)dx dz + V (x,y,z)dx dy
+          1                2                3
+                                         Type: DeRhamComplex(Integer,[x,y,z])
+
+-- A three form 
+f3 := f1*f2 
+ 
+
+                   2            2            2
+   (14)  (V (x,y,z)  + V (x,y,z)  + V (x,y,z) )dx dy dz
+           3            2            1
+                                         Type: DeRhamComplex(Integer,[x,y,z])
+
+-- or
+
+ff3 := d f2 -- this is div(V) times volume form
+ 
+
+   (15)  (V   (x,y,z) + V   (x,y,z) + V   (x,y,z))dx dy dz
+           3,3           2,2           1,1
+                                         Type: DeRhamComplex(Integer,[x,y,z])
+
+-- Subst the coeffs in f1
+fs1 := substCoeffs(f1, [VF.1=A,VF.2=B,VF.3=C])
+ 
+
+   (16)  C dz + B dy + A dx
+                                         Type: DeRhamComplex(Integer,[x,y,z])
+
+-----------------------------
+-- Example 2: Minkowski space
+-----------------------------
+)clear completely
+ 
+   All user variables and function definitions have been cleared.
+   All )browse facility databases have been cleared.
+   Internally cached functions and constructors have been cleared.
+   )clear completely is finished.
+
+M:=EXTCALC [x[i] for i in 1..4]
+ 
+
+   (1)  ExteriorCalculus([x[1],x[2],x[3],x[4]])
+                                                                   Type: Type
+dX:=generators()$M  -- dX.1 ... dX.4 basis one forms
+ 
+
+   (2)  [dx , dx , dx , dx ]
+           1    2    3    4
+                     Type: List(DeRhamComplex(Integer,[x[1],x[2],x[3],x[4]]))
+
+-- Metric
+g:=diagonalMatrix([-1,-1,-1,1])::SquareMatrix(4,EXPR INT)
+ 
+
+        +- 1   0    0   0+
+        |                |
+        | 0   - 1   0   0|
+   (3)  |                |
+        | 0    0   - 1  0|
+        |                |
+        + 0    0    0   1+
+                                    Type: SquareMatrix(4,Expression(Integer))
+
+-- Volume form
+eta:=volumeForm(g)$M
+ 
+
+   (4)  dx dx dx dx
+          1  2  3  4
+                           Type: DeRhamComplex(Integer,[x[1],x[2],x[3],x[4]])
+
+-- Hodge star examples
+hs1:=[hodgeStar(g,dX.i)$M for i in 1..4]
+ 
+
+   (5)  [- dx dx dx , dx dx dx , - dx dx dx , - dx dx dx ]
+             2  3  4    1  3  4      1  2  4      1  2  3
+                     Type: List(DeRhamComplex(Integer,[x[1],x[2],x[3],x[4]]))
+basisForms(2)$M
+ 
+
+   (6)  [dx dx , dx dx , dx dx , dx dx , dx dx , dx dx ]
+           1  2    1  3    2  3    1  4    2  4    3  4
+                     Type: List(DeRhamComplex(Integer,[x[1],x[2],x[3],x[4]]))
+hs2:=[hodgeStar(g,b)$M for b in basisForms(2)$M]
+ 
+
+   (7)  [dx dx , - dx dx , dx dx , - dx dx , dx dx , - dx dx ]
+           3  4      2  4    1  4      2  3    1  3      1  2
+                     Type: List(DeRhamComplex(Integer,[x[1],x[2],x[3],x[4]]))
+
+-- Duals of each basis form
+hsAll:=[[hodgeStar(g,b)$M for b in basisForms(i)$M] for i in 0..4]
+ 
+
+   (8)
+   [[dx dx dx dx ], [- dx dx dx , dx dx dx , - dx dx dx , - dx dx dx ],
+       1  2  3  4        2  3  4    1  3  4      1  2  4      1  2  3
+    [dx dx , - dx dx , dx dx , - dx dx , dx dx , - dx dx ],
+       3  4      2  4    1  4      2  3    1  3      1  2
+    [- dx , - dx , dx , - dx ], [- 1]]
+         4      3    2      1
+               Type: List(List(DeRhamComplex(Integer,[x[1],x[2],x[3],x[4]])))
+
+-- Check if a/\*a = dot(g,a,a)*volumeForm
+chkAll:=[[test(b*hodgeStar(g,b)$M = _
+  dot(g,b,b)$M*eta) for b in basisForms(i)$M] for i in 0..4]
+ 
+
+   (9)
+   [[true], [true, true, true, true], [true, true, true, true, true, true],
+    [true, true, true, true], [true]]
+                                                    Type: List(List(Boolean))
+
+
+-- Vector fields
+E:=vectorField(E)$M
+ 
+
+   (10)  [E (x ,x ,x ,x ), E (x ,x ,x ,x ), E (x ,x ,x ,x ), E (x ,x ,x ,x )]
+           1  1  2  3  4    2  1  2  3  4    3  1  2  3  4    4  1  2  3  4
+                                            Type: Vector(Expression(Integer))
+B:=vectorField(B)$M
+ 
+
+   (11)  [B (x ,x ,x ,x ), B (x ,x ,x ,x ), B (x ,x ,x ,x ), B (x ,x ,x ,x )]
+           1  1  2  3  4    2  1  2  3  4    3  1  2  3  4    4  1  2  3  4
+                                            Type: Vector(Expression(Integer))
+
+-- Faraday 2-form
+F:=reduce(_+,[E.i*dX.i for i in 1..3])*dX.4 + B.1*dX.2*dX.3 -B.2*dX.1*dX.3 + _
+               B.3*dX.1*dX.2
+ 
+
+   (12)
+     E (x ,x ,x ,x )dx dx  + E (x ,x ,x ,x )dx dx  + B (x ,x ,x ,x )dx dx
+      3  1  2  3  4   3  4    2  1  2  3  4   2  4    1  1  2  3  4   2  3
+   + 
+     E (x ,x ,x ,x )dx dx  - B (x ,x ,x ,x )dx dx  + B (x ,x ,x ,x )dx dx
+      1  1  2  3  4   1  4    2  1  2  3  4   1  3    3  1  2  3  4   1  2
+                           Type: DeRhamComplex(Integer,[x[1],x[2],x[3],x[4]])
+
+dF:= d(F)$M
+ 
+
+   (13)
+     (E   (x ,x ,x ,x ) - E   (x ,x ,x ,x ) + B   (x ,x ,x ,x ))dx dx dx
+       3,2  1  2  3  4     2,3  1  2  3  4     1,4  1  2  3  4    2  3  4
+   + 
+     (E   (x ,x ,x ,x ) - E   (x ,x ,x ,x ) - B   (x ,x ,x ,x ))dx dx dx
+       3,1  1  2  3  4     1,3  1  2  3  4     2,4  1  2  3  4    1  3  4
+   + 
+     (E   (x ,x ,x ,x ) - E   (x ,x ,x ,x ) + B   (x ,x ,x ,x ))dx dx dx
+       2,1  1  2  3  4     1,2  1  2  3  4     3,4  1  2  3  4    1  2  4
+   + 
+     (B   (x ,x ,x ,x ) + B   (x ,x ,x ,x ) + B   (x ,x ,x ,x ))dx dx dx
+       3,3  1  2  3  4     2,2  1  2  3  4     1,1  1  2  3  4    1  2  3
+                           Type: DeRhamComplex(Integer,[x[1],x[2],x[3],x[4]])
+
+HM:=matrix [[H[i,j]*dX.i*dX.j for i in 1..4] for j in 1..4]
+ 
+
+         +     0       - H    dx dx   - H    dx dx   - H    dx dx +
+         |                2, 1  1  2     3, 1  1  3     4, 1  1  4|
+         |                                                        |
+         |H    dx dx         0        - H    dx dx   - H    dx dx |
+         | 1, 2  1  2                    3, 2  2  3     4, 2  2  4|
+   (14)  |                                                        |
+         |H    dx dx    H    dx dx          0        - H    dx dx |
+         | 1, 3  1  3    2, 3  2  3                     4, 3  3  4|
+         |                                                        |
+         |H    dx dx    H    dx dx     H    dx dx          0      |
+         + 1, 4  1  4    2, 4  2  4     3, 4  3  4                +
+                   Type: Matrix(DeRhamComplex(Integer,[x[1],x[2],x[3],x[4]]))
+
+HL:=[[H[i,j]*dX.i*dX.j for i in 1..4] for j in 1..4]
+ 
+
+   (15)
+   [[0, - H    dx dx , - H    dx dx , - H    dx dx ],
+           2, 1  1  2     3, 1  1  3     4, 1  1  4
+    [H    dx dx , 0, - H    dx dx , - H    dx dx ],
+      1, 2  1  2        3, 2  2  3     4, 2  2  4
+    [H    dx dx , H    dx dx , 0, - H    dx dx ],
+      1, 3  1  3   2, 3  2  3        4, 3  3  4
+    [H    dx dx , H    dx dx , H    dx dx , 0]]
+      1, 4  1  4   2, 4  2  4   3, 4  3  4
+               Type: List(List(DeRhamComplex(Integer,[x[1],x[2],x[3],x[4]])))
+
+map(x+->reduce(_+,x),HL)
+ 
+
+   (16)
+   [- H    dx dx  - H    dx dx  - H    dx dx ,
+       4, 1  1  4    3, 1  1  3    2, 1  1  2
+    - H    dx dx  - H    dx dx  + H    dx dx ,
+       4, 2  2  4    3, 2  2  3    1, 2  1  2
+    - H    dx dx  + H    dx dx  + H    dx dx ,
+       4, 3  3  4    2, 3  2  3    1, 3  1  3
+    H    dx dx  + H    dx dx  + H    dx dx ]
+     3, 4  3  4    2, 4  2  4    1, 4  1  4
+                     Type: List(DeRhamComplex(Integer,[x[1],x[2],x[3],x[4]]))
+
+v := vectorField(v)$M
+ 
+
+   (17)  [v (x ,x ,x ,x ), v (x ,x ,x ,x ), v (x ,x ,x ,x ), v (x ,x ,x ,x )]
+           1  1  2  3  4    2  1  2  3  4    3  1  2  3  4    4  1  2  3  4
+                                            Type: Vector(Expression(Integer))
+
+ivF := interiorProduct(v,F)$M ;  -- long output, that's why suppress by ";"
+ 
+
+                           Type: DeRhamComplex(Integer,[x[1],x[2],x[3],x[4]])
+
+-- define a substitution list (purpose: pretty printing output)
+substList:=concat([[E.i=e[i],B.i=b[i],v.i=V[i]] for i in 1..4])
+ 
+
+   (19)
+   [E (x ,x ,x ,x ) = e , B (x ,x ,x ,x ) = b , v (x ,x ,x ,x ) = V ,
+     1  1  2  3  4     1   1  1  2  3  4     1   1  1  2  3  4     1
+    E (x ,x ,x ,x ) = e , B (x ,x ,x ,x ) = b , v (x ,x ,x ,x ) = V ,
+     2  1  2  3  4     2   2  1  2  3  4     2   2  1  2  3  4     2
+    E (x ,x ,x ,x ) = e , B (x ,x ,x ,x ) = b , v (x ,x ,x ,x ) = V ,
+     3  1  2  3  4     3   3  1  2  3  4     3   3  1  2  3  4     3
+    E (x ,x ,x ,x ) = e , B (x ,x ,x ,x ) = b , v (x ,x ,x ,x ) = V ]
+     4  1  2  3  4     4   4  1  2  3  4     4   4  1  2  3  4     4
+                                    Type: List(Equation(Expression(Integer)))
+
+substCoeffs(ivF, substList)$M
+ 
+
+   (20)
+     (V e  + V e  + V e )dx  + (- V e  - V b  + V b )dx
+       3 3    2 2    1 1   4       4 3    1 2    2 1   3
+   + 
+     (- V e  + V b  - V b )dx  + (- V e  - V b  + V b )dx
+         4 2    1 3    3 1   2       4 1    2 3    3 2   1
+                           Type: DeRhamComplex(Integer,[x[1],x[2],x[3],x[4]])
+(21) -> 
