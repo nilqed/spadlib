@@ -1,5 +1,5 @@
 ============
-SPADLIB V0.1
+SPADLIB V0.2
 ============
 
 Required
@@ -14,8 +14,8 @@ Install
   
   Note: Add/merge the contents of spadlib/system-index.txt to 
   local-projects/system-index.txt (or only those you like), so that
-  quicklisp can find the ASDF files. This will not ne necessary if the
-  packages are move to 'local-project/<item>', i.e without the 'spadlib'
+  quicklisp can find the ASDF files. This is not necessary if the
+  packages are moved to 'local-project/<item>', i.e without the 'spadlib'
   folder.  
   
 		  
@@ -35,6 +35,8 @@ Usage
   
   Note: if "quickLoad" is unknown after FriCAS start, you have to enter
         ")frame next" under certain circumstances (depends on start parameters).
+        
+        
   
 Create a package
 
@@ -46,7 +48,7 @@ Create a package
 ---
 NOTES 
 
-Before creating a new package check if "packageName" is not  already in use:
+Before creating a new package, check if "packageName" is not  already in use:
   Either by  )lisp (ql:system-apropos "packageName") or
   by  
       quickLoad "quicklsp"
@@ -62,7 +64,10 @@ available in the Lisp "BOOT" package, i.e. in FriCAS:
   load_packageName()$Lisp 
   test_packageName()$Lisp
  
+where "packageName" is the name of the package (case insensitive), for 
+instance "compile_pipe()$Lisp" will recompile the package "pipe". 
+ 
 These functions may be used to recompile/reload the package if necessary
-(e.g after FriCAS upgrades).   
+(e.g after FriCAS upgrades or package updates).   
 
 ---

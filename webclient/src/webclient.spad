@@ -1,0 +1,42 @@
+)abbrev package WEBCLI WebClient
+++ Author: Kurt Pagani
+++ Date Created: Mon Nov 30 18:54:58 CET 2015
+++ Date Revised: Fri Apr 03 01:03:34 CET 2021
+++ License: BSD
+++ Date Last Updated:
+++ Basic Operations: 
+++ Depends On: DRAKMA/HTPP-REQUEST 
+++ Examples:
+++ References:
+++
+++ Description:
+++
+WebClient() : Exports == Implementation where
+  
+  STR ==> String
+  SEX ==> SExpression
+  MSC ==> MoreSystemCommands
+  
+  syscmd(s) ==> systemCommand(s)$MSC
+  lisp1(s)  ==> syscmd(string(FORMAT('NIL,"lisp ~A",s)$Lisp)) 
+  
+  Exports ==  with
+    
+    httpRequestGet  : STR -> SEX
+    httpRequestPost : (STR,STR) -> SEX
+    
+	
+	
+  Implementation ==  add 
+  
+    lisp1 "(defun |webcliGET| (a) (drakma:http-request a))"
+    lisp1 "(defun |webcliPOST| (a c) (drakma:http-request a :method :post :content c))"
+    
+    httpRequestGet(url:STR):SEX == webcliGET(url)$Lisp
+    httpRequestPost(url:STR,content:STR):SEX == webcliPOST(url,content)$Lisp
+    
+    -- do  compile_webclient()$Lisp after edit
+    -- EX1: httpRequestPost("http://localhost:8080","Hello there!")
+    -- EX2: httpRequestGet("http://localhost/name:8080")
+	  
+      
