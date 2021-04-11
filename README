@@ -36,7 +36,10 @@ Usage
   Note: if "quickLoad" is unknown after FriCAS start, you have to enter
         ")frame next" under certain circumstances (depends on start parameters).
         
-        
+  Example: click on the "extcalc" folder to see the corresponding README.
+  
+           Note that nothing will be injected to your FriCAS installation,
+		   i.e. the package is available at runtime only.    
   
 Create a package
 
