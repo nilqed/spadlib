@@ -17,6 +17,7 @@ spadlib\lagmech\lagmech.asd
 spadlib\ratival\ratival.asd
 spadlib\tensalg\tensalg.asd
 spadlib\webspad\webspad.asd
+spadlib\webspad\webclient.asd
 spadlib\pullback\pullback.asd
 spadlib\quicklsp\quicklsp.asd
 spadlib\oobj\oobj.asd
