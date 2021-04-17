@@ -1,0 +1,158 @@
+)abbrev domain AOSC AbstractOrientedSimplicialComplex
+++ Author: Kurt Pagani
+++ Date Created: Wed Feb 17 17:19:51 CET 2021
+++ License: BSD
+++ References:
+++ Description:
+++
+AbstractOrientedSimplicialComplex(R,X) : Exports == Implementation where
+ 
+  R: Ring
+  X: Symbol
+  
+  PI  ==> PositiveInteger
+  LPI ==> List PI
+  SPI ==> Set PI
+  PPI ==> Permutation PI
+  NNI ==> NonNegativeInteger
+  
+  TERM ==> Record(k:SPI, c:R)
+  
+  Exports == Join(CoercibleTo OutputForm, Comparable) with
+    
+    _* : (R,%) -> %
+    _+ : (%,%) -> %
+    _* : (%,%) -> %
+    
+    "=" : (%,%) -> Boolean
+    
+    "-" : % -> %
+    "-" : (%,%) -> %
+    
+    leadingMonomial : % -> %
+    leadingCoefficient: % -> R 
+    leadingSupport: % -> SPI
+    listOfTerms: % -> List TERM
+    monomial?: % -> Boolean
+    monomial: (R, SPI) -> %
+    monomials: % -> List %
+    numberOfMonomials: % -> NonNegativeInteger
+    reductum: % -> %
+    retract: % -> SPI
+    support: % -> List SPI
+    zero?: % -> Boolean
+    map: (R -> R, %) -> %
+    construct: List TERM -> %
+    constructOrdered: List TERM -> %
+    coefficients: % -> List R
+    coefficient: (%, S) -> R
+    
+    
+    
+    coerce : SPI -> %
+    --convert : TERM -> OutputForm
+    --coerce : % -> OutputForm
+    sign : (SPI,SPI) -> Integer
+      ++ sign(A,B) computes the sign of the merge of the ordered sets A,B
+      ++ of positive integers regarding the (ordered) union of A and B.
+      ++ Note: sign(A,B)=0 if intersect(A,B) is empty.
+    degree : % -> NNI
+      ++ degree(A) gives the degree of the leading monomial.
+      
+    D : (%,PI) -> %
+      ++ D(X,i) computes the i-th partial derivative, i.e. more precisely
+      ++ the i-th partial boundary. For instance D(X1*X2,1)=X2, and
+      ++ D(X1*X2,2)=-X1.
+    
+    D : % -> %
+      ++ D(X)=sum(D(X,i),i=1..) computes the boundary of X.
+
+	
+  Implementation == FreeModule(R,SPI) add 
+
+    Rep := FreeModule(R,SPI)
+    
+    
+    sign(A:SPI,B:SPI):Integer ==
+      not empty? intersect(A,B) => 0
+      CAB:=concat(parts A, parts B)
+      LAB:=parts union(A,B)
+      sign(coercePreimagesImages([LAB,CAB])$PPI)
+      
+    degree(A:%):NNI ==
+      A = 0$Rep => 0
+      #leadingTerm(A).k
+
+    DT(t:TERM,i:PI):TERM ==
+      lpi:LPI:=parts t.k
+      pos:Integer:=position(i,lpi)
+      pos=0 => [empty()$SPI, 0$R]$TERM
+      sgn:=(p:Integer):R+-> if even? p then -1$R else 1$R
+      [set remove(i,lpi), sgn(pos) * t.c]$TERM
+      
+    
+    DTC(t:TERM):% ==
+      lpi:LPI:=parts t.k
+      construct [DT(t,m) for m in lpi]
+
+    D(A:%,i:PI):% ==
+      ltA:List TERM:=listOfTerms A
+      empty? ltA => 0$Rep --(set [])@SPI::%
+      construct [DT(t,i) for t in ltA]
+      
+    D(A:%):% ==
+      ltA:List TERM:=listOfTerms A
+      empty? ltA => 0$Rep --(set [])@SPI::%
+      reduce("+",[DTC(t) for t in ltA])
+      
+      
+    pS(A:SPI, B:SPI):% ==
+      not empty? intersect(A,B) => 0$R * empty()::%
+      sgn:Integer:=sign(A,B)
+      C:%:=union(A,B)::%
+      sgn=1 => C
+      -(1)$R * C
+
+
+    pT(t1:TERM, t2:TERM):TERM ==
+      lt12:List TERM:=listOfTerms(pS(t1.k, t2.k))
+      empty? lt12 => [empty()$SPI,0$R]$TERM 
+      t12:=first lt12 
+      [t12.k, t12.c * t1.c * t2.c]$TERM
+
+    (A:% * B:%):% ==
+      ltA:List TERM:=listOfTerms A
+      ltB:List TERM:=listOfTerms B
+      ltAB:List TERM:=concat [[pT(t1,t2) for t2 in ltB] for t1 in ltA]
+      construct ltAB
+
+
+    -- local: X_{i j k}
+    convert1(t:TERM):OutputForm ==
+      subs:List OutputForm:=[x::OutputForm for x in parts(t.k)]
+      XS:OutputForm:=sub(outputForm X, blankSeparate subs)
+      t.c = 0$R => 0::OutputForm -- empty()$OutputForm
+      t.c = 1$R => XS
+      t.c = -1$R => -XS
+      (t.c)::OutputForm * XS
+     
+    -- local: X_i X_j X_k .....
+    convert2(t:TERM):OutputForm ==
+      XS:OutputForm:=outputForm X
+      subs:List OutputForm:=[sub(XS, x::OutputForm) for x in parts(t.k)]
+      empty? subs =>  0::OutputForm -- empty()$OutputForm
+      XO:OutputForm:=reduce(_*,subs)  
+      t.c = 0$R => 0::OutputForm -- empty()$OutputForm
+      t.c = 1$R => XO
+      t.c = -1$R => -XO
+      (t.c)::OutputForm * XO
+      
+      
+    coerce(x:%):OutputForm ==
+      lt:List TERM:=listOfTerms x
+      lf:List OutputForm:=[convert2(q) for q in lt]
+      empty? lf => 0::OutputForm -- empty()$OutputForm 
+      reduce(_+,lf)
+      
+      
+  

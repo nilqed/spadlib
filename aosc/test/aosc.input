@@ -1,0 +1,42 @@
+)co aosc
+)sh aosc
+
+CX ==> AOSC(Integer,'X)
+
+A:=(set [1,2,4])::CX
+B:=(set [6,8,9])::CX
+C:=(set [3,7])::CX
+
+
+--X:=[(set [i])::OSC for i in 1..12] -- stream?
+
+X:=[set [i]::CX  for i in 1..]
+
+
+-- X.4*D(A*B,4)= A*B
+-- D(X.1*X.2*X.3)
+-- D(X.1*X.2*X.3*X.4) 
+-- D(X.1*X.2*X.3*X.4)*X.5
+
+-- Example: square in R^2
+--  123 + 134
+
+Q:=X.1*X.2*X.3 + X.1*X.3*X.4
+
+-- DQ should yield 12+23+34+41 ok.
+
+Q2:= D(X.1*X.2*X.3)*X.5 + D(X.1*X.3*X.4)*X.6
+-- triangulation of each triangle
+
+eq1:=D(Q2)=D(Q) -- should be true
+test(eq1)
+
+test(X.1*D(Q,1) = Q)
+
+test(degree Q = 3)
+test(degree (A-A) = 0)
+
+
+--todo:
+-- zero? suport A*A ---->  [{}] not zero :(
+
