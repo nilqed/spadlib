@@ -1,0 +1,113 @@
+
+
+quickLoad "supargs"
+
+(4) -> )sh SUPARGS
+ SuppressArguments is a package constructor
+ Abbreviation for SuppressArguments is SUPARGS
+ This constructor is exposed in this frame.
+------------------------------- Operations --------------------------------
+
+ derivativesOfOrder : (NonNegativeInteger, BasicOperator, List(Symbol)) -> List(
+Expression(Integer))
+ derivativesOfOrderSubst : (NonNegativeInteger, BasicOperator, List(Symbol), Sym
+bol) -> List(Equation(Expression(Integer)))
+ multiIndices : (NonNegativeInteger, NonNegativeInteger) -> List(List(Integer))
+ rewrite : (Expression(Integer), BasicOperator, List(Symbol), NonNegativeInteger
+, Symbol) -> Expression(Integer)
+ symDerivative : (Symbol, List(NonNegativeInteger)) -> Expression(Integer)
+
+
+(4) -> multiIndices(1,3)
+
+   (4)  [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+                                                    Type: List(List(Integer))
+
+(5) -> p53:=numberOfImproperPartitions(5,3)
+
+   (5)  21
+                                                        Type: PositiveInteger
+
+(7) -> f:=operator 'f
+
+   (7)  f
+                                                          Type: BasicOperator
+(8) -> derivativesOfOrder(3,f,[x,y])
+
+   (8)  [f      (x,y), f      (x,y), f      (x,y), f      (x,y)]
+          ,1,1,1        ,2,2,2        ,1,1,2        ,1,2,2
+                                              Type: List(Expression(Integer))
+(9) ->  derivativesOfOrderSubst(3,f,[x],'F)
+
+          ,,,
+   (9)  [f   (x) = F       ]
+                    1, 1, 1
+                                    Type: List(Equation(Expression(Integer)))
+
+(10) -> a:=[a[i] for i in 1..4]
+
+   (10)  [a , a , a , a ]
+           1   2   3   4
+                                                           Type: List(Symbol)
+(11) -> f a
+
+   (11)  f(a ,a ,a ,a )
+            1  2  3  4
+                                                    Type: Expression(Integer)
+(12) -> rewrite(f a,f,a,1,F)
+
+   (12)  F
+                                                    Type: Expression(Integer)
+(13) -> rewrite(D(f a,a.1),f,a,1,F)
+
+   (13)  F
+          1
+                                                    Type: Expression(Integer)
+(14) -> rewrite(D(f a,a.4),f,a,1,F)
+
+   (14)  F
+          4
+                                                    Type: Expression(Integer)
+(15) ->  q:=D(f a,a,[2,3,4,6])
+
+   (15)  f                              (a ,a ,a ,a )
+          ,1,1,2,2,2,3,3,3,3,4,4,4,4,4,4  1  2  3  4
+                                                    Type: Expression(Integer)
+
+(16) -> rewrite(q,f,a,15,F)
+
+   >> Error detected within library code:
+   n <= 9 only, due to internal restrictions.
+
+(16) -> q:=D(f a,a,[1,1])
+
+   (16)  f    (a ,a ,a ,a )
+          ,1,2  1  2  3  4
+                                                    Type: Expression(Integer)
+(17) -> rewrite(q,f,a,1,T)
+
+   (17)  f    (a ,a ,a ,a )
+          ,1,2  1  2  3  4
+                                                    Type: Expression(Integer)
+(18) ->  rewrite(q,f,a,2,T)
+
+   (18)  T
+          1, 2
+                                                    Type: Expression(Integer)
+(19) -> symDerivative(F,[1,2,3,4])
+
+   >> Error detected within library code:
+   Can have at most 9 scripts of each kind
+
+(19) -> symDerivative(F,[1,2])
+
+   (19)  F
+          1, 2, 2
+                                                    Type: Expression(Integer)
+(20) -> symDerivative(F,[1,2,3])
+
+   (20)  F
+          1, 2, 2, 3, 3, 3
+                                                    Type: Expression(Integer)
+ 
+

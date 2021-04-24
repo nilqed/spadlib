@@ -1,0 +1,114 @@
+)abbrev package SUPARGS SuppressArguments 
+++ Author: Kurt Pagani <nilqed@gmail.com>
+++ Date Created: Tue April 20 04:30:24 CET 2021
+++ License: BSD
+++ Keywords: 
+++ Examples: 
+++ References: 
+++ Documentation:
+SuppressArguments() : Exports == Implementation where
+
+  MSC ==> MoreSystemCommands
+  LISP(s) ==> systemCommand("lisp " s)$MSC 
+  
+  SGCF ==> SymmetricGroupCombinatoricFunctions
+  
+  BOP ==> BasicOperator
+  NNI ==> NonNegativeInteger
+  SYM ==> Symbol
+  R ==> Expression Integer
+ 
+  Exports ==  with
+    
+    rewrite : (R,BOP,List SYM,NNI,SYM) -> R
+      ++ rewrite(x,f,a,n,s) substitutes in an expression
+      ++ "x" all occurences of "f a" and its derivatives up to
+      ++ order $n$, where "f" is a basic operator, "a" the list 
+      ++ of arguments, by the symbol "s" and "s[...]" for the
+      ++ derivatives respectively.
+      
+    multiIndices : (NNI,NNI) -> List List Integer
+      ++ multiIndices(n,m) returns a list of multi indices
+      ++ as list of integers I=[i_1,...,i_m], such that
+      ++ i_k >= 0, and |I|=i_1 + ... + i_m = n.
+    derivativesOfOrder : (NNI,BOP, List SYM) -> List R
+      ++ derivativesOfOrder(n,f,a) returns the list of partial derivatives
+      ++ of order "n" of "f a" (i.e. f(a_1,...,a_m)) with respect to the
+      ++ variables "a_i".
+    derivativesOfOrderSubst : (NNI,BOP, List SYM, SYM) -> List Equation R
+      ++ Substitution list for derivatives of order "n".
+    symDerivative : (Symbol, List NNI) -> R
+      ++ Build subscripted symbol, then coerce to expression.
+           	
+  Implementation ==  add
+  
+    rewrite(x,f,a,n,s) ==
+      n > 9 => error "n <= 9 only, due to internal restrictions."
+      m:=#a
+      --x := subst(x,[f a = s::R])
+      for i in 0..n repeat
+        x := subst(x, derivativesOfOrderSubst(i,f,a,s))
+      return x
+      
+    multiIndices(n,m) ==
+      N:Integer := numberOfImproperPartitions(n,m)$SGCF
+      [unrankImproperPartitions1(n,m,i) for i in 0..N-1]
+      
+    derivativesOfOrder(n,f,a) == 
+      J:List List Integer := multiIndices(n,#a)
+      JNNI:List List NNI := [[k::NNI for k in j] for j in J]
+      xa:List R := [s::R for s in a]
+      [D(f xa, a, i) for i in JNNI]
+      
+    symDerivative(s:Symbol, l:List NNI):R ==
+      --[h::OutputForm for h in i])::R for i in JNNI]
+      empty? l => error "empty list."
+      l1:List NNI := concat [[i for k in 1..l.i | l.i ~= 0] for i in 1..#l]
+      l2:List OutputForm := [h::OutputForm for h in l1]
+      subscript(s,l2)::R
+      
+      
+    derivativesOfOrderSubst(n,f,a,s) == 
+      J:List List Integer := multiIndices(n,#a)
+      JNNI:List List NNI := [[k::NNI for k in j] for j in J]
+      xa:List R := [t::R for t in a]
+      [D(f xa, a, i)=symDerivative(s,i) for i in JNNI]
+      
+  
+-- multiIndices(1,3)
+-- 
+
+--  p53:=numberOfImproperPartitions(5,3)  
+-- [ unrankImproperPartitions0(5,3,i) for i in 0..p53-1]   
+-- [ unrankImproperPartitions1(5,3,i) for i in 0..p53-1]
+-- [ unrankImproperPartitions1(1,3,i) for i in 0..numberOfImproperPartitions(1,3)-1]
+
+-- f:=operator 'f
+-- derivativesOfOrder(3,f,[x,y])
+-- derivativesOfOrderSubst(3,f,[x],'F)
+
+
+-- f:=operator 'f
+-- a:=[a[i] for i in 1..4]
+-- f a
+-- rewrite(f a,f,a,1,F)
+-- rewrite(D(f a,a.1),f,a,1,F)
+-- rewrite(D(f a,a.4),f,a,1,F)
+
+-- q:=D(f a,a,[2,3,4,6])
+-- rewrite(q,f,a,15,F)
+--   >> Error detected within library code:
+--   Can have at most 9 scripts of each kind
+
+-- bad, slow
+-- q:=D(f a,a,[1,1])
+-- rewrite(q,f,a,1,T) -> not yet
+-- rewrite(q,f,a,2,T) -> ok
+-- 3 too much
+
+
+-- (3) -> symDerivative(F,[1,2,3,4])
+--  >> Error detected within library code:
+--  Can have at most 9 scripts of each kind
+
+
