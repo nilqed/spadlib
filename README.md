@@ -112,8 +112,33 @@ The structure of `mypkg.asd`:
     :pathname "src/"
     :components ((:file "mypkg")))
     
-    
-    
+  
+The Lisp file `mypkg.lisp` has the general form (just the package name changes):  
+  
+    ;;;
+    ;;; ASDF/QuickLisp
+    ;;;
+    (defparameter *mypkg* (asdf:system-source-directory :mypkg))
+
+    (defun |compile_mypkg| ()
+    (progn
+    (|doSystemCommand| (format nil "cd ~Alib" *mypkg*))
+    (|doSystemCommand| (format nil "compile ../src/mypkg.spad )quiet"))))
+
+    (defun |load_mypkg| ()
+    (if (probe-file (format nil "~Alib/mypkg.NRLIB/mypkg.lsp" *mypkg*))
+       (|doSystemCommand| (format nil "lib )dir ~Alib/" *mypkg*))
+       (|compile_mypkg|)))
+
+    (defun |test_mypkg| ()
+    (if (probe-file (format nil "~Atest/test_mypkg.input" *mypkg*))
+      (|doSystemCommand| (format nil "read ~Atest/test_mypkg )quiet" *mypkg*))
+      (print "Test file not found ...")))
+
+    (catch 'spad_reader (|load_mypkg|))
+
+ 
+ Therefore you can build a package manually as well.
 
 ---
 
