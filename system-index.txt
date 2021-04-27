@@ -1,4 +1,4 @@
-spadlib\gle/gle.asd
+spadlib/gle/gle.asd
 spadlib/tex/tex.asd
 spadlib/pipe/pipe.asd
 spadlib/pqty/pqty.asd
@@ -22,3 +22,4 @@ spadlib/pullback/pullback.asd
 spadlib/quicklsp/quicklsp.asd
 spadlib/oobj/oobj.asd
 spadlib/aosc/aosc.asd
+spadlib/fmtmjax/fmtmjax.asd

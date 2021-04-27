@@ -22,12 +22,27 @@ Install
 Usage
 
   Add the following function to your .fricas.input:
-  
-  quickLoad(s:String):Void ==
+
+  )set message type off
+
+  macro quickLoad(s) ==
     syscmd(s) ==> systemCommand(s)$MoreSystemCommands
     lisp2(f,a) ==> syscmd string(FORMAT('NIL,"lisp (~A _"~A_")",f,a)$Lisp)
+    lisp2("defvar |$inclAssertions|","nil")  
     lisp2("load", "~/quicklisp/setup")
     lisp2("ql:quickload",s)
+
+
+  macro mjaxOn == 
+    systemCommand("set output algebra off")
+    setFormat!(FormatMathJax)$JFriCASSupport
+
+  macro mjaxOff ==
+    systemCommand("set output algebra on")
+    systemCommand("set output formatted off")
+
+  )set message type on
+
 
   Then
   
