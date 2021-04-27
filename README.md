@@ -49,7 +49,10 @@ Add the following macros to your `~/.fricas.input` start file:
 
 Then
   
-    () -> quickLoad "packageName"
+    quickLoad "packageName"
+    
+should compile/load your package/domain/category.
+
   
 #### Note 
 If `quickLoad` is unknown after `FriCAS` start, you have to enter
@@ -66,11 +69,13 @@ The simple *shell script* `fripac.sh` may help to create a package, that is - in
 a certain directory structure, an **ASDF** file, a **Lisp** file and your sources (see the example
 below).
 
-    $ fripac.sh "packageName" 
-  
-type 
+In the `spadlib` folder do:
 
-    fripac.sh -h 
+    $ ./fripac.sh "packageName" 
+  
+Type 
+
+    ./fripac.sh -h 
     
 for more options.
 
