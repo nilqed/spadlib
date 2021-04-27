@@ -1,4 +1,4 @@
-# SPADLIB V0.2
+# SPADLIB V0.3 :rocket:
 
 
 ## Required
@@ -62,6 +62,9 @@ under certain circumstances (depends on start parameters).
 i.e. the packages are available at runtime only.    
   
 ## Create a package
+The simple *shell script* `fripac.sh` may help to create a package, that is - in a nutshell - 
+a certain directory structure, an **ASDF** file, a **Lisp** file and your sources (see the example
+below).
 
     $ fripac.sh "packageName" 
   
@@ -71,29 +74,75 @@ type
     
 for more options.
 
+### Example package ``mypkg``
+
+Skeleton:
+
+    $ ls -R  ~/quicklisp/local-projects/spadlib/mypkg/
+  
+    docs/  lib/  src/  test/  mypkg.asd
+
+    docs:
+      README
+      ...
+
+    lib:
+      README
+      MYPKG.NRLIB (after installing)
+
+    src:
+      mypkg.lisp  
+      mypkg.spad (your source file/s)
+
+    test:
+      README
+      mypkg.input (your test file, optional)
+
+   
+The structure of `mypkg.asd`:
+
+    (in-package :common-lisp-user)
+    (asdf:defsystem #:mypkg
+    :serial t
+    :description "Short description"
+    :version "1.0.0"
+    :author "Your Name <your.name@nowhere.xyz>"
+    :license "License"
+    :depends-on ("trivial-shell", "whatever")
+    :pathname "src/"
+    :components ((:file "mypkg")))
+    
+    
+    
 
 ---
 
 ### NOTES 
 
-Before creating a new package, check if "packageName" is not  already in use:
-  Either by  )lisp (ql:system-apropos "packageName") or
-  by  
-      quickLoad "quicklsp"
-	  qlApropos "packageName".
-	  
-  Also notice the name "quicklsp", because "quicklisp" is already taken,
-  of course.
-  
-After a package has been loaded by "quickLoad", the following functions are
-available in the Lisp "BOOT" package, i.e. in FriCAS:
+Before creating a new package, check if `packageName` is not  already in use.
 
-  compile_packageName()$Lisp
-  load_packageName()$Lisp 
-  test_packageName()$Lisp
+Either by  
+
+    )lisp (ql:system-apropos "packageName")
+    
+ or  
+      
+    quickLoad "quicklsp
+    qlApropos "packageName".
+	  
+Also notice the name ``quicklsp``, because `quicklisp` has already been taken,
+of course. By the wwy, `qlApropos` will also search the QuickLisp online
+repository.
+  
+After a package has been loaded with ``quickLoad"``, the following functions are
+available in the **Lisp** ``BOOT`` package, i.e. in `FriCAS`:
+
+    compile_packageName()$Lisp
+    load_packageName()$Lisp 
+    test_packageName()$Lisp
  
-where "packageName" is the name of the package (case insensitive), for 
-instance "compile_pipe()$Lisp" will recompile the package "pipe". 
+where ``packageName`` is the *name* of the package (case insensitive), for 
+instance "compile_pipe()$Lisp" will recompile the package `pipe`. 
  
 These functions may be used to recompile/reload the package if necessary
 (e.g after FriCAS upgrades or package updates).   
