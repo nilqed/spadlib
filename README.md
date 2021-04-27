@@ -32,7 +32,7 @@ Add the following macros to your `~/.fricas.input` start file:
     macro quickLoad(s) ==
       syscmd(s) ==> systemCommand(s)$MoreSystemCommands
       lisp2(f,a) ==> syscmd string(FORMAT('NIL,"lisp (~A _"~A_")",f,a)$Lisp)
-      lisp2("defvar |$inclAssertions|","nil")  
+      syscmd "lisp (defvar |$inclAssertions| NIL)" 
       lisp2("load", "~/quicklisp/setup")
       lisp2("ql:quickload",s)
 
