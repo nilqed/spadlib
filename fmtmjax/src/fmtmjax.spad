@@ -1,7 +1,7 @@
 -------------------------------------------------------------------
 ---
 --- FriCAS FormatMathJax
---- Copyright (C) 2020  Ralf Hemmecke <ralf@hemmecke.org>
+--- Copyright (C) 2020-2021  Ralf Hemmecke <ralf@hemmecke.org>
 ---
 -------------------------------------------------------------------
 -- Redistribution and use in source and binary forms, with or without
@@ -102,8 +102,23 @@ FormatMathJax: Exports == Implementation where
       ++ with name \spad{env}. The string \spad{x} is put right after
       ++ the start of the environment.
       ++ The arguments are separated by the string \spad{sep}.
+    setPrettySymbols!: Boolean -> Boolean
+      ++ setPrettySymbols(true) sets the internal state in such a way
+      ++ that a symbol of the for "\abc", i.e. starting with a
+      ++ backslash and only ASCII letters following it ([a-zA-Z]),
+      ++ will not replace the backslash, but rather hands the symbol
+      ++ as is for interpretation by MathJax.
+      ++ setPrettySymbols(false) switches this feature off.
+      ++ The return value is the state before it was set anew.
 
   Implementation ==> add
+    -- domain variable
+    prettySymbols?: Reference Boolean := ref false
+    setPrettySymbols!(b: Boolean): Boolean ==
+        oldState: Boolean := deref prettySymbols?
+        prettySymbols? := ref b
+        oldState
+
     Rep ==> Record(prolog: BOX, fmt: BOX, epilog: BOX)
     import from Rep
     rep x ==> (x@%) pretend Rep
@@ -179,10 +194,20 @@ In order to keep spaces, we also escape spaces by a backslash.
     formatString(s: S): BOX ==
         -- The backslash must be escaped by a second backslash.
         tex1("\texttt", box duplicateBackslashes s)
-    formatSymbol(s: S): BOX == box texEscapeString s
+
+    formatSymbol(s: S): BOX ==
+        if deref prettySymbols? and not empty? s and s.1 = char "\" then
+            -- now check if all the following characters are letters
+            ----for i in 2..#s repeat
+                ----not alphabetic? s.i => return box texEscapeString s
+            return box s
+        return box texEscapeString s
+
     formatFunctionSymbol(s: S): BOX ==
-        b := box texEscapeString s
-        if one? width b then b else tex1("\operatorname", b)
+        b := formatSymbol s
+        deref prettySymbols? and not empty? b and lines(b).1.1 = char "\" => b
+        one? width b => b
+        tex1("\operatorname", b)
 
     -- If a is of the form (* x (CONCAT d y)) then replace it
     -- by (INTSEP x (CONCAT d y)).
@@ -439,263 +464,6 @@ data structure.
         o(0, "%Infinity",   formatConstant "\infty ")
         o(0, "infinity",    formatConstant "\infty ") -- for %minusInfinity
         o(0, "...",         formatConstant "\ldots ")
-
-        -- https://en.wikipedia.org/wiki/Greek_alphabet
-        -- Traditional Latin transliteration
-        --
-        o(0, "a%",          formatConstant "\alpha ")
-        o(0, "b%",          formatConstant "\beta ")
-        o(0, "g%",          formatConstant "\gamma ")
-        o(0, "d%",          formatConstant "\delta ")
-        o(0, "e%",          formatConstant "\epsilon ")
-        o(0, "z%",          formatConstant "\zeta ")
-        o(0, "ee%",         formatConstant "\eta ")
-        o(0, "th%",         formatConstant "\theta ")
-        o(0, "i%",          formatConstant "\iota ")
-        o(0, "k%",          formatConstant "\kappa ")
-        o(0, "l%",          formatConstant "\lambda ")
-        o(0, "m%",          formatConstant "\mu ")
-        o(0, "n%",          formatConstant "\nu ")
-        o(0, "x%",          formatConstant "\xi ")
-        o(0, "o%",          formatConstant "\omicron ")
-        o(0, "p%",          formatConstant "\pi ")
-        o(0, "r%",          formatConstant "\rho ")
-        o(0, "s%",          formatConstant "\sigma ")
-        o(0, "t%",          formatConstant "\tau ")
-        o(0, "y%",          formatConstant "\upsilon ")
-        o(0, "ph%",         formatConstant "\phi ")
-        o(0, "ch%",         formatConstant "\chi ")
-        o(0, "ps%",         formatConstant "\psi ")
-        o(0, "oo%",         formatConstant "\omega ")
-        o(0, "G%",          formatConstant "\Gamma ")
-        o(0, "D%",          formatConstant "\Delta ")
-        o(0, "Th%",         formatConstant "\Theta ")
-        o(0, "L%",          formatConstant "\Lambda ")
-        o(0, "X%",          formatConstant "\Xi ")
-        o(0, "P%",          formatConstant "\Pi ")
-        o(0, "S%",          formatConstant "\Sigma ")
-        o(0, "Ph%",         formatConstant "\Phi ")
-        o(0, "Ps%",         formatConstant "\Psi ")
-        o(0, "OO%",         formatConstant "\Omega ")
-        o(0, "hbar%",       formatConstant "\hbar ")
-        o(0, "partial%",    formatConstant "\partial ")
-        -- 
-        -- by name
-        --
-        o(0, "alpha%"              , formatConstant "\alpha ")
-        o(0, "beta%"               , formatConstant "\beta ")
-        o(0, "chi%"                , formatConstant "\chi ")
-        o(0, "delta%"              , formatConstant "\delta ")
-        o(0, "epsilon%"            , formatConstant "\epsilon ")
-        o(0, "eta%"                , formatConstant "\eta ")
-        o(0, "gamma%"              , formatConstant "\gamma ")
-        o(0, "iota%"               , formatConstant "\iota ")
-        o(0, "kappa%"              , formatConstant "\kappa ")
-        o(0, "lambda%"             , formatConstant "\lambda ")
-        o(0, "mu%"                 , formatConstant "\mu ")
-        o(0, "nu%"                 , formatConstant "\nu ")
-        o(0, "omega%"              , formatConstant "\omega ")
-        o(0, "phi%"                , formatConstant "\phi ")
-        o(0, "pi%"                 , formatConstant "\pi ")
-        o(0, "psi%"                , formatConstant "\psi ")
-        o(0, "rho%"                , formatConstant "\rho ")
-        o(0, "sigma%"              , formatConstant "\sigma ")
-        o(0, "tau%"                , formatConstant "\tau ")
-        o(0, "theta%"              , formatConstant "\theta ")
-        o(0, "upsilon%"            , formatConstant "\upsilon ")
-        o(0, "xi%"                 , formatConstant "\xi ")
-        o(0, "zeta%"               , formatConstant "\zeta ")
-        o(0, "digamma%"            , formatConstant "\digamma ")
-        o(0, "varepsilon%"         , formatConstant "\varepsilon ")
-        o(0, "varkappa%"           , formatConstant "\varkappa ")
-        o(0, "varphi%"             , formatConstant "\varphi ")
-        o(0, "varpi%"              , formatConstant "\varpi ")
-        o(0, "varrho%"             , formatConstant "\varrho ")
-        o(0, "varsigma%"           , formatConstant "\varsigma ")
-        o(0, "vartheta%"           , formatConstant "\vartheta ")
-        o(0, "Delta%"              , formatConstant "\Delta ")
-        o(0, "Gamma%"              , formatConstant "\Gamma ")
-        o(0, "Lambda%"             , formatConstant "\Lambda ")
-        o(0, "Omega%"              , formatConstant "\Omega ")
-        o(0, "Phi%"                , formatConstant "\Phi ")
-        o(0, "Pi%"                 , formatConstant "\Pi ")
-        o(0, "Psi%"                , formatConstant "\Psi ")
-        o(0, "Sigma%"              , formatConstant "\Sigma ")
-        o(0, "Theta%"              , formatConstant "\Theta ")
-        o(0, "Upsilon%"            , formatConstant "\Upsilon ")
-        o(0, "Xi%"                 , formatConstant "\Xi ")
-        o(0, "aleph%"              , formatConstant "\aleph ")
-        o(0, "beth%"               , formatConstant "\beth ")
-        o(0, "daleth%"             , formatConstant "\daleth ")
-        o(0, "gimel%"              , formatConstant "\gimel ")
-        o(0, "pm%"                 , formatConstant "\pm ")
-        o(0, "mp%"                 , formatConstant "\mp ")
-        o(0, "times%"              , formatConstant "\times ")
-        o(0, "divide%"             , formatConstant "\div ")
-        o(0, "cdot%"               , formatConstant "\cdot ")
-        o(0, "ast%"                , formatConstant "\ast ")
-        o(0, "star%"               , formatConstant "\star ")
-        o(0, "dagger%"             , formatConstant "\dagger ")
-        o(0, "ddagger%"            , formatConstant "\ddagger ")
-        o(0, "amalg%"              , formatConstant "\amalg ")
-        o(0, "cap%"                , formatConstant "\cap ")
-        o(0, "cup%"                , formatConstant "\cup ")
-        o(0, "uplus%"              , formatConstant "\uplus ")
-        o(0, "sqcap%"              , formatConstant "\sqcap ")
-        o(0, "sqcup%"              , formatConstant "\sqcup ")
-        o(0, "vee%"                , formatConstant "\vee ")
-        o(0, "wedge%"              , formatConstant "\wedge ")
-        o(0, "oplus%"              , formatConstant "\oplus ")
-        o(0, "ominus%"             , formatConstant "\ominus ")
-        o(0, "otimes%"             , formatConstant "\otimes ")
-        o(0, "circ%"               , formatConstant "\circ ")
-        o(0, "bullet%"             , formatConstant "\bullet ")
-        o(0, "diamond%"            , formatConstant "\diamond ")
-        o(0, "lhd%"                , formatConstant "\lhd ")
-        o(0, "rhd%"                , formatConstant "\rhd ")
-        o(0, "unlhd%"              , formatConstant "\unlhd ")
-        o(0, "unrhd%"              , formatConstant "\unrhd ")
-        o(0, "oslash%"             , formatConstant "\oslash ")
-        o(0, "odot%"               , formatConstant "\odot ")
-        o(0, "bigcirc%"            , formatConstant "\bigcirc ")
-        o(0, "triangleleft%"       , formatConstant "\triangleleft ")
-        o(0, "Diamond%"            , formatConstant "\Diamond ")
-        o(0, "bigtriangleup%"      , formatConstant "\bigtriangleup ")
-        o(0, "bigtriangledown%"    , formatConstant "\bigtriangledown ")
-        o(0, "Box%"                , formatConstant "\Box ")
-        o(0, "triangleright%"      , formatConstant "\triangleright ")
-        o(0, "setminus%"           , formatConstant "\setminus ")
-        o(0, "wr%"                 , formatConstant "\wr ")
-        o(0, "le%"                 , formatConstant "\le ")
-        o(0, "ge%"                 , formatConstant "\ge ")
-        o(0, "neq%"                , formatConstant "\neq ")
-        o(0, "sim%"                , formatConstant "\sim ")
-        o(0, "ll%"                 , formatConstant "\ll ")
-        o(0, "gg%"                 , formatConstant "\gg ")
-        o(0, "doteq%"              , formatConstant "\doteq ")
-        o(0, "simeq%"              , formatConstant "\simeq ")
-        o(0, "subset%"             , formatConstant "\subset ")
-        o(0, "supset%"             , formatConstant "\supset ")
-        o(0, "approx%"             , formatConstant "\approx ")
-        o(0, "asymp%"              , formatConstant "\asymp ")
-        o(0, "subseteq%"           , formatConstant "\subseteq ")
-        o(0, "supseteq%"           , formatConstant "\supseteq ")
-        o(0, "cong%"               , formatConstant "\cong ")
-        o(0, "smile%"              , formatConstant "\smile ")
-        o(0, "sqsubset%"           , formatConstant "\sqsubset ")
-        o(0, "sqsupset%"           , formatConstant "\sqsupset ")
-        o(0, "equiv%"              , formatConstant "\equiv ")
-        o(0, "frown%"              , formatConstant "\frown ")
-        o(0, "sqsubseteq%"         , formatConstant "\sqsubseteq ")
-        o(0, "sqsupseteq%"         , formatConstant "\sqsupseteq ")
-        o(0, "propto%"             , formatConstant "\propto ")
-        o(0, "in%"                 , formatConstant "\in ")
-        o(0, "ni%"                 , formatConstant "\ni ")
-        o(0, "prec%"               , formatConstant "\prec ")
-        o(0, "succ%"               , formatConstant "\succ ")
-        o(0, "vdash%"              , formatConstant "\vdash ")
-        o(0, "dashv%"              , formatConstant "\dashv ")
-        o(0, "preceq%"             , formatConstant "\preceq ")
-        o(0, "succeq%"             , formatConstant "\succeq ")
-        o(0, "models%"             , formatConstant "\models ")
-        o(0, "perp%"               , formatConstant "\perp ")
-        o(0, "parallel%"           , formatConstant "\parallel ")
-        o(0, "mid%"                , formatConstant "\mid ")
-        o(0, "nmid%"               , formatConstant "\nmid ")
-        o(0, "nleq%"               , formatConstant "\nleq ")
-        o(0, "ngeq%"               , formatConstant "\ngeq ")
-        o(0, "nsim%"               , formatConstant "\nsim ")
-        o(0, "ncong%"              , formatConstant "\ncong ")
-        o(0, "nparallel%"          , formatConstant "\nparallel ")
-        o(0, "nless%"              , formatConstant "\nless ")
-        o(0, "ngtr%"               , formatConstant "\ngtr ")
-        o(0, "lneq%"               , formatConstant "\lneq ")
-        o(0, "gneq%"               , formatConstant "\gneq ")
-        o(0, "lnsim%"              , formatConstant "\lnsim ")
-        o(0, "lneqq%"              , formatConstant "\lneqq ")
-        o(0, "gneqq%"              , formatConstant "\gneqq ")
-        o(0, "gets%"               , formatConstant "\gets ")
-        o(0, "to%"                 , formatConstant "\to ")
-        o(0, "leftarrow%"          , formatConstant "\leftarrow ")
-        o(0, "Leftarrow%"          , formatConstant "\Leftarrow ")
-        o(0, "rightarrow%"         , formatConstant "\rightarrow ")
-        o(0, "Rightarrow%"         , formatConstant "\Rightarrow ")
-        o(0, "leftrightarrow%"     , formatConstant "\leftrightarrow ")
-        o(0, "Leftrightarrow%"     , formatConstant "\Leftrightarrow ")
-        o(0, "mapsto%"             , formatConstant "\mapsto ")
-        o(0, "hookleftarrow%"      , formatConstant "\hookleftarrow ")
-        o(0, "leftharpoonup%"      , formatConstant "\leftharpoonup ")
-        o(0, "leftharpoondown%"    , formatConstant "\leftharpoondown ")
-        o(0, "rightleftharpoons%"  , formatConstant "\rightleftharpoons ")
-        o(0, "longleftarrow%"      , formatConstant "\longleftarrow ")
-        o(0, "Longleftarrow%"      , formatConstant "\Longleftarrow ")
-        o(0, "longrightarrow%"     , formatConstant "\longrightarrow ")
-        o(0, "Longrightarrow%"     , formatConstant "\Longrightarrow ")
-        o(0, "longleftrightarrow%" , formatConstant "\longleftrightarrow ")
-        o(0, "Longleftrightarrow%" , formatConstant "\Longleftrightarrow ")
-        o(0, "longmapsto%"         , formatConstant "\longmapsto ")
-        o(0, "hookrightarrow%"     , formatConstant "\hookrightarrow ")
-        o(0, "rightharpoonup%"     , formatConstant "\rightharpoonup ")
-        o(0, "rightharpoondown%"   , formatConstant "\rightharpoondown ")
-        o(0, "leadsto%"            , formatConstant "\leadsto ")
-        o(0, "uparrow%"            , formatConstant "\uparrow ")
-        o(0, "Uparrow%"            , formatConstant "\Uparrow ")
-        o(0, "downarrow%"          , formatConstant "\downarrow ")
-        o(0, "Downarrow%"          , formatConstant "\Downarrow ")
-        o(0, "updownarrow%"        , formatConstant "\updownarrow ")
-        o(0, "Updownarrow%"        , formatConstant "\Updownarrow ")
-        o(0, "nearrow%"            , formatConstant "\nearrow ")
-        o(0, "searrow%"            , formatConstant "\searrow ")
-        o(0, "swarrow%"            , formatConstant "\swarrow ")
-        o(0, "nwarrow%"            , formatConstant "\nwarrow ")
-        o(0, "ldots%"              , formatConstant "\ldots ")
-        o(0, "vdots%"              , formatConstant "\vdots ")
-        o(0, "cdots%"              , formatConstant "\cdots  ")
-        o(0, "ddots%"              , formatConstant "\ddots ")
-        o(0, "infty%"              , formatConstant "\infty ")
-        o(0, "triangle%"           , formatConstant "\triangle ")
-        o(0, "angle%"              , formatConstant "\angle ")
-        o(0, "hbar%"               , formatConstant "\hbar ")
-        o(0, "imath%"              , formatConstant "\imath ")
-        o(0, "jmath%"              , formatConstant "\jmath ")
-        o(0, "ell%"                , formatConstant "\ell ")
-        o(0, "wp%"                 , formatConstant "\wp ")
-        o(0, "Re%"                 , formatConstant "\Re ")
-        o(0, "Im%"                 , formatConstant "\Im ")
-        o(0, "mho%"                , formatConstant "\mho ")
-        o(0, "prime%"              , formatConstant "\prime ")
-        o(0, "emptyset%"           , formatConstant "\emptyset ")
-        o(0, "nabla%"              , formatConstant "\nabla ")
-        o(0, "partial%"            , formatConstant "\partial ")
-        o(0, "top%"                , formatConstant "\top ")
-        o(0, "bot%"                , formatConstant "\bot ")
-        o(0, "forall%"             , formatConstant "\forall ")
-        o(0, "exists%"             , formatConstant "\exists ")
-        o(0, "neg%"                , formatConstant "\neg ")
-        o(0, "flat%"               , formatConstant "\flat ")
-        o(0, "natural%"            , formatConstant "\natural ")
-        o(0, "sharp%"              , formatConstant "\sharp ")
-        o(0, "backslash%"          , formatConstant "\backslash ")
-        o(0, "clubsuit%"           , formatConstant "\clubsuit ")
-        o(0, "diamondsuit%"        , formatConstant "\diamondsuit ")
-        o(0, "heartsuit%"          , formatConstant "\heartsuit ")
-        o(0, "spadesuit%"          , formatConstant "\spadesuit ")
-        o(0, "blacksquare%"        , formatConstant "\blacksquare ")
-        o(0, "sum%"                , formatConstant "\sum ")
-        o(0, "int%"                , formatConstant "\int ")
-        o(0, "oint%"               , formatConstant "\oint ")
-        o(0, "prod%"               , formatConstant "\prod ")
-        o(0, "coprod%"             , formatConstant "\coprod ")
-        o(0, "bigcap%"             , formatConstant "\bigcap ")
-        o(0, "bigcup%"             , formatConstant "\bigcup ")
-        o(0, "bigsqcup%"           , formatConstant "\bigsqcup ")
-        o(0, "bigvee%"             , formatConstant "\bigvee ")
-        o(0, "bigwedge%"           , formatConstant "\bigwedge ")
-        o(0, "bigodot%"            , formatConstant "\bigodot ")
-        o(0, "bigotimes%"          , formatConstant "\bigotimes ")
-        o(0, "bigoplus%"           , formatConstant "\bigoplus ")
-        --
-
 
         o(1, "cos",         prefix("\cos",    900, PAREN MIN))
         o(1, "cot",         prefix("\cot",    900, PAREN MIN))
