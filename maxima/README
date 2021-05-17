@@ -1,0 +1,134 @@
+kfp@euler:~$ fricas -nox
+Checking for foreign routines
+FRICAS="/usr/local/bin/../lib/fricas/target/x86_64-linux-gnu"
+spad-lib="/usr/local/bin/../lib/fricas/target/x86_64-linux-gnu/lib/libspad.so"
+foreign routines found
+openServer result 0
+                       FriCAS Computer Algebra System 
+                         Version: FriCAS 2021-03-06
+                   Timestamp: Mi Mär 31 16:01:42 CEST 2021
+-----------------------------------------------------------------------------
+   Issue )copyright to view copyright notices.
+   Issue )summary for a summary of useful system commands.
+   Issue )quit to leave FriCAS and return to shell.
+-----------------------------------------------------------------------------
+ 
+
+(1) -> quickLoad "maxima"
+Value = |$inclAssertions|
+Value = T
+To load "maxima":
+  Load 1 ASDF system:
+    maxima
+; Loading "maxima"
+   The current FriCAS default directory is 
+      /home/kfp/quicklisp/local-projects/spadlib/maxima/lib 
+   Compiling FriCAS source code from file 
+      /home/kfp/quicklisp/local-projects/spadlib/maxima/lib/../src/maxima.spad
+      using old system compiler.
+   MAXIMA abbreviates package Maxima 
+------------------------------------------------------------------------
+   initializing NRLIB MAXIMA for Maxima 
+   compiling into NRLIB MAXIMA 
+   compiling exported dummy : () -> Integer
+      MAXIMA;dummy;I;1 is replaced by 1 
+Time: 0 SEC.
+
+   compiling exported configure : () -> Void
+Time: 0.00 SEC.
+
+   compiling exported compile : () -> Void
+Time: 0.00 SEC.
+
+   compiling exported load : () -> Void
+Time: 0.00 SEC.
+
+(time taken in buildFunctor:  0)
+
+;;;     ***       |Maxima| REDEFINED
+
+;;;     ***       |Maxima| REDEFINED
+Time: 0.00 SEC.
+
+
+   Cumulative Statistics for Constructor Maxima
+      Time: 0.00 seconds
+ 
+   finalizing NRLIB MAXIMA 
+   Processing Maxima for Browser database:
+--------constructor---------
+--->-->Maxima((dummy ((Integer)))): Not documented!!!!
+--->-->Maxima((configure ((Void)))): Not documented!!!!
+--->-->Maxima((compile ((Void)))): Not documented!!!!
+--->-->Maxima((load ((Void)))): Not documented!!!!
+------------------------------------------------------------------------
+   Maxima is now explicitly exposed in frame frame1 
+   Maxima will be automatically loaded when needed from 
+      /home/kfp/quicklisp/local-projects/spadlib/maxima/lib/MAXIMA.NRLIB/MAXIMA
+
+
+Value = ("maxima")
+                                                                   Type: Void
+(2) -> )sh MAXIMA
+ Maxima is a package constructor
+ Abbreviation for Maxima is MAXIMA 
+ This constructor is exposed in this frame.
+------------------------------- Operations --------------------------------
+
+ compile : () -> Void                  configure : () -> Void
+ dummy : () -> Integer                 load : () -> Void
+
+(2) -> load()$MAXIMA
+   The current FriCAS default directory is 
+      /home/kfp/quicklisp/local-projects/spadlib/maxima/src/maxima/src 
+Value = T
+Value = (#<MODULE: final> #<MODULE: graphics-drivers>
+         #<MODULE: translated-packages> #<MODULE: poisson-series>
+         #<MODULE: miscellaneous> #<MODULE: debugging> #<MODULE: solve>
+         #<MODULE: limits> #<MODULE: determinants> #<MODULE: matrix-algebra>
+         #<MODULE: special-functions> #<MODULE: definite-integration>
+         #<MODULE: taylor-series> #<MODULE: integration>
+         #<MODULE: algebraic-database> #<MODULE: documentation> #<MODULE: gcd>
+         #<MODULE: display> #<MODULE: reader> #<MODULE: numerical-functions>
+         #<MODULE: trigonometry> #<MODULE: pattern-matching>
+         #<MODULE: maxima-language-compiler> #<MODULE: rational-functions>
+         #<MODULE: ifactor> #<MODULE: factoring> #<MODULE: i-o>
+         #<MODULE: server> #<MODULE: numeric-bigfloat>
+         #<MODULE: simplification> #<MODULE: numerical> #<MODULE: evaluator>
+         #<MODULE: commands> #<MODULE: utilities> #<MODULE: rat-macros>
+         #<MODULE: other-macros> #<MODULE: utility-macros>
+         #<MODULE: fundamental-macros> #<MODULE: command-line>
+         #<MODULE: getopt> #<MODULE: maxima-language-compiler-macros>
+         #<MODULE: prerequisites> #<MODULE: compatibility-macros>
+         #<MODULE: defmfun> #<MODULE: compatibility-macros1>
+         #<MODULE: destructuring-let> #<MODULE: declarations> #<MODULE: sloop>
+         #<MODULE: info> #<MODULE: intl> #<MODULE: package>)
+Value = NIL
+                                                                   Type: Void
+(3) ->  )lisp  #$[2*x + y - z = 8, -3*x - y + 2*z = -11, -2*x + y + 2*z = -3]$
+
+Value = ((MAXIMA::MLIST . #1=(MAXIMA::SIMP))
+         ((MAXIMA::MEQUAL . #1#)
+          (#2=(MAXIMA::MPLUS . #1#) (#3=(MAXIMA::MTIMES . #1#) 2 MAXIMA::$X)
+           MAXIMA::$Y (#3# -1 MAXIMA::$Z))
+          8)
+         ((MAXIMA::MEQUAL . #1#)
+          (#2# (#3# -3 MAXIMA::$X) (#3# -1 MAXIMA::$Y) (#3# 2 MAXIMA::$Z)) -11)
+         ((MAXIMA::MEQUAL . #1#)
+          (#2# (#3# -2 MAXIMA::$X) MAXIMA::$Y (#3# 2 MAXIMA::$Z)) -3))
+(3) ->  )lisp (setq *tmp* #$[2*x + y - z = 8, -3*x - y + 2*z = -11, -2*x + y + 2 )lisp (setq *tmp* #$[2*x + y - z = 8, -3*x - y + 2*z = -11, -2*x + y + 2*z = -3]$)
+
+Value = ((MAXIMA::MLIST . #1=(MAXIMA::SIMP))
+         ((MAXIMA::MEQUAL . #1#)
+          (#2=(MAXIMA::MPLUS . #1#) (#3=(MAXIMA::MTIMES . #1#) 2 MAXIMA::$X)
+           MAXIMA::$Y (#3# -1 MAXIMA::$Z))
+          8)
+         ((MAXIMA::MEQUAL . #1#)
+          (#2# (#3# -3 MAXIMA::$X) (#3# -1 MAXIMA::$Y) (#3# 2 MAXIMA::$Z)) -11)
+         ((MAXIMA::MEQUAL . #1#)
+          (#2# (#3# -2 MAXIMA::$X) MAXIMA::$Y (#3# 2 MAXIMA::$Z)) -3))
+(3) ->  )lisp (maxima::displa *tmp*)
+[(- z) + y + 2 x = 8, 2 z - y - 3 x = - 11, 2 z + y - 2 x = - 3]
+Value = NIL
+(3) -> 
+
