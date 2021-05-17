@@ -11,22 +11,76 @@ Maxima() : Exports == Implementation where
   SEX ==> SExpression
   MSC ==> MoreSystemCommands
   
+  IF  ==> InputForm
+  OF  ==> OutputForm
+  XI  ==> Expression Integer
+  SEX ==> SExpression
+  
   syscmd(s) ==> systemCommand(s)$MSC
   lisp1(s)  ==> syscmd(string(FORMAT('NIL,"lisp ~A",s)$Lisp)) 
 
   Exports ==  with
       
-    dummy : () -> Integer
     configure : () -> Void
     compile   : () -> Void
     load      : () -> Void
+
+    spad2max : XI -> SEX
+    max2sex  : SEX -> SEX
+    max2spad : SEX -> Any
     
-	
-	
-  Implementation ==  add 
+    meval2sex    : XI -> SEX
+    mevalDisplay : XI -> SEX
+    meval        : XI -> Any 
     
-    dummy() == 1
+    integrate : (XI,XI) -> Any
+    diff      : (XI,XI) -> Any
+	
+  Implementation ==  add
+  
+    lisp1 "(|loadMAXIMA|)" 
+    lisp1 "(|loadMAXSPAD|)"
+    
     configure() == lisp1 "(|configureMAXIMA|)"
     compile() == lisp1 "(|compileMAXIMA|)"
     load() == lisp1 "(|loadMAXIMA|)" 
-   
+    
+
+    spad2max(x:XI):SEX ==
+      y:IF:=convert(x)@IF
+      SPAD2MAX(y)$Lisp
+
+    max2sex(x:SEX):SEX ==
+      MAX2SPAD(x)$Lisp
+
+    max2spad(x:SEX):Any ==
+      y:=convert(MAX2SPAD(x)$Lisp)@IF
+      --s:String:=unparse(y)
+      r:Any:=interpret(y)$IF
+
+    mevalDisplay(x:XI):SEX ==
+      y:IF:=convert(x)@IF
+      MEVALD(SPAD2MAX(y)$Lisp)$Lisp
+
+    meval2sex(x:XI):SEX ==
+      y:IF:=convert(x)@IF
+      MEVALB(SPAD2MAX(y)$Lisp)$Lisp
+
+      
+    meval(x:XI):Any ==
+      y:SEX:=meval2sex(x)
+      max2spad(y)
+
+--
+    integrate(x:XI,v:XI):Any ==
+      --r:SEX:=MAXINTEGRATE(meval2sex(x),meval2sex(v))$Lisp
+      r:SEX:=MAXINTEGRATE(meval2sex(x),meval2sex(v))$Lisp
+      max2spad(r)
+
+    diff(x:XI,v:XI):Any ==
+      --r:SEX:=MAXINTEGRATE(meval2sex(x),meval2sex(v))$Lisp
+      r:SEX:=MAXDIFFERENTIATE(meval2sex(x),meval2sex(v))$Lisp
+      max2spad(r)
+      
+-- )lisp (catch 'spad_reader (cl-user::run))
+-- https://maxima.sourceforge.io/ui-tips.html

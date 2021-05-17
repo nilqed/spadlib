@@ -27,6 +27,11 @@
   (|doSystemCommand| (format nil "lisp (load \"~A\")" "maxima-build.lisp"))
   (|doSystemCommand| (format nil "lisp (maxima-load)"))))
 
+(defun |loadMAXSPAD| ()
+  (progn
+  (|doSystemCommand| (format nil "cd ~Asrc" *maxima*))
+  (|doSystemCommand| (format nil "lisp (load \"~A\")" "maxspad.lisp"))))
+
 
 (defun |compile_maxima| ()
   (progn

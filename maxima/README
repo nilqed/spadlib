@@ -132,3 +132,470 @@ Value = ((MAXIMA::MLIST . #1=(MAXIMA::SIMP))
 Value = NIL
 (3) -> 
 
+
+
+=====
+TESTS
+=====
+
+(3) -> )lisp (catch 'spad_reader (cl-user::run)) 
+
+Maxima 5.44.0 http://maxima.sourceforge.net
+using Lisp SBCL 1.4.9
+Distributed under the GNU Public License. See the file COPYING.
+Dedicated to the memory of William Schelter.
+The function bug_report() provides bug reporting information.
+(%i1) run_testsuite();
+Testsuite run for SBCL 1.4.9:
+Running tests in rtest_rules: 127/127 tests passed
+Running tests in rtestnset: 617/617 tests passed
+Running tests in rtest1: WARNING: redefining MAXIMA::$TEST_READBASE_LISP_AUTOLOAD in DEFUN
+193/193 tests passed (not counting 3 expected errors)
+Running tests in rtest1a: 34/34 tests passed (not counting 1 expected errors)
+Running tests in rtest2: 287/287 tests passed (not counting 2 expected errors)
+Running tests in rtest4: 94/94 tests passed
+Running tests in rtest5: 
+; file: /home/kfp/quicklisp/local-projects/spadlib/maxima/src/maxima/share/graphs/graph_core.lisp
+; in: DEFMFUN $GET_POSITIONS
+;     (MAXIMA::DEFMFUN MAXIMA::$GET_POSITIONS
+;         (MAXIMA::GR)
+;       (MAXIMA::REQUIRE-GRAPH-OR-DIGRAPH 'MAXIMA::GET_POSITIONS 1 MAXIMA::GR)
+;       (IF (MAXIMA::GRAPH-P MAXIMA::GR)
+;           (MAXIMA::GRAPH-VERTEX-POSITIONS MAXIMA::GR)
+;           (MAXIMA::DIGRAPH-VERTEX-POSITIONS MAXIMA::GR)))
+; --> PROGN DEFINE-COMPILER-MACRO PROGN EVAL-WHEN 
+; ==>
+;   (SB-C::%DEFINE-COMPILER-MACRO 'MAXIMA::$GET_POSITIONS
+;                                 (SB-INT:NAMED-LAMBDA (COMPILER-MACRO
+;                                                       MAXIMA::$GET_POSITIONS)
+;                                     (#:EXPR #:ENV)
+;                                   (DECLARE
+;                                    (SB-C::LAMBDA-LIST (&REST #:REST-ARGS2)))
+;                                   (DECLARE (IGNORE #:ENV))
+;                                   (SB-INT:NAMED-DS-BIND (:MACRO
+;                                                          MAXIMA::$GET_POSITIONS
+;                                                          . DEFINE-COMPILER-MACRO)
+;                                       (&REST #:REST-ARGS2)
+;                                       (SB-C::COMPILER-MACRO-ARGS #:EXPR)
+;                                     (BLOCK MAXIMA::$GET_POSITIONS
+;                                       `(,'MAXIMA::$GET_POSITIONS-IMPL
+;                                         ,@#:REST-ARGS2)))))
+; 
+; caught STYLE-WARNING:
+;   2 calls to MAXIMA::$GET_POSITIONS were compiled before a compiler-macro was
+;   defined for it. A declaration of NOTINLINE at the call sites will eliminate
+;   this warning, as will defining the compiler-macro before its first potential
+;   use.
+
+; in: DEFMFUN $SET_POSITIONS
+;     (MAXIMA::DEFMFUN MAXIMA::$SET_POSITIONS
+;         (MAXIMA::POS MAXIMA::GR)
+;       (MAXIMA::REQUIRE-GRAPH-OR-DIGRAPH 'MAXIMA::SET_POSITIONS 2 MAXIMA::GR)
+;       (IF (MAXIMA::GRAPH-P MAXIMA::GR)
+;           (SETF (MAXIMA::GRAPH-VERTEX-POSITIONS MAXIMA::GR) MAXIMA::POS)
+;           (SETF (MAXIMA::DIGRAPH-VERTEX-POSITIONS MAXIMA::GR) MAXIMA::POS)))
+; --> PROGN DEFINE-COMPILER-MACRO PROGN EVAL-WHEN 
+; ==>
+;   (SB-C::%DEFINE-COMPILER-MACRO 'MAXIMA::$SET_POSITIONS
+;                                 (SB-INT:NAMED-LAMBDA (COMPILER-MACRO
+;                                                       MAXIMA::$SET_POSITIONS)
+;                                     (#:EXPR #:ENV)
+;                                   (DECLARE
+;                                    (SB-C::LAMBDA-LIST (&REST #:REST-ARGS2)))
+;                                   (DECLARE (IGNORE #:ENV))
+;                                   (SB-INT:NAMED-DS-BIND (:MACRO
+;                                                          MAXIMA::$SET_POSITIONS
+;                                                          . DEFINE-COMPILER-MACRO)
+;                                       (&REST #:REST-ARGS2)
+;                                       (SB-C::COMPILER-MACRO-ARGS #:EXPR)
+;                                     (BLOCK MAXIMA::$SET_POSITIONS
+;                                       `(,'MAXIMA::$SET_POSITIONS-IMPL
+;                                         ,@#:REST-ARGS2)))))
+; 
+; caught STYLE-WARNING:
+;   2 calls to MAXIMA::$SET_POSITIONS were compiled before a compiler-macro was
+;   defined for it. A declaration of NOTINLINE at the call sites will eliminate
+;   this warning, as will defining the compiler-macro before its first potential
+;   use.
+
+; in: DEFMFUN $RANDOM_GRAPH1
+;     (MAXIMA::DEFMFUN MAXIMA::$RANDOM_GRAPH1
+;         (MAXIMA::N MAXIMA::M)
+;       (UNLESS (INTEGERP MAXIMA::N)
+;         (MAXIMA::$ERROR "Argument 1 to random_graph is not an integer"))
+;       (UNLESS (INTEGERP MAXIMA::M)
+;         (MAXIMA::$ERROR "Argument 2 to random_graph is not an integer"))
+;       (WHEN (< (* MAXIMA::N (1- MAXIMA::N)) (* 2 MAXIMA::M))
+;         (MAXIMA::$ERROR "random_graph1: no such graph"))
+;       (WHEN (< (* MAXIMA::N (1- MAXIMA::N)) (* 4 MAXIMA::M))
+;         (RETURN-FROM MAXIMA::$RANDOM_GRAPH1
+;           (MAXIMA::$COMPLEMENT_GRAPH (MAXIMA::$RANDOM_GRAPH1 MAXIMA::N #))))
+;       (LET ((MAXIMA::G (MAXIMA::$EMPTY_GRAPH MAXIMA::N)))
+;         (DO ((MAXIMA::I 0))
+;             ((= MAXIMA::I MAXIMA::M))
+;           (LET (# #)
+;             (UNLESS # #)))
+;         MAXIMA::G))
+; --> PROGN DEFINE-COMPILER-MACRO PROGN EVAL-WHEN 
+; ==>
+;   (SB-C::%DEFINE-COMPILER-MACRO 'MAXIMA::$RANDOM_GRAPH1
+;                                 (SB-INT:NAMED-LAMBDA (COMPILER-MACRO
+;                                                       MAXIMA::$RANDOM_GRAPH1)
+;                                     (#:EXPR #:ENV)
+;                                   (DECLARE
+;                                    (SB-C::LAMBDA-LIST (&REST #:REST-ARGS2)))
+;                                   (DECLARE (IGNORE #:ENV))
+;                                   (SB-INT:NAMED-DS-BIND (:MACRO
+;                                                          MAXIMA::$RANDOM_GRAPH1
+;                                                          . DEFINE-COMPILER-MACRO)
+;                                       (&REST #:REST-ARGS2)
+;                                       (SB-C::COMPILER-MACRO-ARGS #:EXPR)
+;                                     (BLOCK MAXIMA::$RANDOM_GRAPH1
+;                                       `(,'MAXIMA::$RANDOM_GRAPH1-IMPL
+;                                         ,@#:REST-ARGS2)))))
+; 
+; caught STYLE-WARNING:
+;   1 call to MAXIMA::$RANDOM_GRAPH1 was compiled before a compiler-macro was
+;   defined for it. A declaration of NOTINLINE at the call site will eliminate this
+;   warning, as will defining the compiler-macro before its first potential use.
+
+; in: DEFMFUN $BICONNECTED_COMPONENTS
+;     (MAXIMA::DEFMFUN MAXIMA::$BICONNECTED_COMPONENTS
+;         (MAXIMA::GR)
+;       (MAXIMA::REQUIRE-GRAPH 'MAXIMA::BICONNECTED_COMPONENTS 1 MAXIMA::GR)
+;       (IF (= 0 (MAXIMA::GRAPH-ORDER MAXIMA::GR))
+;           `((MAXIMA::MLIST MAXIMA::SIMP))
+;           (LET ((MAXIMA::BICOMP `#) (MAXIMA::COMP #))
+;             (DOLIST (MAXIMA::C MAXIMA::COMP)
+;               (IF #
+;                   #
+;                   #))
+;             MAXIMA::BICOMP)))
+; --> PROGN DEFINE-COMPILER-MACRO PROGN EVAL-WHEN 
+; ==>
+;   (SB-C::%DEFINE-COMPILER-MACRO 'MAXIMA::$BICONNECTED_COMPONENTS
+;                                 (SB-INT:NAMED-LAMBDA (COMPILER-MACRO
+;                                                       MAXIMA::$BICONNECTED_COMPONENTS)
+;                                     (#:EXPR #:ENV)
+;                                   (DECLARE
+;                                    (SB-C::LAMBDA-LIST (&REST #:REST-ARGS2)))
+;                                   (DECLARE (IGNORE #:ENV))
+;                                   (SB-INT:NAMED-DS-BIND (:MACRO
+;                                                          MAXIMA::$BICONNECTED_COMPONENTS
+;                                                          . DEFINE-COMPILER-MACRO)
+;                                       (&REST #:REST-ARGS2)
+;                                       (SB-C::COMPILER-MACRO-ARGS #:EXPR)
+;                                     (BLOCK MAXIMA::$BICONNECTED_COMPONENTS
+;                                       `(,'MAXIMA::$BICONNECTED_COMPONENTS-IMPL
+;                                         ,@#:REST-ARGS2)))))
+; 
+; caught STYLE-WARNING:
+;   1 call to MAXIMA::$BICONNECTED_COMPONENTS was compiled before a compiler-macro
+;   was defined for it. A declaration of NOTINLINE at the call site will eliminate
+;   this warning, as will defining the compiler-macro before its first potential
+;   use.
+
+; in: DEFMFUN $STRONG_COMPONENTS
+;     (MAXIMA::DEFMFUN MAXIMA::$STRONG_COMPONENTS
+;         (MAXIMA::GR)
+;       (MAXIMA::REQUIRE-DIGRAPH 'MAXIMA::STRONG_COMPONENTS 1 MAXIMA::GR)
+;       (IF (= 0 (MAXIMA::DIGRAPH-ORDER MAXIMA::GR))
+;           `((MAXIMA::MLIST MAXIMA::SIMP))
+;           (LET ((MAXIMA::RES))
+;             (SETQ MAXIMA::*SCON-LOW* #)
+;             (SETQ MAXIMA::*SCON-DFN* #)
+;             (SETQ MAXIMA::*SCON-COMP* NIL)
+;             (SETQ MAXIMA::*SCON-ST* NIL)
+;             (SETQ MAXIMA::*SCON-VRT* #)
+;             (LOOP MAXIMA::WHILE (NOT #)
+;                   DO (SETQ #) (MAXIMA::DFS-STRONG-COMPONENTS MAXIMA::GR
+;                                #) (DOLIST # #) (SETQ #))
+;             `((MAXIMA::MLIST MAXIMA::SIMP) ,@MAXIMA::RES))))
+; --> PROGN DEFINE-COMPILER-MACRO PROGN EVAL-WHEN 
+; ==>
+;   (SB-C::%DEFINE-COMPILER-MACRO 'MAXIMA::$STRONG_COMPONENTS
+;                                 (SB-INT:NAMED-LAMBDA (COMPILER-MACRO
+;                                                       MAXIMA::$STRONG_COMPONENTS)
+;                                     (#:EXPR #:ENV)
+;                                   (DECLARE
+;                                    (SB-C::LAMBDA-LIST (&REST #:REST-ARGS2)))
+;                                   (DECLARE (IGNORE #:ENV))
+;                                   (SB-INT:NAMED-DS-BIND (:MACRO
+;                                                          MAXIMA::$STRONG_COMPONENTS
+;                                                          . DEFINE-COMPILER-MACRO)
+;                                       (&REST #:REST-ARGS2)
+;                                       (SB-C::COMPILER-MACRO-ARGS #:EXPR)
+;                                     (BLOCK MAXIMA::$STRONG_COMPONENTS
+;                                       `(,'MAXIMA::$STRONG_COMPONENTS-IMPL
+;                                         ,@#:REST-ARGS2)))))
+; 
+; caught STYLE-WARNING:
+;   1 call to MAXIMA::$STRONG_COMPONENTS was compiled before a compiler-macro was
+;   defined for it. A declaration of NOTINLINE at the call site will eliminate this
+;   warning, as will defining the compiler-macro before its first potential use.
+
+; in: DEFMFUN $MIN_VERTEX_COVER
+;     (MAXIMA::DEFMFUN MAXIMA::$MIN_VERTEX_COVER
+;         (MAXIMA::GR)
+;       (MAXIMA::REQUIRE-GRAPH 'MAXIMA::MIN_VERTEX_COVER 1 MAXIMA::GR)
+;       (LET ((MAXIMA::BIPART (MAXIMA::$BIPARTITION MAXIMA::GR)))
+;         (IF (NULL (CDR MAXIMA::BIPART))
+;             (LET (# #)
+;               (LOOP MAXIMA::FOR MAXIMA::V MAXIMA::IN #
+;                     DO #)
+;               `(# ,@MAXIMA::VC))
+;             (MAXIMA::MAXIMUM-MATCHING-BIPARTITE MAXIMA::GR (CADR MAXIMA::BIPART)
+;              (CADDR MAXIMA::BIPART) T))))
+; --> PROGN DEFINE-COMPILER-MACRO PROGN EVAL-WHEN 
+; ==>
+;   (SB-C::%DEFINE-COMPILER-MACRO 'MAXIMA::$MIN_VERTEX_COVER
+;                                 (SB-INT:NAMED-LAMBDA (COMPILER-MACRO
+;                                                       MAXIMA::$MIN_VERTEX_COVER)
+;                                     (#:EXPR #:ENV)
+;                                   (DECLARE
+;                                    (SB-C::LAMBDA-LIST (&REST #:REST-ARGS2)))
+;                                   (DECLARE (IGNORE #:ENV))
+;                                   (SB-INT:NAMED-DS-BIND (:MACRO
+;                                                          MAXIMA::$MIN_VERTEX_COVER
+;                                                          . DEFINE-COMPILER-MACRO)
+;                                       (&REST #:REST-ARGS2)
+;                                       (SB-C::COMPILER-MACRO-ARGS #:EXPR)
+;                                     (BLOCK MAXIMA::$MIN_VERTEX_COVER
+;                                       `(,'MAXIMA::$MIN_VERTEX_COVER-IMPL
+;                                         ,@#:REST-ARGS2)))))
+; 
+; caught STYLE-WARNING:
+;   1 call to MAXIMA::$MIN_VERTEX_COVER was compiled before a compiler-macro was
+;   defined for it. A declaration of NOTINLINE at the call site will eliminate this
+;   warning, as will defining the compiler-macro before its first potential use.
+
+; file: /home/kfp/quicklisp/local-projects/spadlib/maxima/src/maxima/share/graphs/demoucron.lisp
+; in: DEFMFUN $IS_PLANAR
+;     (MAXIMA::DEFMFUN MAXIMA::$IS_PLANAR
+;         (MAXIMA::GR)
+;       (MAXIMA::REQUIRE-GRAPH 'MAXIMA::IS_PLANAR 1 MAXIMA::GR)
+;       (WHEN (< (MAXIMA::$GRAPH_ORDER MAXIMA::GR) 5)
+;         (RETURN-FROM MAXIMA::$IS_PLANAR T))
+;       (WHEN (> (MAXIMA::$GRAPH_SIZE MAXIMA::GR) (- (* 3 #) 6))
+;         (RETURN-FROM MAXIMA::$IS_PLANAR NIL))
+;       (UNLESS (MAXIMA::$IS_CONNECTED MAXIMA::GR)
+;         (RETURN-FROM MAXIMA::$IS_PLANAR
+;           (MAXIMA::IS-PLANAR-UNCONNECTED MAXIMA::GR)))
+;       (WHEN
+;           (< (MAXIMA::$GRAPH_SIZE MAXIMA::GR) (MAXIMA::$GRAPH_ORDER MAXIMA::GR))
+;         (RETURN-FROM MAXIMA::$IS_PLANAR T))
+;       (LET ((MAXIMA::BICOMPONENTS (MAXIMA::$BICONNECTED_COMPONENTS MAXIMA::GR)))
+;         (LOOP MAXIMA::FOR MAXIMA::C MAXIMA::IN (CDR MAXIMA::BICOMPONENTS)
+;               DO (IF (> # 4)
+;                      (UNLESS # #)))
+;         T))
+; --> PROGN DEFINE-COMPILER-MACRO PROGN EVAL-WHEN 
+; ==>
+;   (SB-C::%DEFINE-COMPILER-MACRO 'MAXIMA::$IS_PLANAR
+;                                 (SB-INT:NAMED-LAMBDA (COMPILER-MACRO
+;                                                       MAXIMA::$IS_PLANAR)
+;                                     (#:EXPR #:ENV)
+;                                   (DECLARE
+;                                    (SB-C::LAMBDA-LIST (&REST #:REST-ARGS2)))
+;                                   (DECLARE (IGNORE #:ENV))
+;                                   (SB-INT:NAMED-DS-BIND (:MACRO
+;                                                          MAXIMA::$IS_PLANAR
+;                                                          . DEFINE-COMPILER-MACRO)
+;                                       (&REST #:REST-ARGS2)
+;                                       (SB-C::COMPILER-MACRO-ARGS #:EXPR)
+;                                     (BLOCK MAXIMA::$IS_PLANAR
+;                                       `(,'MAXIMA::$IS_PLANAR-IMPL
+;                                         ,@#:REST-ARGS2)))))
+; 
+; caught STYLE-WARNING:
+;   1 call to MAXIMA::$IS_PLANAR was compiled before a compiler-macro was defined
+;   for it. A declaration of NOTINLINE at the call site will eliminate this
+;   warning, as will defining the compiler-macro before its first potential use.
+; 
+; compilation unit finished
+;   caught 7 STYLE-WARNING conditions
+82/82 tests passed (not counting 1 expected errors)
+Running tests in rtest6: 45/45 tests passed
+Running tests in rtest6a: 65/65 tests passed
+Running tests in rtest6b: 27/27 tests passed
+Running tests in rtest7: 88/88 tests passed
+Running tests in rtest9: 89/89 tests passed
+Running tests in rtest9a: 76/76 tests passed
+Running tests in rtest10: 60/60 tests passed (not counting 2 expected errors)
+Running tests in rtest11: 245/245 tests passed
+Running tests in rtest13: 23/23 tests passed
+Running tests in rtest13s: 17/17 tests passed
+Running tests in rtest14: WARNING: redefining MAXIMA::SIMP-UNIT-STEP in DEFUN
+WARNING: redefining MAXIMA::SIMP-POCHHAMMER in DEFUN
+WARNING: redefining MAXIMA::SIMP-HYPERGEOMETRIC in DEFUN
+418/418 tests passed
+Running tests in rtest15: WARNING: redefining MAXIMA::$F-IMPL in DEFUN
+WARNING: redefining MAXIMA::$F-IMPL in DEFUN
+WARNING: redefining MAXIMA::$F-IMPL in DEFUN
+WARNING: redefining MAXIMA::$F-IMPL in DEFUN
+WARNING: redefining MAXIMA::$F in DEFUN
+WARNING: redefining MAXIMA::$F-IMPL in DEFUN
+WARNING: redefining MAXIMA::$F-IMPL in DEFUN
+WARNING: redefining MAXIMA::$F in DEFUN
+WARNING: redefining MAXIMA::$F-IMPL in DEFUN
+WARNING: redefining MAXIMA::$F-IMPL in DEFUN
+WARNING: redefining MAXIMA::$F in DEFUN
+WARNING: redefining MAXIMA::$F-IMPL in DEFUN
+WARNING: redefining MAXIMA::$F-IMPL in DEFUN
+WARNING: redefining MAXIMA::$F in DEFUN
+WARNING: redefining MAXIMA::$F-IMPL in DEFUN
+WARNING: redefining MAXIMA::$F-IMPL in DEFUN
+WARNING: redefining MAXIMA::$F in DEFUN
+WARNING: redefining MAXIMA::$F-IMPL in DEFUN
+WARNING: redefining MAXIMA::$F-IMPL in DEFUN
+WARNING: redefining MAXIMA::$F in DEFUN
+WARNING: redefining MAXIMA::$F-IMPL in DEFUN
+WARNING: redefining MAXIMA::$F-IMPL in DEFUN
+WARNING: redefining MAXIMA::$F in DEFUN
+389/389 tests passed
+Running tests in rtest16: WARNING: redefining MAXIMA::$F-IMPL in DEFUN
+WARNING: redefining MAXIMA::$F-IMPL in DEFUN
+684/684 tests passed (not counting 2 expected errors)
+Running tests in rtestode: 95/95 tests passed
+Running tests in rtestode_zp: 30/30 tests passed
+Running tests in rtest3: 172/172 tests passed
+Running tests in rtest8: 181/181 tests passed
+Running tests in rtest12: 77/77 tests passed (not counting 2 expected errors)
+Running tests in rexamples: 137/137 tests passed
+Running tests in rtesthyp: 417/417 tests passed (not counting 6 expected errors)
+Running tests in rtest_hypgeo: 290/290 tests passed (not counting 1 expected errors)
+Running tests in rtestmt19937: 15/15 tests passed
+Running tests in rtest_allnummod: 549/549 tests passed
+Running tests in rtestconjugate: 136/136 tests passed
+Running tests in rtestsum: WARNING: redefining MAXIMA::$FOO-IMPL in DEFUN
+WARNING: redefining MAXIMA::$G-IMPL in DEFUN
+303/303 tests passed (not counting 4 expected errors)
+Running tests in rtest_trig: 164/164 tests passed
+Running tests in rtest_zeta: 22/22 tests passed
+Running tests in rtest_diff_invtrig: 22/22 tests passed
+Running tests in rtest_scalarp: 20/20 tests passed
+Running tests in rtest_everysome: 84/84 tests passed
+Running tests in rtestint: 314/314 tests passed (not counting 1 expected errors)
+Running tests in rtest_numth: 205/205 tests passed
+Running tests in rtestifactor: 34/34 tests passed
+Running tests in rtest_equal: 205/205 tests passed (not counting 2 expected errors)
+Running tests in rtest_abs: 140/140 tests passed
+Running tests in rtest_taylor: 157/157 tests passed (not counting 6 expected errors)
+Running tests in rtest_dot: 60/60 tests passed
+Running tests in rtest_mset: 113/113 tests passed
+Running tests in rtest_boolean: 116/116 tests passed
+Running tests in rtest_round: 101/101 tests passed
+Running tests in rtest_map: 130/130 tests passed (not counting 3 expected errors)
+Running tests in rtest_sign: 353/353 tests passed (not counting 7 expected errors)
+Running tests in rtest_algebraic: 45/45 tests passed
+Running tests in rtest_gamma: 794/794 tests passed
+Running tests in rtest_expintegral: 210/210 tests passed
+Running tests in rtest_signum: 59/59 tests passed
+Running tests in rtest_lambert_w: 57/57 tests passed
+Running tests in rtest_elliptic: 177/177 tests passed (not counting 2 expected errors)
+Running tests in rtest_integrate: 814/814 tests passed
+Running tests in rtest_integrate_special: 53/53 tests passed
+Running tests in rtest_sqrt: 315/315 tests passed (not counting 1 expected errors)
+Running tests in rtest_carg: 53/53 tests passed (not counting 2 expected errors)
+Running tests in rtest_log: 134/134 tests passed
+Running tests in rtest_power: 68/68 tests passed (not counting 4 expected errors)
+Running tests in rtestdefstruct: 32/32 tests passed
+Running tests in rtest_limit: 222/222 tests passed
+Running tests in rtest_powerseries: 67/67 tests passed
+Running tests in rtest_laplace: 89/89 tests passed (not counting 11 expected errors)
+Running tests in rtest_plotoptions: 5/5 tests passed
+Running tests in rtest_algsys: 69/69 tests passed
+Running tests in rtest_trace: 83/83 tests passed
+
+
+No unexpected errors found out of 11,711 tests.
+Evaluation took:
+  90.944 seconds of real time
+  85.671877 seconds of total run time (84.454721 user, 1.217156 system)
+  [ Run times consist of 5.150 seconds GC time, and 80.522 seconds non-GC time. ]
+  94.20% CPU
+  18,976,417 forms interpreted
+  6,163 lambdas converted
+  281,275,524,249 processor cycles
+  8 page faults
+  37,387,079,696 bytes consed
+  
+(%o0)                                done
+(%i1) 
+
+
+=======
+SPADMAX
+=======
+
+(3) -> meval2sex (4^x)
+
+   (3)  ((MEXPT SIMP) 4 $x)
+                                                            Type: SExpression
+(4) -> diff(x^n,x)
+
+           n - 1
+   (4)  n x
+                                                    Type: Expression(Integer)
+(5) -> diff(x^n+2*x^z,x)
+
+             z - 1      n - 1
+   (5)  2 z x      + n x
+                                                    Type: Expression(Integer)
+(6) -> diff(x^n+2*x^z,x)$MAXIMA
+
+             z - 1      n - 1
+   (6)  2 z x      + n x
+                                                    Type: Expression(Integer)
+(7) -> integrate(x^n,x)
+Is N equal to - 1?
+
+no
+
+;
+
+         n + 1
+        x
+   (7)  ------
+         n + 1
+                                                    Type: Expression(Integer)
+(8) -> integrate(x^n,x)
+(8) -> 
+         n + 1
+        x
+   (8)  ------
+         n + 1
+                                                    Type: Expression(Integer)
+(9) -> integrate(y^n,y)
+
+         n + 1
+        y
+   (9)  ------
+         n + 1
+                                                    Type: Expression(Integer)
+(10) -> integrate(y^n+2,y)
+
+          n + 1
+         y      + (2 n + 2)y
+   (10)  -------------------
+                n + 1
+                                                    Type: Expression(Integer)
+(11) -> diff(%,y)
+
+          n
+   (11)  y  + 2
+                                                    Type: Expression(Integer)
+(12) -> diff(sin x,x)
+
+   (12)  cos(x)
+                                                    Type: Expression(Integer)
+(13) -> diff(sin x^h,x)
+
+                       h - 1
+   (13)  h cos(x)sin(x)
+                                                    Type: Expression(Integer)
+(14) -> )q
+
+
+
+
