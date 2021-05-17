@@ -1,0 +1,43 @@
+)co ../src/extcalc
+
+n := 4
+R := Expression Integer
+
+x:=[x[i] for i in 1..n]
+
+M := EXTCALC x
+
+g := genericMetric('g)$M
+
+u := vector [u[i]::R for i in 1..n]
+v := vector [v[i]::R for i in 1..n]
+
+
+guv := dot(g,u,v)$M
+
+
+eta := diagonalMatrix([-1,-1,-1,1]) :: SquareMatrix(4,R)
+
+dot(eta,u,v)$M
+dot(eta,u,u)$M
+
+A := matrix [[A[i,j]::R for j in 1..n] for i in 1..n]
+
+B:= matrix [[operator(B[i,j]) x for j in 1..4] for i in 1..4]
+
+SLB:= [[elt(B,i,j) = b[i,j]::R for j in 1..4] for i in 1..4]
+
+G:= Gramian(B)$M
+
+eval(trace B,[x.i=__ for i in 1..4])
+
+lsb:=listOfLists sigma(B)$M
+
+slsb := [substCoeffs(w,concat SLB)$M for w in  concat lsb]
+
+--eq1 := d sigma(B)$M = sigma(B)$M * Omega(B)$M ;
+--eq2 := d Omega(B)$M = Omega(B)$M * Omega(B)$M ;
+--test (eq1)
+--test (eq2)
+
+

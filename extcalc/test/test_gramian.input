@@ -1,0 +1,42 @@
+)co ../src/extcalc
+
+n := 2
+R := Expression Integer
+
+x:=[x[i] for i in 1..n]
+
+M := EXTCALC x
+
+g := genericMetric('g)$M
+eta := diagonalMatrix(concat([-1 for i in 1..n-1],[1])) :: SquareMatrix(n,R)
+E := diagonalMatrix([1 for i in 1..n]) :: SquareMatrix(n,R)
+
+i%:=sqrt(-1)::R
+EC := diagonalMatrix(concat([i% for i in 1..n-1],[1])) :: SquareMatrix(n,R)
+
+u := vector [u[i]::R for i in 1..n]
+v := vector [v[i]::R for i in 1..n]
+
+L:= matrix [[L[i,j]::R for j in 1..n] for i in 1..n]
+
+-- Test EC*EC = eta
+test(EC*EC=eta)
+
+ec := frameVectors(EC)$M
+e  := frameVectors(E)$M
+
+
+Q := transpose L * eta * L - eta
+EQ0 := concat [[Q(i,j)=0 for j in 1..n] for i in 1..n]
+
+syms := concat listOfLists L
+EQ1:= [determinant L = 1, trace L = 2/sqrt(1-b^2)]
+
+solve(concat(EQ0,EQ1), syms)
+
+
+
+
+
+
+
