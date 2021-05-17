@@ -3,12 +3,30 @@
 ;;;
 (defparameter *maxima* (asdf:system-source-directory :maxima))
 
-;;; special loading procedure!
+
+;;;
+;;; special configure/compile/loading procedures for MAXIMA itself
+;;;
+(defun |configureMAXIMA| ()
+  (progn
+  (|doSystemCommand| (format nil "cd ~Asrc/maxima" *maxima*))
+  (|doSystemCommand| (format nil "lisp (load \"~A\")" "configure.lisp"))
+  (|doSystemCommand| (format nil "lisp (configure :interactive nil)"))))
+
+
+(defun |compileMAXIMA| ()
+  (progn
+  (|doSystemCommand| (format nil "cd ~Asrc/maxima/src" *maxima*))
+  (|doSystemCommand| (format nil "lisp (load \"~A\")" "maxima-build.lisp"))
+  (|doSystemCommand| (format nil "lisp (maxima-compile)"))))
+
+
 (defun |loadMAXIMA| ()
   (progn
   (|doSystemCommand| (format nil "cd ~Asrc/maxima/src" *maxima*))
-  (|doSystemCommand| (format nil "lisp (load \"~A\")" "maxima-build"))
+  (|doSystemCommand| (format nil "lisp (load \"~A\")" "maxima-build.lisp"))
   (|doSystemCommand| (format nil "lisp (maxima-load)"))))
+
 
 (defun |compile_maxima| ()
   (progn

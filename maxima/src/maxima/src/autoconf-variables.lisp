@@ -1,7 +1,7 @@
 ; -*- Lisp -*-
 (in-package :maxima)
 
-(defparameter *autoconf-prefix* "/home/kfp/quicklisp/local-projects/spadlib/maxima/src/maxima-5.44.0")
+(defparameter *autoconf-prefix* "/home/kfp/quicklisp/local-projects/spadlib/maxima/src/maxima")
 (defparameter *autoconf-exec_prefix* "@expanded_exec_prefix@")
 (defparameter *autoconf-package* "maxima")
 (defparameter *autoconf-version* "5.44.0")
@@ -20,5 +20,5 @@
 ;; This will be T if this was a lisp-only build
 (defparameter *autoconf-lisp-only-build* (eq t 't))
  
-(defparameter *maxima-source-root* "/home/kfp/quicklisp/local-projects/spadlib/maxima/src/maxima-5.44.0")
+(defparameter *maxima-source-root* "/home/kfp/quicklisp/local-projects/spadlib/maxima/src/maxima")
 (defparameter *maxima-default-layout-autotools* "false")

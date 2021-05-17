@@ -7,14 +7,26 @@
 ++
 Maxima() : Exports == Implementation where
     
+  STR ==> String
+  SEX ==> SExpression
   MSC ==> MoreSystemCommands
   
+  syscmd(s) ==> systemCommand(s)$MSC
+  lisp1(s)  ==> syscmd(string(FORMAT('NIL,"lisp ~A",s)$Lisp)) 
+
   Exports ==  with
       
     dummy : () -> Integer
+    configure : () -> Void
+    compile   : () -> Void
+    load      : () -> Void
+    
 	
 	
   Implementation ==  add 
     
     dummy() == 1
+    configure() == lisp1 "(|configureMAXIMA|)"
+    compile() == lisp1 "(|compileMAXIMA|)"
+    load() == lisp1 "(|loadMAXIMA|)" 
    

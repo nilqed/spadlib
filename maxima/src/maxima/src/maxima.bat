@@ -26,7 +26,7 @@ rem %~dp0/.. should be the same, but is something like the 8.3 short path - and 
 rem causes problems with Xmaxima and Clisp.
 rem (the combination will not work if Maxima is installed somewhere else, but that is not recommended)
 set "prefix=%~dp0/.."
-set "configureprefix=/home/kfp/quicklisp/local-projects/spadlib/maxima/src/maxima-5.44.0"
+set "configureprefix=/home/kfp/quicklisp/local-projects/spadlib/maxima/src/maxima"
 if exist "%configureprefix%/bin/maxima.bat" set "prefix=%configureprefix%"
 
 rem change "\" to "/" in that path. Works too and causes less troubles (e.g. with xmaxima).
