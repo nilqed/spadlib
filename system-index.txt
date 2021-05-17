@@ -24,3 +24,4 @@ spadlib/oobj/oobj.asd
 spadlib/aosc/aosc.asd
 spadlib/fmtmjax/fmtmjax.asd
 spadlib/drawfe/drawfe.asd
+spadlib/maxima/maxima.asd

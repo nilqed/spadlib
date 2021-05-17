@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- Created by GNU Texinfo 5.1, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>Maxima 5.44.0 Manual: Error Function</title>
+
+<meta name="description" content="Maxima 5.44.0 Manual: Error Function">
+<meta name="keywords" content="Maxima 5.44.0 Manual: Error Function">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="maxima_0.html#Top" rel="start" title="Top">
+<link href="maxima_363.html#Function-and-Variable-Index" rel="index" title="Function and Variable Index">
+<link href="maxima_toc.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="maxima_77.html#Special-Functions" rel="up" title="Special Functions">
+<link href="maxima_84.html#Struve-Functions" rel="next" title="Struve Functions">
+<link href="maxima_82.html#Exponential-Integrals" rel="previous" title="Exponential Integrals">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+body {color: black; background: white;  margin-left: 8%; margin-right: 13%;
+      font-family: "FreeSans", sans-serif}
+h1 {font-size: 150%; font-family: "FreeSans", sans-serif}
+h2 {font-size: 125%; font-family: "FreeSans", sans-serif}
+h3 {font-size: 100%; font-family: "FreeSans", sans-serif}
+a[href] {color: rgb(0,0,255); text-decoration: none;}
+a[href]:hover {background: rgb(220,220,220);}
+div.textbox {border: solid; border-width: thin; padding-top: 1em;
+    padding-bottom: 1em; padding-left: 2em; padding-right: 2em}
+div.titlebox {border: none; padding-top: 1em; padding-bottom: 1em;
+    padding-left: 2em; padding-right: 2em; background: rgb(200,255,255);
+    font-family: sans-serif}
+div.synopsisbox {
+    border: none; padding-top: 1em; padding-bottom: 1em; padding-left: 2em;
+    padding-right: 2em; background: rgb(255,220,255);}
+pre.example {border: 1px solid rgb(180,180,180); padding-top: 1em;
+    padding-bottom: 1em; padding-left: 1em; padding-right: 1em;
+    background-color: rgb(238,238,255)}
+div.spacerbox {border: none; padding-top: 2em; padding-bottom: 2em}
+div.image {margin: 0; padding: 1em; text-align: center}
+div.categorybox {border: 1px solid gray; padding-top: 0px; padding-bottom: 0px;
+    padding-left: 1em; padding-right: 1em; background: rgb(247,242,220)}
+img {max-width:80%; max-height: 80%; display: block; margin-left: auto; margin-right: auto}
+
+-->
+</style>
+
+<link rel="icon" href="figures/favicon.ico">
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Error-Function"></a>
+<div class="header">
+<p>
+Next: <a href="maxima_84.html#Struve-Functions" accesskey="n" rel="next">Struve Functions</a>, Previous: <a href="maxima_82.html#Exponential-Integrals" accesskey="p" rel="previous">Exponential Integrals</a>, Up: <a href="maxima_77.html#Special-Functions" accesskey="u" rel="up">Special Functions</a> &nbsp; [<a href="maxima_toc.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="maxima_363.html#Function-and-Variable-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Error-Function-1"></a>
+<h3 class="section">15.6 Error Function</h3>
+
+<p>The Error function and related funtions are defined in 
+Abramowitz and Stegun,
+<i>Handbook of Mathematical Functions</i>, Chapter 7
+</p>
+<a name="erf"></a><a name="Item_003a-Special_002fdeffn_002ferf"></a><dl>
+<dt><a name="index-erf"></a>Function: <strong>erf</strong> <em>(<var>z</var>)</em></dt>
+<dd>
+<p>The Error Function erf(z) (A&amp;S 7.1.1)
+</p>
+<p>See also flag <code><a href="maxima_98.html#erfflag">erfflag</a></code>.
+<div class=categorybox>&middot;<a href="maxima_364.html#Category_003a-Special-functions">Special functions</a>
+</div></p></dd></dl>
+
+<a name="erfc"></a><a name="Item_003a-Special_002fdeffn_002ferfc"></a><dl>
+<dt><a name="index-erfc"></a>Function: <strong>erfc</strong> <em>(<var>z</var>)</em></dt>
+<dd><p>The Complementary Error Function erfc(z) (A&amp;S 7.1.2)
+</p>
+<p><code>erfc(z) = 1-erf(z)</code>
+<div class=categorybox>&middot;<a href="maxima_364.html#Category_003a-Special-functions">Special functions</a>
+</div></p></dd></dl>
+
+<a name="Item_003a-Special_002fdeffn_002ferfi"></a><dl>
+<dt><a name="index-erfi"></a>Function: <strong>erfi</strong> <em>(<var>z</var>)</em></dt>
+<dd><p>The Imaginary Error Function. 
+</p>
+<p><code>erfi(z) = -%i*erf(%i*z)</code>
+<div class=categorybox>&middot;<a href="maxima_364.html#Category_003a-Special-functions">Special functions</a>
+</div></p></dd></dl>
+
+<a name="Item_003a-Special_002fdeffn_002ferf_005fgeneralized"></a><dl>
+<dt><a name="index-erf_005fgeneralized"></a>Function: <strong>erf_generalized</strong> <em>(<var>z1</var>,<var>z2</var>)</em></dt>
+<dd><p>Generalized Error function Erf(z1,z2)
+<div class=categorybox>&middot;<a href="maxima_364.html#Category_003a-Special-functions">Special functions</a>
+</div></p></dd></dl>
+
+<a name="Item_003a-Special_002fdeffn_002ffresnel_005fc"></a><dl>
+<dt><a name="index-fresnel_005fc"></a>Function: <strong>fresnel_c</strong> <em>(<var>z</var>)</em></dt>
+<dd><p>The Fresnel Integral C(z) = integrate(cos((%pi/2)*t^2),t,0,z). (A&amp;S 7.3.1)
+</p>
+<p>The simplification fresnel_c(-x) = -fresnel_c(x) is applied when
+flag <code>trigsign</code> is true.
+</p>
+<p>The simplification fresnel_c(%i*x) =  %i*fresnel_c(x) is applied when
+flag <code>%iargs</code> is true.
+</p>
+<p>See flags <code>erf_representation</code> and <code>hypergeometric_representation</code>.
+<div class=categorybox>&middot;<a href="maxima_364.html#Category_003a-Special-functions">Special functions</a>
+</div></p></dd></dl>
+
+<a name="Item_003a-Special_002fdeffn_002ffresnel_005fs"></a><dl>
+<dt><a name="index-fresnel_005fs"></a>Function: <strong>fresnel_s</strong> <em>(<var>z</var>)</em></dt>
+<dd><p>The Fresnel Integral S(z) = integrate(sin((%pi/2)*t^2),t,0,z). (A&amp;S 7.3.2)
+</p>
+<p>The simplification fresnel_s(-x) = -fresnel_s(x) is applied when
+flag <code>trigsign</code> is true.
+</p>
+<p>The simplification fresnel_s(%i*x) =  -%i*fresnel_s(x) is applied when
+flag <code>%iargs</code> is true.
+</p>
+<p>See flags <code>erf_representation</code> and <code>hypergeometric_representation</code>.
+<div class=categorybox>&middot;<a href="maxima_364.html#Category_003a-Special-functions">Special functions</a>
+</div></p></dd></dl>
+
+<a name="Item_003a-Special_002fdefvr_002ferf_005frepresentation"></a><dl>
+<dt><a name="index-erf_005frepresentation"></a>Option variable: <strong>erf_representation</strong></dt>
+<dd><p>Default value: false
+</p>
+<p>When T erfc, erfi, erf_generalized, fresnel_s 
+and fresnel_c are transformed to erf.
+</p></dd></dl>
+
+<a name="Item_003a-Special_002fdefvr_002fhypergeometric_005frepresentation"></a><dl>
+<dt><a name="index-hypergeometric_005frepresentation"></a>Option variable: <strong>hypergeometric_representation</strong></dt>
+<dd><p>Default value: false
+</p>
+<p>Enables transformation to a Hypergeometric
+representation for fresnel_s and fresnel_c
+</p></dd></dl>
+
+<a name="Item_003a-Special_002fnode_002fStruve-Functions"></a><hr>
+<div class="header">
+<p>
+Next: <a href="maxima_84.html#Struve-Functions" accesskey="n" rel="next">Struve Functions</a>, Previous: <a href="maxima_82.html#Exponential-Integrals" accesskey="p" rel="previous">Exponential Integrals</a>, Up: <a href="maxima_77.html#Special-Functions" accesskey="u" rel="up">Special Functions</a> &nbsp; [<a href="maxima_toc.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="maxima_363.html#Function-and-Variable-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

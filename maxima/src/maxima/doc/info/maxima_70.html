@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- Created by GNU Texinfo 5.1, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>Maxima 5.44.0 Manual: Files</title>
+
+<meta name="description" content="Maxima 5.44.0 Manual: Files">
+<meta name="keywords" content="Maxima 5.44.0 Manual: Files">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="maxima_0.html#Top" rel="start" title="Top">
+<link href="maxima_363.html#Function-and-Variable-Index" rel="index" title="Function and Variable Index">
+<link href="maxima_toc.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="maxima_68.html#File-Input-and-Output" rel="up" title="File Input and Output">
+<link href="maxima_71.html#Functions-and-Variables-for-File-Input-and-Output" rel="next" title="Functions and Variables for File Input and Output">
+<link href="maxima_69.html#Comments" rel="previous" title="Comments">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+body {color: black; background: white;  margin-left: 8%; margin-right: 13%;
+      font-family: "FreeSans", sans-serif}
+h1 {font-size: 150%; font-family: "FreeSans", sans-serif}
+h2 {font-size: 125%; font-family: "FreeSans", sans-serif}
+h3 {font-size: 100%; font-family: "FreeSans", sans-serif}
+a[href] {color: rgb(0,0,255); text-decoration: none;}
+a[href]:hover {background: rgb(220,220,220);}
+div.textbox {border: solid; border-width: thin; padding-top: 1em;
+    padding-bottom: 1em; padding-left: 2em; padding-right: 2em}
+div.titlebox {border: none; padding-top: 1em; padding-bottom: 1em;
+    padding-left: 2em; padding-right: 2em; background: rgb(200,255,255);
+    font-family: sans-serif}
+div.synopsisbox {
+    border: none; padding-top: 1em; padding-bottom: 1em; padding-left: 2em;
+    padding-right: 2em; background: rgb(255,220,255);}
+pre.example {border: 1px solid rgb(180,180,180); padding-top: 1em;
+    padding-bottom: 1em; padding-left: 1em; padding-right: 1em;
+    background-color: rgb(238,238,255)}
+div.spacerbox {border: none; padding-top: 2em; padding-bottom: 2em}
+div.image {margin: 0; padding: 1em; text-align: center}
+div.categorybox {border: 1px solid gray; padding-top: 0px; padding-bottom: 0px;
+    padding-left: 1em; padding-right: 1em; background: rgb(247,242,220)}
+img {max-width:80%; max-height: 80%; display: block; margin-left: auto; margin-right: auto}
+
+-->
+</style>
+
+<link rel="icon" href="figures/favicon.ico">
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Files"></a>
+<div class="header">
+<p>
+Next: <a href="maxima_71.html#Functions-and-Variables-for-File-Input-and-Output" accesskey="n" rel="next">Functions and Variables for File Input and Output</a>, Previous: <a href="maxima_69.html#Comments" accesskey="p" rel="previous">Comments</a>, Up: <a href="maxima_68.html#File-Input-and-Output" accesskey="u" rel="up">File Input and Output</a> &nbsp; [<a href="maxima_toc.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="maxima_363.html#Function-and-Variable-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Files-1"></a>
+<h3 class="section">13.2 Files</h3>
+
+<p>A file is simply an area on a particular storage device which contains data 
+or text.  Files on the disks are figuratively grouped into &quot;directories&quot;.
+A directory is just a list of files.  Commands which deal with files are:
+</p>
+<pre class="verbatim">   appendfile           batch                 batchload
+   closefile            file_output_append    filename_merge
+   file_search          file_search_maxima    file_search_lisp
+   file_search_demo     file_search_usage     file_search_tests
+   file_type            file_type_lisp        file_type_maxima
+   load                 load_pathname         loadfile
+   loadprint            pathname_directory    pathname_name
+   pathname_type        printfile             save
+   stringout            with_stdout           writefile
+</pre>
+<p>When a file name is passed to functions like <code><a href="maxima_64.html#plot2d">plot2d</a></code>,<!-- /@w -->
+<code><a href="maxima_71.html#save">save</a></code>, or <code><a href="maxima_71.html#writefile">writefile</a></code> and the file name does not include a path,
+Maxima stores the file in the current working directory.  The current working
+directory depends on the system like Windows or Linux and on the installation.
+</p>
+<a name="Item_003a-Input_002fnode_002fFunctions-and-Variables-for-File-Input-and-Output"></a><hr>
+<div class="header">
+<p>
+Next: <a href="maxima_71.html#Functions-and-Variables-for-File-Input-and-Output" accesskey="n" rel="next">Functions and Variables for File Input and Output</a>, Previous: <a href="maxima_69.html#Comments" accesskey="p" rel="previous">Comments</a>, Up: <a href="maxima_68.html#File-Input-and-Output" accesskey="u" rel="up">File Input and Output</a> &nbsp; [<a href="maxima_toc.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="maxima_363.html#Function-and-Variable-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

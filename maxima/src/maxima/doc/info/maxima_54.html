@@ -1,0 +1,699 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- Created by GNU Texinfo 5.1, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>Maxima 5.44.0 Manual: Functions and Variables for Trigonometric</title>
+
+<meta name="description" content="Maxima 5.44.0 Manual: Functions and Variables for Trigonometric">
+<meta name="keywords" content="Maxima 5.44.0 Manual: Functions and Variables for Trigonometric">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="maxima_0.html#Top" rel="start" title="Top">
+<link href="maxima_363.html#Function-and-Variable-Index" rel="index" title="Function and Variable Index">
+<link href="maxima_toc.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="maxima_52.html#Trigonometric-Functions" rel="up" title="Trigonometric Functions">
+<link href="maxima_55.html#Random-Numbers" rel="next" title="Random Numbers">
+<link href="maxima_53.html#Introduction-to-Trigonometric" rel="previous" title="Introduction to Trigonometric">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+body {color: black; background: white;  margin-left: 8%; margin-right: 13%;
+      font-family: "FreeSans", sans-serif}
+h1 {font-size: 150%; font-family: "FreeSans", sans-serif}
+h2 {font-size: 125%; font-family: "FreeSans", sans-serif}
+h3 {font-size: 100%; font-family: "FreeSans", sans-serif}
+a[href] {color: rgb(0,0,255); text-decoration: none;}
+a[href]:hover {background: rgb(220,220,220);}
+div.textbox {border: solid; border-width: thin; padding-top: 1em;
+    padding-bottom: 1em; padding-left: 2em; padding-right: 2em}
+div.titlebox {border: none; padding-top: 1em; padding-bottom: 1em;
+    padding-left: 2em; padding-right: 2em; background: rgb(200,255,255);
+    font-family: sans-serif}
+div.synopsisbox {
+    border: none; padding-top: 1em; padding-bottom: 1em; padding-left: 2em;
+    padding-right: 2em; background: rgb(255,220,255);}
+pre.example {border: 1px solid rgb(180,180,180); padding-top: 1em;
+    padding-bottom: 1em; padding-left: 1em; padding-right: 1em;
+    background-color: rgb(238,238,255)}
+div.spacerbox {border: none; padding-top: 2em; padding-bottom: 2em}
+div.image {margin: 0; padding: 1em; text-align: center}
+div.categorybox {border: 1px solid gray; padding-top: 0px; padding-bottom: 0px;
+    padding-left: 1em; padding-right: 1em; background: rgb(247,242,220)}
+img {max-width:80%; max-height: 80%; display: block; margin-left: auto; margin-right: auto}
+
+-->
+</style>
+
+<link rel="icon" href="figures/favicon.ico">
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Functions-and-Variables-for-Trigonometric"></a>
+<div class="header">
+<p>
+Previous: <a href="maxima_53.html#Introduction-to-Trigonometric" accesskey="p" rel="previous">Introduction to Trigonometric</a>, Up: <a href="maxima_52.html#Trigonometric-Functions" accesskey="u" rel="up">Trigonometric Functions</a> &nbsp; [<a href="maxima_toc.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="maxima_363.html#Function-and-Variable-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Functions-and-Variables-for-Trigonometric-1"></a>
+<h4 class="subsection">10.5.2 Functions and Variables for Trigonometric</h4>
+
+<a name="g_t_0025piargs"></a><a name="Item_003a-MathFunctions_002fdefvr_002f_0025piargs"></a><dl>
+<dt><a name="index-_0025piargs"></a>Option variable: <strong>%piargs</strong></dt>
+<dd><p>Default value: <code>true</code>
+</p>
+<p>When <code>%piargs</code> is <code>true</code>,
+trigonometric functions are simplified to algebraic constants
+when the argument is an integer multiple of
+<em>%pi</em>, <em>%pi/2</em>, <em>%pi/3</em>, <em>%pi/4</em>, or <em>%pi/6</em>.
+</p>
+<p>Maxima knows some identities which can be applied when <em>%pi</em>, etc.,
+are multiplied by an integer variable (that is, a symbol declared to be
+integer).
+</p>
+<p>Examples:
+</p>
+<div class="example">
+<pre class="example">(%i1) %piargs : false$
+</pre><pre class="example">(%i2) [sin (%pi), sin (%pi/2), sin (%pi/3)];
+                                %pi       %pi
+(%o2)            [sin(%pi), sin(---), sin(---)]
+                                 2         3
+</pre><pre class="example">(%i3) [sin (%pi/4), sin (%pi/5), sin (%pi/6)];
+                      %pi       %pi       %pi
+(%o3)            [sin(---), sin(---), sin(---)]
+                       4         5         6
+</pre><pre class="example">(%i4) %piargs : true$
+</pre><pre class="example">(%i5) [sin (%pi), sin (%pi/2), sin (%pi/3)];
+                                sqrt(3)
+(%o5)                    [0, 1, -------]
+                                   2
+</pre><pre class="example">(%i6) [sin (%pi/4), sin (%pi/5), sin (%pi/6)];
+                         1         %pi   1
+(%o6)                [-------, sin(---), -]
+                      sqrt(2)       5    2
+</pre><pre class="example">(%i7) [cos (%pi/3), cos (10*%pi/3), tan (10*%pi/3),
+       cos (sqrt(2)*%pi/3)];
+                1    1               sqrt(2) %pi
+(%o7)          [-, - -, sqrt(3), cos(-----------)]
+                2    2                    3
+</pre></div>
+
+<p>Some identities are applied when <em>%pi</em> and <em>%pi/2</em> are multiplied by
+an integer variable.
+</p>
+<div class="example">
+<pre class="example">(%i1) declare (n, integer, m, even)$
+</pre><pre class="example">(%i2) [sin (%pi * n), cos (%pi * m), sin (%pi/2 * m),
+       cos (%pi/2 * m)];
+                                      m/2
+(%o2)                  [0, 1, 0, (- 1)   ]
+</pre></div>
+
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+&middot;<a href="maxima_364.html#Category_003a-Simplification-flags-and-variables">Simplification flags and variables</a>
+</div></p></dd></dl>
+
+<a name="g_t_0025iargs"></a><a name="Item_003a-MathFunctions_002fdefvr_002f_0025iargs"></a><dl>
+<dt><a name="index-_0025iargs"></a>Option variable: <strong>%iargs</strong></dt>
+<dd><p>Default value: <code>true</code>
+</p>
+<p>When <code>%iargs</code> is <code>true</code>,
+trigonometric functions are simplified to hyperbolic functions
+when the argument is apparently a multiple of the imaginary unit <em>%i</em>.
+</p>
+<p>Even when the argument is demonstrably real, the simplification is applied;
+Maxima considers only whether the argument is a literal multiple of <em>%i</em>.
+</p>
+<p>Examples:
+</p>
+<div class="example">
+<pre class="example">(%i1) %iargs : false$
+</pre><pre class="example">(%i2) [sin (%i * x), cos (%i * x), tan (%i * x)];
+(%o2)           [sin(%i x), cos(%i x), tan(%i x)]
+</pre><pre class="example">(%i3) %iargs : true$
+</pre><pre class="example">(%i4) [sin (%i * x), cos (%i * x), tan (%i * x)];
+(%o4)           [%i sinh(x), cosh(x), %i tanh(x)]
+</pre></div>
+
+<p>Even when the argument is demonstrably real, the simplification is applied.
+</p>
+<div class="example">
+<pre class="example">(%i1) declare (x, imaginary)$
+</pre><pre class="example">(%i2) [featurep (x, imaginary), featurep (x, real)];
+(%o2)                     [true, false]
+</pre><pre class="example">(%i3) sin (%i * x);
+(%o3)                      %i sinh(x)
+</pre></div>
+
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+&middot;<a href="maxima_364.html#Category_003a-Hyperbolic-functions">Hyperbolic functions</a>
+&middot;<a href="maxima_364.html#Category_003a-Simplification-flags-and-variables">Simplification flags and variables</a>
+</div></p></dd></dl>
+
+<a name="acos"></a><a name="Item_003a-MathFunctions_002fdeffn_002facos"></a><dl>
+<dt><a name="index-acos"></a>Function: <strong>acos</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Arc Cosine.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+</div></p></dd></dl>
+
+<a name="acosh"></a><a name="Item_003a-MathFunctions_002fdeffn_002facosh"></a><dl>
+<dt><a name="index-acosh"></a>Function: <strong>acosh</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Hyperbolic Arc Cosine.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Hyperbolic-functions">Hyperbolic functions</a>
+</div></p></dd></dl>
+
+<a name="acot"></a><a name="Item_003a-MathFunctions_002fdeffn_002facot"></a><dl>
+<dt><a name="index-acot"></a>Function: <strong>acot</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Arc Cotangent.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+</div></p></dd></dl>
+
+<a name="acoth"></a><a name="Item_003a-MathFunctions_002fdeffn_002facoth"></a><dl>
+<dt><a name="index-acoth"></a>Function: <strong>acoth</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Hyperbolic Arc Cotangent.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Hyperbolic-functions">Hyperbolic functions</a>
+</div></p></dd></dl>
+
+<a name="acsc"></a><a name="Item_003a-MathFunctions_002fdeffn_002facsc"></a><dl>
+<dt><a name="index-acsc"></a>Function: <strong>acsc</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Arc Cosecant.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+</div></p></dd></dl>
+
+<a name="acsch"></a><a name="Item_003a-MathFunctions_002fdeffn_002facsch"></a><dl>
+<dt><a name="index-acsch"></a>Function: <strong>acsch</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Hyperbolic Arc Cosecant.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Hyperbolic-functions">Hyperbolic functions</a>
+</div></p></dd></dl>
+
+<a name="asec"></a><a name="Item_003a-MathFunctions_002fdeffn_002fasec"></a><dl>
+<dt><a name="index-asec"></a>Function: <strong>asec</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Arc Secant.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+</div></p></dd></dl>
+
+<a name="asech"></a><a name="Item_003a-MathFunctions_002fdeffn_002fasech"></a><dl>
+<dt><a name="index-asech"></a>Function: <strong>asech</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Hyperbolic Arc Secant.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Hyperbolic-functions">Hyperbolic functions</a>
+</div></p></dd></dl>
+
+<a name="asin"></a><a name="Item_003a-MathFunctions_002fdeffn_002fasin"></a><dl>
+<dt><a name="index-asin"></a>Function: <strong>asin</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Arc Sine.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+</div></p></dd></dl>
+
+<a name="asinh"></a><a name="Item_003a-MathFunctions_002fdeffn_002fasinh"></a><dl>
+<dt><a name="index-asinh"></a>Function: <strong>asinh</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Hyperbolic Arc Sine.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Hyperbolic-functions">Hyperbolic functions</a>
+</div></p></dd></dl>
+
+<a name="atan"></a><a name="Item_003a-MathFunctions_002fdeffn_002fatan"></a><dl>
+<dt><a name="index-atan"></a>Function: <strong>atan</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Arc Tangent.
+</p>
+<p>See also <code><a href="#atan2">atan2</a></code>.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+</div></p></dd></dl>
+
+<a name="atan2"></a><a name="Item_003a-MathFunctions_002fdeffn_002fatan2"></a><dl>
+<dt><a name="index-atan2"></a>Function: <strong>atan2</strong> <em>(<var>y</var>, <var>x</var>)</em></dt>
+<dd>
+<p>&ndash; yields the value of <code>atan(<var>y</var>/<var>x</var>)</code> in the interval <code>-%pi</code>
+to <code>%pi</code>.
+</p>
+<p>See also <code><a href="#atan">atan</a></code>.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+</div></p></dd></dl>
+
+<a name="atanh"></a><a name="Item_003a-MathFunctions_002fdeffn_002fatanh"></a><dl>
+<dt><a name="index-atanh"></a>Function: <strong>atanh</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Hyperbolic Arc Tangent.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Hyperbolic-functions">Hyperbolic functions</a>
+</div></p></dd></dl>
+
+
+<a name="atrig1"></a><a name="Item_003a-MathFunctions_002fdefvr_002fatrig1"></a><dl>
+<dt><a name="index-atrig1"></a>Package: <strong>atrig1</strong></dt>
+<dd>
+<p>The <code>atrig1</code> package contains several additional simplification rules
+for inverse trigonometric functions.  Together with rules
+already known to Maxima, the following angles are fully implemented:
+<code>0</code>, <code>%pi/6</code>, <code>%pi/4</code>, <code>%pi/3</code>, and <code>%pi/2</code>.
+Corresponding angles in the other three quadrants are also available.
+Do <code>load(&quot;atrig1&quot;);</code> to use them.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+&middot;<a href="maxima_364.html#Category_003a-Package-atrig1">Package atrig1</a>
+</div></p></dd></dl>
+
+<a name="cos"></a><a name="Item_003a-MathFunctions_002fdeffn_002fcos"></a><dl>
+<dt><a name="index-cos"></a>Function: <strong>cos</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Cosine.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+</div></p></dd></dl>
+
+<a name="cosh"></a><a name="Item_003a-MathFunctions_002fdeffn_002fcosh"></a><dl>
+<dt><a name="index-cosh"></a>Function: <strong>cosh</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Hyperbolic Cosine.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Hyperbolic-functions">Hyperbolic functions</a>
+</div></p></dd></dl>
+
+<a name="cot"></a><a name="Item_003a-MathFunctions_002fdeffn_002fcot"></a><dl>
+<dt><a name="index-cot"></a>Function: <strong>cot</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Cotangent.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+</div></p></dd></dl>
+
+<a name="coth"></a><a name="Item_003a-MathFunctions_002fdeffn_002fcoth"></a><dl>
+<dt><a name="index-coth"></a>Function: <strong>coth</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Hyperbolic Cotangent.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Hyperbolic-functions">Hyperbolic functions</a>
+</div></p></dd></dl>
+
+<a name="csc"></a><a name="Item_003a-MathFunctions_002fdeffn_002fcsc"></a><dl>
+<dt><a name="index-csc"></a>Function: <strong>csc</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Cosecant.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+</div></p></dd></dl>
+
+<a name="csch"></a><a name="Item_003a-MathFunctions_002fdeffn_002fcsch"></a><dl>
+<dt><a name="index-csch"></a>Function: <strong>csch</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Hyperbolic Cosecant.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Hyperbolic-functions">Hyperbolic functions</a>
+</div></p></dd></dl>
+
+<a name="halfangles"></a><a name="Item_003a-MathFunctions_002fdefvr_002fhalfangles"></a><dl>
+<dt><a name="index-halfangles"></a>Option variable: <strong>halfangles</strong></dt>
+<dd><p>Default value: <code>false</code>
+</p>
+<p>When <code>halfangles</code> is <code>true</code>, trigonometric functions of arguments 
+<code><var>expr</var>/2</code> are simplified to functions of <var>expr</var>.
+</p>
+<p>For a real argument <var>x</var> in the interval <code>0 &lt; x &lt; 2*%pi</code> the sine of 
+the half-angle simplifies to a simple formula:
+</p>
+<div class="example">
+<pre class="example">                         sqrt(1 - cos(x))
+                         ----------------
+                             sqrt(2)
+</pre></div>
+
+<p>A complicated factor is needed to make this formula correct for all complex 
+arguments <var>z</var>:
+</p>
+<pre class="verbatim">           realpart(z)
+     floor(-----------)
+              2 %pi
+(- 1)                   (1 - unit_step(- imagpart(z))
+
+                            realpart(z)            realpart(z)
+                      floor(-----------) - ceiling(-----------)
+                               2 %pi                  2 %pi
+                ((- 1)                                          + 1))
+</pre>
+<p>Maxima knows this factor and similar factors for the functions <code>sin</code>, 
+<code>cos</code>, <code>sinh</code>, and <code>cosh</code>.  For special values of the argument 
+<em>z</em> these factors simplify accordingly.
+</p>
+<p>Examples:
+</p>
+<div class="example">
+<pre class="example">(%i1) halfangles : false$
+</pre><pre class="example">(%i2) sin (x / 2);
+                                 x
+(%o2)                        sin(-)
+                                 2
+</pre><pre class="example">(%i3) halfangles : true$
+</pre><pre class="example">(%i4) sin (x / 2);
+                            x
+                    floor(-----)
+                          2 %pi
+               (- 1)             sqrt(1 - cos(x))
+(%o4)          ----------------------------------
+                            sqrt(2)
+</pre><pre class="example">(%i5) assume(x&gt;0, x&lt;2*%pi)$
+</pre><pre class="example">(%i6) sin(x / 2);
+                        sqrt(1 - cos(x))
+(%o6)                   ----------------
+                            sqrt(2)
+</pre></div>
+
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+&middot;<a href="maxima_364.html#Category_003a-Simplification-flags-and-variables">Simplification flags and variables</a>
+</div></p></dd></dl>
+
+
+<a name="Item_003a-MathFunctions_002fdefvr_002fntrig"></a><dl>
+<dt><a name="index-ntrig"></a>Package: <strong>ntrig</strong></dt>
+<dd>
+<p>The <code>ntrig</code> package contains a set of simplification rules that are
+used to simplify trigonometric function whose arguments are of the form
+<code><var>f</var>(<var>n</var> %pi/10)</code> where <var>f</var> is any of the functions
+<code>sin</code>, <code>cos</code>, <code>tan</code>, <code>csc</code>, <code>sec</code> and <code>cot</code>.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+&middot;<a href="maxima_364.html#Category_003a-Package-ntrig">Package ntrig</a>
+</div></p></dd></dl>
+
+<a name="sec"></a><a name="Item_003a-MathFunctions_002fdeffn_002fsec"></a><dl>
+<dt><a name="index-sec"></a>Function: <strong>sec</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Secant.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+</div></p></dd></dl>
+
+<a name="sech"></a><a name="Item_003a-MathFunctions_002fdeffn_002fsech"></a><dl>
+<dt><a name="index-sech"></a>Function: <strong>sech</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Hyperbolic Secant.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Hyperbolic-functions">Hyperbolic functions</a>
+</div></p></dd></dl>
+
+<a name="sin"></a><a name="Item_003a-MathFunctions_002fdeffn_002fsin"></a><dl>
+<dt><a name="index-sin"></a>Function: <strong>sin</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Sine.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+</div></p></dd></dl>
+
+<a name="sinh"></a><a name="Item_003a-MathFunctions_002fdeffn_002fsinh"></a><dl>
+<dt><a name="index-sinh"></a>Function: <strong>sinh</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Hyperbolic Sine.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Hyperbolic-functions">Hyperbolic functions</a>
+</div></p></dd></dl>
+
+<a name="tan"></a><a name="Item_003a-MathFunctions_002fdeffn_002ftan"></a><dl>
+<dt><a name="index-tan"></a>Function: <strong>tan</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Tangent.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+</div></p></dd></dl>
+
+<a name="tanh"></a><a name="Item_003a-MathFunctions_002fdeffn_002ftanh"></a><dl>
+<dt><a name="index-tanh"></a>Function: <strong>tanh</strong> <em>(<var>x</var>)</em></dt>
+<dd>
+<p>&ndash; Hyperbolic Tangent.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Hyperbolic-functions">Hyperbolic functions</a>
+</div></p></dd></dl>
+
+
+<a name="trigexpand"></a><a name="Item_003a-MathFunctions_002fdeffn_002ftrigexpand"></a><dl>
+<dt><a name="index-trigexpand"></a>Function: <strong>trigexpand</strong> <em>(<var>expr</var>)</em></dt>
+<dd>
+<p>Expands trigonometric and hyperbolic functions of
+sums of angles and of multiple angles occurring in <var>expr</var>.  For best
+results, <var>expr</var> should be expanded.  To enhance user control of
+simplification, this function expands only one level at a time,
+expanding sums of angles or multiple angles.  To obtain full expansion
+into sines and cosines immediately, set the switch <code>trigexpand: true</code>.
+</p>
+<p><code>trigexpand</code> is governed by the following global flags:
+</p>
+<dl compact="compact">
+<dt><code>trigexpand</code></dt>
+<dd><p>If <code>true</code> causes expansion of all
+expressions containing sin&rsquo;s and cos&rsquo;s occurring subsequently.
+</p></dd>
+<dt><code>halfangles</code></dt>
+<dd><p>If <code>true</code> causes half-angles to be simplified
+away.
+</p></dd>
+<dt><code>trigexpandplus</code></dt>
+<dd><p>Controls the &quot;sum&quot; rule for <code>trigexpand</code>,
+expansion of sums (e.g. <code>sin(x + y)</code>) will take place only if
+<code>trigexpandplus</code> is <code>true</code>.
+</p></dd>
+<dt><code>trigexpandtimes</code></dt>
+<dd><p>Controls the &quot;product&quot; rule for <code>trigexpand</code>,
+expansion of products (e.g. <code>sin(2 x)</code>) will take place only if
+<code>trigexpandtimes</code> is <code>true</code>.
+</p></dd>
+</dl>
+
+<p>Examples:
+</p>
+<div class="example">
+<pre class="example">(%i1) x+sin(3*x)/sin(x),trigexpand=true,expand;
+                         2            2
+(%o1)              (- sin (x)) + 3 cos (x) + x
+</pre><pre class="example">(%i2) trigexpand(sin(10*x+y));
+(%o2)          cos(10 x) sin(y) + sin(10 x) cos(y)
+</pre></div>
+
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+&middot;<a href="maxima_364.html#Category_003a-Simplification-functions">Simplification functions</a>
+</div></p></dd></dl>
+
+<a name="trigexpandplus"></a><a name="Item_003a-MathFunctions_002fdefvr_002ftrigexpandplus"></a><dl>
+<dt><a name="index-trigexpandplus"></a>Option variable: <strong>trigexpandplus</strong></dt>
+<dd><p>Default value: <code>true</code>
+</p>
+<p><code>trigexpandplus</code> controls the &quot;sum&quot; rule for
+<code>trigexpand</code>.  Thus, when the <code>trigexpand</code> command is used or the
+<code>trigexpand</code> switch set to <code>true</code>, expansion of sums
+(e.g. <code>sin(x+y))</code> will take place only if <code>trigexpandplus</code> is
+<code>true</code>.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+&middot;<a href="maxima_364.html#Category_003a-Simplification-flags-and-variables">Simplification flags and variables</a>
+</div></p></dd></dl>
+
+<a name="trigexpandtimes"></a><a name="Item_003a-MathFunctions_002fdefvr_002ftrigexpandtimes"></a><dl>
+<dt><a name="index-trigexpandtimes"></a>Option variable: <strong>trigexpandtimes</strong></dt>
+<dd><p>Default value: <code>true</code>
+</p>
+<p><code>trigexpandtimes</code> controls the &quot;product&quot; rule for <code>trigexpand</code>.
+Thus, when the <code>trigexpand</code> command is used or the <code>trigexpand</code>
+switch set to <code>true</code>, expansion of products (e.g. <code>sin(2*x)</code>)
+will take place only if <code>trigexpandtimes</code> is <code>true</code>.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+&middot;<a href="maxima_364.html#Category_003a-Simplification-flags-and-variables">Simplification flags and variables</a>
+</div></p></dd></dl>
+
+<a name="triginverses"></a><a name="Item_003a-MathFunctions_002fdefvr_002ftriginverses"></a><dl>
+<dt><a name="index-triginverses"></a>Option variable: <strong>triginverses</strong></dt>
+<dd><p>Default value: <code>true</code>
+</p>
+<p><code>triginverses</code> controls the simplification of the
+composition of trigonometric and hyperbolic functions with their inverse
+functions.
+</p>
+<p>If <code>all</code>, both e.g. <code>atan(tan(<var>x</var>))</code>
+and <code>tan(atan(<var>x</var>))</code> simplify to <var>x</var>.
+</p>
+<p>If <code>true</code>, the <code><var>arcfun</var>(<var>fun</var>(<var>x</var>))</code>
+simplification is turned off.
+</p>
+<p>If <code>false</code>, both the
+<code><var>arcfun</var>(<var>fun</var>(<var>x</var>))</code> and
+<code><var>fun</var>(<var>arcfun</var>(<var>x</var>))</code>
+simplifications are turned off.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+&middot;<a href="maxima_364.html#Category_003a-Simplification-flags-and-variables">Simplification flags and variables</a>
+</div></p></dd></dl>
+
+<a name="trigreduce"></a><a name="Item_003a-MathFunctions_002fdeffn_002ftrigreduce"></a><dl>
+<dt><a name="index-trigreduce"></a>Function: <strong>trigreduce</strong> <em><br>&nbsp;&nbsp;&nbsp;&nbsp;<tt>trigreduce</tt> (<var>expr</var>, <var>x</var>) <br>&nbsp;&nbsp;&nbsp;&nbsp;<tt>trigreduce</tt> (<var>expr</var>)</em></dt>
+<dd>
+<p>Combines products and powers of trigonometric
+and hyperbolic sin&rsquo;s and cos&rsquo;s of <var>x</var> into those of multiples of <var>x</var>.
+It also tries to eliminate these functions when they occur in
+denominators.  If <var>x</var> is omitted then all variables in <var>expr</var> are used.
+</p>
+<p>See also <code><a href="maxima_137.html#poissimp">poissimp</a></code>.
+</p>
+<div class="example">
+<pre class="example">(%i1) trigreduce(-sin(x)^2+3*cos(x)^2+x);
+               cos(2 x)      cos(2 x)   1        1
+(%o1)          -------- + 3 (-------- + -) + x - -
+                  2             2       2        2
+</pre></div>
+
+
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+&middot;<a href="maxima_364.html#Category_003a-Simplification-functions">Simplification functions</a>
+</div></p></dd></dl>
+
+<a name="trigsign"></a><a name="Item_003a-MathFunctions_002fdefvr_002ftrigsign"></a><dl>
+<dt><a name="index-trigsign"></a>Option variable: <strong>trigsign</strong></dt>
+<dd><p>Default value: <code>true</code>
+</p>
+<p>When <code>trigsign</code> is <code>true</code>, it permits simplification of negative
+arguments to trigonometric functions.  E.g., <code>sin(-x)</code> will become
+<code>-sin(x)</code> only if <code>trigsign</code> is <code>true</code>.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+&middot;<a href="maxima_364.html#Category_003a-Simplification-flags-and-variables">Simplification flags and variables</a>
+</div></p></dd></dl>
+
+<a name="trigsimp"></a><a name="Item_003a-MathFunctions_002fdeffn_002ftrigsimp"></a><dl>
+<dt><a name="index-trigsimp"></a>Function: <strong>trigsimp</strong> <em>(<var>expr</var>)</em></dt>
+<dd>
+<p>Employs the identities <em>sin(x)^2 + cos(x)^2 = 1</em> and
+<em>cosh(x)^2 - sinh(x)^2 = 1</em> to simplify expressions containing <code>tan</code>,
+<code>sec</code>, etc., to <code>sin</code>, <code>cos</code>, <code>sinh</code>, <code>cosh</code>.
+</p>
+<p><code>trigreduce</code>, <code>ratsimp</code>, and <code>radcan</code> may be
+able to further simplify the result.
+</p>
+<p><code>demo (&quot;trgsmp.dem&quot;)</code> displays some examples of <code>trigsimp</code>.
+</p>
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+&middot;<a href="maxima_364.html#Category_003a-Simplification-functions">Simplification functions</a>
+</div></p></dd></dl>
+
+
+<a name="trigrat"></a><a name="Item_003a-MathFunctions_002fdeffn_002ftrigrat"></a><dl>
+<dt><a name="index-trigrat"></a>Function: <strong>trigrat</strong> <em>(<var>expr</var>)</em></dt>
+<dd>
+<p>Gives a canonical simplified quasilinear form of a trigonometrical expression;
+<var>expr</var> is a rational fraction of several <code>sin</code>, <code>cos</code> or
+<code>tan</code>, the arguments of them are linear forms in some variables (or
+kernels) and <code>%pi/<var>n</var></code> (<var>n</var> integer) with integer coefficients.
+The result is a simplified fraction with numerator and denominator linear in
+<code>sin</code> and <code>cos</code>.  Thus <code>trigrat</code> linearize always when it is
+possible.
+</p>
+<div class="example">
+<pre class="example">(%i1) trigrat(sin(3*a)/sin(a+%pi/3));
+(%o1)            sqrt(3) sin(2 a) + cos(2 a) - 1
+</pre></div>
+
+<p>The following example is taken from
+Davenport, Siret, and Tournier, <i>Calcul Formel</i>, Masson (or in English,
+Addison-Wesley), section 1.5.5, Morley theorem.
+</p>
+<div class="example">
+<pre class="example">(%i1) c : %pi/3 - a - b$
+</pre><pre class="example">(%i2) bc : sin(a)*sin(3*c)/sin(a+b);
+                                           %pi
+                 sin(a) sin(3 ((- b) - a + ---))
+                                            3
+(%o2)            -------------------------------
+                           sin(b + a)
+</pre><pre class="example">(%i3) ba : bc, c=a, a=c;
+                                         %pi
+                    sin(3 a) sin(b + a - ---)
+                                          3
+(%o3)               -------------------------
+                                  %pi
+                          sin(a - ---)
+                                   3
+</pre><pre class="example">(%i4) ac2 : ba^2 + bc^2 - 2*bc*ba*cos(b);
+         2         2         %pi
+      sin (3 a) sin (b + a - ---)
+                              3
+(%o4) ---------------------------
+                2     %pi
+             sin (a - ---)
+                       3
+                                         %pi
+ - (2 sin(a) sin(3 a) sin(3 ((- b) - a + ---)) cos(b)
+                                          3
+             %pi            %pi
+ sin(b + a - ---))/(sin(a - ---) sin(b + a))
+              3              3
+      2       2                %pi
+   sin (a) sin (3 ((- b) - a + ---))
+                                3
+ + ---------------------------------
+                 2
+              sin (b + a)
+</pre><pre class="example">(%i5) trigrat (ac2);
+(%o5) - (sqrt(3) sin(4 b + 4 a) - cos(4 b + 4 a)
+ - 2 sqrt(3) sin(4 b + 2 a) + 2 cos(4 b + 2 a)
+ - 2 sqrt(3) sin(2 b + 4 a) + 2 cos(2 b + 4 a)
+ + 4 sqrt(3) sin(2 b + 2 a) - 8 cos(2 b + 2 a) - 4 cos(2 b - 2 a)
+ + sqrt(3) sin(4 b) - cos(4 b) - 2 sqrt(3) sin(2 b) + 10 cos(2 b)
+ + sqrt(3) sin(4 a) - cos(4 a) - 2 sqrt(3) sin(2 a) + 10 cos(2 a)
+ - 9)/4
+</pre></div>
+
+<div class=categorybox>&middot;<p>Categories:&nbsp;&nbsp;<a href="maxima_364.html#Category_003a-Trigonometric-functions">Trigonometric functions</a>
+&middot;<a href="maxima_364.html#Category_003a-Simplification-functions">Simplification functions</a>
+</div></p></dd></dl>
+
+<a name="Item_003a-MathFunctions_002fnode_002fRandom-Numbers"></a><hr>
+<div class="header">
+<p>
+Previous: <a href="maxima_53.html#Introduction-to-Trigonometric" accesskey="p" rel="previous">Introduction to Trigonometric</a>, Up: <a href="maxima_52.html#Trigonometric-Functions" accesskey="u" rel="up">Trigonometric Functions</a> &nbsp; [<a href="maxima_toc.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="maxima_363.html#Function-and-Variable-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

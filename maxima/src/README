@@ -1,0 +1,23 @@
+This is already done !!!
+
+(1) Launch your Lisp implementation.
+
+(2) Load the file configure.lisp:
+
+    (load "configure.lisp")
+
+(3) Generate configuration files:
+
+    (configure)
+
+    You will be prompted for several inputs.
+    Press carriage return to accept the default values.
+
+    The configure process can be automated through the use
+    of keyword arguments to configure.  For example,
+
+      (configure :interactive nil)
+
+    will use the default values for all options and will not
+    prompt for any input.
+    See the file configure.lisp for more details.

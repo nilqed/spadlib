@@ -1,0 +1,20 @@
+)abbrev package MAXIMA Maxima
+++ Author: Kurt Pagani
+++ Date Created: Mon May 17 19:02:07 CEST 2021
+++ License: BSD
+++ References:
+++ Description:
+++
+Maxima() : Exports == Implementation where
+    
+  MSC ==> MoreSystemCommands
+  
+  Exports ==  with
+      
+    dummy : () -> Integer
+	
+	
+  Implementation ==  add 
+    
+    dummy() == 1
+   
