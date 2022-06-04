@@ -106,9 +106,12 @@ ExteriorCalculus(v) : Exports == Implementation where
     dual          : DRC -> DRC
       ++ dual(form) returns the conjugate form, i.e. the Hodge star
       ++ with respect to the standard metric.
+    dot           : (SMR, Vector X, Vector X) -> X
+      ++ dot(g,u,v) computes the scalar product of two vectors with
+      ++ respect to the metric g, i.e. (u,g * w) = g(u,v).
     dot           : (DRC,DRC) -> X
       ++ dot(form,form) computes the inner product of two differential forms 
-      ++ with ++ respect to the standard metric (i.e. g=unit matrix).
+      ++ with respect to the standard metric (i.e. g=unit matrix).
     dot           : (SMR,DRC,DRC) -> X
       ++ dot(g,form,form) computes the inner product of two differential forms 
       ++ with  respect to the metric g.   
@@ -148,7 +151,7 @@ ExteriorCalculus(v) : Exports == Implementation where
     s    : SMR -> X
       ++ s(g) determines the sign of determinant(g) and is related to the
       ++ signature of g (n=p+q,t=p-q,s=(-)^(n-t)/2 => s=(-)^q). 
-    dotg : (SMR,DRC,DRC)->X --temp
+    dotg : (SMR,DRC,DRC)->X --temp (alternative method)
       ++ dotg(squareMatrix,form,form) returns the dot product of two
       ++ forms with respect to the metric given by squareMatrix.
     convert : Matrix X -> MDRC
@@ -173,7 +176,12 @@ ExteriorCalculus(v) : Exports == Implementation where
       ++ corresponding moving frame (see movingFrame(A)).
     Gramian : SMR -> MDRC
       ++ Gramian(A), A in GL(n), returns the Gramian of the corresponding
-      ++ moving frame (see movingFrame(A)).
+      ++ moving frame (see movingFrame(A)) with respect to the Euclidean
+      ++ scalar product.
+    Gramian : (SMR, SMR) -> MDRC
+      ++ Gramian(A), A in GL(n), returns the Gramian of the corresponding
+      ++ moving frame (see movingFrame(A)) with respect to the bilinear
+      ++ form (u,g*v).
     getDRC : Type
       ++ getDRC() returns the associated DeRhamComplex
     getTerms : DRC -> List(TERM)
@@ -337,7 +345,15 @@ ExteriorCalculus(v) : Exports == Implementation where
       ls:=[[sym(i,j) p for j in 1..#v] for i in 1..#v]
       m:=matrix ls
       m::SMR
-      
+
+    dot(g:SMR, u:Vector X, w:Vector X):X ==
+      -- don't use v as vector here (global?)
+      gw:Vector X := g::Matrix(X) * w
+      l:NNI := #u
+      #gw ~= l => error "#u ~= #w!" 
+      p:List X := [u.k * gw.k for k in 1..l]
+      reduce(_+,p)
+
     dotg(ig:SMR,x:DRC,y:DRC):X ==
       zero?(x) or zero?(y) => 0
       d:=degree x 
@@ -462,6 +478,13 @@ ExteriorCalculus(v) : Exports == Implementation where
       AX:Matrix X:=A::Matrix X
       G:Matrix X:=AX*transpose(AX)
       return convert(G)
+      
+    Gramian(g:SMR, A:SMR):MDRC ==
+      AX:Matrix X:=A::Matrix X
+      gX:Matrix X:=g::Matrix X
+      G:Matrix X:=AX*transpose(AX)
+      return convert(G)
+
       
     getTerms(x:DRC):List TERM == x pretend List(TERM)
     

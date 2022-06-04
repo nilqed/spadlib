@@ -9,10 +9,10 @@ setup_vars() {
   if [ -z "$MAXIMA_VERSION" ]; then
     MAXIMA_VERSION="5.44.0"
   fi
-  prefix=`unixize "/home/kfp/quicklisp/local-projects/spadlib/maxima/src/maxima"`
+  prefix=`unixize "C:/Users/kfp/quicklisp/local-projects/spadlib/maxima/src/maxima/."`
   exec_prefix=`unixize "@exec_prefix@"`
   PACKAGE=maxima
-  top_srcdir=`unixize "/home/kfp/quicklisp/local-projects/spadlib/maxima/src/maxima"`
+  top_srcdir=`unixize "C:/Users/kfp/quicklisp/local-projects/spadlib/maxima/src/maxima/."`
   libdir=`unixize "@libdir@"`
   if [ -n "$MAXIMA_LAYOUT_AUTOTOOLS" ]; then
       layout_autotools="$MAXIMA_LAYOUT_AUTOTOOLS"
