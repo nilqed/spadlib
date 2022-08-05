@@ -1,0 +1,54 @@
+)abbrev package LTXSPT LatexSupport
+++ Date Created: Fri Aug 05 00:46:21 CEST 2022
+++ License: BSD
+++ References:
+++ Description:
+++
+LatexSupport() : Exports == Implementation where
+  
+  LOFC  ==> List OutputFormatterCategory
+  HANDLER ==> (Integer, List OutputForm) -> OutputBox
+  SETHAN ==> ((Integer, List(OutputForm)) -> OutputBox)
+  OH ==> OperatorHandlers(HANDLER)
+  FL ==> FormatLaTeX
+  syscmd(x) ==> systemCommand(x)$MoreSystemCommands
+  
+  Exports ==  with
+    
+    latexOn  : () -> Void
+      ++ Enable FormatLaTeX.
+    latexOff : () -> Void
+      ++ Switch FormatLateX off.
+    latexOut : String -> Void
+      ++ Enable FormatLaTeX and write LaTeX output to file,
+      ++ given as a string.
+    alias    : (String,String) -> HANDLER
+      ++ Define an alias 'a' for any LaTeX constant 'b'.
+	
+  Implementation ==  add
+  
+    latexOn() == 
+      syscmd("set output formatted on")
+      l := [Formatter FormatLaTeX]@LOFC
+      setFormats!(l)$FormattedOutput
+    
+    latexOff() ==
+      syscmd("set output formatted off")
+      
+    latexOut(fn:String):Void ==
+      latexOn()
+      s:String:="set output formatted " fn
+      syscmd(s)
+      
+    alias(a,b) ==
+      h := operatorHandlers()$FormatLaTeX
+      setHandler!(h, 0, a, formatConstant(b)$FormatLaTeX)
+      
+-- alias("aa","\alpha ")
+-- latexOn()
+-- aa, aa^aa ....
+-- latexOff()
+
+--  Warnings: 
+-- [1] latexOn: pretend(List (OutputFormatterCategory)) -- should replace by @
+--  works! 

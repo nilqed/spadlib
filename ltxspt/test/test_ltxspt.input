@@ -1,0 +1,33 @@
+)co ltxspt
+
+-- )cd wherever you want your output file
+)cd "C:/Users/kfp/Desktop/DiffForms"
+
+alias("aa","\alpha ")
+alias("pd","\partial ")
+alias("Om", "\Omega ")
+alias("ZZ", "\mathbb{Z}")
+
+latexOn()
+aa^2
+[pd, Om]
+ZZ
+
+latexOff()
+ZZ
+aa
+
+latexOut "test_ltxspt" ;
+
+alias("xi","\xi ")
+
+D(aa^xi * sin(xi),xi,2)
+integrate(exp(-xi^2),xi)
+(1-xi^n)/(1+cos(xi)^2)
+integrate(Om/(1+Om^2),Om)
+
+
+
+
+
+

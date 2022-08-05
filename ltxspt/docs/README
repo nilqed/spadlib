@@ -1,0 +1,21 @@
+(1) -> quickLoad "ltxspt"
+
+Value = T
+To load "ltxspt":
+  Load 1 ASDF system:
+    ltxspt
+; Loading "ltxspt"
+
+Value = ("ltxspt")
+                                                                   Type: Void
+[5] )sh LTXSPT
+ LatexSupport is a package constructor
+ Abbreviation for LatexSupport is LTXSPT 
+ This constructor is exposed in this frame.
+------------------------------- Operations --------------------------------
+
+ latexOff : () -> Void                 latexOn : () -> Void
+ latexOut : String -> Void            
+ alias : (String, String) -> ((Integer, List(OutputForm)) -> OutputBox)
+
+[5] 
