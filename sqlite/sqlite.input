@@ -1,0 +1,16 @@
+)co sqlite
+
+--quickLoad "sqlite"
+
+db:String:="C:/Users/kfp/Desktop/work/SCI-DATA/PSE/pse.db"
+
+cdb:=connect db
+q1:=query(cdb,"select Element from pse1")
+q2:=queryToList(cdb,"select Element from pse1")
+q3:=queryToList(cdb,"select * from pse1")
+disconnect cdb
+
+sq1:=string q1
+lq3:=destruct q3 --> 
+lq31:=destruct lq3.1 --> and so on
+

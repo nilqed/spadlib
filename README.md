@@ -1,4 +1,4 @@
-# SPADLIB V0.3 :rocket:
+# SPADLIB V0.4 :rocket:
 
 
 ## Required
@@ -157,11 +157,11 @@ Either by
     
  or  
       
-    quickLoad "quicklsp
+    quickLoad "quicklsp"
     qlApropos "packageName".
 	  
 Also notice the name ``quicklsp``, because `quicklisp` has already been taken,
-of course. By the wwy, `qlApropos` will also search the QuickLisp online
+of course. By the way, `qlApropos` will also search the QuickLisp online
 repository.
   
 After a package has been loaded with ``quickLoad"``, the following functions are
