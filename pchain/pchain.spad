@@ -1,0 +1,183 @@
+)abbrev domain PCHAIN PointChain
+++ Author: Kurt Pagani
+++ Date Created: Fri Sep 27 13:05:21 CEST 2024
+++ License: BSD
+++ References:
+++ Description: barycenter
+++
+PointChain(R:Ring) : Exports == Implementation where
+  
+  XDP  ==> XDistributedPolynomial(Symbol,R)
+  TERM ==> Record(k: FreeMonoid(Symbol),c: R)
+  FACT ==> Record(gen: Symbol,exp: NonNegativeInteger)
+  
+  Exports == Join(CoercibleTo OutputForm, ConvertibleTo String) with
+    
+    point : Symbol -> %
+      ++ \spad{point S} constructs a single point, which is the basis to 
+      ++ generate chains of any degree. \spad{S} may be any symbol,
+      ++ however, uppercase letters are most adequate of course.
+    _* : (%,%) -> %
+      ++ \spad{c1*c2} multiplication of chains.
+    _* : (R,%) -> %
+      ++ \spad{r * c} multiplication of a chain by a scalar from R.
+    _+ : (%,%) -> %
+      ++ \spad{c1 + c2} addition of chains.
+    _- : (%,%) -> %
+      ++ \spad{c1 -c2} subtraction of chains.
+    _- : % -> %
+      ++ \spad{-c} negative of a chain.
+    _= : (%, %) -> Boolean
+      ++ \spad{c1 = c2} equality f chains.
+    1 : () -> %         
+      ++ \spad{1} the pseudo chain 1 (degree = -1).
+    0 : () -> %
+      ++ \spad{0} the zero chain.
+    constant? : % -> Boolean
+      ++ \spad{constant? c} true if the chain contains no point 
+      ++ (i.e. not really a chain).
+    degree : % -> Integer
+      ++ \spad{degree c} returns the highest degree of a chain. Note that the
+      ++ degree of a chain is one less than a corresponding
+      ++ \spad{XDistributedPolynomial}.
+    leadingMonomial : % -> %
+      ++ \spad{leadingMonomial c} returns the leading monomial (including 
+      ++ the coefficient).
+    reductum : % -> %
+      ++ \spad{reductum c} returns the rest of the chain, that is without 
+      ++ leading monomial.
+    leadingCoefficient: % -> R
+      ++ \spad{leadingCoefficient c} returns the coefficient of the 
+      ++ leading monomial.
+    leadingSupport: % -> List(%)
+      ++ \spad{leadingSupport c} gives the ordered list of points in the 
+      ++ leading monomial, so that \spad{reduce(_*,%)} will reproduce 
+      ++ the monomial (w/o coefficient).
+    bdry : % -> %
+      ++ \spad{bdry c} computes the boundary of the chain (recursively).
+    homogeneous? : % -> Boolean
+      ++ \spad{homgogeneous? x} is true if all terms have the same
+      ++ degree.
+    numberOfMonomials : % -> NonNegativeInteger
+      ++ \spad{numberOfMonomials x} is what it says.
+    zero? : % -> Boolean
+      ++ \spad{zero? c} is true if c the zero chain.
+    one? : % -> Boolean
+      ++ \spad{one? c} is true if c is the \spad{1}-element of the scalar 
+      ++ field.
+    latex : % -> String
+      ++ \spad{latex c} returns a LaTeX representation of the chain.
+    normalize : % -> %
+      ++ \spad{normalize c} sorts all points in all monomials lex and
+      ++ reconstructs the chain.
+    spaceDim : (%,PositiveInteger) -> %
+      ++ \spad{spaceDim(c,n)} removes all terms having degree greater
+      ++ than \spad{n}, which serves as space dimension of an affine
+      ++ space.
+    barycenter : % -> Union(%,"failed")
+      ++ \spad{barycenter x} returns the barycenter of a \spad{0-chain},
+      ++ in case there is one.  
+    retract: % -> XDP
+      ++ \spad{retract c} retracts the chain to a \spad{XDistributedPolynomial},
+      ++ so that more tools are availabe for manipulations.
+    coerce: XDP -> %
+      ++ \spad{coerce p} coerces a \spad{XDistributedPolynomial p} to a chain, 
+      ++ whereby all terms not conforming to a chain will be removed.
+	
+  Implementation ==  XDP add 
+
+    Rep := XDistributedPolynomial(Symbol,R)
+    
+    point(s) == s::XDP
+
+    dups?(l:List(Symbol)):Boolean == #l > #set(l)$Set(Symbol)
+
+    -- True if in a factor P1 P2 P3 ... any Pi=Pj.
+    nilfac?(f:List FACT):Boolean ==
+      b1:=not empty? [x.exp for x in f | not(x.exp = 1) ]
+      b2:=dups? [x.gen for x in f]
+      return(b1 or b2)
+
+    -- Overwrite * from XDP [implicit: (x@Rep * y@Rep)$XDP::%)]
+    -- Make it antisymmetric by removing bad terms.
+    (x:% * y:%):% ==
+      p:XDP := (x@Rep * y@Rep)$XDP
+      t:List(TERM) := listOfTerms(p)
+      t:=[u for u in t | not nilfac? factors(u.k)]
+      construct(t)
+    
+    degree(x:%):Integer ==
+      constant? x => -1
+      degree(x@Rep)$XDP - 1
+      
+    leadingSupport(x:%):List(%) ==
+      FMS:=FreeMonoid(Symbol)
+      s:FMS:=leadingSupport(x@Rep)$XDP
+      f:List FACT:=factors s
+      return([point(p.gen) for p in f])
+      
+    bdryOfSupport(x:List %):% ==
+      empty? x => 0@%
+      empty?(rest x)  => 1@%
+      reduce(_*,rest x) - first(x) * bdryOfSupport(rest x)
+       
+    bdry(x:%):% ==
+      constant? x => 0@%
+      c := leadingCoefficient x
+      s := leadingSupport x
+      c*bdryOfSupport s + bdry reductum x
+      
+    homogeneous?(x:%):Boolean ==
+      numberOfMonomials x <= 1 => true
+      rx:XDP := retract x
+      mrx:List XDP := monomials rx
+      drx: List NonNegativeInteger := [degree(u) for u in mrx]
+      max(drx) = min(drx) => true
+      false
+
+    normalizeSupport(s:List %):% ==
+      FMS:=FreeMonoid(Symbol)
+      l1:List XDP:=[retract u for u in s]
+      l2:List FMS:=[retract(u)$XDP for u in l1]
+      l3:List Symbol:=[retract(u)$FMS for u in l2]
+      ls:=sort l3
+      li:List Integer:=[position(i,l3) for i in ls]
+      p:=coerceImages(li)$Permutation(Integer)
+      sp:Integer:= sign(p)$Permutation(Integer)
+      ns:List %:=[point u for u in ls]
+      sp*reduce(_*,ns)
+      
+      
+    normalize(x:%):% ==
+      constant? x => x
+      c:=leadingCoefficient x
+      c * normalizeSupport(leadingSupport x) + normalize(reductum x)
+
+    spaceDim(x:%,n:PositiveInteger):% ==
+      degree x <= n => x
+      rx:XDP:=retract x
+      mrx:List XDP:=monomials rx
+      fx:List %:=[u::% for u in mrx | degree(u)$XDP<=n+1]
+      empty? fx => 0@%
+      reduce(_+,fx)
+      
+    barycenter(x:%):Union(%,"failed") ==
+      not homogeneous? x => "failed"
+      not (degree x = 0) => "failed"
+      rx:XDP:=retract x
+      cs:List R:=coefficients rx
+      scs:R:=reduce(_+,cs)
+      scs = 0$R => "failed"
+      c:Union(R,"failed"):=recip(scs)$R
+      c case R => c*x
+      "failed"
+
+    retract(x:%):XDP == x@Rep   
+    coerce(p:XDP):% == p * 1$%
+ 
+-- [A,B,C,D]:=[point(p)$PCHAIN(EXPR INT) for p in [A,B,C,D]]
+-- P:=[point(P[i]) for i in 1..10] --> note: PointChain(Integer) default
+-- one has to indicate which R, e.g. PCHAIN(EXRP INT).
+-- c:=P.7*P.1*P.2*P.5
+-- nbc:=normalize bdry c
+
