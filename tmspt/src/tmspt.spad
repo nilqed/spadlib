@@ -1,15 +1,19 @@
 )abbrev package TMSPT TexmacsSupport
 ++ Author: Kurt Pagani
 ++ Date Created: Sun Jan 19 02:19:26 CET 2020
+++ Date Revised: So 20 Okt 2024 18:24:51 CEST
 ++ License: BSD
 ++ References:
 ++   https://github.com/texmacs/texmacs/tree/master/TeXmacs/progs
+++   TeXmacs - Scheme Developer Guide [texmacs-scheme.en.pdf]
 ++ Description:
 ++   TeXmacs support package.
 ++   Control of TeXmacs Interface/GUI from FriCAS.
 ++   E.g. toggling header/footer, including images,
 ++   adding/removing style files and so on.
-++
+++   Rev. added: lispEval, ioHook (font-size, font-color in BOOT)
+++     e.g. FONT_-SIZE$Lisp -> "tiny" 
+++     setFricasPrompt (similar to macro in fricas.input)
 TexmacsSupport() : Exports == Implementation where
   
   -- DECLARE
@@ -88,6 +92,13 @@ TexmacsSupport() : Exports == Implementation where
     fitToScreenHeight : () -> Void
     
     mathInput : String -> String
+    
+    lispEval : String -> SExpression
+    setFricasPrompt : (String,String) -> SExpression
+    ioHook : () -> Void
+    check_iohook : () -> Boolean
+    setTypeFontSize : String -> SExpression
+    setTypeFontColor : String -> SExpression
     
 	
   Implementation ==  add 
@@ -266,8 +277,81 @@ TexmacsSupport() : Exports == Implementation where
       command "fit-to-screen-height"
       
     mathInput(s:String):String == s
-      
+   
+    lispEval(s:String):SExpression == EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
 
-      
+-- Set prompt as: beg # end (beg/end strings, e.g. beg="[", end="] "
+-- Default: beg:="(", end:=") -> "
+--
+    setFricasPrompt(beg,end) ==
+      fmt1:="(DEFUN MKPROMPT () (PROG () (RETURN (STRCONC "
+      fmt2:="(STRINGIMAGE |$IOindex|) "
+      fmt3:= "))))"
+      cmd:String:= fmt1  "_"" beg "_"" fmt2 "_"" end "_"" fmt3
+      lispEval cmd
 
-      
+
+-- Redefine $ioHook in TeXmacs (tiny, coloured types)
+-- NOTE the lines in the list must not have spaces between _ and next line.
+-- We have to use systemCommand "lisp ..." because lispEval does not work
+-- properly in TeXmacs when there are control characters in the string.
+
+    ioHook() ==  
+      s:List String
+      s:=["(in-package :boot)", _
+          "(defun tm-start-prompt ()", _
+          "(princ (concat (code-char 2) _"prompt#_")))", _
+          " ", _
+          "(defun tm-end-of-output ()", _
+          "(princ (concat (code-char 5) (code-char 10))))", _
+          " ", _
+          "(defun tm-start-output () (princ (code-char 2)))", _
+          " ", _
+          "(defparameter font-size _"tiny_")", _
+          "(defparameter font-color _"darkgrey_")", _
+          "(defparameter tmspt-iohook 1)", _
+          " ", _
+          "(defun scm-for-keyed-msg (fc fs)", _
+          "(format 'nil _"latex:\\textcolor{~A}{\\~A _" fc fs))", _
+          " ", _
+          "(defun tm-start-keyed-msg ()", _
+          "(princ (concat (code-char 2)", _
+          "(scm-for-keyed-msg font-color font-size) )))", _
+          " ", _
+          " ", _
+          "(defun tm-end-of-keyed-msg ()", _
+          "(princ (concat _"}_" (code-char 5))))", _
+          " ", _
+          "(defun tm-end-of-prompt () (princ (code-char 5) ))", _
+          " ", _
+          "(setf |$ioHook| (lambda (x &optional args)", _
+          "(cond ", _
+          "((eq x '|startPrompt|) (tm-start-prompt))", _
+          "((eq x '|endOfTeXmacsOutput|) (tm-end-of-output))", _
+          "((eq x '|startTeXmacsOutput|) (tm-start-output))", _
+          "((eq x '|startKeyedMsg|) (tm-start-keyed-msg))", _
+          "((eq x '|endOfKeyedMsg|) (tm-end-of-keyed-msg))", _
+          "((eq x '|endOfPrompt|)  (tm-end-of-prompt)))))"]
+      --return convert(concat s)$SExpression -- for debugging
+      systemCommand("lisp (progn " concat(s) ")")$MoreSystemCommands
+ 
+    check_iohook():Boolean ==
+      null? lispEval "(find-symbol _"TMSPT-IOHOOK_" 'boot)" => false
+      true
+ 
+    setTypeFontSize(s) ==
+      not check_iohook() => error "run ioHook() first."
+      fs:String:=FORMAT('NIL,"(setf boot::font-size _"~A_")",s)$Lisp
+      lispEval fs
+
+    setTypeFontColor(s) ==
+      not check_iohook() => error "run ioHook() first."
+      fs:String:=FORMAT('NIL,"(setf boot::font-color _"~A_")",s)$Lisp
+      lispEval fs
+
+
+
+
+    
+   
+
