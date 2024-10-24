@@ -16,7 +16,7 @@
 ++     setFricasPrompt (similar to macro in fricas.input)
 TexmacsSupport() : Exports == Implementation where
   
-  -- DECLARE
+  sys(s) ==> systemCommand(s)$MoreSystemCommands
   
   Exports ==  with
     
@@ -99,6 +99,8 @@ TexmacsSupport() : Exports == Implementation where
     check_iohook : () -> Boolean
     setTypeFontSize : String -> SExpression
     setTypeFontColor : String -> SExpression
+    
+    mainMenu : () -> Void
     
 	
   Implementation ==  add 
@@ -350,6 +352,24 @@ TexmacsSupport() : Exports == Implementation where
       lispEval fs
 
 
+    mainMenu():Void ==
+      s:List String
+      s:=["(menu-bind fricas-main-menu",_
+            "(-> _"Online_"",_
+              "(_"Github_" (system _"firefox https://fricas.github.io _"))",_
+              "(_"QGLE_" (system _"qgle_")))",_
+            "(-> _"Closing_"",_
+              "(_"Yours sincerely_" (insert _"Yours sincerely,_"))",_
+              "(_"Greetings_" (insert _"Greetings,_"))))"] 
+      --
+      c:String:="(menu-bind texmacs-extra-menu (=> _"[FriCAS]_" "_
+                "(link fricas-main-menu)) (former))"
+      --
+      command concat s
+      command c
+      
+      
+     
 
 
     

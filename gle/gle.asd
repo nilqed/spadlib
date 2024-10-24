@@ -2,9 +2,9 @@
 (asdf:defsystem #:gle
   :serial t
   :description "Short description"
-  :version "1.0.0"
+  :version "1.1.0"
   :author "Kurt Pagani <nilqed@gmail.com>"
   :license "MIT"
-  :depends-on ("pltspt")
+  :depends-on ()
   :pathname "src/"
   :components ((:file "gle")))

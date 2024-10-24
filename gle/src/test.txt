@@ -1,0 +1,122 @@
+List of current projects (October 2024)
+=======================================
+1. pchain.spad ....... barycentric calculus and point chains
+2. cochain.spad ...... cochains using XDistributedPolynomials
+3. FriRedMax ......... Fricas, Reduce, Maxima in one SBCL core image.
+4. ReduceBootstrap ... REDUCE bootstrap from sources 
+5. TeXmacs ........... FriCAS support / better output ... 
+
+--- 
+markers=")lisp (setf |\$ioHook| (lambda (x &optional args) (cond ((eq x '|startPrompt|) (princ (concat (code-char 2) \"prompt\#\") ))  ((eq x '|endOfTeXmacsOutput|) (princ (concat (code-char 5) (code-char 10)))) ((eq x '|startTeXmacsOutput|) (princ (code-char 2)))  ((eq x '|startKeyedMsg|)  (princ (concat (code-char 2) \"verbatim:\")))  ((eq x '|endOfKeyedMsg|)  (princ (code-char 5)))  ((eq x '|endOfPrompt|) (princ (code-char 5) ))  )))"
+
+scheme "(with _"font-size_" _"1.4_" (concat _"abc_" _"123_"))"
+
+)lisp (boot::|sayTexmacs| "Hello")  -- exists!
+
+)lisp |$ioHook|  --> Value = #<INTERPRETED-FUNCTION NIL {10020A026B}>
+redefine?
+
+)lisp (setf |$ioHook| (lambda (x &optional args) 
+  (cond ((eq x '|startPrompt|) (princ (concat (code-char 2) "prompt#") ))  
+        ((eq x '|endOfTeXmacsOutput|) (princ (concat (code-char 5) (code-char 10))))           ((eq x '|startTeXmacsOutput|) (princ (code-char 2)))  
+        ((eq x '|startKeyedMsg|)  (princ 
+           (concat (code-char 2) "scheme:(with \"font-size\" \"1.4\" " 
+                   (code-char 2) "verbatim:") 
+                                                ))  
+        ((eq x '|endOfKeyedMsg|)  (princ (concat (code-char 5) ")" (code-char 5))))  
+        ((eq x '|endOf
+Prompt|) (princ (code-char 5) )) )))
+
+--- working
+)lisp (setf |$ioHook| (lambda (x &optional args) 
+  (cond ((eq x '|startPrompt|) (princ (concat (code-char 2) "prompt#") ))  
+        ((eq x '|endOfTeXmacsOutput|) (princ (concat (code-char 5) (code-char 10))))           ((eq x '|startTeXmacsOutput|) (princ (code-char 2)))  
+        ((eq x '|startKeyedMsg|)  (princ 
+(concat (code-char 2) "verbatim:"   (code-char 2) "scheme:(with \"font-size\" \"0.6\" (concat \"BEG\" \" ") 
+                                                ))  
+        ((eq x '|endOfKeyedMsg|)  (princ (concat (code-char 5) "\"))" (code-char 5) "EOT" )))  
+        ((eq x '|endOfPrompt|) (princ (code-char 5) )) )))
+
+
+
+---- final?
+)lisp (setf |$ioHook| (lambda (x &optional args) 
+  (cond ((eq x '|startPrompt|) (princ (concat (code-char 2) "prompt#") ) )  
+        ((eq x '|endOfTeXmacsOutput|) (princ (concat (code-char 5) (code-char 10))))           ((eq x '|startTe
+XmacsOutput|) (princ (code-char 2)))  
+        ((eq x '|startKeyedMsg|)  (princ 
+(concat (code-char 2) "verbatim:"   (code-char 2) "scheme:(with \"font-size\" \"0.6\" (concat \" ") 
+                                                ))  
+        ((eq x '|endOfKeyedMsg|)  (princ (concat "\"))" (code-char 5) (code-char 5)  )))  
+        ((eq x '|endOfPrompt|) (princ (code-char 5) )) )))
+
+
+
+
+(setf |$ioHook| (lambda (x &optional args)  
+  (cond ((eq x '|startPrompt|) (princ (concat (code-char 2) "prompt#")))        
+        ((eq x '|endOfTeXmacsOutput|) (princ (concat (code-char 5) (code-char 10))))        
+        ((eq x '|startTeXmacsOutput|) (princ (code-char 2)))        
+        ((eq x '|startKeyedMsg|)  (princ (concat (code-char 2) "verbatim:" 
+            (code-char 2) "scheme:(with \"font-size\" \"0.6\" (concat \)))        
+        ((eq x '|endOfKeyedMsg|) (princ (concat "\"))" (code-char 5) (code-char 5) )))        
+        ((eq x '|endOfPrompt|)  (princ (code-char 5) )))))
+
+
+--- removed from tmspt.spad because #2 and #5 interfere with Texmacs.
+      
+    ioHook():SExpression ==
+       fmt:= "(setf |$ioHook| (lambda (x &optional args)" _
+             "  (cond ((eq x '|startPrompt|) ~A)" _
+             "        ((eq x '|endOfTeXmacsOutput|) ~A)" _
+             "        ((eq x '|startTeXmacsOutput|) ~A)" _
+             "        ((eq x '|startKeyedMsg|)  ~A)" _
+             "        ((eq x '|endOfKeyedMsg|) ~A)" _
+             "        ((eq x '|endOfPrompt|) ~A))))"    
+       a:="(princ (concat (code-char 2) _"prompt#_"))"
+       b:="(princ (concat (code-char 5) (code-char 10)))"
+       c:="(princ (code-char 2))"
+       d:="(princ (concat (code-char 2) _"verbatim:_" (code-char 2)" _
+          "_"scheme:(with \_"font-size\_" \_"0.6\_" (concat \_"_"))"
+       e:="(princ (concat _"\_"))_" (code-char 5) (code-char 5) ))"
+       f:=" (princ (code-char 5) )"
+       s:SExpression:=FORMAT('NIL,fmt,a, b, c, d, e, f)$Lisp  
+       --lispEval string s
+
+
+
+
+ s:=["(in-package :boot)", _
+            "(defun tm-start-prompt ()", _ 
+            "(princ (concat (code-char 2) _"prompt#_")))", _
+            "", _
+            "(defun tm-end-of-output ()", _
+            "(princ (concat (code-char 5) (code-char 10))))", _
+            "", _
+            "(defun tm-start-output () (princ (code-char 2)))", _
+            "", _
+            "(defparameter font-size _"tiny_")", _
+            "(defparameter font-color _"darkgrey_")", _
+            "", _
+            "(defun scm-for-keyed-msg (fc fs)", _
+            "(format 'nil _"latex:\\textcolor{~A}{\\~A _" fc fs))", _
+            "", _
+            "(defun tm-start-keyed-msg ()", _          
+            "(princ (concat (code-char 2)", _
+            "(scm-for-keyed-msg font-color font-size) )))", _
+            "", _
+            "", _
+            "(defun tm-end-of-keyed-msg ()", _
+            "(princ (concat _"}_" (code-char 5))))", _
+            "", _
+            "(defun tm-end-of-prompt () (princ (code-char 5) ))", _
+            "", _
+            "(setf |$ioHook| (lambda (x &optional args)", _
+            "(cond", _
+            "((eq x '|startPrompt|) (tm-start-prompt))", _       
+            "((eq x '|endOfTeXmacsOutput|) (tm-end-of-output))", _     
+            "((eq x '|startTeXmacsOutput|) (tm-start-output))", _        
+            "((eq x '|startKeyedMsg|) (tm-start-keyed-msg))", _        
+            "((eq x '|endOfKeyedMsg|) (tm-end-of-keyed-msg))", _ 
+            "((eq x '|endOfPrompt|)  (tm-end-of-prompt)))))"]
+

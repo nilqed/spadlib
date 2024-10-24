@@ -1,13 +1,49 @@
 )abbrev package GLE GraphicsLayoutEngine
 ++ Author: Kurt Pagani
 ++ Date Created: Mon Aug 06 18:17:40 CEST 2018
+++ Date Revices: Do 24 Okt 2024 19:54:57 CEST
 ++ License: BSD
-++ References:
+++ References: 
+++   https://glx.sourceforge.io/index.html
+++   https://glx.sourceforge.io/main/docs.html
+++   https://glx.sourceforge.io/downloads/downloads.html
+++   https://en.wikipedia.org/wiki/Graphics_Layout_Engine
+++   January 2022: GLE is now on GitHub and utilizing cmake to build 
+++     from source: https://github.com/vlabella/GLE
 ++ Description:
 ++   GLE - Graphics Layout Engine
 ++   Debian: sudo apt install gle-graphics  (ghostscript,...)
-++ We will build on PLOT, PLOT3D domains.
-++
+++ Builds on PLOT, PLOT3D domains besides other constructs.
+++ PlotSupport eliminated.
+++ A) By now there are two graphic objects GRAPH and SURFACE which
+++    are represented as records. 
+++ B) Instances of these objects are created by graph() and surface()
+++    which will be used by the plot and push functions.
+++ C) Those instances contain the generated GLE*.dat or GLE*.z file
+++    respectively. At this point the graphics file GLE*.gle is not
+++    created yet, so that the instances may be still manipulated,
+++    however, the filename (only) is already created and stored.
+++ D) The "create" function will generate the final GLE*.gle file, so
+++    that the object can be displayed (QGLE) or transformed to one of
+++    the available formats (gle -help device):
+++    Option: -device
+++      Abbreviation(s): -d
+++      Selects output device(s)
+++      Argument 'device-names': set output device(s)
+++    Possible values: eps, ps, pdf, svg, jpg, png
+++ E) The instances may be further processed and redisplayed etc.
+++ The (*) in GLE*.[gle,dat,z] is the GET-UNIVERSAL-TIME from LISP.
+++ Example:
+++   l1:=[[x,sin x,cos x] for x in [n*0.1::DoubleFloat for n in 1..10]]
+++        Type: List(List(DoubleFloat))
+++   g1:=plot l1  --> returns a GRAPH object 
+++        getPath g1.glefile -> NIL
+++   display g1 --> shows the graph g1 in QGLE 
+++        getPath g1.glefile -> /home/.../GLE3938789612.gle
+++   g1.title := "sin/cos"
+++        set a title (default is "Title")
+++   runGLE(g1.glefile,"eps","") --> produces a "GLE*.eps".
+++ One may combine of course, e.g. display plot l1 ...
 ++
 GraphicsLayoutEngine : Exports == Implementation where
 
@@ -20,11 +56,15 @@ GraphicsLayoutEngine : Exports == Implementation where
   LLSTR ==> List LSTR
   PI    ==> PositiveInteger
   DF    ==> DoubleFloat
+  PDF   ==> Point DF
   XDF   ==> Expression DF
   SDF   ==> Segment DF
   SBDF  ==> SegmentBinding DF
+  CTDF  ==> ConvertibleTo DoubleFloat
+  NUMS  ==> Union(DoubleFloat,Float,Integer,Fraction Integer)
+  SBNS  ==> SegmentBinding NUMS
+  EXPZ  ==> Expression Integer
   
-  PLTSPT ==> PlotSupport  -- required
   
   GRAPH ==> Record(glefile:STR, pre:STR, xsize:STR, ysize:STR, xtitle:STR,_
                    ytitle:STR, title:STR, data:STR, cmds:LSTR)
@@ -37,7 +77,30 @@ GraphicsLayoutEngine : Exports == Implementation where
   
   
   Exports == with
-
+  
+    convert : (PDF, String) -> String
+      ++ convert(P,sep) converts a point P to a string of 'sep' separated
+      ++ double floats. Example: P:=convert([1.0,2.0,3.0,4.5])$Point(DF),
+      ++ then convert(P," ") => "1.0 2.0 3.0 4.5". 
+    convertBranch : (List PDF, String) -> LSTR
+      ++ convertBranch(p,sep) converts a list of points to a list of 
+      ++ strings. Each string corresponds to a point. The 'sep' string
+      ++ separates each coordinate (e.g. blank, comma, semicolon etc.)
+    convert : (Plot, String) -> LLSTR
+      ++ convert(p,sep) converts a PLOT to a list of lists of strings. For
+      ++ each branch a list of strings (of 'sep' double floats) will be
+      ++ generated.
+    combineBranches : Plot -> List PDF 
+      ++ combineBranches(p) combines all branches in a Plot such that
+      ++ the first column are the common x-values and all other columns
+      ++ represent the y-values. That is all branches must have the same
+      ++ xRange and therefore the same number of points.
+    createDataFile : (FileName, LSTR) -> Void
+	  ++ createDataFile(fn,data) creates and writes the list of strings (data) 
+	  ++ to the file named 'fn'.
+    numOfBranches : Plot -> Integer
+	  ++ numOfBranches(p) returns the number of branches in the Plot p.
+      ++ (-) PlotSupport ------------------------------------------
     format : (STR,STR) -> STR
       ++ format("CL format string","string to format") returns a
       ++ formatted string (like FORMAT('NIL,fmt,r)$Lisp)
@@ -91,33 +154,95 @@ GraphicsLayoutEngine : Exports == Implementation where
       ++ plot((x,y)+->f(x,y),xr,yr,stx,sty)$GLE creates a surface for the 
       ++ function z=f(x,y), where xr,yr are x-range, y-range and stx,sty
       ++ denote the stepzize for each direction.
-  
-	
-  Implementation ==  add 
+    runGLE : (String,String,String) -> String
+      ++ runGLE(glefile,device,options) runs GLE as command, where 
+      ++ 'device' in {eps, ps, pdf, svg, jpg, png} as strings and
+      ++ 'options' (maybe "") is a string containing more command
+      ++ line parameters (use gle --help). So, for instance, the 
+      ++ command runGLE("filex.gle", "eps", "") will produce a "eps"
+      ++ image "filex.eps" by running gle -device eps [options] filex.gle. 
+    conv  : NUMS -> DoubleFloat
+      ++ convert(x:Union(DoubleFloat,Float,Integer,Fraction Integer))
+      ++ to a DoubleFloat.
+    range : (NUMS,NUMS,NUMS) -> List DF
+      ++ range(from,to,step) creates a list of DoubleFloat numbers ranging
+      ++ from "from" to "to" with stepsize "step" (calculated).
+      ++ range(1,2,0.05) --> [1.0,1.05,..,1.95,2.0] , 21 numbers.
+      ++ Note: upper bound "to" not necessarily included!
+    range : (Segment(NUMS),NUMS) -> List DF
+      ++ range(from .. to,step) creates a list of DoubleFloat numbers ranging
+      ++ from "from" to "to" with stepsize "step" (calculated).
+      ++ range(1..2,0.05) --> [1.0,1.05,..,1.95,2.0] , 21 numbers. 
+      ++ Note: upper bound "to" not necessarily included!
+    cseg : (NUMS,NUMS) -> Segment DF
+      ++ cseg(a,b) creates a segment of DoubleFloats when a and are in
+      ++ Union(DoubleFloat,Float,Integer,Fraction Integer).
+      ++ cseg(1,5/6) -> 1.0..0.8333333333333334
+    numlst2str :List NUMS -> String
+      ++ numlst2str([n1,...]) converts a list of numbers to a comma
+      ++ separated string. E.g. numlst2str [1,2,3.4,5/7] results in
+      ++ "1.0, 2.0, 3.4, 0.7142857142857142". 
+    getPath : String -> String
+      ++ getPath(filename) returns the full path of the file if it
+      ++ exists, otherwise "NIL" is returned.
+    catGLE : GRAPH -> Void
+      ++ Show the .gle file if created
+    catGLE : SURFACE -> Void
+	  ++ Show the .gle file if created
 
-    format(s:STR,t:STR):STR == string FORMAT('NIL,s,t)$Lisp
-      -- format("<title>~a</title>","'Hello'")
-      
-    format(s:STR,l:List STR) == string FORMAT('NIL,s,l)$Lisp
-      -- FORMAT('NIL,"~{~a ~a ~a ~}",["x","y","z"])$Lisp
-      -- format("~{~a ~a ~a ~}",["One", "two", "three"])
-      -- format("~{~A~^, ~}",["a","b","c","d","e"]) (ITERATION)
-      --  format("~{~A~^~% ~}",["a","b","c","d","e"]) (newlines)
-      -- https://stackoverflow.com/questions/8830888/
-      --   whats-the-canonical-way-to-join-strings-in-a-list
+	  
+	  
+  Implementation ==  add
 
+    format(s:STR,t:STR):STR == string FORMAT('NIL,s,t)$Lisp 
+    format(s:STR,l:LSTR):STR == string FORMAT('NIL,s,l)$Lisp
     
+    
+    convert(p:PDF, sep:String):String ==
+      fmt:String:=concat ["~{~A~^", sep, "~}"]
+      format(fmt,[toString(x)$DF for x in entries p])
+      
+    
+    convertBranch(b:List PDF, sep:String):LSTR ==
+      [convert(x, sep) for x in b]
+          
+      
+    convert(p:Plot, sep:String):LLSTR ==
+      b:List List Point(DF):=listBranches p
+      [convertBranch(x,sep) for x in b]
+
+
+    combineBranches(p:Plot):List PDF ==
+      b:List List PDF:=listBranches p
+      x:List DF:=[first entries t for t in first b]
+      y:List List DF:=[[second entries t for t in u] for u in b]
+      z:List List DF:=concat(x,y)
+      M:Matrix DF:=matrix z
+      [point(u) for u in listOfLists(transpose M)]
+      
+
+    createDataFile(fn:FileName,data:LSTR):Void ==
+      df:TextFile:=open(fn,"output")
+      wl:List String:=[writeLine!(df,s) for s in data]
+      close!(df)
+      void()   
+      
+      
+    numOfBranches(p:Plot):Integer ==
+      b:List List PDF:=listBranches p
+      #b
+  
     getUTC():Integer == 
       utc:SExpression:=GET_-UNIVERSAL_-TIME()$Lisp
       integer utc
+      
+    getPath(f:String):String ==
+      string FORMAT('NIL,"~a", PROBE_-FILE(f)$Lisp)$Lisp
 
     graph():GRAPH ==
-      -- seed:String:=string random(1234567890)
-      -- better? CL universal time
       seed:String:=convert(getUTC())@String
       glefn:="GLE" seed ".gle"
       datfn:="GLE" seed ".dat"
-      --nl:String:=(char 10)$Character::String
       cmds:LSTR:= ["dn line color black", "d1 line color red"]
       pre:STR:="! pre"
       construct(glefn,pre,"12","8","x","y","Title",datfn,cmds)$GRAPH
@@ -162,6 +287,9 @@ GraphicsLayoutEngine : Exports == Implementation where
       ~%  data _"~a_"_
       ~%  ~a_
       ~%end surface~}"
+      
+    -- TODO: mkFmtStr <-- create the templates above automatically?
+    -- TODO: pf, pathf ?? not so good ...
 
     create(g:GRAPH):FileName ==
       fn:FileName:=g.glefile::FileName
@@ -200,28 +328,28 @@ GraphicsLayoutEngine : Exports == Implementation where
     plot(p:Plot):GRAPH ==
       g:GRAPH:=graph()
       fn:FileName:=g.data::FileName
-      if numOfBranches(p)$PLTSPT <= 1 then
-        d:LSTR:=first convert(p," ")$PLTSPT
+      if numOfBranches(p) <= 1 then
+        d:LSTR:=first convert(p," ")
       else
-        c:List Point DF:=combineBranches(p)$PLTSPT
-        d:LSTR:=convertBranch(c," ")$PLTSPT
-      createDataFile(fn,d)$PLTSPT
+        c:List Point DF:=combineBranches(p)
+        d:LSTR:=convertBranch(c," ")
+      createDataFile(fn,d)
       return g      
 
     plot(f:DF->DF,s:Segment DF):GRAPH ==
       g:GRAPH:=graph()
       fn:FileName:=g.data::FileName
       p:Plot:=plot(f,s)$Plot
-      d:LSTR:=first convert(p," ")$PLTSPT
-      createDataFile(fn,d)$PLTSPT
+      d:LSTR:=first convert(p," ")
+      createDataFile(fn,d)
       return g
       
     plot(l:LLDF):GRAPH ==
       g:GRAPH:=graph()
       fn:FileName:=g.data::FileName
       lp:=[point(x)$Point(DF) for x in l]
-      d:LSTR:=convertBranch(lp," ")$PLTSPT
-      createDataFile(fn,d)$PLTSPT
+      d:LSTR:=convertBranch(lp," ")
+      createDataFile(fn,d)
       return g 
       
     push(g:GRAPH,s:STR):GRAPH ==
@@ -286,6 +414,80 @@ GraphicsLayoutEngine : Exports == Implementation where
       writeZfile(fn, z)
       s
       
+    runGLE(glefile, device, options) ==
+      null?(PROBE_-FILE(glefile)$Lisp)$SExpression => _
+        error "GLE file not found (created?)! Use )cd to change path."
+      systemCommand("system gle -device " device " " options " " glefile)$MSC 
+      l:=split(glefile ,char ".")
+      r:String:=first(l) "." device
+      null?(PROBE_-FILE(r)$Lisp)$SExpression => _
+        error "GLE: output file not created :-("
+      return r
+
+    conv(x:NUMS):DoubleFloat == 
+      if x case Integer then r:DF:=convert x
+      if x case Float then r:DF:=convert x
+      if x case Fraction Integer then r:DF:=convert x
+      if x case DoubleFloat then r:DF:=x@DF
+      r
+      
+
+    range(fro:NUMS,to:NUMS,step:NUMS):List DF ==
+      f:=conv fro
+      t:=conv to
+      s:=conv step
+      d:DF:=t-f
+      not positive? d => error "Zero interval."
+      not positive? s => error "Stepsize must be positive."
+      not positive? (d-2.0*s) => error "Stepsize too big."
+      fn:DF:=floor((t-f)/s)
+      n:Union(Integer,"failed"):=retractIfCan fn
+      n case "failed" => error "Number of steps cannot be calculated."
+      r:=[f+i::DF * s for i in 0..n]
+      --[f,t,s]
+
+    range(s:Segment(NUMS),step:NUMS):List DF == range(low s, high s, step)
+
+    cseg(a:NUMS,b:NUMS):Segment DF == conv(a)..conv(b) 
+    
+    -- instead of
+    -- outputSpacing 0;
+    -- toString() if has FPS
+    numlst2str(x:List NUMS):String ==
+      SEX ==> SExpression
+      y:List SEX:=[convert(conv s)$SEX for s in x]
+      string FORMAT('NIL,"~{~A~^, ~}", y)$Lisp
+      
+    catGLE(g:GRAPH):Void == 
+      getPath(g.glefile) = "NIL" => error "File not found."
+      systemCommand("system cat " g.glefile)$MSC
+        
+    catGLE(s:SURFACE):Void == 
+      getPath(s.glefile) = "NIL" => error "File not found."
+      systemCommand("system cat " s.glefile)$MSC
 
 
-  
+      
+
+-- l1:=[[x,sin x,cos x] for x in [n*0.1::DoubleFloat for n in 1..10]]
+-- l2:=[[x,sin x,cos x,exp(x),x*x] for x in [n*0.1::DoubleFloat for n in 1..10]]
+-- g1:=plot l1
+-- g2:=plot l2
+-- display g1 ....
+
+-- s1:=plot((x:DF,y:DF):DF+->x*x*y-y*y,-1.0::DF..1.0,-1.0::DF..1.0,0.1::DF,0.1::DF)$GLE
+-- display s1
+
+-- display plot(sin$DF,-%pi..%pi)
+-- display plot(digamma$DF,0.4..10.0)
+
+-- l3:=[[x,sin x,cos x] for x in range(0,10,0.1) ]
+-- g3:=plot l3
+-- display g3
+-- g3.title:="x,sin(x),cos(x)"
+-- display g3
+
+
+-- FORMAT('NIL,"~{~A~^, ~}",[1,2,3] )$Lisp
+-- l2x:=[[convert(x)$SEX for x in s] for s in l2]
+-- string FORMAT('NIL,"~{~A~^, ~}",l2x.1 )$Lisp
