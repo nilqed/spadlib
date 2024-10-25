@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SPADLIB (spad2doc)</title>
+</head>
+<body>
+<h2 style='color: blue;'>PlotSupport</h2>
+</pre>
+<pre style='color: brown;'>
+ Author: Kurt Pagani
+ Date Created: Wed Jan 22 22:02:57 CET 2020
+ License: BSD
+ References:
+ Description:
+
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<strong><code>convert : (PDF, String) -> String</code></strong>
+<pre style='color: darkgreen;'>
+ convert(P,sep) converts a point P to a string of 'sep' separated
+ double floats. Example: P:=convert([1.0,2.0,3.0,4.5])$Point(DF),
+ then convert(P," ") => "1.0 2.0 3.0 4.5".
+</pre>
+<strong><code>convertBranch : (List PDF, String) -> LSTR</code></strong>
+<pre style='color: darkgreen;'>
+ convertBranch(p,sep) converts a list of points to a list of
+ strings. Each string corresponds to a point. The 'sep' string
+ separates each coordinate (e.g. blank, comma, semicolon etc.)
+</pre>
+<strong><code>convert : (Plot, String) -> LLSTR</code></strong>
+<pre style='color: darkgreen;'>
+ convert(p,sep) converts a PLOT to a list of lists of strings. For
+ each branch a list of strings (of 'sep' double floats) will be
+ generated.
+</pre>
+<strong><code>combineBranches : Plot -> List PDF</code></strong>
+<pre style='color: darkgreen;'>
+ combineBranches(p) combines all branches in a Plot such that
+ the first column are the common x-values and all other columns
+ represent the y-values. That is all branches must have the same
+ xRange and therefore the same number of points.
+</pre>
+<strong><code>createDataFile : (FileName, LSTR) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ createDataFile(fn,data) creates and writes the list of strings (data)
+ to the file named 'fn'.
+</pre>
+<strong><code>numOfBranches : Plot -> Integer</code></strong>
+<pre style='color: darkgreen;'>
+ numOfBranches(p) returns the number of branches in the Plot p.
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</body>
+</html>

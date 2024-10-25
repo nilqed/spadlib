@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SPADLIB (spad2doc)</title>
+</head>
+<body>
+<h2 style='color: blue;'>GraphImage</h2>
+</pre>
+<pre style='color: brown;'>
+ Author: Jim Wen
+ Date Created: 27 April 1989
+ Basic Operations:
+ Related Constructors:
+ Also See:
+ AMS Classifications:
+ Keywords:
+ References:
+ Description: TwoDimensionalGraph creates virtual two dimensional graphs
+ (to be displayed on TwoDimensionalViewports).
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<strong><code>graphImage      :  ()                                        -> %</code></strong>
+<pre style='color: darkgreen;'>
+ graphImage() returns an empty graph with 0 point lists
+ of the domain \spadtype{GraphImage}.  A graph image contains
+ the graph data component of a two dimensional viewport.
+</pre>
+<strong><code>sendGraphImage  :  %  -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ sendGraphImage(gi) takes the given graph, \spad{gi} of the
+ domain \spadtype{GraphImage}, and sends it's data to the
+ viewport manager where it waits to be included in a two-dimensional
+ viewport window.  \spad{gi} cannot be an empty graph.
+</pre>
+<strong><code>makeGraphImage  :  (L L P)                                   -> %</code></strong>
+<pre style='color: darkgreen;'>
+ makeGraphImage(llp) returns a graph of the domain
+ \spadtype{GraphImage} which is composed of the points and
+ lines from the list of lists of points, \spad{llp}, with
+ default point size and default point and line colours.
+</pre>
+<strong><code>makeGraphImage  :  (L L P, L PAL, L PAL, L PI)                  -> %</code></strong>
+<pre style='color: darkgreen;'>
+ makeGraphImage(llp, lpal1, lpal2, lp) returns a graph of the
+ domain \spadtype{GraphImage} which is composed of the points
+ and lines from the list of lists of points, \spad{llp}, whose
+ point colors are indicated by the list of palette colors,
+ \spad{lpal1}, and whose lines are colored according to the list
+ of palette colors, \spad{lpal2}.  The paramater lp is a list of
+ integers which denote the size of the data points.
+</pre>
+<strong><code>makeGraphImage  :  (L L P, L PAL, L PAL, L PI, L DROP)           -> %</code></strong>
+<pre style='color: darkgreen;'>
+ makeGraphImage(llp, lpal1, lpal2, lp, lopt) returns a graph of
+ the domain \spadtype{GraphImage} which is composed of the
+ points and lines from the list of lists of points, \spad{llp},
+ whose point colors are indicated by the list of palette colors,
+ \spad{lpal1}, and whose lines are colored according to the list
+ of palette colors, \spad{lpal2}.  The paramater lp is a list of
+ integers which denote the size of the data points, and \spad{lopt}
+ is the list of draw command options.
+</pre>
+<strong><code>pointLists      :  %                                         -> L L P</code></strong>
+<pre style='color: darkgreen;'>
+ pointLists(gi) returns the list of lists of points which compose
+ the given graph, \spad{gi}, of the domain \spadtype{GraphImage}.
+</pre>
+<strong><code>key             :  %                                         -> I</code></strong>
+<pre style='color: darkgreen;'>
+ key(gi) returns the process ID of the given graph, \spad{gi},
+ of the domain \spadtype{GraphImage}.
+</pre>
+<strong><code>ranges          :  %                                         -> RANGEF</code></strong>
+<pre style='color: darkgreen;'>
+ ranges(gi) returns the list of ranges of the point components from
+ the indicated graph, \spad{gi}, of the domain \spadtype{GraphImage}.
+</pre>
+<strong><code>ranges          :  (%, RANGEF)                                -> RANGEF</code></strong>
+<pre style='color: darkgreen;'>
+ ranges(gi, lr) modifies the list of ranges for the given graph,
+ \spad{gi} of the domain \spadtype{GraphImage}, to be that of the
+ list of range segments, \spad{lr}, and returns the new range list
+ for \spad{gi}.
+</pre>
+<strong><code>units           :  %                                         -> UNITF</code></strong>
+<pre style='color: darkgreen;'>
+ units(gi) returns the list of unit increments for the x and y
+ axes of the indicated graph, \spad{gi}, of the domain
+ \spadtype{GraphImage}.
+</pre>
+<strong><code>units           :  (%, UNITF)                                 -> UNITF</code></strong>
+<pre style='color: darkgreen;'>
+ units(gi, lu) modifies the list of unit increments for the x and y
+ axes of the given graph, \spad{gi} of the domain
+ \spadtype{GraphImage}, to be that of the list of unit increments,
+ \spad{lu}, and returns the new list of units for \spad{gi}.
+</pre>
+<strong><code>component       :  (%, L P, PAL, PAL, PI)                        -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ component(gi, lp, pal1, pal2, p) sets the components of the
+ graph, \spad{gi} of the domain \spadtype{GraphImage}, to the
+ values given.  The point list for \spad{gi} is set to the list
+ \spad{lp}, the color of the points in \spad{lp} is set to
+ the palette color \spad{pal1}, the color of the lines which
+ connect the points \spad{lp} is set to the palette color
+ \spad{pal2}, and the size of the points in \spad{lp} is given
+ by the integer p.
+</pre>
+<strong><code>component       :  (%, P)                                     -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ component(gi, pt) modifies the graph \spad{gi} of the domain
+ \spadtype{GraphImage} to contain one point component, \spad{pt}
+ whose point color, line color and point size are determined by
+ the default functions \spadfun{pointColorDefault},
+ \spadfun{lineColorDefault}, and \spadfun{pointSizeDefault}.
+</pre>
+<strong><code>component       :  (%, P, PAL, PAL, PI)                          -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ component(gi, pt, pal1, pal2, ps) modifies the graph \spad{gi} of
+ the domain \spadtype{GraphImage} to contain one point component,
+ \spad{pt} whose point color is set to the palette color \spad{pal1},
+ line color is set to the palette color \spad{pal2}, and point
+ size is set to the positive integer \spad{ps}.
+</pre>
+<strong><code>appendPoint     :  (%, P)                                     -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ appendPoint(gi, pt) appends the point \spad{pt} to the end
+ of the list of points component for the graph, \spad{gi}, which is
+ of the domain \spadtype{GraphImage}.
+</pre>
+<strong><code>point           :  (%, P, PAL)                                 -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ point(gi, pt, pal) modifies the graph \spad{gi} of the domain
+ \spadtype{GraphImage} to contain one point component, \spad{pt}
+ whose point color is set to be the palette color \spad{pal}, and
+ whose line color and point size are determined by the default
+ functions \spadfun{lineColorDefault} and \spadfun{pointSizeDefault}.
+</pre>
+<strong><code>coerce          :  L L P                                     -> %</code></strong>
+<pre style='color: darkgreen;'>
+ coerce(llp) creates and returns a graph of the domain
+ \spadtype{GraphImage} which is composed of the list of list
+ of points given by \spad{llp}, and whose point colors, line colors
+ and point sizes are determined by the default functions
+ \spadfun{pointColorDefault}, \spadfun{lineColorDefault}, and
+ \spadfun{pointSizeDefault}.  The graph data is then sent to the
+ viewport manager where it waits to be included in a two-dimensional
+ viewport window.
+</pre>
+<strong><code>coerce          :  %                                         -> E</code></strong>
+<pre style='color: darkgreen;'>
+ coerce(gi) returns the indicated graph, \spad{gi}, of domain
+ \spadtype{GraphImage} as output of the domain \spadtype{OutputForm}.
+</pre>
+<strong><code>putColorInfo    : (L L P, L PAL)                              -> L L P</code></strong>
+<pre style='color: darkgreen;'>
+ putColorInfo(llp, lpal) takes a list of list of points, \spad{llp},
+ and returns the points with their hue and shade components
+ set according to the list of palette colors, \spad{lpal}.
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<h2 style='color: blue;'>TwoDimensionalViewport</h2>
+</pre>
+<pre style='color: brown;'>
+ Author: Jim Wen
+ Date Created: 28 April 1989
+ Basic Operations:
+ Related Constructors:
+ Also See:
+ AMS Classifications:
+ Keywords:
+ References:
+ Description: TwoDimensionalViewport creates viewports to display graphs.
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<strong><code>getPickedPoints : % -> L POINT</code></strong>
+<pre style='color: darkgreen;'>
+ getPickedPoints(x)
+ returns a list of small floats for the points the
+ user interactively picked on the viewport
+ for full integration into the system, some design
+ issues need to be addressed: e.g. how to go through
+ the GraphImage interface, how to default to graphs, etc.
+</pre>
+<strong><code>viewport2D     : ()                                     -> %</code></strong>
+<pre style='color: darkgreen;'>
+ viewport2D() returns an undefined two-dimensional viewport
+ of the domain \spadtype{TwoDimensionalViewport} whose
+ contents are empty.
+</pre>
+<strong><code>makeViewport2D : %                                      -> %</code></strong>
+<pre style='color: darkgreen;'>
+ makeViewport2D(v) takes the given two-dimensional viewport,
+ v, of the domain \spadtype{TwoDimensionalViewport} and
+ displays a viewport window on the screen which contains
+ the contents of v.
+</pre>
+<strong><code>options        : %                                      -> L DROP</code></strong>
+<pre style='color: darkgreen;'>
+ options(v) takes the given two-dimensional viewport, v, of the
+ domain \spadtype{TwoDimensionalViewport} and returns a list
+ containing the draw options from the domain \spadtype{DrawOption}
+ for v.
+</pre>
+<strong><code>options        : (%, L DROP)                             -> %</code></strong>
+<pre style='color: darkgreen;'>
+ options(v, lopt) takes the given two-dimensional viewport, v,
+ of the domain \spadtype{TwoDimensionalViewport} and returns
+ v with it's draw options modified to be those which are indicated
+ in the given list, \spad{lopt} of domain \spadtype{DrawOption}.
+</pre>
+<strong><code>makeViewport2D : (G, L DROP)                             -> %</code></strong>
+<pre style='color: darkgreen;'>
+ makeViewport2D(gi, lopt) creates and displays a viewport window
+ of the domain \spadtype{TwoDimensionalViewport} whose graph
+ field is assigned to be the given graph, \spad{gi}, of domain
+ \spadtype{GraphImage}, and whose options field is set to be
+ the list of options, \spad{lopt} of domain \spadtype{DrawOption}.
+</pre>
+<strong><code>graphState     : (%, PI, SF, SF, SF, SF, I, I, I, I, PAL, I, PAL, I) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ graphState(v, num, sX, sY, dX, dY, pts, lns, box, axes, axesC, un, unC, cP)
+ sets the state of the characteristics for the graph indicated
+ by \spad{num} in the given two-dimensional viewport v, of domain
+ \spadtype{TwoDimensionalViewport}, to the values given as
+ parameters.  The scaling of the graph in the x and y component
+ directions is set to be \spad{sX} and \spad{sY}; the window
+ translation in the x and y component directions is set to be
+ \spad{dX} and \spad{dY}; The graph points, lines, bounding box,
+ axes, or units will be shown in the viewport if their given
+ parameters \spad{pts}, \spad{lns}, \spad{box}, \spad{axes} or
+ \spad{un} are set to be \spad{1}, but will not be shown if they
+ are set to \spad{0}.  The color of the axes and the color of the
+ units are indicated by the palette colors \spad{axesC} and
+ \spad{unC} respectively.  To display the control panel when
+ the viewport window is displayed, set \spad{cP} to \spad{1},
+ otherwise set it to \spad{0}.
+</pre>
+<strong><code>graphStates    : %                                      -> V GS</code></strong>
+<pre style='color: darkgreen;'>
+ graphStates(v) returns and shows a listing of a record containing
+ the current state of the characteristics of each of the ten graph
+ records in the given two-dimensional viewport, v, which is of
+ domain \spadtype{TwoDimensionalViewport}.
+</pre>
+<strong><code>graphs         : %                                      -> V GU</code></strong>
+<pre style='color: darkgreen;'>
+ graphs(v) returns a vector, or list, which is a union of all
+ the graphs, of the domain \spadtype{GraphImage}, which are
+ allocated for the two-dimensional viewport, v, of domain
+ \spadtype{TwoDimensionalViewport}.  Those graphs which have
+ no data are labeled "undefined", otherwise their contents
+ are shown.
+</pre>
+<strong><code>title          : (%, STR)                                -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ title(v, s) changes the title which is shown in the two-dimensional
+ viewport window, v of domain \spadtype{TwoDimensionalViewport}.
+</pre>
+<strong><code>putGraph       : (%, G, PI)                               -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ putGraph(v, gi, n) sets the graph field indicated by n, of the
+ indicated two-dimensional viewport, v, which is of domain
+ \spadtype{TwoDimensionalViewport}, to be the graph, \spad{gi}
+ of domain \spadtype{GraphImage}.  The contents of viewport, v,
+ will contain \spad{gi} when the function \spadfun{makeViewport2D}
+ is called to create the an updated viewport v.
+</pre>
+<strong><code>getGraph       : (%, PI)                                 -> G</code></strong>
+<pre style='color: darkgreen;'>
+ getGraph(v, n) returns the graph which is of the domain
+ \spadtype{GraphImage} which is located in graph field n
+ of the given two-dimensional viewport, v, which is of the
+ domain \spadtype{TwoDimensionalViewport}.
+</pre>
+<strong><code>axes           : (%, PI, STR)                             -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ axes(v, n, s) displays the axes of the graph in field n of
+ the given two-dimensional viewport, v, which is of domain
+ \spadtype{TwoDimensionalViewport}, if s is "on", or does
+ not display the axes if s is "off".
+</pre>
+<strong><code>axes           : (%, PI, PAL)                             -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ axes(v, n, c) displays the axes of the graph in field n of
+ the given two-dimensional viewport, v, which is of domain
+ \spadtype{TwoDimensionalViewport}, with the axes color set to
+ the given palette color c.
+</pre>
+<strong><code>units          : (%, PI, STR)                             -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ units(v, n, s) displays the units of the graph in field n of
+ the given two-dimensional viewport, v, which is of domain
+ \spadtype{TwoDimensionalViewport}, if s is "on", or does
+ not display the units if s is "off".
+</pre>
+<strong><code>units          : (%, PI, PAL)                             -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ units(v, n, c) displays the units of the graph in field n of
+ the given two-dimensional viewport, v, which is of domain
+ \spadtype{TwoDimensionalViewport}, with the units color set to
+ the given palette color c.
+</pre>
+<strong><code>points         : (%, PI, STR)                             -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ points(v, n, s) displays the points of the graph in field n of
+ the given two-dimensional viewport, v, which is of domain
+ \spadtype{TwoDimensionalViewport}, if s is "on", or does
+ not display the points if s is "off".
+</pre>
+<strong><code>region         : (%, PI, STR)                             -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ region(v, n, s) displays the bounding box of the graph in
+ field n of the given two-dimensional viewport, v, which is
+ of domain \spadtype{TwoDimensionalViewport}, if s is "on",
+ or does not display the bounding box if s is "off".
+</pre>
+<strong><code>connect        : (%, PI, STR)                             -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ connect(v, n, s) displays the lines connecting the graph
+ points in field n of the given two-dimensional viewport, v,
+ which is of domain \spadtype{TwoDimensionalViewport}, if s
+ is "on", or does not display the lines if s is "off".
+</pre>
+<strong><code>controlPanel   : (%, STR)                                -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ controlPanel(v, s) displays the control panel of the given
+ two-dimensional viewport, v, which is of domain
+ \spadtype{TwoDimensionalViewport}, if s is "on", or hides
+ the control panel if s is "off".
+</pre>
+<strong><code>close          : %                                      -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ close(v) closes the viewport window of the given
+ two-dimensional viewport, v, which is of domain
+ \spadtype{TwoDimensionalViewport}, and terminates the
+ corresponding process ID.
+</pre>
+<strong><code>dimensions     : (%, NNI, NNI, PI, PI)                      -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ dimensions(v, x, y, width, height) sets the position of the
+ upper left-hand corner of the two-dimensional viewport, v,
+ which is of domain \spadtype{TwoDimensionalViewport}, to
+ the window coordinate x, y, and sets the dimensions of the
+ window to that of \spad{width}, \spad{height}.  The new
+ dimensions are not displayed until the function
+ \spadfun{makeViewport2D} is executed again for v.
+</pre>
+<strong><code>scale          : (%, PI, F, F)                             -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ scale(v, n, sx, sy) displays the graph in field n of the given
+ two-dimensional viewport, v, which is of domain
+ \spadtype{TwoDimensionalViewport}, scaled by the factor \spad{sx}
+ in the x-coordinate direction and by the factor \spad{sy} in
+ the y-coordinate direction.
+</pre>
+<strong><code>translate      : (%, PI, F, F)                             -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ translate(v, n, dx, dy) displays the graph in field n of the given
+ two-dimensional viewport, v, which is of domain
+ \spadtype{TwoDimensionalViewport}, translated by \spad{dx} in
+ the x-coordinate direction from the center of the viewport, and
+ by \spad{dy} in the y-coordinate direction from the center.
+ Setting \spad{dx} and \spad{dy} to \spad{0} places the center
+ of the graph at the center of the viewport.
+</pre>
+<strong><code>show           : (%, PI, STR)                             -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ show(v, n, s) displays the graph in field n of the given
+ two-dimensional viewport, v, which is of domain
+ \spadtype{TwoDimensionalViewport}, if s is "on", or does not
+ display the graph if s is "off".
+</pre>
+<strong><code>move           : (%, NNI, NNI)                            -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ move(v, x, y) displays the two-dimensional viewport, v, which
+ is of domain \spadtype{TwoDimensionalViewport}, with the upper
+ left-hand corner of the viewport window at the screen
+ coordinate position x, y.
+</pre>
+<strong><code>update         : (%, G, PI)                               -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ update(v, gr, n) drops the graph \spad{gr} in slot \spad{n}
+ of viewport \spad{v}. The graph gr must have been
+ transmitted already and acquired an integer key.
+</pre>
+<strong><code>resize         : (%, PI, PI)                              -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ resize(v, w, h) displays the two-dimensional viewport, v, which
+ is of domain \spadtype{TwoDimensionalViewport}, with a width
+ of w and a height of h, keeping the upper left-hand corner
+ position unchanged.
+</pre>
+<strong><code>write          : (%, STR)                                -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ write(v, s) takes the given two-dimensional viewport, v, which
+ is of domain \spadtype{TwoDimensionalViewport}, and creates
+ a directory indicated by s, which contains the graph data
+ files for v.
+</pre>
+<strong><code>write          : (%, STR, STR)                            -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ write(v, s, f) takes the given two-dimensional viewport, v, which
+ is of domain \spadtype{TwoDimensionalViewport}, and creates
+ a directory indicated by s, which contains the graph data
+ files for v and an optional file type f.
+</pre>
+<strong><code>write          : (%, STR, L STR)                          -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ write(v, s, lf) takes the given two-dimensional viewport, v, which
+ is of domain \spadtype{TwoDimensionalViewport}, and creates
+ a directory indicated by s, which contains the graph data
+ files for v and the optional file types indicated by the list lf.
+</pre>
+<strong><code>reset          :  %                                     -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ reset(v) sets the current state of the graph characteristics
+ of the given two-dimensional viewport, v, which is of domain
+ \spadtype{TwoDimensionalViewport}, back to their initial settings.
+</pre>
+<strong><code>key            :  %                                     -> I</code></strong>
+<pre style='color: darkgreen;'>
+ key(v) returns the process ID number of the given two-dimensional
+ viewport, v, which is of domain \spadtype{TwoDimensionalViewport}.
+</pre>
+<strong><code>coerce         :  %                                     -> E</code></strong>
+<pre style='color: darkgreen;'>
+ coerce(v) returns the given two-dimensional viewport, v, which
+ is of domain \spadtype{TwoDimensionalViewport} as output of
+ the domain \spadtype{OutputForm}.
+</pre>
+<strong><code>setFrontend2D : FET -> FET</code></strong>
+<pre style='color: darkgreen;'>
+ Sets the frontend according to the values in the FET table.
+</pre>
+<strong><code>getFrontend2D : () -> FET</code></strong>
+<pre style='color: darkgreen;'>
+ Gets the FET table of the current frontend.
+</pre>
+<strong><code>makeFrontend2D  : (%, FET) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ Makes the frontend according to the values in the FET table.
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</body>
+</html>

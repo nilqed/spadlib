@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SPADLIB (spad2doc)</title>
+</head>
+<body>
+<h2 style='color: blue;'>PointChain</h2>
+</pre>
+<pre style='color: brown;'>
+ Author: Kurt Pagani
+ Date Created: Fri Sep 27 13:05:21 CEST 2024
+ License: BSD
+ References:
+ Description: barycenter
+
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<strong><code>point : Symbol -> %</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{point S} constructs a single point, which is the basis to
+ generate chains of any degree. \spad{S} may be any symbol,
+ however, uppercase letters are most adequate of course.
+</pre>
+<strong><code>_* : (%,%) -> %</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{c1*c2} multiplication of chains.
+</pre>
+<strong><code>_* : (R,%) -> %</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{r * c} multiplication of a chain by a scalar from R.
+</pre>
+<strong><code>_+ : (%,%) -> %</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{c1 + c2} addition of chains.
+</pre>
+<strong><code>_- : (%,%) -> %</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{c1 -c2} subtraction of chains.
+</pre>
+<strong><code>_- : % -> %</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{-c} negative of a chain.
+</pre>
+<strong><code>_= : (%, %) -> Boolean</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{c1 = c2} equality f chains.
+</pre>
+<strong><code>1 : () -> %</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{1} the pseudo chain 1 (degree = -1).
+</pre>
+<strong><code>0 : () -> %</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{0} the zero chain.
+</pre>
+<strong><code>constant? : % -> Boolean</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{constant? c} true if the chain contains no point
+ (i.e. not really a chain).
+</pre>
+<strong><code>degree : % -> Integer</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{degree c} returns the highest degree of a chain. Note that the
+ degree of a chain is one less than a corresponding
+ \spad{XDistributedPolynomial}.
+</pre>
+<strong><code>leadingMonomial : % -> %</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{leadingMonomial c} returns the leading monomial (including
+ the coefficient).
+</pre>
+<strong><code>reductum : % -> %</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{reductum c} returns the rest of the chain, that is without
+ leading monomial.
+</pre>
+<strong><code>leadingCoefficient: % -> R</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{leadingCoefficient c} returns the coefficient of the
+ leading monomial.
+</pre>
+<strong><code>leadingSupport: % -> List(%)</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{leadingSupport c} gives the ordered list of points in the
+ leading monomial, so that \spad{reduce(_*,%)} will reproduce
+ the monomial (w/o coefficient).
+</pre>
+<strong><code>bdry : % -> %</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{bdry c} computes the boundary of the chain (recursively).
+</pre>
+<strong><code>homogeneous? : % -> Boolean</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{homgogeneous? x} is true if all terms have the same
+ degree.
+</pre>
+<strong><code>numberOfMonomials : % -> NonNegativeInteger</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{numberOfMonomials x} is what it says.
+</pre>
+<strong><code>zero? : % -> Boolean</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{zero? c} is true if c the zero chain.
+</pre>
+<strong><code>one? : % -> Boolean</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{one? c} is true if c is the \spad{1}-element of the scalar
+ field.
+</pre>
+<strong><code>latex : % -> String</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{latex c} returns a LaTeX representation of the chain.
+</pre>
+<strong><code>normalize : % -> %</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{normalize c} sorts all points in all monomials lex and
+ reconstructs the chain.
+</pre>
+<strong><code>spaceDim : (%,PositiveInteger) -> %</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{spaceDim(c,n)} removes all terms having degree greater
+ than \spad{n}, which serves as space dimension of an affine
+ space.
+</pre>
+<strong><code>barycenter : % -> Union(%,"failed")</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{barycenter x} returns the barycenter of a \spad{0-chain},
+ in case there is one.
+</pre>
+<strong><code>retract: % -> XDP</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{retract c} retracts the chain to a \spad{XDistributedPolynomial},
+ so that more tools are availabe for manipulations.
+</pre>
+<strong><code>coerce: XDP -> %</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{coerce p} coerces a \spad{XDistributedPolynomial p} to a chain,
+ whereby all terms not conforming to a chain will be removed.
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</body>
+</html>

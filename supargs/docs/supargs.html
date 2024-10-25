@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SPADLIB (spad2doc)</title>
+</head>
+<body>
+<h2 style='color: blue;'>SuppressArguments</h2>
+</pre>
+<pre style='color: brown;'>
+ Author: Kurt Pagani <nilqed@gmail.com>
+ Date Created: Tue April 20 04:30:24 CET 2021
+ License: BSD
+ Keywords:
+ Examples:
+ References:
+ Documentation:
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<strong><code>rewrite : (R,BOP,List SYM,NNI,SYM) -> R</code></strong>
+<pre style='color: darkgreen;'>
+ rewrite(x,f,a,n,s) substitutes in an expression
+ "x" all occurences of "f a" and its derivatives up to
+ order $n$, where "f" is a basic operator, "a" the list
+ of arguments, by the symbol "s" and "s[...]" for the
+ derivatives respectively.
+</pre>
+</pre>
+<strong><code>multiIndices : (NNI,NNI) -> List List Integer</code></strong>
+<pre style='color: darkgreen;'>
+ multiIndices(n,m) returns a list of multi indices
+ as list of integers I=[i_1,...,i_m], such that
+ i_k >= 0, and |I|=i_1 + ... + i_m = n.
+</pre>
+<strong><code>derivativesOfOrder : (NNI,BOP, List SYM) -> List R</code></strong>
+<pre style='color: darkgreen;'>
+ derivativesOfOrder(n,f,a) returns the list of partial derivatives
+ of order "n" of "f a" (i.e. f(a_1,...,a_m)) with respect to the
+ variables "a_i".
+</pre>
+<strong><code>derivativesOfOrderSubst : (NNI,BOP, List SYM, SYM) -> List Equation R</code></strong>
+<pre style='color: darkgreen;'>
+ Substitution list for derivatives of order "n".
+</pre>
+<strong><code>symDerivative : (Symbol, List NNI) -> R</code></strong>
+<pre style='color: darkgreen;'>
+ Build subscripted symbol, then coerce to expression.
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SPADLIB (spad2doc)</title>
+</head>
+<body>
+<h2 style='color: blue;'>StringSupport</h2>
+</pre>
+<pre style='color: brown;'>
+ Author: Kurt Pagani
+ Date Created: Sat Jan 25 20:11:03 CET 2020
+ License: BSD
+ References:
+   http://clhs.lisp.se/Body/22_c.htm
+   https://en.wikipedia.org/wiki/String_operations
+ Description:
+
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<strong><code>format : (STR,STR) -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ format(fmt,str) returns a formatted string according to the
+ format instructions in 'fmt'.
+</pre>
+<strong><code>format : (STR,LSTR) -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ format(fmt,[s1,s2,..]) returns a formatted string according to the
+ format instructions in 'fmt'.
+</pre>
+<strong><code>fmtStrIter : STR -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ fmtStrIter(sep) provides a format string that can be used
+ in 'format' to iterate over a list of strings.
+</pre>
+<strong><code>join : (STR,LSTR) -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ join(sep,[s1,s2,s3,...]) joins the strings s1,s2,... by the
+ separator string 'sep'.
+</pre>
+<strong><code>atomize : STR -> LSTR</code></strong>
+<pre style='color: darkgreen;'>
+ atomize(str) segments the string 'str' into a list of character
+ string (not the same as Character!). Applying 'concat' to the
+ resulting list will restore the string.
+</pre>
+<strong><code>ascii : STR -> List Integer</code></strong>
+<pre style='color: darkgreen;'>
+ ascii(str) returns the ASCII code (ord) of each character as
+ a list of positive integers.
+</pre>
+<strong><code>radixEnglish : Integer -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ radix(n) gives a sring represenation of an integer as an English
+ numeral.
+</pre>
+<strong><code>radixRoman : Integer -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ radix(n) gives a sring represenation of an integer as a Roman
+ numeral.
+</pre>
+<strong><code>radixOldRoman : Integer -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ radix(n) gives a sring represenation of an integer as an old Roman
+ numeral.
+</pre>
+<strong><code>format : (STR,INT) -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ format(fmt,n) formats an integer number according to fmt:
+ Radix ~R, Decimal ~D, Binary ~B, Octal ~O, ~Hex ~X. Modifiers:
+ "@":sign, ":":commas, prefix: mincols, padchar ...: e.g. ~12@:D
+ yields "+44,452,666,888,888".
+</pre>
+<strong><code>newline : STR</code></strong>
+<pre style='color: darkgreen;'>
+ newline() -> "~%"
+</pre>
+<strong><code>freshline : STR</code></strong>
+<pre style='color: darkgreen;'>
+ freshline() -> "~&"
+</pre>
+<strong><code>newpage : STR</code></strong>
+<pre style='color: darkgreen;'>
+ newpage() -> "~|"
+</pre>
+<strong><code>tilde : STR</code></strong>
+<pre style='color: darkgreen;'>
+ tilde() -> "~~"
+</pre>
+<strong><code>natoAlphabet: CHAR -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ https://en.wikipedia.org/wiki/NATO_phonetic_alphabet
+ Try natoAlphabet (char "a")
+</pre>
+<strong><code>morseAlphabet: CHAR -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ https://en.wikipedia.org/wiki/Morse_code
+ Try morseAlphabet (char "k")
+</pre>
+<strong><code>spellNATO : STR -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ spellNATO(str) spells the string 'str' as ICAO sequence.
+</pre>
+<strong><code>spellMorse : STR -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ spellMorse(str) spells the string 'str' as Morse sequence.
+</pre>
+<strong><code>substOnce : (STR,STR,STR) -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ substOnce(a,b,c) substitute once a for b in c.
+</pre>
+<strong><code>subst : (STR,STR,STR) -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ subst(a,b,c) substitute all a for b in c.
+</pre>
+<strong><code>rest : STR -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ rest(s) is all but the first character of the string.
+</pre>
+<strong><code>last : STR -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ last(s) is the last character of the string s.
+</pre>
+<strong><code>proj : (List CHAR,STR) -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ proj(A,s) is the string that results by removing all characters that
+ are not in the alphabet A.
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SPADLIB (spad2doc)</title>
+</head>
+<body>
+<h2 style='color: blue;'>PullBack</h2>
+</pre>
+<pre style='color: brown;'>
+ Author: Kurt Pagani <nilqed@gmail.com>
+ Date Created: Wed Jun 10 19:16:01 CEST 2020
+ License: BSD
+ References:
+ Description:
+  Given a mapping f:S->T, where S,T are presumed vector spaces,
+  represented by the list of coordinate symbols S:=[u_1,..,u_m] and
+  T:=[x_1,..,x_n], this package "PullBack(S,T)" provides functions
+  that pull elements from DeRhamComplex(INT,T) back to elements
+  of DeRhamComplex(INT,S) by the usual rules of exterior calculus.
+  Instead of a mapping f, one can also provide a list of equations of
+  the form [x_1=x_1(u),..,x_n=x_n(u)].
+
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<strong><code>pullBack : (VX->VX, DRCT) -> DRCS</code></strong>
+<pre style='color: darkgreen;'>
+ pullBack(f,w) returns the pulled back form f*(w).
+</pre>
+<strong><code>pullBack : (List Equation X, DRCT) -> DRCS</code></strong>
+<pre style='color: darkgreen;'>
+ pullBack([x=f(u)],w) returns the pulled back form f*(w).
+</pre>
+<strong><code>pullBack : (VX->VX, X) -> X</code></strong>
+<pre style='color: darkgreen;'>
+ pullBack(f,g(x)) returns the expression g(f(u)).
+</pre>
+<strong><code>basisForms : Record(bs:List DRCS, bt:List DRCT)</code></strong>
+<pre style='color: darkgreen;'>
+ basisForms() returns a record containing the list of basis
+ forms of DeRhamComplex(INT,S) and DeRhamComplex(INT,T).
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</body>
+</html>

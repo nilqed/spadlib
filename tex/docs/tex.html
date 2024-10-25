@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SPADLIB (spad2doc)</title>
+</head>
+<body>
+<h2 style='color: blue;'>TexFormat</h2>
+</pre>
+<pre style='color: brown;'>
+ Author: Robert S. Sutor
+ Date Created: 1987 through 1992
+ Basic Operations: coerce, convert, display, epilogue,
+   tex, new, prologue, setEpilogue!, setTex!, setPrologue!
+ Related Constructors: TexFormat1
+ Also See: ScriptFormulaFormat
+ AMS Classifications:
+ Keywords: TeX, LaTeX, output, format
+ References: \TeX{} is a trademark of the American Mathematical Society.
+ Description:
+   \spadtype{TexFormat} provides a coercion from \spadtype{OutputForm} to
+   \TeX{} format.  The particular dialect of \TeX{} used is \LaTeX{}.
+   The basic object consists of three parts: a prologue, a
+   tex part and an epilogue. The functions \spadfun{prologue},
+   \spadfun{tex} and \spadfun{epilogue} extract these parts,
+   respectively.  The main guts of the expression go into the tex part.
+   The other parts can be set (\spadfun{setPrologue!},
+   \spadfun{setEpilogue!}) so that contain the appropriate tags for
+   printing. For example, the prologue and epilogue might simply
+   contain ``\verb+\[+'' and ``\verb+\]+'', respectively, so that
+   the TeX section will be printed in LaTeX display math mode.
+ Revision:
+   25-FEB-2020 ... op PRIME (line 356), Greek characters x% (565 ff.)
+
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<strong><code>coerce :   E -> %</code></strong>
+<pre style='color: darkgreen;'>
+ coerce(o) changes o in the standard output format to TeX
+ format.
+</pre>
+<strong><code>convert :  (E, I) -> %</code></strong>
+<pre style='color: darkgreen;'>
+ convert(o, step) changes o in standard output format to
+ TeX format and also adds the given step number. This is useful
+ if you want to create equations with given numbers or have the
+ equation numbers correspond to the interpreter step numbers.
+</pre>
+<strong><code>convert :  (E, I, E) -> %</code></strong>
+<pre style='color: darkgreen;'>
+ convert(o, step, type) changes o in standard output format to
+ TeX format and also adds the given step number and type. This
+ is useful if you want to create equations with given numbers
+ or have the equation numbers correspond to the interpreter step
+ numbers.
+</pre>
+<strong><code>display :  (%, I) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ display(t, width) outputs the TeX formatted code t so that each
+ line has length less than or equal to \spadvar{width}.
+</pre>
+<strong><code>display :  % -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ display(t) outputs the TeX formatted code t so that each
+ line has length less than or equal to the value set by
+ the system command \spadsyscom{set output length}.
+</pre>
+<strong><code>epilogue : % -> L S</code></strong>
+<pre style='color: darkgreen;'>
+ epilogue(t) extracts the epilogue section of a TeX form t.
+</pre>
+<strong><code>tex :      % -> L S</code></strong>
+<pre style='color: darkgreen;'>
+ tex(t) extracts the TeX section of a TeX form t.
+</pre>
+<strong><code>new :      () -> %</code></strong>
+<pre style='color: darkgreen;'>
+ new() create a new, empty object. Use \spadfun{setPrologue!},
+ \spadfun{setTex!} and \spadfun{setEpilogue!} to set the various
+ components of this object.
+</pre>
+<strong><code>prologue : % -> L S</code></strong>
+<pre style='color: darkgreen;'>
+ prologue(t) extracts the prologue section of a TeX form t.
+</pre>
+<strong><code>setEpilogue! : (%, L S) -> L S</code></strong>
+<pre style='color: darkgreen;'>
+ setEpilogue!(t, strings) sets the epilogue section of a TeX form t to strings.
+</pre>
+<strong><code>setTex! :  (%, L S) -> L S</code></strong>
+<pre style='color: darkgreen;'>
+ setTex!(t, strings) sets the TeX section of a TeX form t to strings.
+</pre>
+<strong><code>setPrologue! : (%, L S) -> L S</code></strong>
+<pre style='color: darkgreen;'>
+ setPrologue!(t, strings) sets the prologue section of a TeX form t to strings.
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<h2 style='color: blue;'>TexFormat1</h2>
+</pre>
+<pre style='color: brown;'>
+ Author: Robert S. Sutor
+ Date Created: 1987 through 1990
+ Basic Operations: coerce
+ Related Constructors: TexFormat
+ Also See: ScriptFormulaFormat, ScriptFormulaFormat1
+ AMS Classifications:
+ Keywords: TeX, output, format
+ References: \TeX{} is a trademark of the American Mathematical
+   Society.
+ Description:
+   \spadtype{TexFormat1} provides a utility coercion for changing
+   to TeX format anything that has a coercion to the standard output
+   format.
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<strong><code>coerce : S -> TexFormat()</code></strong>
+<pre style='color: darkgreen;'>
+ coerce(s) provides a direct coercion from a domain S to
+ TeX format. This allows the user to skip the step of first
+ manually coercing the object to standard output format before
+ it is coerced to TeX format.
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</body>
+</html>

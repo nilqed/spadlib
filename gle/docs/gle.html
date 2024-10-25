@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SPADLIB (spad2doc)</title>
+</head>
+<body>
+<h2 style='color: blue;'>GraphicsLayoutEngine</h2>
+</pre>
+<pre style='color: brown;'>
+ Author: Kurt Pagani
+ Date Created: Mon Aug 06 18:17:40 CEST 2018
+ Date Revices: Do 24 Okt 2024 19:54:57 CEST
+ License: BSD
+ References:
+   https://glx.sourceforge.io/index.html
+   https://glx.sourceforge.io/main/docs.html
+   https://glx.sourceforge.io/downloads/downloads.html
+   https://en.wikipedia.org/wiki/Graphics_Layout_Engine
+   January 2022: GLE is now on GitHub and utilizing cmake to build
+     from source: https://github.com/vlabella/GLE
+ Description:
+   GLE - Graphics Layout Engine
+   Debian: sudo apt install gle-graphics  (ghostscript,...)
+ Builds on PLOT, PLOT3D domains besides other constructs.
+ PlotSupport eliminated.
+ A) By now there are two graphic objects GRAPH and SURFACE which
+    are represented as records.
+ B) Instances of these objects are created by graph() and surface()
+    which will be used by the plot and push functions.
+ C) Those instances contain the generated GLE*.dat or GLE*.z file
+    respectively. At this point the graphics file GLE*.gle is not
+    created yet, so that the instances may be still manipulated,
+    however, the filename (only) is already created and stored.
+ D) The "create" function will generate the final GLE*.gle file, so
+    that the object can be displayed (QGLE) or transformed to one of
+    the available formats (gle -help device):
+    Option: -device
+      Abbreviation(s): -d
+      Selects output device(s)
+      Argument 'device-names': set output device(s)
+    Possible values: eps, ps, pdf, svg, jpg, png
+ E) The instances may be further processed and redisplayed etc.
+ The (*) in GLE*.[gle,dat,z] is the GET-UNIVERSAL-TIME from LISP.
+ Example:
+   l1:=[[x,sin x,cos x] for x in [n*0.1::DoubleFloat for n in 1..10]]
+        Type: List(List(DoubleFloat))
+   g1:=plot l1  --> returns a GRAPH object
+        getPath g1.glefile -> NIL
+   display g1 --> shows the graph g1 in QGLE
+        getPath g1.glefile -> /home/.../GLE3938789612.gle
+   g1.title := "sin/cos"
+        set a title (default is "Title")
+   runGLE(g1.glefile,"eps","") --> produces a "GLE*.eps".
+ One may combine of course, e.g. display plot l1 ...
+
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<strong><code>convert : (PDF, String) -> String</code></strong>
+<pre style='color: darkgreen;'>
+ convert(P,sep) converts a point P to a string of 'sep' separated
+ double floats. Example: P:=convert([1.0,2.0,3.0,4.5])$Point(DF),
+ then convert(P," ") => "1.0 2.0 3.0 4.5".
+</pre>
+<strong><code>convertBranch : (List PDF, String) -> LSTR</code></strong>
+<pre style='color: darkgreen;'>
+ convertBranch(p,sep) converts a list of points to a list of
+ strings. Each string corresponds to a point. The 'sep' string
+ separates each coordinate (e.g. blank, comma, semicolon etc.)
+</pre>
+<strong><code>convert : (Plot, String) -> LLSTR</code></strong>
+<pre style='color: darkgreen;'>
+ convert(p,sep) converts a PLOT to a list of lists of strings. For
+ each branch a list of strings (of 'sep' double floats) will be
+ generated.
+</pre>
+<strong><code>combineBranches : Plot -> List PDF</code></strong>
+<pre style='color: darkgreen;'>
+ combineBranches(p) combines all branches in a Plot such that
+ the first column are the common x-values and all other columns
+ represent the y-values. That is all branches must have the same
+ xRange and therefore the same number of points.
+</pre>
+<strong><code>createDataFile : (FileName, LSTR) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ createDataFile(fn,data) creates and writes the list of strings (data)
+ to the file named 'fn'.
+</pre>
+<strong><code>numOfBranches : Plot -> Integer</code></strong>
+<pre style='color: darkgreen;'>
+ numOfBranches(p) returns the number of branches in the Plot p.
+ (-) PlotSupport ------------------------------------------
+</pre>
+<strong><code>format : (STR,STR) -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ format("CL format string","string to format") returns a
+ formatted string (like FORMAT('NIL,fmt,r)$Lisp)
+</pre>
+<strong><code>format : (STR,List STR) -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ format("CL format string",["strings to format"])
+</pre>
+<strong><code>graph  : () -> GRAPH</code></strong>
+<pre style='color: darkgreen;'>
+ graph() will create a new instance of a GRAPH object. This
+ object may be filled with gle commands and parameterized.
+ Note that nothing will be performed before 'create'.
+</pre>
+<strong><code>create : GRAPH -> FileName</code></strong>
+<pre style='color: darkgreen;'>
+ create(g) will actually create the graph object, i.e writing
+ the source file *.gle.
+</pre>
+<strong><code>display : FileName -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ display(file.gle) opens the interactive QGLE window and displays
+ the graph.
+</pre>
+<strong><code>display : GRAPH -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ display(g) opens the interactive QGLE windows and displays the
+ graph g. QGLE allows interactive changes to data as well as the
+ GLE source file. For this, you have to set a default editor.
+</pre>
+<strong><code>plot : Plot -> GRAPH</code></strong>
+<pre style='color: darkgreen;'>
+ plot(p) creates graph from a Plot object.
+</pre>
+<strong><code>plot : (DF -> DF, Segment DF) -> GRAPH</code></strong>
+<pre style='color: darkgreen;'>
+ plot(x+->f(x),x1..x2)$GLE creates a graph for the function
+ f(x).
+</pre>
+<strong><code>plot : LLDF -> GRAPH</code></strong>
+<pre style='color: darkgreen;'>
+ plot([[x1,y11,y12,...],[x2,y21,y22,...]]) creates data
+ representing graphs with (n-1) branches (datasets), where
+ n is the common length of the sublists.
+</pre>
+<strong><code>push : (GRAPH,STR) -> GRAPH</code></strong>
+<pre style='color: darkgreen;'>
+ push(g,cmd) adds a GLE command (string) to the end of g.cmds.
+</pre>
+<strong><code>push : (SURFACE,STR) -> SURFACE</code></strong>
+<pre style='color: darkgreen;'>
+ push(s,cmd) adds a GLE command (string) to the end of s.cmds.
+</pre>
+<strong><code>surface : () -> SURFACE</code></strong>
+<pre style='color: darkgreen;'>
+ surface() will create a new instance of a SURFACE object. This
+ object may be filled with gle commands and parameterized.
+ Note that nothing will be performed before 'create'.
+</pre>
+<strong><code>create : SURFACE -> FileName</code></strong>
+<pre style='color: darkgreen;'>
+ create(s) will actually create the surface object, i.e writing
+ the source file *.gle.
+</pre>
+<strong><code>display : SURFACE -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ display(s) opens the interactive QGLE windows and displays the
+ surface s. QGLE allows interactive changes to data as well as the
+ GLE source file. For this, you have to set a default editor.
+</pre>
+<strong><code>letz : (FileName, XDF, SBDF, SBDF, DF, DF) -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ GLE letz
+</pre>
+<strong><code>splot : ((DF,DF)->DF,SDF,SDF,DF,DF) -> ZFILE</code></strong>
+<pre style='color: darkgreen;'>
+ splot creates a ZFILE object
+</pre>
+<strong><code>writeZfile : (FileName,ZFILE) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ writeZfile writes the ZFILE object to a file *.z
+</pre>
+<strong><code>plot :((DF,DF)->DF,SDF,SDF,DF,DF) -> SURFACE</code></strong>
+<pre style='color: darkgreen;'>
+ plot((x,y)+->f(x,y),xr,yr,stx,sty)$GLE creates a surface for the
+ function z=f(x,y), where xr,yr are x-range, y-range and stx,sty
+ denote the stepzize for each direction.
+</pre>
+<strong><code>runGLE : (String,String,String) -> String</code></strong>
+<pre style='color: darkgreen;'>
+ runGLE(glefile,device,options) runs GLE as command, where
+ 'device' in {eps, ps, pdf, svg, jpg, png} as strings and
+ 'options' (maybe "") is a string containing more command
+ line parameters (use gle --help). So, for instance, the
+ command runGLE("filex.gle", "eps", "") will produce a "eps"
+ image "filex.eps" by running gle -device eps [options] filex.gle.
+</pre>
+<strong><code>conv  : NUMS -> DoubleFloat</code></strong>
+<pre style='color: darkgreen;'>
+ convert(x:Union(DoubleFloat,Float,Integer,Fraction Integer))
+ to a DoubleFloat.
+</pre>
+<strong><code>range : (NUMS,NUMS,NUMS) -> List DF</code></strong>
+<pre style='color: darkgreen;'>
+ range(from,to,step) creates a list of DoubleFloat numbers ranging
+ from "from" to "to" with stepsize "step" (calculated).
+ range(1,2,0.05) --> [1.0,1.05,..,1.95,2.0] , 21 numbers.
+ Note: upper bound "to" not necessarily included!
+</pre>
+<strong><code>range : (Segment(NUMS),NUMS) -> List DF</code></strong>
+<pre style='color: darkgreen;'>
+ range(from .. to,step) creates a list of DoubleFloat numbers ranging
+ from "from" to "to" with stepsize "step" (calculated).
+ range(1..2,0.05) --> [1.0,1.05,..,1.95,2.0] , 21 numbers.
+ Note: upper bound "to" not necessarily included!
+</pre>
+<strong><code>cseg : (NUMS,NUMS) -> Segment DF</code></strong>
+<pre style='color: darkgreen;'>
+ cseg(a,b) creates a segment of DoubleFloats when a and are in
+ Union(DoubleFloat,Float,Integer,Fraction Integer).
+ cseg(1,5/6) -> 1.0..0.8333333333333334
+</pre>
+<strong><code>numlst2str :List NUMS -> String</code></strong>
+<pre style='color: darkgreen;'>
+ numlst2str([n1,...]) converts a list of numbers to a comma
+ separated string. E.g. numlst2str [1,2,3.4,5/7] results in
+ "1.0, 2.0, 3.4, 0.7142857142857142".
+</pre>
+<strong><code>getPath : String -> String</code></strong>
+<pre style='color: darkgreen;'>
+ getPath(filename) returns the full path of the file if it
+ exists, otherwise "NIL" is returned.
+</pre>
+<strong><code>catGLE : GRAPH -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ Show the .gle file if created
+</pre>
+<strong><code>catGLE : SURFACE -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ Show the .gle file if created
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</body>
+</html>

@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SPADLIB (spad2doc)</title>
+</head>
+<body>
+<h2 style='color: blue;'>DifferentialForms</h2>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<strong><code>coordSymbols  : () -> List Symbol</code></strong>
+<pre style='color: darkgreen;'>
+ coordSymbols()$M returns a list of the coordinates as symbols. This
+ is useful, for example, if the differential operators "D" are to be
+ used.
+</pre>
+<strong><code>coordVector   : () -> Vector X</code></strong>
+<pre style='color: darkgreen;'>
+ coordVector()$M returns a list of the coordinates in the space
+ M=DFORM(Ring,Coordinates).
+</pre>
+<strong><code>zeroForms     : () -> Vector DRC</code></strong>
+<pre style='color: darkgreen;'>
+ zeroForms()$M returns a vector of the basis zero forms, i.e. the
+ coordinates.
+</pre>
+<strong><code>oneForms      : () -> Vector DRC</code></strong>
+<pre style='color: darkgreen;'>
+ oneForms()$M returns a vector of the basis one forms, i.e. the
+ differentials of the coordinate functions.
+</pre>
+<strong><code>zero          : () -> DRC</code></strong>
+<pre style='color: darkgreen;'>
+ zero()$M gives the zero form, i.e. 0@DeRhamComplex.
+</pre>
+<strong><code>one           : () -> DRC</code></strong>
+<pre style='color: darkgreen;'>
+ one()$M gives 1@DeRhamComplex, i.e. "1" as a differential form. This
+ is useful to intern elements of the function ring (just multiply them
+ by  one()$DFORM).
+</pre>
+<strong><code>d             : X -> DRC</code></strong>
+<pre style='color: darkgreen;'>
+ d computes the total differential of a function.
+</pre>
+<strong><code>d             : DRC -> DRC</code></strong>
+<pre style='color: darkgreen;'>
+ d(form)$M computes the exterior derivative and is just an
+ abbreviation for the fucntion "exteriorDifferential"
+ defined in the domain "DeRhamComplex".
+</pre>
+<strong><code>d             : VDRC -> VDRC</code></strong>
+<pre style='color: darkgreen;'>
+ d computes the exterior derivative of each component.
+</pre>
+<strong><code>d             : MDRC -> MDRC</code></strong>
+<pre style='color: darkgreen;'>
+ d computes the exterior derivative of each component.
+</pre>
+<strong><code>_*            : (VDRC,VDRC) -> DRC</code></strong>
+<pre style='color: darkgreen;'>
+ w1*w2 computes the sum of the exterior products
+ w1_i * w2_i, where w1,w2 are differential forms.
+</pre>
+<strong><code>indices       : INT -> List LINT</code></strong>
+<pre style='color: darkgreen;'>
+ indices(m)$M returns a list of elements which are oredered lists
+ of integers representing the the m-element subsets of {1..n}.
+</pre>
+<strong><code>basisForms    : INT -> List DRC</code></strong>
+<pre style='color: darkgreen;'>
+ basisForms()$M returns a list of all base forms in the
+ space M=DFORM(Ring,Coordinates).
+</pre>
+<strong><code>vectorField   : SYM -> Vector X</code></strong>
+<pre style='color: darkgreen;'>
+ vectorField(V) creates a vector (actually a list) whose
+ components are given by V[j](x[1],...,x[n]), j=1..n,
+ whereby "x" are the space coordinates (possibly not the
+ same symbol).
+</pre>
+<strong><code>scalarField   : SYM -> X</code></strong>
+<pre style='color: darkgreen;'>
+ scalarField(s) creates a scalar function s(x[1],...,[n]),
+ whereby "x" are the space coordinates (possibly not the
+ same symbol).
+</pre>
+<strong><code>covectorField : SYM -> Vector DRC</code></strong>
+<pre style='color: darkgreen;'>
+ covectorField(Y) creates a covector (actually a list)
+ whose components are given by w[j](x[1],...,x[n]),
+ j=1..n.
+</pre>
+<strong><code>zeroForm      : SYM -> DRC</code></strong>
+<pre style='color: darkgreen;'>
+ zeroForm(s) creates a zero form with symbol "s". This
+ is the same as scalarField(s)*one().
+</pre>
+<strong><code>volumeForm    : ()  -> DRC</code></strong>
+<pre style='color: darkgreen;'>
+ volumeForm(g) returns the volume form with respect to
+ the (pseudo-) metric "g".
+</pre>
+<strong><code>proj          : (NNI,DRC) -> DRC</code></strong>
+<pre style='color: darkgreen;'>
+ proj(p,form) yields the projection to homogeneous terms of degree p
+</pre>
+<strong><code>coefficients  : (NNI,DRC) -> List X</code></strong>
+<pre style='color: darkgreen;'>
+ coefficients(p,form) returns a list of the coefficients of
+ the p-forms in the argument <form>.
+</pre>
+<strong><code>degrees       : (DRC,List NNI) -> List NNI</code></strong>
+<pre style='color: darkgreen;'>
+ degrees(form,[]) returns a list of the degrees in <form>.
+</pre>
+<strong><code>dual          : DRC -> DRC</code></strong>
+<pre style='color: darkgreen;'>
+ dual(form) returns the conjugate form, i.e. the Hodge star
+ with respect to the standard metric.
+</pre>
+<strong><code>dot           : (DRC,DRC) -> X</code></strong>
+<pre style='color: darkgreen;'>
+ dot(form,form) computes the inner product of two differential forms
+ with ++ respect to the standard metric (i.e. g=unit matrix).
+</pre>
+<strong><code>dot           : (SMR,DRC,DRC) -> X</code></strong>
+<pre style='color: darkgreen;'>
+ dot(g,form,form) computes the inner product of two differential forms
+ with  respect to the metric g.
+</pre>
+<strong><code>atomizeBasisTerm : DRC -> List DRC</code></strong>
+<pre style='color: darkgreen;'>
+ atomizeBasisTerm  returns a list of the generators (atoms),
+ i.e. [dx,dy,du] if given a basis term dx*dy*du, for example.
+</pre>
+<strong><code>interiorProduct  : (VX,DRC) -> DRC</code></strong>
+<pre style='color: darkgreen;'>
+ interiorProduct(v,form) calculates the interior product i_X(a) of
+ the vector field X with the differential form a.
+</pre>
+<strong><code>lieDerivative    : (VX,DRC) -> DRC</code></strong>
+<pre style='color: darkgreen;'>
+ lieDerivative(v,form) calculates the Lie derivative L_X(a) of the
+ differential form a with respect to the vector field X.
+</pre>
+<strong><code>genericMetric           : SYM -> SMR</code></strong>
+<pre style='color: darkgreen;'>
+ genericMetric(symbol) return a square matrix whose elements
+ are basic operators of the form symbol[i,j](x,y,..). The
+ indices are covariant.
+</pre>
+<strong><code>genericInverseMetric    : SYM -> SMR</code></strong>
+<pre style='color: darkgreen;'>
+ genericInverseMetric(symbol) return a square matrix whose elements
+ are basic operators of the form symbol[i,j](x,y,...). The indices
+ are contravariant.
+</pre>
+<strong><code>hodgeStar      : (SMR,DRC) -> DRC</code></strong>
+<pre style='color: darkgreen;'>
+ hodgeStar(g,form) computes the Hodge dual of the differential form
+ with respect to a metric g.
+</pre>
+<strong><code>invHodgeStar   : (SMR,DRC) -> DRC</code></strong>
+<pre style='color: darkgreen;'>
+ invHodgeStar(g,form) denotes the inverse of hodgeStar.
+</pre>
+<strong><code>codifferential : (SMR,DRC) -> DRC</code></strong>
+<pre style='color: darkgreen;'>
+ codifferential(g,x), also known as "delta", computes the
+ co-differential of a form.
+</pre>
+<strong><code>hodgeLaplacian : (SMR,DRC) -> DRC</code></strong>
+<pre style='color: darkgreen;'>
+ hodgeLaplacian(g,x) also known as "Laplace-de Rham operator" is
+ defined on any manifold equipped with a (pseudo-) Riemannian
+ metric and is given by d codifferential(g,x)+ codifferential(g, d x).
+ Note that in the Euclidean case hodgeLaplacian = - Laplacian.
+</pre>
+<strong><code>volumeForm     :  SMR  -> DRC</code></strong>
+<pre style='color: darkgreen;'>
+ volumeForm(g) returns the volume form with respect to
+ the (pseudo-) metric "g".
+</pre>
+<strong><code>s    : SMR -> X</code></strong>
+<pre style='color: darkgreen;'>
+ s(g) determines the sign of determinant(g) and is related to the
+ signature of g (n=p+q,t=p-q,s=(-)^(n-t)/2 => s=(-)^q).
+</pre>
+<strong><code>dotg : (SMR,DRC,DRC)->X --temp</code></strong>
+<pre style='color: darkgreen;'>
+ dotg(squareMatrix,form,form) returns the dot product of two
+ forms with respect to the metric given by squareMatrix.
+</pre>
+<strong><code>convert : Matrix X -> MDRC</code></strong>
+<pre style='color: darkgreen;'>
+ convert a matrix whose elements belong to the base ring to a
+ matrix with the same elements as memebrs of DeRhamComplex.
+</pre>
+<strong><code>retract : MDRC -> Matrix X</code></strong>
+<pre style='color: darkgreen;'>
+ retract a matrix whose elements belong to DeRhamComplex to a
+ matrix with the same elements as memebrs of the base ring. This
+ is of course only possible if the degree of all the forms is
+ zero.
+</pre>
+<strong><code>frameVectors : SMR -> List Vector X</code></strong>
+<pre style='color: darkgreen;'>
+ frameVectors(A), A in GL(n), returns a list of the frame vectors
+ g=A*e, where e is the standard frame e_1,...,e_n.
+</pre>
+<strong><code>movingFrame : SMR -> Matrix X</code></strong>
+<pre style='color: darkgreen;'>
+ movingFrame(A), A in GL(n), returns a matrix whose rows are the
+ frame vectors (see frameVectors(A)).
+</pre>
+<strong><code>sigma : SMR -> MDRC</code></strong>
+<pre style='color: darkgreen;'>
+ sigma(A), A in GL(n), returns the basis one forms of the corresponding
+ moving frame (see movingFrame(A)).
+</pre>
+<strong><code>Omega : SMR -> MDRC</code></strong>
+<pre style='color: darkgreen;'>
+ Omega(A), A in GL(n), returns the basis connection forms of the
+ corresponding moving frame (see movingFrame(A)).
+</pre>
+<strong><code>Gramian : SMR -> MDRC</code></strong>
+<pre style='color: darkgreen;'>
+ Gramian(A), A in GL(n), returns the Gramian of the corresponding
+ moving frame (see movingFrame(A)).
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</body>
+</html>
