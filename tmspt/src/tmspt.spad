@@ -80,6 +80,11 @@ TexmacsSupport() : Exports == Implementation where
     inlineImage : String -> Void
       ++ inlineImage(img) inserts an image 'img' after the current input
       ++ field.
+    inlineImage : (String, String, String, String, String) -> Void
+      ++ inlineImage(img) inserts an image 'img' after the current input
+      ++ field, and sets width w, height h, and offset x,y position.
+      ++ Example: inlineImage ("abc","200pt","100pt","20pt","10pt")
+      ++ --> (make-inline-image (list "abc" "200pt" "100pt" "20pt" "10pt"))
     linkImage : String -> Void
       ++ linkImage(img) inserts a hyperlink to the image 'img' after the 
       ++ current input field.
@@ -251,7 +256,12 @@ TexmacsSupport() : Exports == Implementation where
       options:=" _"_" _"_" _"_" _"_" ))"
       q:="_""
       command(concat ["(make-link-image (list ", q, url, q, options])
-   
+
+    inlineImage(url:String, w:String,h:String,x:String,y:String):Void ==
+      insertTextFieldAbove()
+      fmt:="(make-inline-image (list _"~A_" _"~A_" _"~A_" _"~A_" _"~A_"))"
+      command string FORMAT('NIL,fmt,url,w,h,x,y)$Lisp
+
     tmActive?():Boolean ==
       import  MoreSystemCommands 
       systemCommand "lisp (defun tmactive () |$texmacsFormat|)"
