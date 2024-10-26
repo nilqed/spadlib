@@ -17,11 +17,12 @@
  Description:
    TeXmacs support package.
    Control of TeXmacs Interface/GUI from FriCAS.
-   E.g. toggling header/footer, including images,
-   adding/removing style files and so on.
+   E.g. toggling header/footer, including images, adding/removing style files
+   and so on.
    Rev. added: lispEval, ioHook (font-size, font-color in BOOT)
      e.g. FONT_-SIZE$Lisp -> "tiny"
      setFricasPrompt (similar to macro in fricas.input)
+
 </pre>
 </pre>
 </pre>
@@ -31,85 +32,300 @@
 </pre>
 </pre>
 </pre>
+<strong><code>message  : (String,String) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ message(typ,msg) send a message to TeXmacs where 'typ' is one
+ of {ps,latex,verbatim,html,command,scheme,prompt#,input#,output#}
+ and 'msg' a corresponding string.
 </pre>
 </pre>
+<strong><code>verbatim : String -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ verbatim(s) is shorthand for message("verbatim",s). The string s
+ will be output 'verbatim' in TeXmacs.
 </pre>
+<strong><code>command  : String -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ command(s) is shorthand for message("command",s). The command
+ s will be execute in TeXmacs.
 </pre>
+<strong><code>latex    : String -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ latex(s) is shorthand for message("latex",s). The string s
+ containing LaTeX code is rendered in TeXmacs.
 </pre>
+<strong><code>scheme   : String -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ scheme(s) is shorthand for message("scheme",s). The scheme code
+ s is interpreted in TeXmacs.
 </pre>
+<strong><code>html     : String -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ html(s) is shorthand for message("html",s). The HTML code in s
+ is rendered (as much as possible) in TeXmacs.
 </pre>
+<strong><code>ps       : String -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ ps(s) is shorthand for message("ps",s). The postscript code in s
+ is rendered in TeXmacs.
 </pre>
 </pre>
+<strong><code>output   : String -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ output(s) is shorthand for message("output#",s). The string s
+ is output in TeXmacs.
 </pre>
+<strong><code>prompt   : String -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ prompt(s) is shorthand for message("prompt#",s).
 </pre>
+<strong><code>input    : String -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ input(s) is shorthand for message("input#",s). The string s
+ will be written into an input field of TeXmacs (session). E.g
+ input "D(sin x,x)".
 </pre>
 </pre>
+<strong><code>addStyle    : String -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ addStyle(s) adds the style s into current session.
 </pre>
+<strong><code>removeStyle : String -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ removeStyle(s) removes the style s from the current session.
 </pre>
 </pre>
+<strong><code>toggleHeader : () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ toggleHeader() shows or hides the TeXmacs top header (menus, icons).
 </pre>
+<strong><code>toggleFooter : () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ toggleFooter() shows or hides the TeXmacs footer (status bar etc.).
 </pre>
 </pre>
+<strong><code>insertTextFieldAbove : () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ insertTextFieldAbove() inserts a text field just above the current
+ input field.
 </pre>
+<strong><code>insertTextFieldBelow : () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ insertTextFieldBelow() inserts a text field just below the current
+ input field.
 </pre>
 </pre>
+<strong><code>addDefaultStyle    : () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ addDefaultStyle() adds the default style.
 </pre>
+<strong><code>removeDefaultStyle : () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ removeDefaultStyle() removes the default style.
 </pre>
+<strong><code>inlineImage : String -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ inlineImage(img) inserts an image 'img' after the current input
+ field.
 </pre>
+<strong><code>linkImage : String -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ linkImage(img) inserts a hyperlink to the image 'img' after the
+ current input field.
 </pre>
 </pre>
+<strong><code>tmActive? : () -> Boolean</code></strong>
+<pre style='color: darkgreen;'>
+ tmActive?() is true when TeXmacs is active, that is when fricas
+ was started with the '.texmacs' option.
 </pre>
 </pre>
+<strong><code>toggleMathInput   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ toggleMathInput() toggles between math input and standard input.
 </pre>
+<strong><code>toggleMultilineInput   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ toggleMultilineInput() toggles between single line input and multiline
+ input.
 </pre>
+<strong><code>toggleMathOutput   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ toggleMathOutput() toggles between standard (ASCII) output and
+ math output (rendered).
 </pre>
+<strong><code>toggleTreeOutput   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ toggleTreeOutput() toggles tree output.
 </pre>
+<strong><code>toggleSchemeTreeOutput   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ toggleSchemeTreeOutput() toggles scheme tree output.
 </pre>
+<strong><code>showTimings   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ showTimings() shows process time information. Note that this is
+ not the same as FriCAS timing.
 </pre>
+<strong><code>clearAllFields   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ clearAllFields() clears all fields.
 </pre>
+<strong><code>foldAllFields   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ foldAllFields() folds all fields.
 </pre>
+<strong><code>unfoldAllFields   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ unfoldAllFields() unfolds all fields.
 </pre>
+<strong><code>evaluateFieldsInOrder   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ evaluateFieldsInOrder() evaluates all fields in order.
 </pre>
+<strong><code>createSubsession   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ createSubsession() creates a subsession.
 </pre>
+<strong><code>splitSession   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ splitSession() splits the session.
 </pre>
+<strong><code>sessionEval   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ sessionEval() evaluates the current session.
 </pre>
+<strong><code>evaluateAll   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ evaluateAll() evaluates everything.
 </pre>
+<strong><code>evaluateAbove   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ evaluateAbove() evaluates the input field above.
 </pre>
+<strong><code>evaluateBelow   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ evaluateBelow() evaluates the input field below.
 </pre>
+<strong><code>previousField   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ previousField() focus to the previous field.
 </pre>
+<strong><code>nextField   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ nextField() go to the next field.
 </pre>
+<strong><code>firstField   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ firstField() go to the first field.
 </pre>
+<strong><code>lastField   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ lastField() go to the last field.
 </pre>
+<strong><code>insertFieldAbove   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ insertFieldAbove() inserts a new input field above.
 </pre>
+<strong><code>insertFieldBelow   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ insertFieldBelow() inserts a new input field below.
 </pre>
+<strong><code>removePreviousField   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ removePreviousField() removes the previous field.
 </pre>
+<strong><code>removeNextField   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ removeNextField() removes the next field.
 </pre>
+<strong><code>removeBanner   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ removeBanner() removes the session banner.
 </pre>
+<strong><code>removeLastField   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ removeLastField() removes the last field.
 </pre>
+<strong><code>closeSession   :  () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ closeSession() closes the session.
 </pre>
+<strong><code>toggleFullScreenMode : () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ toggleFullScreenMode() switches between full screnn mode and normal
+ mode.
 </pre>
+<strong><code>changeZoomFactor : Float -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ changeZoomFactor(f) changes the zoom factor by f (floating point).
 </pre>
+<strong><code>zoomIn : Float -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ zoomIn(f) zooms in by f.
 </pre>
+<strong><code>zoomOut: Float -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ zoomOut(f) zooms out by f.
 </pre>
+<strong><code>fitAllToScreen : () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ fitAllToScreen() fits everything to screen.
 </pre>
+<strong><code>fitToScreen : () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ fitToScreen() fits current view to screen.
 </pre>
+<strong><code>fitToScreenWidth : () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ fitToScreenWidth() fits to screen width.
 </pre>
+<strong><code>fitToScreenHeight : () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ fitToScreenHeight() fits to screen height.
 </pre>
 </pre>
+<strong><code>mathInput : String -> String</code></strong>
+<pre style='color: darkgreen;'>
+ mathInput(s) ???
 </pre>
 </pre>
+<strong><code>lispEval : String -> SExpression</code></strong>
+<pre style='color: darkgreen;'>
+ lispEval(s) evaluates the string (lisp code) in the underlying
+ lisp (with which FriCAS was built).
 </pre>
+<strong><code>setFricasPrompt : (String,String) -> SExpression</code></strong>
+<pre style='color: darkgreen;'>
+ setFricasPrompt(beg,end) redefines the FriCAS prompt. For example,
+ setFricasPrompt("[","] ") has the effect: "[1] " instead of of the
+ default prompt "(1)-> ".
 </pre>
+<strong><code>ioHook : () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ ioHook() redefines the |$ioHook| function with which FriCAS -texmacs
+ is started. It uses "latex" instead of "verbatim" to output "Types"
+ in smaller font and colored.
 </pre>
+<strong><code>check_iohook : () -> Boolean</code></strong>
+<pre style='color: darkgreen;'>
+ check_iohook() checks whether ioHook() has been applied.
 </pre>
+<strong><code>setTypeFontSize : String -> SExpression</code></strong>
+<pre style='color: darkgreen;'>
+ setTypeFontSize(fs) sets the font size of the "Type:" output,
+ where 'fs' is a LaTeX font size term, e.g. small, tiny.
 </pre>
+<strong><code>setTypeFontColor : String -> SExpression</code></strong>
+<pre style='color: darkgreen;'>
+ setTypeFontColor(fc) sets the font color of the "Type:" output,
+ where 'fc' is a LaTeX color, e.g. red,blue, etc.
 </pre>
 </pre>
-</pre>
-</pre>
-</pre>
-</pre>
-</pre>
+<strong><code>mainMenu : () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ mainMenu() inserts a "[FriCAS]" menu in the top header of
+ TeXmacs-
 </pre>
 </pre>
 </pre>
