@@ -192,7 +192,7 @@ GraphicsLayoutEngine : Exports == Implementation where
     catGLE : SURFACE -> Void
 	  ++ Show the .gle file if created
     tmQGLE : LLDF -> GRAPH
-      ++ tmQGLE(l) plots a list of list of double floats as a graph in
+      ++ QGLE(l) plots a list of list of double floats as a graph in
       ++ TeXmacs (when current frontend) and shows the result interactively
       ++ in the QGLE windows.
     tmGLE  : (LLDF, String, List String) -> String
@@ -480,19 +480,19 @@ GraphicsLayoutEngine : Exports == Implementation where
       sys "system cat " s.glefile
 
     tmQGLE(l:LLDF):GRAPH ==
-      sys "cd ~/.TeXmacs/system/tmp"
+      sys "cd /tmp"  --  ~/.TeXmacs/system/tmp" (issues in TM ???)
       g:=plot(l)
       display g
       g
    
     tmGLE(l:LLDF,title:String,options:List String):String ==
-      sys "cd ~/.TeXmacs/system/tmp"
+      sys "cd /tmp" -- ~/.TeXmacs/system/tmp"
       g:=plot(l)
       g.title := title
       if not empty? options then
         r:List GRAPH:=[push(g,s) for s in options]
       fn:=create g
-      img:=runGLE("~/.TeXmacs/system/tmp/" g.glefile, "eps", "")
+      img:=runGLE("/tmp/" g.glefile, "eps", "")
       
 
 -- l1:=[[x,sin x,cos x] for x in [n*0.1::DoubleFloat for n in 1..10]]
