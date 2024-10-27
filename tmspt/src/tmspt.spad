@@ -194,7 +194,17 @@ TexmacsSupport() : Exports == Implementation where
     mainMenu : () -> Void
       ++ mainMenu() inserts a "[FriCAS]" menu in the top header of
       ++ TeXmacs-
-    
+ 
+    tmMath : String -> Any
+      ++ tmMath(s) processes the string coming from the TeXmacs serializer
+      ++ "fricas-serialize" defined in the plugin /progs/init-fricas.scm 
+      ++ scheme file. Whether it is active can be controlled by the scheme
+      ++ variable fricas-tm-math? (#t or #f). For debugging purposes a "?"
+      ++ prefix show the TeXmacs math-input verbatim.
+    tmMathOn : () -> Void
+      ++ tmMathOn() sets fricas-tm-math? to #t, i.e. setting tmMath active.
+    tmMathOff : () -> Void
+      ++ tmMathOff() sets fricas-tm-math? to #f, i.e. setting tmMath inactive.
 	
   Implementation ==  add 
     
@@ -465,9 +475,18 @@ TexmacsSupport() : Exports == Implementation where
       --
       command concat s
       command c
-      
-      
-     
+
+    tmMathOn()  == command "(define fricas-tm-math? #t)"
+    tmMathOff() == command "(define fricas-tm-math? #f)"
+
+
+    tmMath(s) == 
+      if first s = char "?" then
+        --r:=interpretString("copy " s.(2..))$TemplateUtilities
+        r:=any(convert("Any")::SExpression,s pretend None)
+      else
+        r:=interpretString(s)$TemplateUtilities
+      return(r)
 
 
     
