@@ -1,8 +1,8 @@
-)co sqlite
+)co ../src/fsqlite
 
 --quickLoad "sqlite"
 
-db:String:="C:/Users/kfp/Desktop/work/SCI-DATA/PSE/pse.db"
+db:String:="$HOME/quicklisp/local-projects/spadlib/fsqlite/test/pse.db"
 
 cdb:=connect db
 q1:=query(cdb,"select Element from pse1")

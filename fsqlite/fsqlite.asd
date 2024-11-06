@@ -1,5 +1,5 @@
 (in-package :common-lisp-user)
-(asdf:defsystem #:sqlite
+(asdf:defsystem #:fsqlite
   :serial t
   :description "SQLite/CL-SQLITE"
   :version "1.0.0"
@@ -7,4 +7,4 @@
   :license "MIT"
   :depends-on ()
   :pathname "src/"
-  :components ((:file "sqlite")))
+  :components ((:file "fsqlite")))

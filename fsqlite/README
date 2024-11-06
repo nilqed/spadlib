@@ -1,189 +1,73 @@
-C:\Users\kfp\Desktop\work\spad\NEW-2022> Checking for foreign routines
-FRICAS=NIL
-spad-lib="/lib/libspad.so"
+
+Usage: quickLoad fsqlite
+
+NOTE
+Due to name conflicts the package has been renamed from "sqlite" to "fsqlite".
+The CL-SQLITE package (fetched with QL) has the name "sqlite".
+
+There is an example pse.db in the "test" folder that is used in the following
+example. Adjust the path to that folder if you want to run the code.
+
+=======
+EXAMPLE
+=======
+
                        FriCAS Computer Algebra System 
-                            Version: FriCAS 1.3.8
-                    Timestamp: Do,  4. Aug 2022 16:17:55
+           Version: FriCAS 2024-04-15 built with sbcl 2.2.9.debian
+                   Timestamp: Di 28 Mai 2024 21:49:04 CEST
 -----------------------------------------------------------------------------
    Issue )copyright to view copyright notices.
    Issue )summary for a summary of useful system commands.
    Issue )quit to leave FriCAS and return to shell.
 -----------------------------------------------------------------------------
  
-WARNING: redefining FRICAS-LISP:|remove_directory| in DEFUN
-Value = |remove_directory|
    Function declaration sixel : TexFormat -> Void has been added to 
       workspace.
-(DEFUN MKPROMPT #1=()
-  (PROG #1# (RETURN (STRCONC "[" (STRINGIMAGE |$IOindex|) "] "))))
-WARNING: redefining BOOT::MKPROMPT in DEFUN
-Value = MKPROMPT
-)co sqlite
- 
+(6) -> quickLoad fsqlite
+
+
+; Loading "fsqlite"
+   The current FriCAS default directory is 
+      /home/kfp/quicklisp/local-projects/spadlib/fsqlite/lib 
    Compiling FriCAS source code from file 
-      C:/Users/kfp/Desktop/work/spad/NEW-2022/sqlite.spad using old 
-      system compiler.
+      /home/kfp/quicklisp/local-projects/spadlib/fsqlite/lib/../src/fsqlite.spad
+      using old system compiler.
    SQLITE abbreviates package SQLite 
 ------------------------------------------------------------------------
-   initializing NRLIB SQLITE for SQLite 
-   compiling into NRLIB SQLITE 
-   compiling exported connect : String -> SExpression
-Time: 0 SEC.
-
-   compiling exported query : (SExpression,String) -> SExpression
-      SQLITE;query;SeSSe;2 is replaced by SQLITEQUERY 
-Time: 0 SEC.
-
-   compiling exported queryToList : (SExpression,String) -> SExpression
-      SQLITE;queryToList;SeSSe;3 is replaced by SQLITEQUERYTOLIST 
-Time: 0 SEC.
-
-   compiling exported disconnect : SExpression -> SExpression
-      SQLITE;disconnect;2Se;4 is replaced by SQLITEDISCONNECT 
-Time: 0 SEC.
-
-(time taken in buildFunctor:  0)
-
-;;;     ***       |SQLite| REDEFINED
-
-;;;     ***       |SQLite| REDEFINED
-Time: 0 SEC.
-
-
-   Cumulative Statistics for Constructor SQLite
-      Time: 0 seconds
- 
-   finalizing NRLIB SQLITE 
-   Processing SQLite for Browser database:
---------constructor---------
---->-->SQLite((connect ((SExpression) (String)))): Not documented!!!!
---->-->SQLite((disconnect ((SExpression) (SExpression)))): Not documented!!!!
---->-->SQLite((query ((SExpression) (SExpression) (String)))): Not documented!!!!
---->-->SQLite((queryToList ((SExpression) (SExpression) (String)))): Not documented!!!!
-; compiling file "C:/Users/kfp/Desktop/work/spad/NEW-2022/SQLITE.NRLIB/SQLITE.lsp" (written 29 OCT 2022 06:52:06 PM):
-
-; file: C:/Users/kfp/Desktop/work/spad/NEW-2022/SQLITE.NRLIB/SQLITE.lsp
-; in: SDEFUN |SQLITE;query;SeSSe;2|
-;     (BOOT::SDEFUN BOOT::|SQLITE;query;SeSSe;2|
-;                   ((BOOT::|cdb| (BOOT::|SExpression|))
-;                    (BOOT::|s| (BOOT::|String|)) (BOOT::$ (BOOT::|SExpression|)))
-;                   (BOOT::SQLITEQUERY BOOT::|cdb| BOOT::|s|))
-; --> DEFUN PROGN SB-IMPL::%DEFUN SB-IMPL::%DEFUN SB-INT:NAMED-LAMBDA 
-; ==>
-;   #'(SB-INT:NAMED-LAMBDA BOOT::|SQLITE;query;SeSSe;2|
-;         (BOOT::|cdb| BOOT::|s| BOOT::$)
-;       (DECLARE (SB-C::TOP-LEVEL-FORM))
-;       (DECLARE (TYPE STRING BOOT::|s|))
-;       (BLOCK BOOT::|SQLITE;query;SeSSe;2|
-;         (BOOT::SQLITEQUERY BOOT::|cdb| BOOT::|s|)))
-; 
-; caught STYLE-WARNING:
-;   The variable $ is defined but never used.
-
-; in: SDEFUN |SQLITE;queryToList;SeSSe;3|
-;     (BOOT::SDEFUN BOOT::|SQLITE;queryToList;SeSSe;3|
-;                   ((BOOT::|cdb| (BOOT::|SExpression|))
-;                    (BOOT::|s| (BOOT::|String|)) (BOOT::$ (BOOT::|SExpression|)))
-;                   (BOOT::SQLITEQUERYTOLIST BOOT::|cdb| BOOT::|s|))
-; --> DEFUN PROGN SB-IMPL::%DEFUN SB-IMPL::%DEFUN SB-INT:NAMED-LAMBDA 
-; ==>
-;   #'(SB-INT:NAMED-LAMBDA BOOT::|SQLITE;queryToList;SeSSe;3|
-;         (BOOT::|cdb| BOOT::|s| BOOT::$)
-;       (DECLARE (SB-C::TOP-LEVEL-FORM))
-;       (DECLARE (TYPE STRING BOOT::|s|))
-;       (BLOCK BOOT::|SQLITE;queryToList;SeSSe;3|
-;         (BOOT::SQLITEQUERYTOLIST BOOT::|cdb| BOOT::|s|)))
-; 
-; caught STYLE-WARNING:
-;   The variable $ is defined but never used.
-
-; in: SDEFUN |SQLITE;disconnect;2Se;4|
-;     (BOOT::SDEFUN BOOT::|SQLITE;disconnect;2Se;4|
-;                   ((BOOT::|cdb| (BOOT::|SExpression|))
-;                    (BOOT::$ (BOOT::|SExpression|)))
-;                   (BOOT::SQLITEDISCONNECT BOOT::|cdb|))
-; --> DEFUN PROGN SB-IMPL::%DEFUN SB-IMPL::%DEFUN SB-INT:NAMED-LAMBDA 
-; ==>
-;   #'(SB-INT:NAMED-LAMBDA BOOT::|SQLITE;disconnect;2Se;4|
-;         (BOOT::|cdb| BOOT::$)
-;       (DECLARE (SB-C::TOP-LEVEL-FORM))
-;       (BLOCK BOOT::|SQLITE;disconnect;2Se;4|
-;         (BOOT::SQLITEDISCONNECT BOOT::|cdb|)))
-; 
-; caught STYLE-WARNING:
-;   The variable $ is defined but never used.
-
-; file: C:/Users/kfp/Desktop/work/spad/NEW-2022/SQLITE.NRLIB/SQLITE.lsp
-; in: SDEFUN |SQLITE;connect;SSe;1|
-;     (BOOT::SQLITECONNECT BOOT::|db|)
-; 
-; caught STYLE-WARNING:
-;   undefined function: SQLITECONNECT
-
-; in: SDEFUN |SQLITE;disconnect;2Se;4|
-;     (BOOT::SQLITEDISCONNECT BOOT::|cdb|)
-; 
-; caught STYLE-WARNING:
-;   undefined function: SQLITEDISCONNECT
-
-; in: SDEFUN |SQLITE;query;SeSSe;2|
-;     (BOOT::SQLITEQUERY BOOT::|cdb| BOOT::|s|)
-; 
-; caught STYLE-WARNING:
-;   undefined function: SQLITEQUERY
-
-; in: SDEFUN |SQLITE;queryToList;SeSSe;3|
-;     (BOOT::SQLITEQUERYTOLIST BOOT::|cdb| BOOT::|s|)
-; 
-; caught STYLE-WARNING:
-;   undefined function: SQLITEQUERYTOLIST
-; 
-; compilation unit finished
-;   Undefined functions:
-;     SQLITECONNECT SQLITEDISCONNECT SQLITEQUERY SQLITEQUERYTOLIST
-;   caught 7 STYLE-WARNING conditions
-
-
-; wrote C:/Users/kfp/Desktop/work/spad/NEW-2022/SQLITE.NRLIB/SQLITE.fasl
-; compilation finished in 0:00:00.014
+...
 ------------------------------------------------------------------------
    SQLite is now explicitly exposed in frame initial 
    SQLite will be automatically loaded when needed from 
-      /Users/kfp/Desktop/work/spad/NEW-2022/SQLITE.NRLIB/SQLITE
+      /home/kfp/quicklisp/local-projects/spadlib/fsqlite/lib/SQLITE.NRLIB/SQLITE
 
 
---quickLoad "sqlite"
+Value = ("fsqlite")
+                                                                   Type: Void
+(7) -> db:="/home/kfp/quicklisp/local-projects/spadlib/fsqlite/test/pse.db"
 
-db:String:="C:/Users/kfp/Desktop/work/SCI-DATA/PSE/pse.db"
- 
-
-   (5)  "C:/Users/kfp/Desktop/work/SCI-DATA/PSE/pse.db"
+   (7)  "/home/kfp/quicklisp/local-projects/spadlib/fsqlite/test/pse.db"
                                                                  Type: String
-
-cdb:=connect db
- 
+(8) -> cdb:=connect db
 To load "sqlite":
   Load 1 ASDF system:
     sqlite
 ; Loading "sqlite"
-..
+..............
 Value = (:SQLITE)
 Value = SQLITECONNECT
 Value = SQLITEQUERY
 Value = SQLITEQUERYTOLIST
 Value = SQLITEDISCONNECT
 
-   (6)  #<SQLITE-HANDLE {1004EE9833}>
+   (8)  #<SQLITE-HANDLE {100A2A7803}>
                                                             Type: SExpression
-q1:=query(cdb,"select Element from pse1")
- 
+(9) -> q1:=query(cdb,"select Element from pse1")
 
-   (7)  "Hydrogen"
+   (9)  "Hydrogen"
                                                             Type: SExpression
-q2:=queryToList(cdb,"select Element from pse1")
- 
+(10) -> q2:=queryToList(cdb,"select Element from pse1")
 
-   (8)
+   (10)
    (("Hydrogen")  ("Helium")  ("Lithium")  ("Beryllium")  ("Boron")
     ("Carbon")  ("Nitrogen")  ("Oxygen")  ("Fluorine")  ("Neon")  ("Sodium")
     ("Magnesium")  ("Aluminum")  ("Silicon")  ("Phosphorus")  ("Sulfur")
@@ -209,10 +93,9 @@ q2:=queryToList(cdb,"select Element from pse1")
     ("Roentgenium")  ("Copernicium")  ("Nihonium")  ("Flerovium")
     ("Moscovium")  ("Livermorium")  ("Tennessine")  ("Oganesson"))
                                                             Type: SExpression
-q3:=queryToList(cdb,"select * from pse1")
- 
+(11) -> q3:=queryToList(cdb,"select * from pse1")
 
-   (9)
+   (11)
    (
      (1  "Hydrogen"  "H"  1.007  0  1  1  1  1  "gas"  ()  "yes"  ()  "yes"
       ()  "Nonmetal"  0.79  "2.2"  13.5984  8.99e-5  "14.175"  20.28  3
@@ -426,7 +309,7 @@ q3:=queryToList(cdb,"select * from pse1")
 
      (43  "Technetium"  "Tc"  98.0  55  43  43  5  7  "artificial"  "yes"  ()
       "yes"  ()  ()  "Transition Metal"  2.0  "1.9"  7.28  11.5  "2473.15"
-      5150  23  "Perrier and Segr?"  "1937"  ()  5  ())
+      5150  23  "Perrier and Segr�"  "1937"  ()  5  ())
 
 
      (44  "Ruthenium"  "Ru"  101.07  57  44  44  5  8  "solid"  ()  "yes"
@@ -746,12 +629,12 @@ q3:=queryToList(cdb,"select * from pse1")
 
      (107  "Bohrium"  "Bh"  264.0  157  107  107  7  7  "artificial"  "yes"
       ()  "yes"  ()  ()  "Transactinide"  ()  ()  ()  37.0  ()  ()  ()
-      "Armbruster and M?nzenberg"  "1981"  ()  7  ())
+      "Armbruster and M�nzenberg"  "1981"  ()  7  ())
 
 
      (108  "Hassium"  "Hs"  267.0  159  108  108  7  8  "artificial"  "yes"
       ()  "yes"  ()  ()  "Transactinide"  ()  ()  ()  41.0  ()  ()  ()
-      "Armbruster and M?nzenberg"  "1983"  ()  7  ())
+      "Armbruster and M�nzenberg"  "1983"  ()  7  ())
 
 
      (109  "Meitnerium"  "Mt"  268.0  159  109  109  7  9  "artificial"  "yes"
@@ -804,21 +687,17 @@ q3:=queryToList(cdb,"select * from pse1")
       ()  7  "8")
      )
                                                             Type: SExpression
-disconnect cdb
- 
+(12) -> disconnect cdb
 
-   (10)  #<SQLITE-HANDLE {1004EE9833}>
+   (12)  #<SQLITE-HANDLE {100A2A7803}>
                                                             Type: SExpression
+(13) -> sq1:=string q1
 
-sq1:=string q1
- 
-
-   (11)  "Hydrogen"
+   (13)  "Hydrogen"
                                                                  Type: String
-lq3:=destruct q3 --> 
- 
+(14) -> lq3:=destruct q3
 
-   (12)
+   (14)
    [
      (1  "Hydrogen"  "H"  1.007  0  1  1  1  1  "gas"  ()  "yes"  ()  "yes"
       ()  "Nonmetal"  0.79  "2.2"  13.5984  8.99e-5  "14.175"  20.28  3
@@ -1032,7 +911,7 @@ lq3:=destruct q3 -->
 
      (43  "Technetium"  "Tc"  98.0  55  43  43  5  7  "artificial"  "yes"  ()
       "yes"  ()  ()  "Transition Metal"  2.0  "1.9"  7.28  11.5  "2473.15"
-      5150  23  "Perrier and Segr?"  "1937"  ()  5  ())
+      5150  23  "Perrier and Segr�"  "1937"  ()  5  ())
      ,
 
      (44  "Ruthenium"  "Ru"  101.07  57  44  44  5  8  "solid"  ()  "yes"
@@ -1352,12 +1231,12 @@ lq3:=destruct q3 -->
 
      (107  "Bohrium"  "Bh"  264.0  157  107  107  7  7  "artificial"  "yes"
       ()  "yes"  ()  ()  "Transactinide"  ()  ()  ()  37.0  ()  ()  ()
-      "Armbruster and M?nzenberg"  "1981"  ()  7  ())
+      "Armbruster and M�nzenberg"  "1981"  ()  7  ())
      ,
 
      (108  "Hassium"  "Hs"  267.0  159  108  108  7  8  "artificial"  "yes"
       ()  "yes"  ()  ()  "Transactinide"  ()  ()  ()  41.0  ()  ()  ()
-      "Armbruster and M?nzenberg"  "1983"  ()  7  ())
+      "Armbruster and M�nzenberg"  "1983"  ()  7  ())
      ,
 
      (109  "Meitnerium"  "Mt"  268.0  159  109  109  7  9  "artificial"  "yes"
@@ -1410,12 +1289,14 @@ lq3:=destruct q3 -->
       ()  7  "8")
      ]
                                                       Type: List(SExpression)
-lq31:=destruct lq3.1 --> and so on
- 
+(15) -> lq31:=destruct lq3.1 --> and so on
 
-   (13)
+   (15)
    [1, "Hydrogen", "H", 1.007, 0, 1, 1, 1, 1, "gas", (), "yes", (), "yes", (),
     "Nonmetal", 0.79, "2.2", 13.5984, 8.99e-5, "14.175", 20.28, 3, "Cavendish",
     "1766", 14.304, 1, "1"]
                                                       Type: List(SExpression)
-[14] 
+(16) -> 
+(16) -> 
+
+
