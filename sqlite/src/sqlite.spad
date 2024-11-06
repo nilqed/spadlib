@@ -1,0 +1,58 @@
+)abbrev package SQLITE SQLite
+SQLite() : Exports == Implementation where
+++ Revision Date: Mi 06 Nov 2024 22:25:11 CET
+++ Reference: https://cl-sqlite.common-lisp.dev/
+++ Short Description:
+++   Assumes that "quicklisp" is installed/working at ~/quicklisp
+++ Define new functions to avoid name conflicts when using "use-package"!
+++ Usage: cdb := connect "path/to/file.db"  -- returns a handle
+++        q1:=query cdb "sql commands ..."
+++        q2:=queryToList "sql commands ..."
+++ Return values are "SExpression" (string, destruct, ...)
+++ TODO: add more functions
+
+  MSC ==> MoreSystemCommands
+  SEX ==> SExpression
+  lisp1(s) ==> systemCommand(concat ["lisp ",s])$MSC
+ 
+  Exports == with
+    connect : String -> SExpression
+      ++ \spad{connect(s)} connects to the sqlite database at the given 
+      ++ database-path (database-path is a string or a pathname). If 
+      ++ database-path equal to ":memory:" is given, a new in-memory database
+      ++ is created. Returns the sqlite-handle connected to the database. 
+    disconnect : SExpression -> SExpression
+      ++ \spad{disconnect(handle)} sisconnects the given handle from the 
+      ++ database. All further operations on the handle and on prepared 
+      ++ statements (including freeing handle or statements) are invalid and 
+      ++ will lead to memory corruption. 
+    query : (SExpression,String) -> SExpression
+      ++  \spad{query(sql,db)} executes the query sql to the database db with 
+      ++ given parameters. Returns the first column of the first row as single
+      ++ value. Parameters are alternating names and values.
+    queryToList : (SExpression,String) -> SExpression
+      ++ \spad{queryToList(sql,db)} executes the query sql to the database db 
+      ++ with given parameters. Returns the results as list of lists.
+    lispEval : String -> SExpression
+      ++ The usual lispEval(cl-string).
+    
+
+  Implementation == add
+  
+    lispEval(s:String):SExpression == EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
+
+    connect db == 
+      LOAD("~/quicklisp/setup")$Lisp
+      lisp1 "(ql:quickload :sqlite)"
+      lisp1 "(defun sqliteconnect (s) (sqlite::connect s))"
+      lisp1 "(defun sqlitequery (h s) (sqlite::execute-single h s))"
+      lisp1 "(defun sqlitequerytolist (h s) (sqlite::execute-to-list h s))"
+      lisp1 "(defun sqlitedisconnect (h) (sqlite::disconnect h))"
+      USE_-PACKAGE("SQLITE")$Lisp
+      --IN_-PACKAGE("SQLITE")$Lisp
+      SQLITECONNECT(db)$Lisp
+
+    query(cdb,s) == SQLITEQUERY(cdb,s)$Lisp
+    queryToList(cdb,s) == SQLITEQUERYTOLIST(cdb,s)$Lisp
+    disconnect(cdb) == SQLITEDISCONNECT(cdb)$Lisp
+
