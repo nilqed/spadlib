@@ -1,6 +1,7 @@
 )abbrev domain TENSALG TensorAlgebra
 ++ Author: Kurt Pagani
 ++ Date Created: Thu Jan 30 23:04:02 CET 2020
+++ Date Revised: Thu Sep 09 23:57:51 CET 2022
 ++ License: BSD
 ++ References:
 ++   https://en.wikipedia.org/wiki/Tensor_algebra
@@ -13,11 +14,14 @@
 ++  then imposing certain relations on the generators, i.e. by constructing 
 ++  certain quotient algebras of T(V). Examples of this are the 
 ++  exterior algebra, the symmetric algebra, Clifford algebras, 
-++  the Weyl algebra and universal enveloping algebras.  
+++  the Weyl algebra and universal enveloping algebras.
+++ --
+++ Notes: Actually the algebra is over FreeModule(R,B), however, there
+++ seems to be no method in FriCAS to extract the parameters R and B?
 ++
-TensorAlgebra(M,R,B) : Exports == Implementation where
+++
+TensorAlgebra(R,B) : Exports == Implementation where
 
-  M:FreeModuleCategory(R, B)
   R:Ring
   B:OrderedSet
   
@@ -46,7 +50,7 @@ TensorAlgebra(M,R,B) : Exports == Implementation where
       tensor(first(x)::OF, convert(rest x))
       
     coerce(x:%):OutputForm ==
-      zero? x => empty()$OF
+      zero? x => outputForm(0)$OF --empty()$OF
       x=1$% => outputForm(1)$OF
       c:R:=leadingCoefficient(x)
       if c=1 then cof:=empty()$OF else cof:=c::OF 

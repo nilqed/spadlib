@@ -1,0 +1,47 @@
+)co tensalg
+
+-- Note: in principle --> tensor algebra over M1:=FreeModule(R1, B1)
+--   If we could get the parameters from M1, then one argument would
+--   suffice.
+
+------------
+-- Example 1
+------------
+n:=3
+
+B1:=OrderedVariableList [e[i] for i in 1..n]
+R1:=Expression Integer
+TA1:=TensorAlgebra(R1,B1)
+
+e:=[a::TA1 for a in enumerate()$B1]
+
+T1:=x*e.1+y*e.2-z*e.3
+T11:=T1*T1
+
+X:=reduce(_+,[x[i]*e.i for i in 1..n])
+Y:=reduce(_+,[y[i]*e.i for i in 1..n])
+
+Z:=X*Y-Y*X
+
+------------
+-- Example 2
+------------
+n:=5
+
+B2:=OrderedObjectList(Symbol,['a,'b,'c,'d,'f])
+R2:=Integer
+TA2:=TensorAlgebra(R2,B2)
+
+s:=[a::TA2 for a in enumerate()$B2]
+[a,b,c,d,f]:=s
+a*b+c
+a^4*b^3*d^1+f*a*b
+varList %
+
+--  e.1*a*b*e.3 strange?
+-- Type: TensorAlgebra(TensorAlgebra(Expression(Integer),
+--       OrderedVariableList([e[1],e[2],e[3]])),
+--       OrderedObjectList(Symbol,[a,b,c,d,f])) 
+
+-- Quotient(TENSALG(R,B),EquivalenceRelation(S))
+-- provides mappings which give a representant of the eq class
