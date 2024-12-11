@@ -6,7 +6,8 @@
 (defun |compile_pchain| ()
   (progn
   (|doSystemCommand| (format nil "cd ~Alib" *pchain*))
-  (|doSystemCommand| (format nil "compile ../src/pchain.spad )quiet"))))
+  (|doSystemCommand| (format nil "compile ../src/pchain.spad )quiet"))
+  (|doSystemCommand| (format nil "compile ../src/rpc.spad )quiet"))))
 
 (defun |load_pchain| ()
   (if (probe-file (format nil "~Alib/pchain.NRLIB/pchain.lsp" *pchain*))

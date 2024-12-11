@@ -1,0 +1,377 @@
+)abbrev domain RPC RealPointChain
+++ Author: Kurt Pagani
+++ Date Created: Fri Sep 27 13:05:21 CEST 2024
+++ License: BSD
+++ References:
+++ Description: barycenter
+++
+RealPointChain : Exports == Implementation where
+  
+  R    ==> Expression Integer
+  EQ   ==> Equation
+  XDP  ==> XDistributedPolynomial(Symbol,R)
+  TERM ==> Record(k: FreeMonoid(Symbol),c: R)
+  FACT ==> Record(gen: Symbol,exp: NonNegativeInteger)
+  
+  -- not used
+  -- FMS  ==> FreeMonoid Symbol
+  -- XFA  ==> XFreeAlgebra(Symbol,R)
+  -- FMC  ==> FreeModuleCategory(R,FMS)
+  
+  Exports == Join(Comparable, Module R, GradedAlgebra(R,Integer)) with
+    
+    point : Symbol -> %
+      ++ \spad{point S} constructs a single point, which is the basis to 
+      ++ generate chains of any degree. \spad{S} may be any symbol,
+      ++ however, uppercase letters are most adequate of course.
+    _* : (%,%) -> %
+      ++ \spad{c1*c2} multiplication of chains.
+    _* : (R,%) -> %
+      ++ \spad{r * c} multiplication of a chain by a scalar from R.
+    _+ : (%,%) -> %
+      ++ \spad{c1 + c2} addition of chains.
+    _- : (%,%) -> %
+      ++ \spad{c1 -c2} subtraction of chains.
+    _- : % -> %
+      ++ \spad{-c} negative of a chain.
+    _= : (%, %) -> Boolean
+      ++ \spad{c1 = c2} equality f chains.
+    1 : () -> %         
+      ++ \spad{1} the pseudo chain 1 (degree = -1).
+    0 : () -> %
+      ++ \spad{0} the zero chain.
+    constant? : % -> Boolean
+      ++ \spad{constant? c} true if the chain contains no point 
+      ++ (i.e. not really a chain).
+    degree : % -> Integer
+      ++ \spad{degree c} returns the highest degree of a chain. Note that the
+      ++ degree of a chain is one less than a corresponding
+      ++ \spad{XDistributedPolynomial}.
+    leadingMonomial : % -> %
+      ++ \spad{leadingMonomial c} returns the leading monomial (including 
+      ++ the coefficient).
+    leadingMonom : % -> %
+      ++ \spad{leadingMonom c} returns the leading monomial (excluding 
+      ++ the coefficient).
+    reductum : % -> %
+      ++ \spad{reductum c} returns the rest of the chain, that is without 
+      ++ leading monomial.
+    leadingCoefficient: % -> R
+      ++ \spad{leadingCoefficient c} returns the coefficient of the 
+      ++ leading monomial.
+    leadingSupport: % -> List(%)
+      ++ \spad{leadingSupport c} gives the ordered list of points in the 
+      ++ leading monomial, so that \spad{reduce(_*,%)} will reproduce 
+      ++ the monomial (w/o coefficient).
+    bdry : % -> %
+      ++ \spad{bdry c} computes the boundary of the chain (recursively).
+    homogeneous? : % -> Boolean
+      ++ \spad{homgogeneous? x} is true if all terms have the same
+      ++ degree.
+    numberOfMonomials : % -> NonNegativeInteger
+      ++ \spad{numberOfMonomials x} is what it says.
+    zero? : % -> Boolean
+      ++ \spad{zero? c} is true if c the zero chain.
+    one? : % -> Boolean
+      ++ \spad{one? c} is true if c is the \spad{1}-element of the scalar 
+      ++ field.
+    latex : % -> String
+      ++ \spad{latex c} returns a LaTeX representation of the chain.
+    normalize : % -> %
+      ++ \spad{normalize c} sorts all points in all monomials lex and
+      ++ reconstructs the chain.
+    spaceDim : (%,PositiveInteger) -> %
+      ++ \spad{spaceDim(c,n)} removes all terms having degree greater
+      ++ than \spad{n}, which serves as space dimension of an affine
+      ++ space.
+    barycenter : % -> Union(%,"failed")
+      ++ \spad{barycenter x} returns the barycenter of a \spad{0-chain},
+      ++ in case there is one.  
+    retract: % -> XDP
+      ++ \spad{retract c} retracts the chain to a \spad{XDistributedPolynomial},
+      ++ so that more tools are availabe for manipulations.
+    D : (%,Symbol) -> %
+      ++ \spad{D(x,t)} differentiates the chain x with respect to t.
+    D : (%,List Symbol) -> %
+      ++ \spad{D(x,t)} differentiates the chain x with respect to the 
+      ++ variables given in the list. 
+    coeffMatrix : (List EQ %,List %) -> Union(Matrix R,"failed")
+      ++ \spad{coeffMatrix([eq1,..],[v1,..]} calculates the matrix
+      ++ that is used to solve the linear equation in the variables v.
+    solve : (List EQ %,List %) -> Union(List EQ %,"failed")
+      ++ \spad{solve([eq1,..],[v1,..]} tries to solve the equations given
+      ++ using the coeffMatrix if invertible.    
+    map : ((R -> R),%) -> %
+      ++ \spad{map(f,x)} applies the function f to each coefficient.
+    eval : (%, EQ R) -> %
+      ++ \spad{eval(x,a=b} evaluates x while substituting b for a in x.
+    eval : (%, EQ %) -> %  
+    affineMap : ((Symbol -> Symbol),%) -> %
+      ++ \spad{affineMap(F,x)} maps points P to new points F(P) in x,
+      ++ whereby F:Symbol -> Symbol. 
+    pointSymbols : % -> List Symbol
+      ++ \spad{pointSymbols x} gives a list of the points involved in
+      ++ x as a list of symbols.
+    _* : (R,EQ %) -> EQ %
+    _* : (%,EQ %) -> EQ %
+    _* : (EQ %,%) -> EQ %
+    _* : (EQ %,EQ %) -> EQ %
+    _+ : (EQ %,EQ %) -> EQ %
+    _- : (EQ %,EQ %) -> EQ %
+    simp : EQ % -> EQ %
+    eval : (EQ %, EQ R) -> EQ %
+    eval : (EQ %, EQ %) -> EQ %
+    ratio : (%,%) -> Union(R,"failed")
+    point? : % -> Boolean
+    crossRatio : (%,%,%,%) -> Union(R,"failed")
+    coerce: XDP -> %
+      ++ \spad{coerce p} coerces a \spad{XDistributedPolynomial p} to a chain, 
+      ++ whereby all terms not conforming to a chain will be removed.
+	
+  Implementation ==  XDP add 
+    import from Equation(%)
+    Rep := XDistributedPolynomial(Symbol,R)
+    
+    point(s) == s::XDP
+
+    dups?(l:List(Symbol)):Boolean == #l > #set(l)$Set(Symbol)
+
+    -- True if in a factor P1 P2 P3 ... any Pi=Pj.
+    nilfac?(f:List FACT):Boolean ==
+      b1:=not empty? [x.exp for x in f | not(x.exp = 1) ]
+      b2:=dups? [x.gen for x in f]
+      return(b1 or b2)
+
+    -- Overwrite * from XDP [implicit: (x@Rep * y@Rep)$XDP::%)]
+    -- Make it antisymmetric by removing bad terms.
+    (x:% * y:%):% ==
+      p:XDP := (x@Rep * y@Rep)$XDP
+      t:List(TERM) := listOfTerms(p)
+      t:=[u for u in t | not nilfac? factors(u.k)]
+      construct(t)
+    
+    degree(x:%):Integer ==
+      constant? x => -1
+      degree(x@Rep)$XDP - 1
+      
+    leadingSupport(x:%):List(%) ==
+      FMS:=FreeMonoid(Symbol)
+      s:FMS:=leadingSupport(x@Rep)$XDP
+      f:List FACT:=factors s
+      return([point(p.gen) for p in f])
+      
+    leadingMonom(x:%):% == 
+      constant? x => 1$%
+      s:List %:=leadingSupport x
+      reduce(_*,s)
+      
+    bdryOfSupport(x:List %):% ==
+      empty? x => 0@%
+      empty?(rest x)  => 1@%
+      reduce(_*,rest x) - first(x) * bdryOfSupport(rest x)
+       
+    bdry(x:%):% ==
+      constant? x => 0@%
+      c := leadingCoefficient x
+      s := leadingSupport x
+      c*bdryOfSupport s + bdry reductum x
+      
+    homogeneous?(x:%):Boolean ==
+      numberOfMonomials x <= 1 => true
+      rx:XDP := retract x
+      mrx:List XDP := monomials rx
+      drx: List NonNegativeInteger := [degree(u) for u in mrx]
+      max(drx) = min(drx) => true
+      false
+
+    normalizeSupport(s:List %):% ==
+      FMS:=FreeMonoid(Symbol)
+      l1:List XDP:=[retract u for u in s]
+      l2:List FMS:=[retract(u)$XDP for u in l1]
+      l3:List Symbol:=[retract(u)$FMS for u in l2]
+      ls:=sort l3
+      li:List Integer:=[position(i,l3) for i in ls]
+      p:=coerceImages(li)$Permutation(Integer)
+      sp:Integer:= sign(p)$Permutation(Integer)
+      ns:List %:=[point u for u in ls]
+      sp*reduce(_*,ns)
+      
+      
+    normalize(x:%):% ==
+      constant? x => x
+      c:=leadingCoefficient x
+      c * normalizeSupport(leadingSupport x) + normalize(reductum x)
+
+    spaceDim(x:%,n:PositiveInteger):% ==
+      degree x <= n => x
+      rx:XDP:=retract x
+      mrx:List XDP:=monomials rx
+      fx:List %:=[u::% for u in mrx | degree(u)$XDP<=n+1]
+      empty? fx => 0@%
+      reduce(_+,fx)
+      
+    barycenter(x:%):Union(%,"failed") ==
+      not homogeneous? x => "failed"
+      not (degree x = 0) => "failed"
+      rx:XDP:=retract x
+      cs:List R:=coefficients rx
+      scs:R:=reduce(_+,cs)
+      scs = 0$R => "failed"
+      c:Union(R,"failed"):=recip(scs)$R
+      c case R => c*x
+      "failed"
+
+    retract x == x@Rep   
+    coerce(p:XDP):% == p * 1$%
+    
+    D(x:%,t:Symbol):% == 
+      constant? x => 0$%
+      D(leadingCoefficient x,t) * leadingMonom x + D(reductum x,t)
+      
+    D(x:%,t:List Symbol):% == 
+      constant? x => 0$%
+      D(leadingCoefficient x,t) * leadingMonom x + D(reductum x,t)
+
+
+    coeffMatrix(eqs,vars) ==
+      FMS:=FreeMonoid Symbol
+      not (#eqs = #vars) => "failed" 
+      zeqs:List EQ %:=[lhs u - rhs u=0$% for u in eqs]
+      lspt:List FMS:=concat [support lhs u for u in zeqs]
+      lvar:List FMS:=concat [support u for u in vars]
+      sspt:Set FMS:=set lspt
+      svar:Set FMS:=set lvar
+      not subset?(svar, sspt) => "failed"
+      llc:=[[coefficient(lhs u,v) for v in members svar] for u in zeqs]
+      C:Matrix R:=matrix llc
+      --vars
+    
+    -- maybe normalize before !!?
+    solve(eqs,vars) ==
+      C:=coeffMatrix(eqs,vars)
+      C case "failed" => "failed"
+      n:=nrows(C) -- = ncols C
+      lmr:List %:=[lhs u - rhs u for u in eqs]
+      ccv:=[reduce(_+,[C(i,j)*vars.j for j in 1..n]) for i in 1..n]
+      q:List %:=[lmr.i - ccv.i for i in 1..n]  
+      IC:Union(Matrix R,"failed"):=inverse(C)
+      IC case "failed" => "failed"
+      r:=[reduce(_+,[-IC(i,j)*q.j for j in 1..n]) for i in 1..n]
+      [vars.i = r.i for i in 1..n]
+  
+    map(f:R -> R,x:%):% == 
+      x=0$% => 0$%
+      f(leadingCoefficient x)*leadingMonom x + map(f,reductum x) 
+    
+    eval(x:%,eq:EQ R):% == 
+      x=0$% => 0$%
+      eval(leadingCoefficient x,eq)*leadingMonom x + eval(reductum x,eq)
+
+    pointSymbols x == varList retract x
+
+    affineMap(F:Symbol -> Symbol,x:%):% ==
+      --FMS:=FreeMonoid Symbol
+      constant? x => x
+      --s:List %:=leadingSupport x
+      --s1:List XDP:=[retract u for u in s]
+      --s2:List FMS:=[retract u for u in s1] 
+      --ss:List Symbol:=[retract u for u in s2] 
+      ss:List Symbol:= pointSymbols leadingMonom x
+      rs:List Symbol:=map(F,ss)
+      ns:List %:=[point u for u in rs]
+      nm:%:=reduce(_*,ns)
+      leadingCoefficient x * nm + affineMap(F,reductum x)
+      
+
+    product(x,y) == x*y -- for GradedAlgebra only
+    
+    (r:R * eq:EQ %):EQ % == r * lhs eq = r * rhs eq
+    (x:% * eq:EQ %):EQ % == x * lhs eq = x * rhs eq
+    (eq:EQ % * x:%):EQ % == lhs(eq) * x = rhs(eq) * x
+    (eq1:EQ % * eq2:EQ %):EQ % == lhs eq1 * lhs eq2 = rhs eq1 * rhs eq2
+    (eq1:EQ % + eq2:EQ %):EQ % == lhs eq1 + lhs eq2 = rhs eq1 + rhs eq2
+    (eq1:EQ % - eq2:EQ %):EQ % == lhs eq1 - lhs eq2 = rhs eq1 - rhs eq2
+    simp(eq:EQ %):EQ % == normalize(lhs eq - rhs eq) = 0$% 
+    
+    eval(x:%, eq:EQ %):% ==
+      constant? x => x
+      lm:%:=leadingMonom x
+      lc:R:=leadingCoefficient x
+      lm = lhs eq => lc * rhs eq + eval(reductum x,eq)
+      ls:List % := leadingSupport x
+      subst:=(y:%,z:EQ %):% +->if y=lhs z then rhs z else y
+      ss:List % := [subst(u,eq) for u in ls]
+      nm:%:=reduce(_*,ss)
+      lc * nm + eval(reductum x, eq)
+      
+    eval(x:EQ %, eq:EQ R):EQ % == eval(lhs x,eq) = eval(rhs x,eq)
+    eval(x:EQ %, eq:EQ %):EQ % == eval(lhs x,eq) = eval(rhs x,eq)
+
+    formalRatio(x:%,y:%):R ==
+      op:BasicOperator:=operator('%ratio)
+      OF:=OutputForm
+      dm:List OF -> OF
+      dm:=u+->over(u.1,u.2)
+      display(op,dm)
+      cx:R:=leadingCoefficient x
+      cy:R:=leadingCoefficient y
+      sx:=pointSymbols x
+      sy:=pointSymbols y
+      rx:List R:=[box (u::R) for u in sx]
+      ry:List R:=[box (u::R) for u in sy]
+      xx:R:=box reduce(_*,rx)
+      yy:R:=box reduce(_*,ry)
+      (cx/cy) * op [xx,yy]
+      
+
+    ratio(x:%,y:%):Union(R,"failed") ==
+      nx:=normalize x
+      ny:=normalize y
+      not (numberOfMonomials nx = 1) => "failed"
+      not (numberOfMonomials ny = 1) => "failed"
+      not (degree nx = degree ny) => "failed"
+      degree nx < 1 => "failed"
+      if leadingMonom nx = leadingMonom ny then  
+        return leadingCoefficient nx / leadingCoefficient ny
+      else
+        return formalRatio(x,y)
+        
+    point?(x:%):Boolean ==
+      constant? x => false
+      not (numberOfMonomials x = 1) => false
+      not (leadingCoefficient x = 1$R) => false
+      not (#pointSymbols(x) = 1) => false
+      true
+
+    -- TODO: there are better solutions
+    crossRatio(A:%,B:%,C:%,D:%):Union(R,"failed") ==
+      pts:List % := [A,B,C,D]
+      b:List Boolean:=[point? u for u in pts | point? u = true]
+      #b < 2 => "failed"
+      not (A*B*C=0$%) => "failed"
+      not (A*B*D=0$%) => "failed"
+      r1:Union(R,"failed"):=ratio(A*C,B*C)
+      r2:Union(R,"failed"):=ratio(A*D,B*D)
+      if r1 case R and r2 case R then
+        return(r1/r2)
+      else
+        "failed"
+
+-- [A,B,C,D]:=map(point, [A,B,C,D])
+-- P:=map(point,[P[i] for i in 1..100])
+-- S:=reduce(_+,[a[i]*P.i for i in 1..12])
+-- barycenter S                              
+-- bdry S
+-- F(s:Symbol):Symbol == ("F(" string(s) ")")::Symbol 
+-- affineMap(F,c) ->  - s F(D) + 4 F(C) F(B) + 2 F(A) F(B) F(C)
+-- TODO: pairing ... 
+
+-- eq1:=B=C+2*D
+-- A*eq1
+-- map(bdry,%)
+-- A+%
+-- %-eq1
+-- map(bdry,%) --> LOL, where is the error?
+-- clearly: 
+-- map(barycenter,%) 
+-- B must be a point, so B=C+2D is wrong, however, barycenter is ok!
