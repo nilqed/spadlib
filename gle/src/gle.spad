@@ -143,7 +143,7 @@ GraphicsLayoutEngine : Exports == Implementation where
       ++ create(s) will actually create the surface object, i.e writing
       ++ the source file *.gle.
     display : SURFACE -> Void
-      ++ display(s) opens the interactive QGLE windows and displays the
+      ++ display(s) opens the interactive QGLE window and displays the
       ++ surface s. QGLE allows interactive changes to data as well as the
       ++ GLE source file. For this, you have to set a default editor.
     letz : (FileName, XDF, SBDF, SBDF, DF, DF) -> STR
@@ -286,6 +286,27 @@ GraphicsLayoutEngine : Exports == Implementation where
       ~%  y from ~a to ~a step ~a _
       ~%end letz~}"  
       
+    fitz1:="~{_
+      ~%begin fitz_
+      ~%  data _"~a_" _
+      ~%  x from ~a to ~a step ~a _
+      ~%  y from ~a to ~a step ~a _
+      ~%  ncontour ~a _
+      ~%end fitz~}"
+
+    contour1:="~{_
+      ~%begin contour_
+      ~%  data _"~a_" _
+      ~%  values from ~a to ~a step ~a _
+      ~%  smooth ~a _
+      ~%end contour~}"
+      
+    contour2:="~{_
+      ~%begin contour_
+      ~%  data _"~a_" _
+      ~%  values ~{~A~^, ~} _
+      ~%  smooth ~a _
+      ~%end contour~}"
 
     surface1:="~{~a_
       ~%begin surface_
@@ -325,7 +346,7 @@ GraphicsLayoutEngine : Exports == Implementation where
       return fn
     
     display(f:FileName):Void ==
-      cmd:=format("system qgle -f ~a",f::STR)
+      cmd:=format("system qgle -f ~a &",f::STR)
       sys cmd
 
 
