@@ -1,0 +1,48 @@
+)lisp (setf saved-readtable *readtable*)
+)lisp (in-package :cl-user)
+)lisp (load "bootstrap")
+)lisp (load "test")
+)lisp (in-package :boot)
+)lisp (setf *readtable* saved-readtable)
+
+-- after calling (sl::standard-lisp) we have to reset the readtable:
+-- )lisp (setf *readtable* saved-readtable)
+-- each time!
+
+
+macro sys(cmd) == systemCommand(cmd)$MoreSystemCommands
+
+macro standardLisp == sys "lisp (sl::standard-lisp)"
+
+macro backToFricas == 
+  sys "lisp (cl::in-package :boot)"
+  sys "lisp (setf *readtable* saved-readtable)"
+  
+-- nosman -eval ")r test_fricas.input" 
+
+standardLisp
+)lisp (load-package 'excalc)
+)lisp (pform (list (list 'equal 'x 0)))
+)lisp (aeval (list 'd 'x))
+)lisp (aeval (list 'd (list 'd 'x)))
+)lisp (setk 'z (aeval 123))
+)lisp (setk 'w (aeval (list 'expt 'z 'z)))
+
+backToFricas
+
+y:=D(log x,x)
+
+standardLisp
+)lisp (aeval 'w)
+)lisp (aeval 'z)
+)lisp (aeval 'x)
+
+backToFricas
+
+
+
+
+
+  
+
+

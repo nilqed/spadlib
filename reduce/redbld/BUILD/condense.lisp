@@ -1,0 +1,28 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(MODULE (LIST 'CONDENSE)) 
+(SETQ DIPEVLIST* (LIST NIL)) 
+(PUT 'DIPCONDENSE 'NUMBER-OF-ARGS 1) 
+(PUT 'DIPCONDENSE 'DEFINED-ON-LINE '32) 
+(PUT 'DIPCONDENSE 'DEFINED-IN-FILE 'DIPOLY/CONDENSE.RED) 
+(PUT 'DIPCONDENSE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE DIPCONDENSE (F)
+    (PROG (DL EV)
+      (SETQ DL DIPEVLIST*)
+      (PROG ()
+       WHILELABEL
+        (COND ((NOT F) (RETURN NIL)))
+        (PROGN
+         (SETQ EV (CAR F))
+         (PROG ()
+          WHILELABEL
+           (COND
+            ((NOT (AND (CDR DL) (EVCOMPLESS? (CAR F) (CADR DL))))
+             (RETURN NIL)))
+           (SETQ DL (CDR DL))
+           (GO WHILELABEL))
+         (COND ((AND (CDR DL) (EQUAL EV (CADR DL))) (SETCAR F (CADR DL)))
+               (T (SETCDR DL (CONS EV (CDR DL)))))
+         (SETQ F (CDDR F)))
+        (GO WHILELABEL)))) 
+(ENDMODULE) 

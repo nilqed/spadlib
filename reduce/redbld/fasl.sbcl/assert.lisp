@@ -1,0 +1,623 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(MODULE (LIST 'ASSERT)) 
+(CREATE-PACKAGE '(ASSERT ASSERTCHECKFN ASSERTPROC) NIL) 
+(FLUID '(ASSERT_FUNCTIONL*)) 
+(GLOBAL '(EXLIST*)) 
+(GLOBAL '(OUTL*)) 
+(FLUID '(CURLINE*)) 
+(FLUID '(IFL*)) 
+(FLUID '(*BACKTRACE)) 
+(FLUID '(*COMP)) 
+(FLUID '(*MSG)) 
+(FLUID '(LISPSYSTEM*)) 
+(FLUID '(ASSERTSTATISTICS*)) 
+(FLUID '(FNAME*)) 
+(FLUID '(*BACKTRACE)) 
+(SWITCH (LIST 'ASSERT)) 
+(PUT 'ASSERT 'SIMPFG '((T (ASSERT_ONOFF)) (NIL (ASSERT_ONOFF)))) 
+(PUT 'ASSERT_ONOFF 'NUMBER-OF-ARGS 0) 
+(PUT 'ASSERT_ONOFF 'DEFINED-ON-LINE '65) 
+(PUT 'ASSERT_ONOFF 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_ONOFF 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE ASSERT_ONOFF NIL NIL) 
+(SWITCH (LIST 'ASSERT_PROCEDURES 'ASSERT_INLINE_PROCEDURES)) 
+(COND
+ ((EQUAL (GETENV "REDUCE_ASSERT_LEVEL") "1")
+  (PROGN
+   (ON1 'ASSERT)
+   (OFF1 'ASSERT_PROCEDURES)
+   (OFF1 'ASSERT_INLINE_PROCEDURES)))
+ ((EQUAL (GETENV "REDUCE_ASSERT_LEVEL") "2")
+  (PROGN
+   (ON1 'ASSERT)
+   (ON1 'ASSERT_PROCEDURES)
+   (OFF1 'ASSERT_INLINE_PROCEDURES)))
+ ((EQUAL (GETENV "REDUCE_ASSERT_LEVEL") "3")
+  (PROGN
+   (ON1 'ASSERT)
+   (ON1 'ASSERT_PROCEDURES)
+   (ON1 'ASSERT_INLINE_PROCEDURES)))
+ (T (PROGN (OFF1 'ASSERT)))) 
+(SWITCH (LIST 'ASSERTINSTALL)) 
+(SWITCH (LIST 'EVALASSERT)) 
+(COND
+ ((MEMBER (GETENV "REDUCE_ASSERT_LEVEL") '("1" "2" "3"))
+  (PROGN (ON1 'ASSERTINSTALL) (ON1 'EVALASSERT)))
+ (T (PROGN (OFF1 'ASSERTINSTALL) (OFF1 'EVALASSERT)))) 
+(SWITCH (LIST 'ASSERTBREAK 'ASSERTSTATISTICS)) 
+(COND
+ ((EQUAL (GETENV "REDUCE_ASSERT_CONTINUE") "1")
+  (PROGN (OFF1 'ASSERTBREAK) (ON1 'ASSERTSTATISTICS)))
+ (T (PROGN (ON1 'ASSERTBREAK) (OFF1 'ASSERTSTATISTICS)))) 
+(PUT 'ASSERT_CHECK1 'NUMBER-OF-ARGS 5) 
+(PUT 'ASSERT_CHECK1 'DEFINED-ON-LINE '135) 
+(PUT 'ASSERT_CHECK1 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_CHECK1 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL GENERAL GENERAL) GENERAL)) 
+(DE ASSERT_CHECK1 (FN ORIGFN ARGL ARGTYPEL RESTYPE)
+    (PROG (CFN W RES SCARGTYPEL BAD N)
+      (SETQ N 0)
+      (COND
+       (*ASSERTSTATISTICS
+        (PROGN
+         (SETQ W (ATSOC FN ASSERTSTATISTICS*))
+         (COND (W (SETCAR (CDR W) (PLUS (CADR W) 1)))
+               (T
+                (SETQ ASSERTSTATISTICS*
+                        (CONS (CONS FN (LIST 1 0 0)) ASSERTSTATISTICS*)))))))
+      (SETQ SCARGTYPEL ARGTYPEL)
+      (PROG (A)
+        (SETQ A ARGL)
+       LAB
+        (COND ((NULL A) (RETURN NIL)))
+        ((LAMBDA (A)
+           (PROGN
+            (SETQ N (PLUS N 1))
+            (COND
+             ((AND (SETQ CFN (GET (CAR SCARGTYPEL) 'ASSERT_DYNTYPECHK))
+                   (NOT (APPLY CFN (LIST A)))
+                   (NOT (AND (PAIRP A) (FLAGP (CAR A) 'ASSERT_IGNORE))))
+              (PROGN
+               (SETQ BAD T)
+               (ASSERT_ERROR FN ARGTYPEL RESTYPE N ARGL RES))))
+            (SETQ SCARGTYPEL (CDR SCARGTYPEL))))
+         (CAR A))
+        (SETQ A (CDR A))
+        (GO LAB))
+      (SETQ RES (APPLY ORIGFN ARGL))
+      (COND
+       ((AND (SETQ CFN (GET RESTYPE 'ASSERT_DYNTYPECHK))
+             (NOT (APPLY CFN (LIST RES)))
+             (NOT (AND (PAIRP RES) (FLAGP (CAR RES) 'ASSERT_IGNORE))))
+        (PROGN (SETQ BAD T) (ASSERT_ERROR FN ARGTYPEL RESTYPE 0 ARGL RES))))
+      (COND
+       ((AND *ASSERTSTATISTICS BAD)
+        (PROGN
+         (SETQ W (CDR (ATSOC FN ASSERTSTATISTICS*)))
+         (SETCAR (CDR W) (PLUS (CADR W) 1)))))
+      (RETURN RES))) 
+(PUT 'ASSERT_ERROR 'NUMBER-OF-ARGS 6) 
+(PUT 'ASSERT_ERROR 'DEFINED-ON-LINE '177) 
+(PUT 'ASSERT_ERROR 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_ERROR 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL GENERAL GENERAL GENERAL) GENERAL)) 
+(DE ASSERT_ERROR (FN ARGTYPEL RESTYPE TYPENO ARGL RES)
+    (PROG (W STARS *LOWER)
+      (COND
+       (*ASSERTSTATISTICS
+        (PROGN
+         (SETQ W (CDR (ATSOC FN ASSERTSTATISTICS*)))
+         (SETCAR (CDDR W) (PLUS (CADDR W) 1)))))
+      (TERPRI)
+      (SETQ STARS (COND (*ASSERTBREAK "***** ") (T "*** ")))
+      (BACKTRACE)
+      (TERPRI)
+      (PRIN2 FN)
+      (PRIN2T " being entered:")
+      (PROG (I)
+        (SETQ I 1)
+       LAB
+        (COND ((MINUSP (DIFFERENCE (LENGTH ARGL) I)) (RETURN NIL)))
+        (PROGN
+         (PRIN2 "   ")
+         (PRIN2 (MKID 'A I))
+         (PRIN2 ":   ")
+         (COND ((EQUAL I TYPENO) (PRETTYPRINT (NTH ARGL I)))
+               (T (PRINT (NTH ARGL I)))))
+        (SETQ I (PLUS2 I 1))
+        (GO LAB))
+      (COND ((EQN TYPENO 0) (PROGN (PRIN2 "returned:   ") (PRETTYPRINT RES))))
+      (TERPRI)
+      (PRIN2 STARS)
+      (PRIN2 "assertion ")
+      (PRIN2 (ASSERT_FORMAT FN ARGTYPEL RESTYPE))
+      (PRIN2 " is violated by ")
+      (PRIN2 (COND ((EQN TYPENO 0) "result") (T (MKID 'A TYPENO))))
+      (COND
+       (IFL*
+        (PROGN
+         (PRIN2 " ")
+         (PRIN2 "(at ")
+         (PRIN2 (CAR IFL*))
+         (PRIN2 ":")
+         (PRIN2 CURLINE*)
+         (PRIN2 ")"))))
+      (TERPRI)
+      (COND (*ASSERTBREAK (ERROR1))))) 
+(PUT 'ASSERT_FORMAT 'NUMBER-OF-ARGS 3) 
+(PUT 'ASSERT_FORMAT 'DEFINED-ON-LINE '231) 
+(PUT 'ASSERT_FORMAT 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_FORMAT 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE ASSERT_FORMAT (FN ARGTYPEL RESTYPE)
+    (PROG (ASS)
+      (SETQ ASS (CONS '! (CONS '|'| ASS)))
+      (COND
+       (RESTYPE
+        (PROGN
+         (SETQ ASS (NCONC (EXPLODE RESTYPE) ASS))
+         (SETQ ASS (CONS '! (CONS '|:| (CONS '! (CONS BLANK ASS))))))))
+      (SETQ ASS (CONS '! (CONS '|)| ASS)))
+      (PROG (A)
+        (SETQ A (REVERSE ARGTYPEL))
+       LAB
+        (COND ((NULL A) (RETURN NIL)))
+        ((LAMBDA (A)
+           (SETQ ASS
+                   (CONS '!
+                         (CONS '|,|
+                               (CONS '!
+                                     (CONS BLANK (NCONC (EXPLODE A) ASS)))))))
+         (CAR A))
+        (SETQ A (CDR A))
+        (GO LAB))
+      (SETQ ASS (CDDDDR ASS))
+      (SETQ ASS (CONS '! (CONS '|(| ASS)))
+      (SETQ ASS (NCONC (EXPLODE FN) ASS))
+      (SETQ ASS (CONS '! (CONS '|`| ASS)))
+      (RETURN (COMPRESS ASS)))) 
+(PUT 'ASSERT_STRUCTSTAT 'NUMBER-OF-ARGS 0) 
+(PUT 'ASSERT_STRUCTSTAT 'DEFINED-ON-LINE '252) 
+(PUT 'ASSERT_STRUCTSTAT 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_STRUCTSTAT 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE ASSERT_STRUCTSTAT NIL
+    (PROG (TYPE CFN TYPEFLAG TYPECHECKFORM)
+      (SETQ TYPE (SCAN))
+      (SETQ TYPEFLAG (LIST 'FLAG (MKQUOTE (LIST TYPE)) ''ASSERT_DYNTYPE))
+      (SCAN)
+      (COND
+       ((FLAGP CURSYM* 'DELIM)
+        (PROGN
+         (COND (*MSG (LPRIM (LIST "struct" TYPE "is not checked"))))
+         (RETURN TYPEFLAG))))
+      (COND
+       ((AND (NEQ CURSYM* 'CHECKED) (NEQ CURSYM* 'ASSERTED))
+        (REDERR (LIST "expecting 'asserted by' in struct but found" CURSYM*))))
+      (COND
+       ((NEQ (SCAN) 'BY)
+        (REDERR (LIST "expecting 'by' in struct but found" CURSYM*))))
+      (SETQ CFN (SCAN))
+      (COND
+       ((NOT (FLAGP (SCAN) 'DELIM))
+        (REDERR (LIST "expecting end of struct but found" CURSYM*))))
+      (SETQ TYPECHECKFORM
+              (LIST 'PUT (MKQUOTE TYPE) ''ASSERT_DYNTYPECHK (MKQUOTE CFN)))
+      (RETURN (LIST 'PROGN TYPECHECKFORM TYPEFLAG)))) 
+(PUT 'STRUCT 'STAT 'ASSERT_STRUCTSTAT) 
+(PUT 'ASSERT_DYNTYPEP 'NUMBER-OF-ARGS 1) 
+(PUT 'ASSERT_DYNTYPEP 'DEFINED-ON-LINE '280) 
+(PUT 'ASSERT_DYNTYPEP 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_DYNTYPEP 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE ASSERT_DYNTYPEP (S) (AND (IDP S) (FLAGP S 'ASSERT_DYNTYPE))) 
+(FLAG '(ASSERT_ANALYZE) 'OPFN) 
+(PUT 'ASSERT_ANALYZE 'NUMBER-OF-ARGS 0) 
+(PUT 'ASSERT_ANALYZE 'DEFINED-ON-LINE '285) 
+(PUT 'ASSERT_ANALYZE 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_ANALYZE 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE ASSERT_ANALYZE NIL
+    (PROG (HEADLINE FOOTLINE S1 S2 S3)
+      (SETQ S1 0)
+      (SETQ S2 0)
+      (SETQ S3 0)
+      (SETQ ASSERTSTATISTICS*
+              (SORT ASSERTSTATISTICS*
+                    (FUNCTION (LAMBDA (X Y) (ORDP (CAR Y) (CAR X))))))
+      (PROG (PR)
+        (SETQ PR ASSERTSTATISTICS*)
+       LAB
+        (COND ((NULL PR) (RETURN NIL)))
+        ((LAMBDA (PR)
+           (PROGN
+            (SETQ S1 (PLUS S1 (CADR PR)))
+            (SETQ S2 (PLUS S2 (CADDR PR)))
+            (SETQ S3 (PLUS S3 (CADDDR PR)))))
+         (CAR PR))
+        (SETQ PR (CDR PR))
+        (GO LAB))
+      (SETQ HEADLINE '(FUNCTION |#CALLS| |#BAD CALLS| |#ASSERTION VIOLATIONS|))
+      (SETQ FOOTLINE (CONS 'SUM (LIST S1 S2 S3)))
+      (SETQ ASSERTSTATISTICS*
+              (CONS NIL
+                    (CONS HEADLINE
+                          (CONS NIL
+                                (REVERSIP
+                                 (CONS NIL
+                                       (CONS FOOTLINE
+                                             (CONS NIL
+                                                   ASSERTSTATISTICS*))))))))
+      (PROG (PR)
+        (SETQ PR ASSERTSTATISTICS*)
+       LAB
+        (COND ((NULL PR) (RETURN NIL)))
+        ((LAMBDA (PR)
+           (PROGN
+            (COND
+             (PR
+              (PROGN
+               (PRIN2 (CAR PR))
+               (PROG (I)
+                 (SETQ I
+                         (PLUS (LENGTH (EXPLODE2 (CAR PR)))
+                               (LENGTH (EXPLODE2 (CADR PR)))))
+                LAB
+                 (COND ((MINUSP (DIFFERENCE 23 I)) (RETURN NIL)))
+                 (PRIN2 " ")
+                 (SETQ I (PLUS2 I 1))
+                 (GO LAB))
+               (PRIN2 (CADR PR))
+               (PROG (I)
+                 (SETQ I (LENGTH (EXPLODE2 (CADDR PR))))
+                LAB
+                 (COND ((MINUSP (DIFFERENCE 23 I)) (RETURN NIL)))
+                 (PRIN2 " ")
+                 (SETQ I (PLUS2 I 1))
+                 (GO LAB))
+               (PRIN2 (CADDR PR))
+               (PROG (I)
+                 (SETQ I (LENGTH (EXPLODE2 (CADDDR PR))))
+                LAB
+                 (COND ((MINUSP (DIFFERENCE 23 I)) (RETURN NIL)))
+                 (PRIN2 " ")
+                 (SETQ I (PLUS2 I 1))
+                 (GO LAB))
+               (PRIN2T (CADDDR PR))))
+             (T
+              (PROGN
+               (PROG (I)
+                 (SETQ I 1)
+                LAB
+                 (COND ((MINUSP (DIFFERENCE 72 I)) (RETURN NIL)))
+                 (PRIN2 "-")
+                 (SETQ I (PLUS2 I 1))
+                 (GO LAB))
+               (TERPRI))))))
+         (CAR PR))
+        (SETQ PR (CDR PR))
+        (GO LAB))
+      (SETQ ASSERTSTATISTICS* NIL))) 
+(PUT 'ASSERT_DECLARESTAT 'NUMBER-OF-ARGS 0) 
+(PUT 'ASSERT_DECLARESTAT 'DEFINED-ON-LINE '317) 
+(PUT 'ASSERT_DECLARESTAT 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_DECLARESTAT 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE ASSERT_DECLARESTAT NIL
+    (PROG (L)
+      (SETQ L (ASSERT_STAT-PARSE))
+      (COND ((NOT (AND *ASSERT *ASSERT_PROCEDURES)) (RETURN NIL)))
+      (RETURN (ASSERT_DECLARESTAT1 L)))) 
+(PUT 'ASSERT_DECLARESTAT1 'NUMBER-OF-ARGS 1) 
+(PUT 'ASSERT_DECLARESTAT1 'DEFINED-ON-LINE '326) 
+(PUT 'ASSERT_DECLARESTAT1 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_DECLARESTAT1 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE ASSERT_DECLARESTAT1 (L)
+    (PROG (FNX PROGN ASSERTFN NOASSERTFN ARGL W1 W2 W3 W4 W5 I)
+      (SETQ I 0)
+      (SETQ FNX (EXPLODE (CAR L)))
+      (SETQ ASSERTFN (INTERN (COMPRESS (NCONC (EXPLODE '|ASSERT:|) FNX))))
+      (SETQ NOASSERTFN (INTERN (COMPRESS (NCONC (EXPLODE '|NOASSERT:|) FNX))))
+      (SETQ ARGL
+              (PROG (X FORALL-RESULT FORALL-ENDPTR)
+                (SETQ X (CADR L))
+                (COND ((NULL X) (RETURN NIL)))
+                (SETQ FORALL-RESULT
+                        (SETQ FORALL-ENDPTR
+                                (CONS
+                                 ((LAMBDA (X) (MKID 'A (SETQ I (PLUS I 1))))
+                                  (CAR X))
+                                 NIL)))
+               LOOPLABEL
+                (SETQ X (CDR X))
+                (COND ((NULL X) (RETURN FORALL-RESULT)))
+                (RPLACD FORALL-ENDPTR
+                        (CONS
+                         ((LAMBDA (X) (MKID 'A (SETQ I (PLUS I 1)))) (CAR X))
+                         NIL))
+                (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                (GO LOOPLABEL)))
+      (SETQ W1 (MKQUOTE (CAR L)))
+      (SETQ W2 (MKQUOTE NOASSERTFN))
+      (SETQ W3 (CONS 'LIST ARGL))
+      (SETQ W4
+              (CONS 'LIST
+                    (PROG (FN FORALL-RESULT FORALL-ENDPTR)
+                      (SETQ FN (CADR L))
+                      (COND ((NULL FN) (RETURN NIL)))
+                      (SETQ FORALL-RESULT
+                              (SETQ FORALL-ENDPTR
+                                      (CONS
+                                       ((LAMBDA (FN) (MKQUOTE FN)) (CAR FN))
+                                       NIL)))
+                     LOOPLABEL
+                      (SETQ FN (CDR FN))
+                      (COND ((NULL FN) (RETURN FORALL-RESULT)))
+                      (RPLACD FORALL-ENDPTR
+                              (CONS ((LAMBDA (FN) (MKQUOTE FN)) (CAR FN)) NIL))
+                      (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                      (GO LOOPLABEL))))
+      (SETQ W5 (MKQUOTE (CADDR L)))
+      (SETQ PROGN
+              (CONS
+               (LIST 'DE ASSERTFN ARGL (LIST 'ASSERT_CHECK1 W1 W2 W3 W4 W5))
+               PROGN))
+      (SETQ PROGN
+              (CONS (LIST 'PUT W1 ''ASSERT_ASSERTFN (MKQUOTE ASSERTFN)) PROGN))
+      (SETQ PROGN (CONS (LIST 'PUT W1 ''ASSERT_NOASSERTFN W2) PROGN))
+      (SETQ PROGN (CONS (LIST 'PUT W1 ''ASSERT_INSTALLED NIL) PROGN))
+      (SETQ PROGN
+              (CONS
+               (LIST 'COND
+                     (LIST (LIST 'NOT (LIST 'MEMBER W1 'ASSERT_FUNCTIONL*))
+                           (LIST 'SETQ 'ASSERT_FUNCTIONL*
+                                 (LIST 'CONS W1 'ASSERT_FUNCTIONL*))))
+               PROGN))
+      (COND
+       (*ASSERTINSTALL
+        (PROGN
+         (SETQ PROGN (CONS (LIST 'ASSERT_INSTALL1 (MKQUOTE (CAR L))) PROGN)))))
+      (RETURN (CONS 'PROGN (REVERSIP PROGN))))) 
+(PUT 'ASSERT_STAT-PARSE 'NUMBER-OF-ARGS 0) 
+(PUT 'ASSERT_STAT-PARSE 'DEFINED-ON-LINE '354) 
+(PUT 'ASSERT_STAT-PARSE 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_STAT-PARSE 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE ASSERT_STAT-PARSE NIL
+    (PROG (FN ARGTYPEL RESTYPE)
+      (SETQ FN (SCAN))
+      (COND
+       ((NEQ (SCAN) '*COLON*)
+        (REDERR (LIST "expecting ':' in assert but found" CURSYM*))))
+      (SETQ ARGTYPEL (ASSERT_STAT1))
+      (COND
+       ((OR (NEQ (SCAN) 'DIFFERENCE) (NEQ (SCAN) 'GREATERP))
+        (REDERR (LIST "expecting '->' in assert but found" CURSYM*))))
+      (SETQ RESTYPE (SCAN))
+      (COND
+       ((NOT (FLAGP (SCAN) 'DELIM))
+        (REDERR (LIST "expecting end of assert but found" CURSYM*))))
+      (RETURN (LIST FN ARGTYPEL RESTYPE)))) 
+(PUT 'ASSERT_STAT1 'NUMBER-OF-ARGS 0) 
+(PUT 'ASSERT_STAT1 'DEFINED-ON-LINE '369) 
+(PUT 'ASSERT_STAT1 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_STAT1 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE ASSERT_STAT1 NIL
+    (PROG (ARGTYPEL)
+      (COND
+       ((NEQ (SCAN) '*LPAR*)
+        (REDERR (LIST "expecting '(' in assert but found" CURSYM*))))
+      (COND ((EQ (SCAN) '*RPAR*) (RETURN NIL)))
+      (PROG ()
+       REPEATLABEL
+        (PROGN
+         (SETQ ARGTYPEL (CONS CURSYM* ARGTYPEL))
+         (SCAN)
+         (COND
+          ((AND (NEQ CURSYM* '*COMMA*) (NEQ CURSYM* '*RPAR*))
+           (REDERR
+            (LIST "expecting ', ' or ')' in assert but found" CURSYM*))))
+         (COND ((EQ CURSYM* '*COMMA*) (SCAN))))
+        (COND ((NOT (EQ CURSYM* '*RPAR*)) (GO REPEATLABEL))))
+      (RETURN (REVERSIP ARGTYPEL)))) 
+(PUT 'DECLARE 'STAT 'ASSERT_DECLARESTAT) 
+(PUT 'ASSERT_INSTALL 'NUMBER-OF-ARGS 1) 
+(PUT 'ASSERT_INSTALL 'DEFINED-ON-LINE '390) 
+(PUT 'ASSERT_INSTALL 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_INSTALL 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE ASSERT_INSTALL (FNL)
+    (PROG (FN)
+      (SETQ FN FNL)
+     LAB
+      (COND ((NULL FN) (RETURN NIL)))
+      ((LAMBDA (FN) (ASSERT_INSTALL1 FN)) (CAR FN))
+      (SETQ FN (CDR FN))
+      (GO LAB))) 
+(PUT 'ASSERT_INSTALL 'STAT 'RLIS) 
+(PUT 'ASSERT_INSTALL1 'NUMBER-OF-ARGS 1) 
+(PUT 'ASSERT_INSTALL1 'DEFINED-ON-LINE '399) 
+(PUT 'ASSERT_INSTALL1 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_INSTALL1 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE ASSERT_INSTALL1 (FN)
+    (COND
+     ((GET FN 'ASSERT_INSTALLED)
+      (LPRIM (LIST "assert already installed for" FN)))
+     ((NOT (EQCAR (GETD FN) 'EXPR))
+      (LPRIM (LIST FN "is not an expr procedure - ignoring assert")))
+     (T
+      (PROGN
+       (COPYD (GET FN 'ASSERT_NOASSERTFN) FN)
+       (COPYD FN (GET FN 'ASSERT_ASSERTFN))
+       (PUT FN 'ASSERT_INSTALLED T))))) 
+(PUT 'ASSERT_UNINSTALL 'NUMBER-OF-ARGS 1) 
+(PUT 'ASSERT_UNINSTALL 'DEFINED-ON-LINE '412) 
+(PUT 'ASSERT_UNINSTALL 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_UNINSTALL 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE ASSERT_UNINSTALL (FNL)
+    (PROG (FN)
+      (SETQ FN FNL)
+     LAB
+      (COND ((NULL FN) (RETURN NIL)))
+      ((LAMBDA (FN) (ASSERT_UNINSTALL1 FN)) (CAR FN))
+      (SETQ FN (CDR FN))
+      (GO LAB))) 
+(PUT 'ASSERT_UNINSTALL 'STAT 'RLIS) 
+(PUT 'ASSERT_UNINSTALL1 'NUMBER-OF-ARGS 1) 
+(PUT 'ASSERT_UNINSTALL1 'DEFINED-ON-LINE '421) 
+(PUT 'ASSERT_UNINSTALL1 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_UNINSTALL1 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE ASSERT_UNINSTALL1 (FN)
+    (COND
+     ((NOT (GET FN 'ASSERT_INSTALLED))
+      (LPRIM (LIST "assert not installed for" FN)))
+     (T
+      (PROGN
+       (COPYD FN (GET FN 'ASSERT_NOASSERTFN))
+       (PUT FN 'ASSERT_INSTALLED NIL))))) 
+(FLAG '(ASSERT_INSTALL_ALL) 'OPFN) 
+(PUT 'ASSERT_INSTALL_ALL 'NUMBER-OF-ARGS 0) 
+(PUT 'ASSERT_INSTALL_ALL 'DEFINED-ON-LINE '433) 
+(PUT 'ASSERT_INSTALL_ALL 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_INSTALL_ALL 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE ASSERT_INSTALL_ALL NIL
+    (PROG (FN)
+      (SETQ FN ASSERT_FUNCTIONL*)
+     LAB
+      (COND ((NULL FN) (RETURN NIL)))
+      ((LAMBDA (FN)
+         (COND
+          ((NOT (GET FN 'ASSERT_INSTALLED))
+           (PROGN (LPRIM (LIST "assert_install" FN)) (ASSERT_INSTALL1 FN)))))
+       (CAR FN))
+      (SETQ FN (CDR FN))
+      (GO LAB))) 
+(FLAG '(ASSERT_UNINSTALL_ALL) 'OPFN) 
+(PUT 'ASSERT_UNINSTALL_ALL 'NUMBER-OF-ARGS 0) 
+(PUT 'ASSERT_UNINSTALL_ALL 'DEFINED-ON-LINE '446) 
+(PUT 'ASSERT_UNINSTALL_ALL 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_UNINSTALL_ALL 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE ASSERT_UNINSTALL_ALL NIL
+    (PROG (FN)
+      (SETQ FN ASSERT_FUNCTIONL*)
+     LAB
+      (COND ((NULL FN) (RETURN NIL)))
+      ((LAMBDA (FN)
+         (COND
+          ((GET FN 'ASSERT_INSTALLED)
+           (PROGN
+            (LPRIM (LIST "assert_uninstall" FN))
+            (ASSERT_UNINSTALL1 FN)))))
+       (CAR FN))
+      (SETQ FN (CDR FN))
+      (GO LAB))) 
+(PUT 'FORMASSERT 'NUMBER-OF-ARGS 3) 
+(PUT 'FORMASSERT 'DEFINED-ON-LINE '457) 
+(PUT 'FORMASSERT 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'FORMASSERT 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE FORMASSERT (U VARS MODE)
+    (COND ((AND (EQ MODE 'SYMBOLIC) *ASSERT) (ASSERT_ASSERT U VARS MODE))
+          (T '(COND (NIL NIL))))) 
+(PUT 'ASSERT 'FORMFN 'FORMASSERT) 
+(PUT 'ASSERT 'FORMFN 'FORMASSERT) 
+(PUT 'ASSERT_ASSERT 'NUMBER-OF-ARGS 3) 
+(PUT 'ASSERT_ASSERT 'DEFINED-ON-LINE '466) 
+(PUT 'ASSERT_ASSERT 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_ASSERT 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE ASSERT_ASSERT (U VARS MODE)
+    (PROG (A M)
+      (SETQ A U)
+      (SETQ M
+              (LIST "assertion" (MKQUOTE (CADR A)) "violated in procedure"
+                    (MKQUOTE FNAME*)))
+      (COND
+       (IFL*
+        (SETQ M
+                (CONS
+                 (ASSERT_SCONCAT
+                  (LIST (CAR IFL*) ":" (ASSERT_AT2STR CURLINE*) ":"))
+                 M))))
+      (SETQ M (CONS 'LIST M))
+      (RETURN
+       (LIST 'COND
+             (LIST
+              (LIST 'AND '*EVALASSERT (LIST 'NOT (FORMC (CADR U) VARS MODE)))
+              (LIST 'PROGN (LIST 'COND (LIST '*BACKTRACE (LIST 'BACKTRACE)))
+                    (LIST 'COND (LIST '*ASSERTBREAK (LIST 'REDERR M))
+                          (LIST T (LIST 'LPRIM M))))))))) 
+(PUT 'ASSERT_OUTL2STRING 'NUMBER-OF-ARGS 1) 
+(PUT 'ASSERT_OUTL2STRING 'DEFINED-ON-LINE '479) 
+(PUT 'ASSERT_OUTL2STRING 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_OUTL2STRING 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE ASSERT_OUTL2STRING (OUTL)
+    (ID2STRING
+     (COMPRESS
+      (PROG (X FORALL-RESULT FORALL-ENDPTR)
+        (SETQ X (REVERSE (CDR OUTL)))
+       STARTOVER
+        (COND ((NULL X) (RETURN NIL)))
+        (SETQ FORALL-RESULT
+                ((LAMBDA (X)
+                   (COND ((STRINGP X) (ASSERT_STRING2IDL X)) (T (EXPLODE X))))
+                 (CAR X)))
+        (SETQ FORALL-ENDPTR (LASTPAIR FORALL-RESULT))
+        (SETQ X (CDR X))
+        (COND ((ATOM FORALL-ENDPTR) (GO STARTOVER)))
+       LOOPLABEL
+        (COND ((NULL X) (RETURN FORALL-RESULT)))
+        (RPLACD FORALL-ENDPTR
+                ((LAMBDA (X)
+                   (COND ((STRINGP X) (ASSERT_STRING2IDL X)) (T (EXPLODE X))))
+                 (CAR X)))
+        (SETQ FORALL-ENDPTR (LASTPAIR FORALL-ENDPTR))
+        (SETQ X (CDR X))
+        (GO LOOPLABEL))))) 
+(PUT 'ASSERT_STRING2IDL 'NUMBER-OF-ARGS 1) 
+(PUT 'ASSERT_STRING2IDL 'DEFINED-ON-LINE '483) 
+(PUT 'ASSERT_STRING2IDL 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_STRING2IDL 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE ASSERT_STRING2IDL (S)
+    (COND ((EQUAL S " ") (LIST '! BLANK))
+          (T
+           (PROG (C FORALL-RESULT FORALL-ENDPTR)
+             (SETQ C (EXPLODE S))
+            STARTOVER
+             (COND ((NULL C) (RETURN NIL)))
+             (SETQ FORALL-RESULT
+                     ((LAMBDA (C)
+                        (COND ((OR (EQ C '|"|) (EQ C BLANK)) (LIST '! C))
+                              (T (LIST C))))
+                      (CAR C)))
+             (SETQ FORALL-ENDPTR (LASTPAIR FORALL-RESULT))
+             (SETQ C (CDR C))
+             (COND ((ATOM FORALL-ENDPTR) (GO STARTOVER)))
+            LOOPLABEL
+             (COND ((NULL C) (RETURN FORALL-RESULT)))
+             (RPLACD FORALL-ENDPTR
+                     ((LAMBDA (C)
+                        (COND ((OR (EQ C '|"|) (EQ C BLANK)) (LIST '! C))
+                              (T (LIST C))))
+                      (CAR C)))
+             (SETQ FORALL-ENDPTR (LASTPAIR FORALL-ENDPTR))
+             (SETQ C (CDR C))
+             (GO LOOPLABEL))))) 
+(PUT 'ASSERT_SCONCAT2 'NUMBER-OF-ARGS 2) 
+(PUT 'ASSERT_SCONCAT2 'DEFINED-ON-LINE '497) 
+(PUT 'ASSERT_SCONCAT2 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_SCONCAT2 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE ASSERT_SCONCAT2 (S1 S2)
+    (COMPRESS
+     (APPEND (REVERSIP (CDR (REVERSIP (EXPLODE S1)))) (CDR (EXPLODE S2))))) 
+(PUT 'ASSERT_SCONCAT 'NUMBER-OF-ARGS 1) 
+(PUT 'ASSERT_SCONCAT 'DEFINED-ON-LINE '503) 
+(PUT 'ASSERT_SCONCAT 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_SCONCAT 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE ASSERT_SCONCAT (L)
+    (COND
+     (L
+      (COND ((CDR L) (ASSERT_SCONCAT2 (CAR L) (ASSERT_SCONCAT (CDR L))))
+            (T (CAR L)))))) 
+(PUT 'ASSERT_AT2STR 'NUMBER-OF-ARGS 1) 
+(PUT 'ASSERT_AT2STR 'DEFINED-ON-LINE '513) 
+(PUT 'ASSERT_AT2STR 'DEFINED-IN-FILE 'ASSERT/ASSERT.RED) 
+(PUT 'ASSERT_AT2STR 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE ASSERT_AT2STR (S)
+    (COMPRESS (CONS '|"| (REVERSIP (CONS '|"| (REVERSIP (EXPLODE S))))))) 
+(ENDMODULE) 

@@ -1,0 +1,76 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(MODULE (LIST 'INFIX)) 
+(FLUID '(*MODE)) 
+(GLOBAL '(PRECLIS*)) 
+(PUT 'FORMINFIX 'NUMBER-OF-ARGS 3) 
+(PUT 'FORMINFIX 'DEFINED-ON-LINE '36) 
+(PUT 'FORMINFIX 'DEFINED-IN-FILE 'RLISP/INFIX.RED) 
+(PUT 'FORMINFIX 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE FORMINFIX (U VARS MODE)
+    (PROG (X)
+      (COND
+       ((NULL (EQUAL MODE 'SYMBOLIC))
+        (SETQ X
+                (PROG (J FORALL-RESULT FORALL-ENDPTR)
+                  (SETQ J (CDR U))
+                  (COND ((NULL J) (RETURN NIL)))
+                  (SETQ FORALL-RESULT
+                          (SETQ FORALL-ENDPTR
+                                  (CONS
+                                   ((LAMBDA (J) (LIST 'MKOP (MKARG J VARS)))
+                                    (CAR J))
+                                   NIL)))
+                 LOOPLABEL
+                  (SETQ J (CDR J))
+                  (COND ((NULL J) (RETURN FORALL-RESULT)))
+                  (RPLACD FORALL-ENDPTR
+                          (CONS
+                           ((LAMBDA (J) (LIST 'MKOP (MKARG J VARS))) (CAR J))
+                           NIL))
+                  (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                  (GO LOOPLABEL)))))
+      (SETQ U (LIST (CAR U) (MKARG (CDR U) VARS)))
+      (RETURN (COND (X (CONS 'PROGN (ACONC X U))) (T U))))) 
+(PUT 'INFIX 'FORMFN 'FORMINFIX) 
+(PUT 'INFIX 'NUMBER-OF-ARGS 1) 
+(PUT 'INFIX 'DEFINED-ON-LINE '46) 
+(PUT 'INFIX 'DEFINED-IN-FILE 'RLISP/INFIX.RED) 
+(PUT 'INFIX 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE INFIX (X)
+    (PROGN
+     (PROG (J)
+       (SETQ J X)
+      LAB
+       (COND ((NULL J) (RETURN NIL)))
+       ((LAMBDA (J)
+          (COND ((NOT (MEMBER J PRECLIS*)) (SETQ PRECLIS* (CONS J PRECLIS*)))))
+        (CAR J))
+       (SETQ J (CDR J))
+       (GO LAB))
+     (MKPREC))) 
+(PUT 'PRECEDENCE 'NUMBER-OF-ARGS 1) 
+(PUT 'PRECEDENCE 'DEFINED-ON-LINE '51) 
+(PUT 'PRECEDENCE 'DEFINED-IN-FILE 'RLISP/INFIX.RED) 
+(PUT 'PRECEDENCE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PRECEDENCE (U)
+    (PROG (X Y Z)
+      (SETQ PRECLIS* (DELETE (CAR U) PRECLIS*))
+      (SETQ Y (CADR U))
+      (SETQ X PRECLIS*)
+     A
+      (COND ((NULL X) (RERROR 'RLISP 16 (LIST Y "not found")))
+            ((EQ Y (CAR X))
+             (PROGN
+              (SETQ PRECLIS*
+                      (NCONC* (REVERSIP* Z)
+                              (CONS (CAR X) (CONS (CAR U) (CDR X)))))
+              (MKPREC)
+              (RETURN NIL))))
+      (SETQ Z (CONS (CAR X) Z))
+      (SETQ X (CDR X))
+      (GO A))) 
+(DEFLIST '((INFIX RLIS) (PRECEDENCE RLIS)) 'STAT) 
+(FLAG '(INFIX PRECEDENCE) 'EVAL) 
+(ENDMODULE) 

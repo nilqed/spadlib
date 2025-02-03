@@ -1,0 +1,88 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(MODULE (LIST 'CFACE)) 
+(IMPORTS (LIST 'COLOR0)) 
+(EXPORTS (LIST 'SIMPQG 'SIMPG3 'SIMPCGPARH)) 
+(GLOBAL '(SU_ORDER SPUR_TT N**2-1)) 
+(SETQ SU_ORDER '(3 . 1)) 
+(SETQ SPUR_TT '(1 . 2)) 
+(SETQ N**2-1 '(8 . 1)) 
+(PUT 'SUDIM 'NUMBER-OF-ARGS 1) 
+(PUT 'SUDIM 'DEFINED-ON-LINE '51) 
+(PUT 'SUDIM 'DEFINED-IN-FILE 'XCOLOR/CFACE.RED) 
+(PUT 'SUDIM 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SUDIM (U)
+    (PROGN
+     (SETQ SU_ORDER (SIMP (CAR U)))
+     (SETQ N**2-1 (ADDSQ (MULTSQ SU_ORDER SU_ORDER) (CONS '-1 1)))
+     NIL)) 
+(PUT 'SPTT 'NUMBER-OF-ARGS 1) 
+(PUT 'SPTT 'DEFINED-ON-LINE '59) 
+(PUT 'SPTT 'DEFINED-IN-FILE 'XCOLOR/CFACE.RED) 
+(PUT 'SPTT 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SPTT (U) (PROGN (SETQ SPUR_TT (SIMP (CAR U))) NIL)) 
+(RLISTAT '(SUDIM SPTT)) 
+(PUT 'QG 'SIMPFN 'SIMPCV) 
+(PUT 'G3 'SIMPFN 'SIMPCV) 
+(FLAG '(QG G3) 'FULL) 
+(PUT 'SIMPCV 'NUMBER-OF-ARGS 1) 
+(PUT 'SIMPCV 'DEFINED-ON-LINE '76) 
+(PUT 'SIMPCV 'DEFINED-IN-FILE 'XCOLOR/CFACE.RED) 
+(PUT 'SIMPCV 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SIMPCV (U)
+    (COND
+     ((NEQ (LENGTH U) 4) (CERROR (LIST "Invalid number of edges in vertex" U)))
+     (T
+      (PROGN
+       (COND
+        ((NOT (MEMQ 'SIMPCGRAPH MUL*)) (SETQ MUL* (ACONC* MUL* 'SIMPCGRAPH))))
+       (CONS (LIST (CONS (CONS U 1) 1)) 1))))) 
+(PUT 'SIMPCGRAPH 'NUMBER-OF-ARGS 1) 
+(PUT 'SIMPCGRAPH 'DEFINED-ON-LINE '89) 
+(PUT 'SIMPCGRAPH 'DEFINED-IN-FILE 'XCOLOR/CFACE.RED) 
+(PUT 'SIMPCGRAPH 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SIMPCGRAPH (U)
+    (COND ((OR (NULL (CAR U)) (OR (ATOM (CAR U)) (ATOM (CAR (CAR U))))) U)
+          (T
+           (PROG ()
+             (SETQ SU_ORDER (SIMP (LIST '*SQ SU_ORDER NIL)))
+             (SETQ N**2-1 (ADDSQ (MULTSQ SU_ORDER SU_ORDER) (CONS '-1 1)))
+             (SETQ SPUR_TT (SIMP (LIST '*SQ SPUR_TT NIL)))
+             (RETURN
+              (MULTSQ (SIMPCGRAPH1 (CAR U) NIL 1) (INVSQ (CONS (CDR U) 1)))))))) 
+(PUT 'SIMPCGRAPH1 'NUMBER-OF-ARGS 3) 
+(PUT 'SIMPCGRAPH1 'DEFINED-ON-LINE '102) 
+(PUT 'SIMPCGRAPH1 'DEFINED-IN-FILE 'XCOLOR/CFACE.RED) 
+(PUT 'SIMPCGRAPH1 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE SIMPCGRAPH1 (U V W)
+    (COND
+     ((OR (ATOM U) (ATOM (CAR U)))
+      ((LAMBDA (COEF) (COND ((NULL V) COEF) (T (MULTSQ (COLOR0 V) COEF))))
+       (CONS (COND (*PHYSOP-LOADED (PHYSOP-MULTF U W)) (T (POLY-MULTF U W)))
+             1)))
+     ((NOT (NULL (CDR U)))
+      (ADDSQ (SIMPCGRAPH1 (LIST (CAR U)) V W) (SIMPCGRAPH1 (CDR U) V W)))
+     ((SFP (CAAAR U))
+      (SIMPCGRAPH1 ((LAMBDA (*FACTOR *EXP) (*Q2F (SIMP (PREPF U)))) NIL T) V
+       W))
+     ((EQCAR (CAAAR U) 'QG)
+      (COND ((EQUAL (CDAAR U) 1) (SIMPCGRAPH1 (CDAR U) (CONS (CAAAR U) V) W))
+            (T
+             (CERROR
+              (LIST "Vertex" (CAAAR U) "cannot be multiplied by itself.")))))
+     ((EQCAR (CAAAR U) 'G3)
+      (COND ((EQUAL (CDAAR U) 1) (SIMPCGRAPH1 (CDAR U) (CONS (CAAAR U) V) W))
+            ((EQUAL (CDAAR U) 2)
+             (SIMPCGRAPH1 (CDAR U) (CONS (CAAAR U) (CONS (CAAAR U) V)) W))
+            (T
+             (CERROR
+              (LIST "Vertex" (CAAAR U)
+                    "cannot be multiplied by itself more then twice.")))))
+     (T
+      (SIMPCGRAPH1 (CDAR U) V
+       ((LAMBDA (G126)
+          (COND (*PHYSOP-LOADED (PHYSOP-MULTF G126 W))
+                (T (POLY-MULTF G126 W))))
+        (LIST (CONS (CAAR U) 1))))))) 
+(ENDMODULE) 

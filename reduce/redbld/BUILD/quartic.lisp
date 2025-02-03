@@ -1,0 +1,323 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(MODULE (LIST 'QUARTIC)) 
+(FLUID '(*SUB2 *ROUNDED *TRIGFORM DMODE*)) 
+(SWITCH (LIST (LIST 'EQUAL 'TRIGFORM 'ON))) 
+(PUT 'MULTFQ 'NUMBER-OF-ARGS 2) 
+(PUT 'MULTFQ 'DEFINED-ON-LINE '36) 
+(PUT 'MULTFQ 'DEFINED-IN-FILE 'SOLVE/QUARTIC.RED) 
+(PUT 'MULTFQ 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE MULTFQ (U V)
+    (PROG (X)
+      (SETQ X (GCDF U (CDR V)))
+      (RETURN
+       (CONS
+        ((LAMBDA (G558)
+           (COND (*PHYSOP-LOADED (PHYSOP-MULTF G558 (CAR V)))
+                 (T (POLY-MULTF G558 (CAR V)))))
+         ((LAMBDA (*EXP) (QUOTF1 U X)) T))
+        ((LAMBDA (*EXP) (QUOTF1 (CDR V) X)) T))))) 
+(PUT 'QUOTSQF 'NUMBER-OF-ARGS 2) 
+(PUT 'QUOTSQF 'DEFINED-ON-LINE '43) 
+(PUT 'QUOTSQF 'DEFINED-IN-FILE 'SOLVE/QUARTIC.RED) 
+(PUT 'QUOTSQF 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE QUOTSQF (U V)
+    (PROG (X)
+      (SETQ X (GCDF (CAR U) V))
+      (RETURN
+       (CONS ((LAMBDA (*EXP) (QUOTF1 (CAR U) X)) T)
+             ((LAMBDA (G560)
+                (COND (*PHYSOP-LOADED (PHYSOP-MULTF G560 (CDR U)))
+                      (T (POLY-MULTF G560 (CDR U)))))
+              ((LAMBDA (*EXP) (QUOTF1 V X)) T)))))) 
+(PUT 'CUBERTQ 'NUMBER-OF-ARGS 1) 
+(PUT 'CUBERTQ 'DEFINED-ON-LINE '50) 
+(PUT 'CUBERTQ 'DEFINED-IN-FILE 'SOLVE/QUARTIC.RED) 
+(PUT 'CUBERTQ 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE CUBERTQ (U)
+    ((LAMBDA (U)
+       (COND (*QSUM-SIMPEXPT (QSUM-SIMPEXPT U)) (T (BASIC-SIMPEXPT U))))
+     (LIST (MK*SQ (SUBS2* U)) '(QUOTIENT 1 3)))) 
+(PUT 'SQRTQ 'NUMBER-OF-ARGS 1) 
+(PUT 'SQRTQ 'DEFINED-ON-LINE '57) 
+(PUT 'SQRTQ 'DEFINED-IN-FILE 'SOLVE/QUARTIC.RED) 
+(PUT 'SQRTQ 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SQRTQ (U)
+    ((LAMBDA (U)
+       (COND (*QSUM-SIMPEXPT (QSUM-SIMPEXPT U)) (T (BASIC-SIMPEXPT U))))
+     (LIST (MK*SQ (SUBS2* U)) '(QUOTIENT 1 2)))) 
+(PUT 'SOLVEQUADRATIC 'NUMBER-OF-ARGS 3) 
+(PUT 'SOLVEQUADRATIC 'DEFINED-ON-LINE '64) 
+(PUT 'SOLVEQUADRATIC 'DEFINED-IN-FILE 'SOLVE/QUARTIC.RED) 
+(PUT 'SOLVEQUADRATIC 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE SOLVEQUADRATIC (A2 A1 A0)
+    (COND
+     ((AND *ROUNDED (NUMCOEF A0) (NUMCOEF A1) (NUMCOEF A2))
+      (PROG (Z FORALL-RESULT FORALL-ENDPTR)
+        (SETQ Z (CDR (ROOT_VAL (LIST (MKPOLYEXP2 A2 A1 A0)))))
+        (COND ((NULL Z) (RETURN NIL)))
+        (SETQ FORALL-RESULT
+                (SETQ FORALL-ENDPTR
+                        (CONS
+                         ((LAMBDA (Z)
+                            (SIMP*
+                             (COND ((EQCAR Z 'EQUAL) (CADDR Z))
+                                   (T
+                                    (ERRACH (LIST "Quadratic confusion" Z))))))
+                          (CAR Z))
+                         NIL)))
+       LOOPLABEL
+        (SETQ Z (CDR Z))
+        (COND ((NULL Z) (RETURN FORALL-RESULT)))
+        (RPLACD FORALL-ENDPTR
+                (CONS
+                 ((LAMBDA (Z)
+                    (SIMP*
+                     (COND ((EQCAR Z 'EQUAL) (CADDR Z))
+                           (T (ERRACH (LIST "Quadratic confusion" Z))))))
+                  (CAR Z))
+                 NIL))
+        (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+        (GO LOOPLABEL)))
+     (T
+      (PROG (D)
+        (SETQ D
+                (SQRTQ
+                 (ADDSQ (QUOTSQF (EXPTSQ A1 2) 4) (NEGSQ (MULTSQ A2 A0)))))
+        (SETQ A1 (QUOTSQF (NEGSQ A1) 2))
+        (RETURN
+         (LIST (SUBS2* (MULTSQ (ADDSQ A1 D) (INVSQ A2)))
+               (SUBS2* (MULTSQ (ADDSQ A1 (NEGSQ D)) (INVSQ A2))))))))) 
+(PUT 'NUMCOEF 'NUMBER-OF-ARGS 1) 
+(PUT 'NUMCOEF 'DEFINED-ON-LINE '80) 
+(PUT 'NUMCOEF 'DEFINED-IN-FILE 'SOLVE/QUARTIC.RED) 
+(PUT 'NUMCOEF 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE NUMCOEF (A)
+    (AND (EQUAL (CDR A) 1) (OR (ATOM (CAR A)) (ATOM (CAR (CAR A)))))) 
+(PUT 'MKPOLYEXP2 'NUMBER-OF-ARGS 3) 
+(PUT 'MKPOLYEXP2 'DEFINED-ON-LINE '82) 
+(PUT 'MKPOLYEXP2 'DEFINED-IN-FILE 'SOLVE/QUARTIC.RED) 
+(PUT 'MKPOLYEXP2 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE MKPOLYEXP2 (A2 A1 A0)
+    (PROGN
+     (SETQ A0 (CAR A0))
+     (COND ((CAR A1) (SETQ A0 (CONS (CONS (CONS 'X 1) (CAR A1)) A0))))
+     (MK*SQ (CONS (CONS (CONS (CONS 'X 2) (CAR A2)) A0) 1)))) 
+(PUT 'SOLVECUBIC 'NUMBER-OF-ARGS 4) 
+(PUT 'SOLVECUBIC 'DEFINED-ON-LINE '88) 
+(PUT 'SOLVECUBIC 'DEFINED-IN-FILE 'SOLVE/QUARTIC.RED) 
+(PUT 'SOLVECUBIC 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL GENERAL) GENERAL)) 
+(DE SOLVECUBIC (A3 A2 A1 A0)
+    (PROG (Q R SM SP S1 S2 X)
+      (SETQ A2 (MULTSQ A2 (INVSQ A3)))
+      (SETQ A1 (MULTSQ A1 (INVSQ A3)))
+      (SETQ A0 (MULTSQ A0 (INVSQ A3)))
+      (SETQ Q (ADDSQ (QUOTSQF A1 3) (NEGSQ (QUOTSQF (EXPTSQ A2 2) 9))))
+      (SETQ R
+              (ADDSQ (QUOTSQF (ADDSQ (MULTSQ A1 A2) (NEGSQ (MULTFQ 3 A0))) 6)
+                     (NEGSQ (QUOTSQF (EXPTSQ A2 3) 27))))
+      (COND
+       ((OR (NULL (CAR Q)) (NOT *TRIGFORM) (NOT (ALL_REAL A0 A1 A2)))
+        (GO CBR)))
+      (SETQ S2 (SQRTQ (SIMP (LIST 'ABS (PREPSQ Q)))))
+      (COND ((POS_NUM R) (SETQ S2 (NEGSQ S2))))
+      (COND
+       ((POS_NUM Q)
+        (PROGN
+         (SETQ S1
+                 (QUOTSQF
+                  (TRIGSQ (MULTSQ (NEGSQ R) (INVSQ (EXPTSQ S2 3))) 'ASINH) 3))
+         (SETQ SP (TRIGSQ S1 'SINH))
+         (SETQ SM (MULTSQ (SIMP '(TIMES (SQRT 3) I)) (TRIGSQ S1 'COSH)))))
+       ((POS_NUM (ADDSQ (EXPTSQ Q 3) (EXPTSQ R 2)))
+        (PROGN
+         (SETQ S1
+                 (QUOTSQF
+                  (TRIGSQ (MULTSQ (NEGSQ R) (INVSQ (EXPTSQ S2 3))) 'ACOSH) 3))
+         (SETQ SP (TRIGSQ S1 'COSH))
+         (SETQ SM (MULTSQ (SIMP '(TIMES (SQRT 3) I)) (TRIGSQ S1 'SINH)))))
+       (T
+        (PROGN
+         (SETQ S1
+                 (QUOTSQF
+                  (TRIGSQ (MULTSQ (NEGSQ R) (INVSQ (EXPTSQ S2 3))) 'ACOS) 3))
+         (SETQ SP (TRIGSQ S1 'COS))
+         (SETQ SM (MULTSQ (SIMP '(SQRT 3)) (TRIGSQ S1 'SIN))))))
+      (RETURN
+       (LIST
+        (SUBS2*
+         (ADDSQ (MULTSQ S2 (MULTSQ (CONS (MINUS 2) 1) SP))
+                (NEGSQ (QUOTSQF A2 3))))
+        (SUBS2* (ADDSQ (MULTSQ S2 (ADDSQ SP SM)) (NEGSQ (QUOTSQF A2 3))))
+        (SUBS2*
+         (ADDSQ (MULTSQ S2 (ADDSQ SP (NEGSQ SM))) (NEGSQ (QUOTSQF A2 3))))))
+     CBR
+      (SETQ X (SQRTQ (ADDSQ (EXPTSQ Q 3) (EXPTSQ R 2))))
+      (SETQ S1 (CUBERTQ (ADDSQ R X)))
+      (SETQ S2
+              (COND ((CAR S1) (NEGSQ (MULTSQ Q (INVSQ S1))))
+                    (T (CUBERTQ (ADDSQ R (NEGSQ X))))))
+      (SETQ SP (ADDSQ S1 S2))
+      (SETQ SM
+              (QUOTSQF
+               (MULTSQ (SIMP '(TIMES I (SQRT 3))) (ADDSQ S1 (NEGSQ S2))) 2))
+     COM
+      (SETQ X (ADDSQ SP (NEGSQ (QUOTSQF A2 3))))
+      (SETQ SP (NEGSQ (ADDSQ (QUOTSQF SP 2) (QUOTSQF A2 3))))
+      (RETURN
+       (LIST (SUBS2* X) (SUBS2* (ADDSQ SP SM))
+             (SUBS2* (ADDSQ SP (NEGSQ SM))))))) 
+(PUT 'POS_NUM 'NUMBER-OF-ARGS 1) 
+(PUT 'POS_NUM 'DEFINED-ON-LINE '134) 
+(PUT 'POS_NUM 'DEFINED-IN-FILE 'SOLVE/QUARTIC.RED) 
+(PUT 'POS_NUM 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE POS_NUM (A)
+    (PROG (DMODE *MSG *NUMVAL)
+      (SETQ DMODE DMODE*)
+      (SETQ *NUMVAL T)
+      (ON (LIST 'ROUNDED 'COMPLEX))
+      (SETQ A (RESIMP A))
+      (SETQ A (AND (REAL_1 A) (EQUAL (CAR (SIMP (LIST 'SIGN (MK*SQ A)))) 1)))
+      (OFF (LIST 'ROUNDED 'COMPLEX))
+      (COND (DMODE (ONOFF (GET DMODE 'DNAME) T)))
+      (RETURN A))) 
+(PUT 'TRIGSQ 'NUMBER-OF-ARGS 2) 
+(PUT 'TRIGSQ 'DEFINED-ON-LINE '146) 
+(PUT 'TRIGSQ 'DEFINED-IN-FILE 'SOLVE/QUARTIC.RED) 
+(PUT 'TRIGSQ 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE TRIGSQ (A FN) (SIMPIDEN (LIST FN (MK*SQ (SUBS2* A))))) 
+(PUT 'ALL_REAL 'NUMBER-OF-ARGS 3) 
+(PUT 'ALL_REAL 'DEFINED-ON-LINE '149) 
+(PUT 'ALL_REAL 'DEFINED-IN-FILE 'SOLVE/QUARTIC.RED) 
+(PUT 'ALL_REAL 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE ALL_REAL (A B C)
+    (PROG (DMODE *EZGCD *MSG *NUMVAL)
+      (SETQ DMODE DMODE*)
+      (SETQ *NUMVAL T)
+      (ON (LIST 'COMPLEX 'ROUNDED))
+      (SETQ A
+              (AND (REAL_1 (SETQ A (RESIMP A))) (REAL_1 (SETQ B (RESIMP B)))
+                   (REAL_1 (SETQ C (RESIMP C)))))
+      (OFF (LIST 'ROUNDED 'COMPLEX))
+      (COND (DMODE (ONOFF (GET DMODE 'DNAME) T)))
+      (RETURN A))) 
+(PUT 'REAL_1 'NUMBER-OF-ARGS 1) 
+(PUT 'REAL_1 'DEFINED-ON-LINE '165) 
+(PUT 'REAL_1 'DEFINED-IN-FILE 'SOLVE/QUARTIC.RED) 
+(PUT 'REAL_1 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE REAL_1 (X)
+    (AND (NUMBERP (CDR X)) (OR (ATOM (CAR X)) (ATOM (CAR (CAR X))))
+         (NULL (CAR (IMPARTSQ X))))) 
+(PUT 'ONE_REAL 'NUMBER-OF-ARGS 1) 
+(PUT 'ONE_REAL 'DEFINED-ON-LINE '168) 
+(PUT 'ONE_REAL 'DEFINED-IN-FILE 'SOLVE/QUARTIC.RED) 
+(PUT 'ONE_REAL 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE ONE_REAL (A)
+    (PROG (DMODE *MSG *NUMVAL)
+      (SETQ DMODE DMODE*)
+      (SETQ *NUMVAL T)
+      (ON (LIST 'COMPLEX 'ROUNDED))
+      (SETQ A (REAL_1 (RESIMP A)))
+      (OFF (LIST 'ROUNDED 'COMPLEX))
+      (COND (DMODE (ONOFF (GET DMODE 'DNAME) T)))
+      (RETURN A))) 
+(PUT 'SOLVEQUARTIC 'NUMBER-OF-ARGS 5) 
+(PUT 'SOLVEQUARTIC 'DEFINED-ON-LINE '178) 
+(PUT 'SOLVEQUARTIC 'DEFINED-IN-FILE 'SOLVE/QUARTIC.RED) 
+(PUT 'SOLVEQUARTIC 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL GENERAL GENERAL) GENERAL)) 
+(DE SOLVEQUARTIC (A4 A3 A2 A1 A0)
+    (PROG (X Y YY CX Z S L ZZ1 ZZ2 DMODE NEG *MSG *NUMVAL A1CR A2CR A3CR XCR
+           YCR ZCR)
+      (SETQ DMODE DMODE*)
+      (SETQ A3 (MULTSQ A3 (INVSQ A4)))
+      (SETQ A2 (MULTSQ A2 (INVSQ A4)))
+      (SETQ A1 (MULTSQ A1 (INVSQ A4)))
+      (SETQ A0 (MULTSQ A0 (INVSQ A4)))
+      (SETQ YY (ADDSQ (EXPTSQ A3 2) (NEGSQ (MULTFQ 4 A2))))
+      (SETQ X
+              (SOLVECUBIC (CONS 1 1) (NEGSQ A2)
+               (SUBS2* (ADDSQ (MULTSQ A1 A3) (NEGSQ (MULTFQ 4 A0))))
+               (SUBS2* (NEGSQ (ADDSQ (EXPTSQ A1 2) (MULTSQ A0 YY))))))
+      (SETQ CX (CAR X))
+      (PROG (RR)
+        (SETQ RR X)
+       LAB
+        (COND ((NULL RR) (RETURN NIL)))
+        ((LAMBDA (RR) (COND ((ONE_REAL RR) (SETQ S (APPEND S (LIST RR))))))
+         (CAR RR))
+        (SETQ RR (CDR RR))
+        (GO LAB))
+      (SETQ X (COND ((EQUAL (SETQ L (LENGTH S)) 1) (CAR S)) (T CX)))
+      (SETQ A3 (QUOTSQF A3 2))
+      (SETQ YY (QUOTSQF YY 4))
+      (SETQ Y (ADDSQ YY X))
+      (COND ((LESSP L 2) (GO ZZ)))
+     LOOP
+      (COND ((NOT (POS_NUM (NEGSQ Y))) (GO ZZ))
+            ((EQUAL L 1) (PROGN (SETQ X CX) (SETQ Y (ADDSQ YY X)) (GO ZZ))))
+      (SETQ L (DIFFERENCE L 1))
+      (SETQ S (CDR S))
+      (SETQ X (CAR S))
+      (SETQ Y (ADDSQ YY X))
+      (GO LOOP)
+     ZZ
+      (SETQ Y (SQRTQ Y))
+      (SETQ X (QUOTSQF X 2))
+      (SETQ Z (SQRTQ (ADDSQ (EXPTSQ X 2) (NEGSQ A0))))
+      (SETQ *NUMVAL T)
+      (ON (LIST 'ROUNDED 'COMPLEX))
+      (SETQ A1CR (RESIMP A1))
+      (SETQ A2CR (RESIMP A2))
+      (SETQ A3CR (RESIMP A3))
+      (SETQ XCR (RESIMP X))
+      (SETQ YCR (RESIMP Y))
+      (SETQ ZCR (RESIMP Z))
+      (COND
+       ((NULL
+         (CAR
+          (SETQ ZZ1
+                  (RESIMP
+                   (ADDSQ A1CR
+                          (NEGSQ
+                           (ADDSQ
+                            (MULTSQ (ADDSQ A3CR (NEGSQ YCR)) (ADDSQ XCR ZCR))
+                            (MULTSQ (ADDSQ A3CR YCR)
+                                    (ADDSQ XCR (NEGSQ ZCR))))))))))
+        (GO RST)))
+      (COND
+       ((NULL
+         (CAR
+          (SETQ ZZ2
+                  (RESIMP
+                   (ADDSQ A1CR
+                          (NEGSQ
+                           (ADDSQ
+                            (MULTSQ (ADDSQ A3CR (NEGSQ YCR))
+                                    (ADDSQ XCR (NEGSQ ZCR)))
+                            (MULTSQ (ADDSQ A3CR YCR) (ADDSQ XCR ZCR)))))))))
+        (PROGN (SETQ NEG T) (GO RST))))
+      (COND
+       ((AND (OR (ATOM (CAR ZZ1)) (ATOM (CAR (CAR ZZ1))))
+             (OR (ATOM (CAR ZZ2)) (ATOM (CAR (CAR ZZ2)))) (NUMBERP (CDR ZZ1))
+             (NUMBERP (CDR ZZ2))
+             (EQUAL
+              (CAR
+               (SIMP
+                (LIST 'SIGN
+                      (LIST 'DIFFERENCE (LIST 'NORM (MK*SQ ZZ1))
+                            (LIST 'NORM (MK*SQ ZZ2))))))
+              1))
+        (SETQ NEG T)))
+     RST
+      (OFF (LIST 'ROUNDED 'COMPLEX))
+      (COND (DMODE (ONOFF (GET DMODE 'DNAME) T)))
+      (COND (NEG (SETQ Z (NEGSQ Z))))
+      (RETURN
+       (APPEND
+        (SOLVEQUADRATIC (CONS 1 1) (ADDSQ A3 (NEGSQ Y)) (ADDSQ X (NEGSQ Z)))
+        (SOLVEQUADRATIC (CONS 1 1) (ADDSQ A3 Y) (ADDSQ X Z)))))) 
+(ENDMODULE) 

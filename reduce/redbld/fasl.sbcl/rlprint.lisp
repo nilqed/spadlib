@@ -1,0 +1,123 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(MODULE (LIST 'RLPRINT)) 
+(REVISION 'RLPRINT "$Id: rlprint.red 6030 2021-09-16 14:01:45Z thomas-sturm $") 
+(COPYRIGHT 'RLPRINT "(c) 1995-2009 A. Dolzmann, T. Sturm, 2017-2021 T. Sturm") 
+(PUT 'MIXEDPREFIXFORM 'ASSERT_DYNTYPECHK 'ATOMORPAIRP) 
+(FLAG '(MIXEDPREFIXFORM) 'ASSERT_DYNTYPE) 
+(PUT 'PSEUDOPREFIXFORM 'ASSERT_DYNTYPECHK 'ATOMORPAIRP) 
+(FLAG '(PSEUDOPREFIXFORM) 'ASSERT_DYNTYPE) 
+(PUT '*FOF 'PRIFN 'RL_PRINT*FOF) 
+(PUT 'RL_PRINT*FOF 'NUMBER-OF-ARGS 1) 
+(DE RL_PRINT*FOF (U) (MAPRIN (REVAL1 U T))) 
+(PUT 'AND 'PPRIFN 'RL_PPRIOP) 
+(PUT 'OR 'PPRIFN 'RL_PPRIOP) 
+(PUT 'IMPL 'PPRIFN 'RL_PPRIOP) 
+(PUT 'REPL 'PPRIFN 'RL_PPRIOP) 
+(PUT 'EQUIV 'PPRIFN 'RL_PPRIOP) 
+(PUT 'RL_PPRIOP 'NUMBER-OF-ARGS 2) 
+(DE RL_PPRIOP (F N)
+    (COND ((OR (NULL *NAT) (NULL *RLBROP) (EQN N 0)) 'FAILED)
+          (T
+           (PROGN
+            (PRIN2* "(")
+            (INPRINT (CAR F) (GET (CAR F) 'INFIX) (CDR F))
+            (PRIN2* ")"))))) 
+(PUT 'EX 'PRIFN 'RL_PRIQ) 
+(PUT 'ALL 'PRIFN 'RL_PRIQ) 
+(PUT 'RL_PRIQ 'NUMBER-OF-ARGS 1) 
+(DE RL_PRIQ (QF)
+    (PROG (M)
+      (COND ((NULL *NAT) (RETURN 'FAILED)))
+      (MAPRIN (CAR QF))
+      (COND ((NOT *UTF8) (PRIN2* " ")))
+      (MAPRIN (CADR QF))
+      (PRIN2* " ")
+      (COND
+       ((AND (PAIRP (SETQ M (CADDR QF))) (MEMQ (CAR M) '(EX ALL))) (MAPRIN M))
+       (T (PROGN (PRIN2* "(") (MAPRIN M) (PRIN2* ")")))))) 
+(PUT 'BEX 'PRIFN 'RL_PRIBQ) 
+(PUT 'BALL 'PRIFN 'RL_PRIBQ) 
+(PUT 'RL_PRIBQ 'NUMBER-OF-ARGS 1) 
+(DE RL_PRIBQ (QF)
+    (PROG (W)
+      (COND
+       ((NULL (SETQ W (GET (CAR RL_CID*) 'RL_PRIBQ)))
+        (REDERR
+         (LIST "current context" RL_USEDCNAME*
+               "does not support bounded quantifiers"))))
+      (APPLY W (LIST QF)))) 
+(PUT 'RL_TEXMACSP 'NUMBER-OF-ARGS 0) 
+(DE RL_TEXMACSP NIL (COND ((GETENV "TEXMACS_REDUCE_PATH") T))) 
+(COND
+ ((OR (RL_TEXMACSP) (MEMQ 'CSL LISPSYSTEM*))
+  (PROGN
+   (PUT 'AND 'FANCY-INFIX-SYMBOL "\\,\\wedge\\, ")
+   (PUT 'OR 'FANCY-INFIX-SYMBOL "\\,\\vee\\, ")
+   (PUT 'IMPL 'FANCY-INFIX-SYMBOL "\\,\\longrightarrow\\, ")
+   (PUT 'REPL 'FANCY-INFIX-SYMBOL "\\,\\longleftarrow\\, ")
+   (PUT 'EQUIV 'FANCY-INFIX-SYMBOL "\\,\\longleftrightarrow\\, ")
+   (PUT 'EX 'FANCY-FUNCTIONSYMBOL "\\exists ")
+   (PUT 'ALL 'FANCY-FUNCTIONSYMBOL "\\forall ")))
+ (T
+  (PROGN
+   (PUT 'IMPL 'FANCY-INFIX-SYMBOL 222)
+   (PUT 'REPL 'FANCY-INFIX-SYMBOL 220)
+   (PUT 'EQUIV 'FANCY-INFIX-SYMBOL 219)
+   (PUT 'EX 'FANCY-FUNCTIONSYMBOL 36)
+   (PUT 'ALL 'FANCY-FUNCTIONSYMBOL 34)))) 
+(PUT '*FOF 'FANCY-SETPRIFN 'RL_SETPRINT*FOF) 
+(PUT 'RL_SETPRINT*FOF 'NUMBER-OF-ARGS 2) 
+(DE RL_SETPRINT*FOF (X U)
+    (PROGN (FANCY-MAPRINT X 0) (FANCY-PRIN2* ":=" 4) (RL_PRINT*FOF U))) 
+(PUT '*FOF 'FANCY-PRIFN 'RL_PRINT*FOF) 
+(PUT 'AND 'FANCY-PPRIFN 'RL_FANCY-PPRIOP) 
+(PUT 'OR 'FANCY-PPRIFN 'RL_FANCY-PPRIOP) 
+(PUT 'RL_FANCY-PPRIOP 'NUMBER-OF-ARGS 2) 
+(DE RL_FANCY-PPRIOP (F N)
+    (PROGN
+     (COND ((OR (NULL *NAT) (NULL *RLBROP) (EQN N 0)) 'FAILED)
+           (*RLBROP
+            (FANCY-IN-BRACKETS
+             (LIST 'FANCY-INPRINT (MKQUOTE (CAR F)) N (MKQUOTE (CDR F))) '|(|
+             '|)|))
+           (T (FANCY-INPRINT (CAR F) N (CDR F)))))) 
+(PUT 'EX 'FANCY-PRIFN 'RL_FANCY-PRIQ) 
+(PUT 'ALL 'FANCY-PRIFN 'RL_FANCY-PRIQ) 
+(PUT 'RL_FANCY-PRIQ 'NUMBER-OF-ARGS 1) 
+(DE RL_FANCY-PRIQ (QF)
+    (PROG (M W)
+      (COND ((NULL *NAT) (RETURN 'FAILED)))
+      (SETQ W (FANCY-PREFIX-OPERATOR (CAR QF)))
+      (COND
+       ((EQ W 'FAILED)
+        (PROGN (FANCY-TERPRI* T) (FANCY-PREFIX-OPERATOR (CAR QF)))))
+      (SETQ W (FANCY-MAPRINT-ATOM (CADR QF) 0))
+      (COND
+       ((EQ W 'FAILED)
+        (PROGN (FANCY-TERPRI* T) (FANCY-MAPRINT-ATOM (CADR QF) 0))))
+      (COND
+       ((AND (PAIRP (SETQ M (CADDR QF))) (MEMQ (CAR M) '(EX ALL)))
+        (RETURN (RL_FANCY-PRIQ M))))
+      (SETQ W
+              (FANCY-IN-BRACKETS (LIST 'FANCY-MAPRINT (MKQUOTE M) 0) '|(|
+               '|)|))
+      (COND
+       ((EQ W 'FAILED)
+        (PROGN
+         (FANCY-TERPRI* T)
+         (RETURN
+          (FANCY-IN-BRACKETS (LIST 'FANCY-MAPRINT (MKQUOTE M) 0) '|(|
+           '|)|))))))) 
+(PUT 'BEX 'FANCY-PRIFN 'RL_FANCY-PRIBQ) 
+(PUT 'BALL 'FANCY-PRIFN 'RL_FANCY-PRIBQ) 
+(PUT 'RL_FANCY-PRIBQ 'NUMBER-OF-ARGS 1) 
+(DE RL_FANCY-PRIBQ (QF)
+    (PROG (W)
+      (COND
+       ((NULL (SETQ W (GET (CAR RL_CID*) 'RL_FANCY-PRIBQ)))
+        (REDERR
+         (LIST "current context" RL_USEDCNAME*
+               "does not support bounded quantifiers"))))
+      (APPLY W (LIST QF)))) 
+(ENDMODULE) 

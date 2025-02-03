@@ -1,0 +1,1150 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(MODULE (LIST 'SMT)) 
+(REVISION 'SMT "$Id: smt.red 6071 2021-09-28 13:03:15Z thomas-sturm $") 
+(COPYRIGHT 'SMT "(c) 2013-2021 T. Sturm") 
+(CREATE-PACKAGE '(SMT SMTREAD) NIL) 
+(SWITCH (LIST 'SMTABOUT)) 
+(SWITCH (LIST 'SMTPROMPT)) 
+(GLOBAL '(NXTSYM*)) 
+(GLOBAL '($EOF$)) 
+(GLOBAL '(EMSG*)) 
+(GLOBAL '(*PRETTY-SYMMETRIC)) 
+(FLUID '(*RAISE)) 
+(FLUID '(*LOWER)) 
+(FLUID '(*BACKTRACE)) 
+(FLUID '(*REDEFMSG)) 
+(FLUID '(*RLQEINFCORE)) 
+(FLUID '(*RLQESTDANS)) 
+(FLUID '(*SMTPLAIN)) 
+(FLUID '(*SMTSILENT)) 
+(FLUID '(SMT_ASSERTIONL*)) 
+(FLUID '(SMT_OASSERTIONL*)) 
+(FLUID '(SMT_MODEL*)) 
+(FLUID '(SMT_UNSATCORE*)) 
+(FLUID '(SMT_OPTIONS*)) 
+(SETQ SMT_OPTIONS*
+        '((|:MODEL-VALUES| . "root-of") (|:PRINT-SUCCESS| . TRUE)
+          (|:PRODUCE-MODELS| . FALSE) (|:PRODUCE-UNSAT-CORES| . FALSE))) 
+(PUT '|:MODEL-VALUES| 'SMT_ADMISSIBLE-VALUES '("root-of" "approximately" "raw")) 
+(PUT '|:PRINT-SUCCESS| 'SMT_ADMISSIBLE-VALUES '(TRUE FALSE)) 
+(PUT '|:PRODUCE-MODELS| 'SMT_ADMISSIBLE-VALUES '(FALSE TRUE)) 
+(PUT '|:PRODUCE-MODELS| 'SMT_SWITCH 'SMT_SWITCH-PRODUCE-MODELS) 
+(PUT '|:PRODUCE-UNSAT-CORES| 'SMT_ADMISSIBLE-VALUES '(FALSE TRUE)) 
+(PUT '|:PRODUCE-UNSAT-CORES| 'SMT_SWITCH 'SMT_SWITCH-PRODUCE-UNSAT-CORES) 
+(PUT 'SMT_SWITCH-PRODUCE-MODELS 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_SWITCH-PRODUCE-MODELS 'DEFINED-ON-LINE '72) 
+(PUT 'SMT_SWITCH-PRODUCE-MODELS 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_SWITCH-PRODUCE-MODELS 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_SWITCH-PRODUCE-MODELS (TRUEFALSE)
+    (PROG (*REDEFMSG)
+      (COND
+       ((AND (EQ TRUEFALSE 'TRUE) (NOT *RLQEINFCORE))
+        (PROGN (ON1 'RLQEINFCORE) (RETURN NIL))))
+      (COND
+       ((AND (EQ TRUEFALSE 'FALSE)
+             (EQ (SMT_GETOPTION '|:PRODUCE-UNSAT-CORES|) 'FALSE) *RLQEINFCORE)
+        (OFF1 'RLQEINFCORE))))) 
+(PUT 'SMT_SWITCH-PRODUCE-UNSAT-CORES 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_SWITCH-PRODUCE-UNSAT-CORES 'DEFINED-ON-LINE '83) 
+(PUT 'SMT_SWITCH-PRODUCE-UNSAT-CORES 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_SWITCH-PRODUCE-UNSAT-CORES 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_SWITCH-PRODUCE-UNSAT-CORES (TRUEFALSE)
+    (PROG (*REDEFMSG)
+      (COND
+       ((AND (EQ TRUEFALSE 'TRUE) (NOT *RLQEINFCORE))
+        (PROGN (ON1 'RLQEINFCORE) (RETURN NIL))))
+      (COND
+       ((AND (EQ TRUEFALSE 'FALSE)
+             (EQ (SMT_GETOPTION '|:PRODUCE-MODELS|) 'FALSE) *RLQEINFCORE)
+        (OFF1 'RLQEINFCORE))))) 
+(PUT 'SMT 'PSOPFN 'SMT_SMT) 
+(PUT 'SMT_SMT 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_SMT 'DEFINED-ON-LINE '99) 
+(PUT 'SMT_SMT 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_SMT 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_SMT (ARGL)
+    (PROG (*SMTPLAIN)
+      (SETQ *SMTPLAIN T)
+      (COND
+       ((NOT ARGL)
+        (PROGN (COND (*SMTABOUT (SMT_ABOUT))) (RETURN (SMT_MAINLOOP)))))
+      (COND
+       ((OR (CDR ARGL) (NOT (STRINGP (CAR ARGL))))
+        (REDERR "usage: smt() or smt(\"file\")")))
+      (RETURN (SMT_PROCESSREAD (CAR ARGL))))) 
+(FLAG '(SMT_MAINLOOP) 'OPFN) 
+(PUT 'SMT_MAINLOOP 'NUMBER-OF-ARGS 0) 
+(PUT 'SMT_MAINLOOP 'DEFINED-ON-LINE '114) 
+(PUT 'SMT_MAINLOOP 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_MAINLOOP 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE SMT_MAINLOOP NIL
+    (PROG (OC *REDEFMSG W)
+      (SETQ OC (RL_SET '(OFSF)))
+      (SETQ W (ERRORSET (LIST 'SMT_MAINLOOP1) T NIL))
+      (COND (*RLQEINFCORE (OFF1 'RLQEINFCORE)))
+      (RL_SET OC)
+      (COND ((ERRORP W) NIL)))) 
+(PUT 'SMT_MAINLOOP1 'NUMBER-OF-ARGS 0) 
+(PUT 'SMT_MAINLOOP1 'DEFINED-ON-LINE '125) 
+(PUT 'SMT_MAINLOOP1 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_MAINLOOP1 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE SMT_MAINLOOP1 NIL
+    (PROG (RAISE *LOWER FORM W PNO)
+      (SETQ PNO 0)
+      (SETQ RAISE *RAISE)
+      (SETQ *RAISE (SETQ *LOWER NIL))
+      ((LAMBDA (*SMTSILENT) (SMT_PROCESSRESET)) T)
+      (SETQ PNO (SMT_SETPROMPT 1))
+      (SETQ FORM (SMT_RREAD))
+      (PROG ()
+       WHILELABEL
+        (COND ((NOT (AND (NEQ FORM '(EXIT)) (NEQ FORM $EOF$))) (RETURN NIL)))
+        (PROGN
+         (SETQ W (ERRORSET (LIST 'SMT_PROCESSFORM (MKQUOTE FORM)) NIL NIL))
+         (COND ((ERRORP W) (OR (SMT_ERROR EMSG*) "")))
+         (COND ((EQUAL FORM '(RESET)) (SETQ PNO 1)))
+         (SETQ PNO (SMT_SETPROMPT PNO))
+         (SETQ FORM (SMT_RREAD)))
+        (GO WHILELABEL))
+      (SETQ *RAISE RAISE))) 
+(PUT 'SMT_SETPROMPT 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_SETPROMPT 'DEFINED-ON-LINE '144) 
+(PUT 'SMT_SETPROMPT 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_SETPROMPT 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_SETPROMPT (PNO)
+    (PROGN
+     (COND (*SMTPROMPT (SETPCHAR (LTO_SCONCAT (LIST (LTO_AT2STR PNO) "% "))))
+           (T (SETPCHAR "")))
+     (PLUS PNO 1))) 
+(PUT 'SMT_PROCESSFORM 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_PROCESSFORM 'DEFINED-ON-LINE '153) 
+(PUT 'SMT_PROCESSFORM 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PROCESSFORM 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_PROCESSFORM (FORM)
+    (COND ((EQCAR FORM 'ASSERT) (SMT_PROCESSASSERT (CADR FORM)))
+          ((EQCAR FORM 'CHECK-SAT) (SMT_PROCESSCHECKSAT))
+          ((EQCAR FORM 'GET-MODEL) (SMT_PROCESSGETMODEL))
+          ((EQCAR FORM 'GET-UNSAT-CORE) (SMT_PROCESSGETUNSATCORE))
+          ((EQCAR FORM 'GET-ASSERTIONS) (SMT_PROCESSGETASSERTIONS))
+          ((EQCAR FORM 'RESET) (SMT_PROCESSRESET))
+          ((EQCAR FORM 'RESET-ASSERTIONS) (SMT_PROCESSRESETASSERTIONS))
+          ((EQCAR FORM 'SET-LOGIC) (SMT_PROCESSSETLOGIC (CADR FORM)))
+          ((EQCAR FORM 'READ) (SMT_PROCESSREAD (CADR FORM)))
+          ((EQCAR FORM 'ELIMINATE-QUANTIFIERS)
+           (SMT_PROCESSELIMINATEQUANTIFIERS))
+          ((EQCAR FORM 'REDUCE-EVAL) (SMT_PROCESSREDUCEEVAL (CADR FORM)))
+          ((EQCAR FORM 'REDUCE-GET-ASSERTIONS)
+           (SMT_PROCESSREDUCEGETASSERTIONS FORM))
+          ((EQCAR FORM 'SET-OPTION)
+           (SMT_PROCESSSETOPTION (CADR FORM) (CADDR FORM)))
+          ((EQCAR FORM 'GET-OPTION) (SMT_PROCESSGETOPTION (CADR FORM)))
+          ((EQCAR FORM 'QUIT) (BYE)) ((EQCAR FORM 'HELP) (SMT_PROCESSHELP))
+          ((EQCAR FORM 'SET-INFO) NIL) ((EQCAR FORM 'DECLARE-CONST) NIL)
+          ((EQCAR FORM 'DECLARE-FUN) NIL) (T (SMT_ERROR "")))) 
+(PUT 'SMT_PROCESSHELP 'NUMBER-OF-ARGS 0) 
+(PUT 'SMT_PROCESSHELP 'DEFINED-ON-LINE '195) 
+(PUT 'SMT_PROCESSHELP 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PROCESSHELP 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE SMT_PROCESSHELP NIL
+    (PROGN
+     (IOTO_TPRIN2T "(assert t)                   add assertions")
+     (IOTO_TPRIN2T "(declare-const f sigma)      ignored")
+     (IOTO_TPRIN2T "(declare-fun f (sigma_1 ... sigma_n) sigma)")
+     (IOTO_TPRIN2T "                             ignored")
+     (IOTO_TPRIN2T
+      "(check-sat)                  return sat, unsat, or unknown")
+     (IOTO_TPRIN2T
+      "(exit)                       exit the SMT-LIB REPL and return to Reduce")
+     (IOTO_TPRIN2T "(get-assertions)             print current assertions")
+     (IOTO_TPRIN2T "(get-model)                  get model after sat")
+     (IOTO_TPRIN2T "(get-option o)               get current option value")
+     (IOTO_TPRIN2T
+      "(get-unsat-core)             get minimal unsat core after unsat")
+     (IOTO_TPRIN2T "(reset)                      reset everything")
+     (IOTO_TPRIN2T "(reset-assertions)           remove all assertions")
+     (IOTO_TPRIN2T
+      "(set-logic l)                set current logic to l in {NRA, QF_NRA}")
+     (TERPRI)
+     (IOTO_TPRIN2T "(set-option :model-values <string>)")
+     (IOTO_TPRIN2T
+      "  \"root-of\"                  use root expressions (default)")
+     (IOTO_TPRIN2T
+      "  \"approximately\"            use p digit decimal approximations, default p=12")
+     (IOTO_TPRIN2T
+      "                             change with (reduce-eval (precision p))")
+     (IOTO_TPRIN2T
+      "  \"raw\"                      show raw Redlog results (not SMT-LIB 2 compliant)")
+     (IOTO_TPRIN2T "(set-option :produce-assertions <b_value>)")
+     (IOTO_TPRIN2T "(set-option :produce-models <b_value>)")
+     (IOTO_TPRIN2T "(set-option :produce-unsat-cores <b_value>)")
+     (TERPRI)
+     (IOTO_TPRIN2T "(help)                       this help")
+     (IOTO_TPRIN2T "(read <string>)              read an SMT-LIB2 file")
+     (IOTO_TPRIN2T
+      "(reduce-get-assertions <id>) print existing assertions as a Reduce assignment")
+     (IOTO_TPRIN2T
+      "(reduce-eval <form>)         evaluate <form> in Reduce Standard Lisp"))) 
+(PUT 'SMT_PROCESSASSERT 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_PROCESSASSERT 'DEFINED-ON-LINE '226) 
+(PUT 'SMT_PROCESSASSERT 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PROCESSASSERT 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_PROCESSASSERT (CONSTRAINT)
+    (PROGN
+     (SETQ SMT_ASSERTIONL*
+             (NCONC SMT_ASSERTIONL* (LIST (SMT_TORL CONSTRAINT))))
+     (SETQ SMT_OASSERTIONL* (NCONC SMT_OASSERTIONL* (LIST CONSTRAINT)))
+     (SETQ SMT_MODEL* 'UNSET)
+     (SETQ SMT_UNSATCORE* 'UNSET)
+     (SMT_SUCCESS 'SUCCESS))) 
+(PUT 'SMT_PROCESSELIMINATEQUANTIFIERS 'NUMBER-OF-ARGS 0) 
+(PUT 'SMT_PROCESSELIMINATEQUANTIFIERS 'DEFINED-ON-LINE '261) 
+(PUT 'SMT_PROCESSELIMINATEQUANTIFIERS 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PROCESSELIMINATEQUANTIFIERS 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE SMT_PROCESSELIMINATEQUANTIFIERS NIL
+    (PROG (W)
+      (OFF1 'RLQEINFCORE)
+      (SETQ W
+              (ERRORSET
+               (LIST 'OFSF_QE (LIST 'RL_SMKN ''AND (MKQUOTE SMT_ASSERTIONL*))
+                     NIL)
+               T *BACKTRACE))
+      (ON1 'RLQEINFCORE)
+      (COND ((ERRORP W) (RETURN (SMT_ERROR ""))))
+      (SMT_SUCCESS (SMT_FROMRL (CAR W))))) 
+(PUT 'SMT_PROCESSCHECKSAT 'NUMBER-OF-ARGS 0) 
+(PUT 'SMT_PROCESSCHECKSAT 'DEFINED-ON-LINE '271) 
+(PUT 'SMT_PROCESSCHECKSAT 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PROCESSCHECKSAT 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE SMT_PROCESSCHECKSAT NIL
+    (COND
+     ((EQ (SMT_GETOPTION '|:PRODUCE-UNSAT-CORES|) 'TRUE)
+      (SMT_PROCESSCHECKSATPM))
+     ((EQ (SMT_GETOPTION '|:PRODUCE-MODELS|) 'TRUE) (SMT_PROCESSCHECKSATPM))
+     (T (SMT_PROCESSCHECKSAT1)))) 
+(PUT 'SMT_PROCESSCHECKSAT1 'NUMBER-OF-ARGS 0) 
+(PUT 'SMT_PROCESSCHECKSAT1 'DEFINED-ON-LINE '279) 
+(PUT 'SMT_PROCESSCHECKSAT1 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PROCESSCHECKSAT1 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE SMT_PROCESSCHECKSAT1 NIL
+    (PROG (W)
+      (SETQ W
+              (RL_QE
+               (RL_EX
+                ((LAMBDA (G140)
+                   (COND ((AND G140 (CDR G140)) (CONS 'AND G140))
+                         ((NULL G140) (COND ((EQ 'AND 'AND) 'TRUE) (T 'FALSE)))
+                         (T (CAR G140))))
+                 SMT_ASSERTIONL*)
+                NIL)
+               NIL))
+      (SMT_SUCCESS
+       (COND ((EQ W 'TRUE) 'SAT) ((EQ W 'FALSE) 'UNSAT) (T 'UNKOWN))))) 
+(PUT 'SMT_PROCESSCHECKSATPUC 'NUMBER-OF-ARGS 0) 
+(PUT 'SMT_PROCESSCHECKSATPUC 'DEFINED-ON-LINE '285) 
+(PUT 'SMT_PROCESSCHECKSATPUC 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PROCESSCHECKSATPUC 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE SMT_PROCESSCHECKSATPUC NIL
+    (PROG (W TVAL MODEL)
+      (SETQ W
+              (CL_QEA
+               (RL_EX
+                ((LAMBDA (G142)
+                   (COND ((AND G142 (CDR G142)) (CONS 'AND G142))
+                         ((NULL G142) (COND ((EQ 'AND 'AND) 'TRUE) (T 'FALSE)))
+                         (T (CAR G142))))
+                 SMT_ASSERTIONL*)
+                NIL)
+               NIL))
+      (COND ((NULL W) (PROGN (SMT_SUCCESS 'UNSAT) (RETURN NIL))))
+      (PROG (G143)
+        (SETQ G143 (CAR W))
+        (SETQ TVAL (CAR G143))
+        (SETQ MODEL (CDR G143))
+        (RETURN G143))
+      (COND
+       ((EQ TVAL 'TRUE)
+        (PROGN
+         (COND (MODEL (PROGN (SETQ SMT_MODEL* MODEL) (SMT_SUCCESS 'SAT)))
+               (T (SMT_SUCCESS 'UNKNOWN)))))
+       ((EQ TVAL 'FALSE) (SMT_SUCCESS 'UNSAT)) (T (SMT_SUCCESS 'UNKNOWN))))) 
+(PUT 'SMT_PROCESSCHECKSATPM 'NUMBER-OF-ARGS 0) 
+(PUT 'SMT_PROCESSCHECKSATPM 'DEFINED-ON-LINE '306) 
+(PUT 'SMT_PROCESSCHECKSATPM 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PROCESSCHECKSATPM 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE SMT_PROCESSCHECKSATPM NIL
+    (PROG (W CONSTANTS Q TVAL MODEL *RLQESTDANS)
+      (SETQ *RLQESTDANS T)
+      (SETQ W
+              (RL_PNF
+               ((LAMBDA (G145)
+                  (COND ((AND G145 (CDR G145)) (CONS 'AND G145))
+                        ((NULL G145) (COND ((EQ 'AND 'AND) 'TRUE) (T 'FALSE)))
+                        (T (CAR G145))))
+                SMT_ASSERTIONL*)))
+      (SETQ CONSTANTS (CL_FVARL1 W))
+      (SETQ W (RL_EX W NIL))
+      (SETQ Q (COND ((ATOM W) W) (T (CAR W))))
+      (COND
+       ((NOT (OR (EQ Q 'EX) (EQ Q 'ALL)))
+        (PROGN
+         (SETQ W (RL_SIMPL W NIL (MINUS 1)))
+         (COND ((EQ W 'TRUE) (SMT_SUCCESS 'SAT))
+               ((EQ W 'FALSE) (SMT_SUCCESS 'UNSAT))
+               (T (REDERR (LIST "error in check-sat, result is" W))))
+         (RETURN NIL))))
+      (SETQ W (CL_QEA W NIL))
+      (COND
+       ((NULL W)
+        (PROGN
+         (SETQ SMT_MODEL* NIL)
+         (SMT_SUCCESS (COND ((EQ Q 'EX) 'UNSAT) (T 'SAT)))
+         (RETURN NIL))))
+      (SETQ W (CAR W))
+      (SETQ TVAL (CAR W))
+      (COND
+       ((EQ TVAL 'TRUE)
+        (PROGN
+         (SETQ MODEL
+                 (PROG (PR FORALL-RESULT FORALL-ENDPTR)
+                   (SETQ PR (CDR W))
+                  STARTOVER
+                   (COND ((NULL PR) (RETURN NIL)))
+                   (SETQ FORALL-RESULT
+                           ((LAMBDA (PR)
+                              (COND ((MEMQ (CAR PR) CONSTANTS) (LIST PR))))
+                            (CAR PR)))
+                   (SETQ FORALL-ENDPTR (LASTPAIR FORALL-RESULT))
+                   (SETQ PR (CDR PR))
+                   (COND ((ATOM FORALL-ENDPTR) (GO STARTOVER)))
+                  LOOPLABEL
+                   (COND ((NULL PR) (RETURN FORALL-RESULT)))
+                   (RPLACD FORALL-ENDPTR
+                           ((LAMBDA (PR)
+                              (COND ((MEMQ (CAR PR) CONSTANTS) (LIST PR))))
+                            (CAR PR)))
+                   (SETQ FORALL-ENDPTR (LASTPAIR FORALL-ENDPTR))
+                   (SETQ PR (CDR PR))
+                   (GO LOOPLABEL)))
+         (SETQ SMT_MODEL* MODEL)
+         (SMT_SUCCESS 'SAT)))
+       ((EQ TVAL 'FALSE) (SMT_SUCCESS 'UNSAT)) (T (SMT_SUCCESS 'UNKNOWN))))) 
+(PUT 'SMT_PROCESSCHECKSATALLPOSP 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_PROCESSCHECKSATALLPOSP 'DEFINED-ON-LINE '342) 
+(PUT 'SMT_PROCESSCHECKSATALLPOSP 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PROCESSCHECKSATALLPOSP 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_PROCESSCHECKSATALLPOSP (ASSL)
+    (PROG (VL PVL)
+      (PROG (ASS)
+        (SETQ ASS ASSL)
+       LAB
+        (COND ((NULL ASS) (RETURN NIL)))
+        ((LAMBDA (ASS)
+           (PROGN
+            (SETQ VL (UNION VL (RL_FVARL ASS)))
+            (COND
+             ((AND (EQ (COND ((ATOM ASS) ASS) (T (CAR ASS))) 'GREATERP)
+                   (SFTO_VARP (CADR ASS)))
+              (SETQ PVL (LTO_INSERTQ (CAAAR (CADR ASS)) PVL))))))
+         (CAR ASS))
+        (SETQ ASS (CDR ASS))
+        (GO LAB))
+      (RETURN (EQUAL (LENGTH VL) (LENGTH PVL))))) 
+(PUT 'SMT_PROCESSGETMODEL 'NUMBER-OF-ARGS 0) 
+(PUT 'SMT_PROCESSGETMODEL 'DEFINED-ON-LINE '352) 
+(PUT 'SMT_PROCESSGETMODEL 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PROCESSGETMODEL 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE SMT_PROCESSGETMODEL NIL
+    (COND ((EQ (SMT_GETOPTION '|:PRODUCE-UNSAT-CORES|) 'TRUE) (SMT_GETMODELPM))
+          ((EQ (SMT_GETOPTION '|:PRODUCE-MODELS|) 'TRUE) (SMT_GETMODELPM))
+          (T (SMT_ERROR "option :produce-models is false")))) 
+(PUT 'SMT_GETMODELPM 'NUMBER-OF-ARGS 0) 
+(PUT 'SMT_GETMODELPM 'DEFINED-ON-LINE '360) 
+(PUT 'SMT_GETMODELPM 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_GETMODELPM 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE SMT_GETMODELPM NIL
+    (COND ((EQ SMT_MODEL* 'UNSET) (SMT_ERROR "no model available"))
+          (T
+           (SMT_SUCCESS-MODEL
+            (PROG (PR FORALL-RESULT FORALL-ENDPTR)
+              (SETQ PR SMT_MODEL*)
+              (COND ((NULL PR) (RETURN NIL)))
+              (SETQ FORALL-RESULT
+                      (SETQ FORALL-ENDPTR
+                              (CONS
+                               ((LAMBDA (PR)
+                                  (SMT_GETMODELPM1 PR
+                                   (SMT_GETOPTION '|:MODEL-VALUES|)))
+                                (CAR PR))
+                               NIL)))
+             LOOPLABEL
+              (SETQ PR (CDR PR))
+              (COND ((NULL PR) (RETURN FORALL-RESULT)))
+              (RPLACD FORALL-ENDPTR
+                      (CONS
+                       ((LAMBDA (PR)
+                          (SMT_GETMODELPM1 PR
+                           (SMT_GETOPTION '|:MODEL-VALUES|)))
+                        (CAR PR))
+                       NIL))
+              (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+              (GO LOOPLABEL)))))) 
+(PUT 'SMT_GETMODELPM1 'NUMBER-OF-ARGS 2) 
+(PUT 'SMT_GETMODELPM1 'DEFINED-ON-LINE '367) 
+(PUT 'SMT_GETMODELPM1 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_GETMODELPM1 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE SMT_GETMODELPM1 (PR MVOPTION)
+    (PROG (IV POLY A B C D SQRTD R)
+      (COND
+       ((EQUAL MVOPTION "raw") (RETURN (SMT_GETMODELFORM (CAR PR) (CDR PR)))))
+      (COND
+       ((CADR (AEX_CTX (ANU_DP (CDR PR)))) (RETURN (SMT_GETMODELFLOAT PR))))
+      (SETQ IV (ANU_IV (CDR PR)))
+      (SETQ POLY (SFTO_SQFPARTF (CAR (AEX_EX (ANU_DP (CDR PR))))))
+      (COND
+       ((EQUAL (IV_LB IV) (IV_RB IV))
+        (RETURN
+         (SMT_GETMODELFORM (CAR PR)
+          (SMT_FROMRLTERM
+           (PREPSQ (SUBF POLY (LIST (CONS (CAR PR) (PREPSQ (IV_LB IV)))))))))))
+      (COND
+       ((EQUAL (CDAAR POLY) 1)
+        (RETURN
+         (SMT_GETMODELFORM (CAR PR)
+          (SMT_FROMRLTERM
+           (PREPSQ
+            (MULTSQ (CONS (NEGF (CDR POLY)) 1)
+                    (INVSQ (CONS (CDAR POLY) 1)))))))))
+      (COND
+       ((EQUAL (CDAAR POLY) 2)
+        (PROGN
+         (SETQ C POLY)
+         (SETQ A (CDAR C))
+         (SETQ C (CDR C))
+         (COND
+          ((NOT (OR (ATOM C) (ATOM (CAR C))))
+           (PROGN (SETQ B (CDAR C)) (SETQ C (CDR C))))
+          (T (SETQ B NIL)))
+         (SETQ D
+                 (ADDF (EXPTF B 2)
+                       (NEGF
+                        ((LAMBDA (G147)
+                           (COND (*PHYSOP-LOADED (PHYSOP-MULTF 4 G147))
+                                 (T (POLY-MULTF 4 G147))))
+                         (COND (*PHYSOP-LOADED (PHYSOP-MULTF A C))
+                               (T (POLY-MULTF A C)))))))
+         (SETQ SQRTD (FIX (SQRT D)))
+         (COND
+          ((EQUAL (EXPT SQRTD 2) D)
+           (PROGN
+            (SETQ R
+                    (MULTSQ (CONS (ADDF (NEGF B) SQRTD) 1)
+                            (INVSQ
+                             (CONS
+                              (COND (*PHYSOP-LOADED (PHYSOP-MULTF 2 A))
+                                    (T (POLY-MULTF 2 A)))
+                              1))))
+            (COND
+             ((AND (SFTO_LESSQ (IV_LB IV) R) (SFTO_LESSQ R (IV_RB IV)))
+              (RETURN
+               (SMT_GETMODELFORM (CAR PR) (SMT_FROMRLTERM (PREPSQ R))))))
+            (SETQ R
+                    (MULTSQ (CONS (ADDF (NEGF B) (NEGF SQRTD)) 1)
+                            (INVSQ
+                             (CONS
+                              (COND (*PHYSOP-LOADED (PHYSOP-MULTF 2 A))
+                                    (T (POLY-MULTF 2 A)))
+                              1))))
+            (RETURN
+             (SMT_GETMODELFORM (CAR PR) (SMT_FROMRLTERM (PREPSQ R))))))))))
+      (COND ((EQUAL MVOPTION "approximately") (RETURN (SMT_GETMODELFLOAT PR))))
+      (RETURN
+       (SMT_GETMODELFORM (CAR PR)
+        (LIST "@root-of"
+              (SMT_FROMRLTERM (PREPSQ (SUBF POLY (LIST (CONS (CAR PR) '_Z)))))
+              (SMT_FROMRLTERM (PREPSQ (IV_LB IV)))
+              (SMT_FROMRLTERM (PREPSQ (IV_RB IV)))))))) 
+(PUT 'SMT_GETMODELFLOAT 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_GETMODELFLOAT 'DEFINED-ON-LINE '410) 
+(PUT 'SMT_GETMODELFLOAT 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_GETMODELFLOAT 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_GETMODELFLOAT (PR)
+    (SMT_GETMODELFORM (CAR PR)
+     (LIST "@approximately" (SMT_FLOATTOSTR (ANU_EVALFR (CDR PR)))))) 
+(PUT 'SMT_GETMODELFORM 'NUMBER-OF-ARGS 2) 
+(PUT 'SMT_GETMODELFORM 'DEFINED-ON-LINE '414) 
+(PUT 'SMT_GETMODELFORM 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_GETMODELFORM 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE SMT_GETMODELFORM (CONST VALUE) (LIST 'DEFINE-FUN CONST '|()| '|rEAL| VALUE)) 
+(PUT 'SMT_FLOATTOSTR 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_FLOATTOSTR 'DEFINED-ON-LINE '417) 
+(PUT 'SMT_FLOATTOSTR 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_FLOATTOSTR 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_FLOATTOSTR (X)
+    (COND
+     ((MINUSF (CAR (SIMP X)))
+      (LIST '- (IOTO_SMAPRIN (EVALF0 (LIST (PREPSQ (NEGSQ (SIMP X))))))))
+     (T (IOTO_SMAPRIN X)))) 
+(PUT 'SMT_SUCCESS-MODEL 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_SUCCESS-MODEL 'DEFINED-ON-LINE '423) 
+(PUT 'SMT_SUCCESS-MODEL 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_SUCCESS-MODEL 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_SUCCESS-MODEL (MODEL)
+    (COND
+     (*SMTPLAIN
+      (PROGN
+       (IOTO_TPRIN2T "(")
+       (PROG (FORM)
+         (SETQ FORM MODEL)
+        LAB
+         (COND ((NULL FORM) (RETURN NIL)))
+         ((LAMBDA (FORM)
+            (PROGN
+             (IOTO_TPRIN2T
+              (LIST "  (" (NTH FORM 1) " " (NTH FORM 2) " " (NTH FORM 3) " "
+                    (NTH FORM 4)))
+             (IOTO_TPRIN2T (LIST "    " (NTH FORM 5) ")"))))
+          (CAR FORM))
+         (SETQ FORM (CDR FORM))
+         (GO LAB))
+       (IOTO_TPRIN2T ")")))
+     (T (SMT_SUCCESS MODEL)))) 
+(PUT 'SMT_GETMODELVERIT 'NUMBER-OF-ARGS 0) 
+(PUT 'SMT_GETMODELVERIT 'DEFINED-ON-LINE '435) 
+(PUT 'SMT_GETMODELVERIT 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_GETMODELVERIT 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE SMT_GETMODELVERIT NIL
+    (PROG (VARL MODEL MAL W)
+      (SETQ MODEL SMT_MODEL*)
+      (COND ((EQ MODEL 'UNSET) (PROGN (SMT_ERROR "") (RETURN NIL))))
+      (PROG (E)
+        (SETQ E MODEL)
+       LAB
+        (COND ((NULL E) (RETURN NIL)))
+        ((LAMBDA (E)
+           (PROGN
+            (SETQ W (SMT_ANUASSOC (CDR E) MAL))
+            (COND (W (SETCDR W (CONS (CAR E) (CDR W))))
+                  (T (SETQ MAL (CONS (CONS (CDR E) (LIST (CAR E))) MAL))))
+            NIL))
+         (CAR E))
+        (SETQ E (CDR E))
+        (GO LAB))
+      (SETQ W (SMT_GETOPTION '|:MODEL-VALUES|))
+      (SMT_SUCCESS
+       (PROG (PR FORALL-RESULT FORALL-ENDPTR)
+         (SETQ PR MAL)
+         (COND ((NULL PR) (RETURN NIL)))
+         (SETQ FORALL-RESULT
+                 (SETQ FORALL-ENDPTR
+                         (CONS
+                          ((LAMBDA (PR)
+                             (LIST (CDR PR)
+                                   (COND
+                                    ((EQUAL W "interval")
+                                     (LIST 'INTERVAL
+                                           (SMT_RAT2SMT2
+                                            (IV_LB (ANU_IV (CAR PR))))
+                                           (SMT_RAT2SMT2
+                                            (IV_RB (ANU_IV (CAR PR))))))
+                                    ((EQUAL W "hidden") "()")
+                                    ((EQUAL W "anu") (CAR PR))
+                                    (T (IOTO_SMAPRIN (ANU_EVALFR (CAR PR)))))))
+                           (CAR PR))
+                          NIL)))
+        LOOPLABEL
+         (SETQ PR (CDR PR))
+         (COND ((NULL PR) (RETURN FORALL-RESULT)))
+         (RPLACD FORALL-ENDPTR
+                 (CONS
+                  ((LAMBDA (PR)
+                     (LIST (CDR PR)
+                           (COND
+                            ((EQUAL W "interval")
+                             (LIST 'INTERVAL
+                                   (SMT_RAT2SMT2 (IV_LB (ANU_IV (CAR PR))))
+                                   (SMT_RAT2SMT2 (IV_RB (ANU_IV (CAR PR))))))
+                            ((EQUAL W "hidden") "()")
+                            ((EQUAL W "anu") (CAR PR))
+                            (T (IOTO_SMAPRIN (ANU_EVALFR (CAR PR)))))))
+                   (CAR PR))
+                  NIL))
+         (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+         (GO LOOPLABEL)))
+      (SETQ VARL
+              (CL_FVARL1
+               ((LAMBDA (G149)
+                  (COND ((AND G149 (CDR G149)) (CONS 'AND G149))
+                        ((NULL G149) (COND ((EQ 'AND 'AND) 'TRUE) (T 'FALSE)))
+                        (T (CAR G149))))
+                SMT_ASSERTIONL*)))
+      (PROG (E)
+        (SETQ E MODEL)
+       LAB
+        (COND ((NULL E) (RETURN NIL)))
+        ((LAMBDA (E) (SETQ VARL (LTO_DELQIP (CAR E) VARL))) (CAR E))
+        (SETQ E (CDR E))
+        (GO LAB))
+      (PROG (V)
+        (SETQ V VARL)
+       LAB
+        (COND ((NULL V) (RETURN NIL)))
+        ((LAMBDA (V) (SETQ MODEL (CONS (LIST 'EQUAL V V) MODEL))) (CAR V))
+        (SETQ V (CDR V))
+        (GO LAB)))) 
+(PUT 'SMT_RAT2SMT2 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_RAT2SMT2 'DEFINED-ON-LINE '471) 
+(PUT 'SMT_RAT2SMT2 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_RAT2SMT2 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_RAT2SMT2 (Q) (LIST '/ (RAT_NUMRN Q) (RAT_DENR Q))) 
+(PUT 'SMT_ANUASSOC 'NUMBER-OF-ARGS 2) 
+(PUT 'SMT_ANUASSOC 'DEFINED-ON-LINE '474) 
+(PUT 'SMT_ANUASSOC 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_ANUASSOC 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE SMT_ANUASSOC (ANU AL)
+    (COND ((NULL AL) NIL) ((EQN (ANU_COMPARE ANU (CAAR AL)) 0) (CAR AL))
+          (T (SMT_ANUASSOC ANU (CDR AL))))) 
+(PUT 'SMT_RL2SMTANS 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_RL2SMTANS 'DEFINED-ON-LINE '482) 
+(PUT 'SMT_RL2SMTANS 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_RL2SMTANS 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_RL2SMTANS (SMTFORM)
+    (COND ((ATOM SMTFORM) (SMT_RL2SMTSYM SMTFORM))
+          (T
+           (CONS (SMT_RL2SMTSYM (CAR SMTFORM))
+                 (PROG (ARG FORALL-RESULT FORALL-ENDPTR)
+                   (SETQ ARG (CDR SMTFORM))
+                   (COND ((NULL ARG) (RETURN NIL)))
+                   (SETQ FORALL-RESULT
+                           (SETQ FORALL-ENDPTR
+                                   (CONS
+                                    ((LAMBDA (ARG) (SMT_RL2SMTSYM ARG))
+                                     (CAR ARG))
+                                    NIL)))
+                  LOOPLABEL
+                   (SETQ ARG (CDR ARG))
+                   (COND ((NULL ARG) (RETURN FORALL-RESULT)))
+                   (RPLACD FORALL-ENDPTR
+                           (CONS ((LAMBDA (ARG) (SMT_RL2SMTSYM ARG)) (CAR ARG))
+                                 NIL))
+                   (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                   (GO LOOPLABEL)))))) 
+(PUT 'SMT_RL2SMTSYM 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_RL2SMTSYM 'DEFINED-ON-LINE '489) 
+(PUT 'SMT_RL2SMTSYM 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_RL2SMTSYM 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_RL2SMTSYM (SYM)
+    (PROG (TAL W)
+      (SETQ TAL '((QUOTIENT . /)))
+      (SETQ W (ATSOC SYM TAL))
+      (RETURN (COND (W (CDR W)) (T SYM))))) 
+(PUT 'SMT_PROCESSGETUNSATCORE 'NUMBER-OF-ARGS 0) 
+(PUT 'SMT_PROCESSGETUNSATCORE 'DEFINED-ON-LINE '496) 
+(PUT 'SMT_PROCESSGETUNSATCORE 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PROCESSGETUNSATCORE 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE SMT_PROCESSGETUNSATCORE NIL
+    (PROG (CORE)
+      (SETQ CORE SMT_UNSATCORE*)
+      (COND ((EQ CORE 'UNSET) (PROGN (SMT_ERROR "") (RETURN NIL))))
+      (SMT_SUCCESS CORE))) 
+(PUT 'SMT_PROCESSGETASSERTIONS 'NUMBER-OF-ARGS 0) 
+(PUT 'SMT_PROCESSGETASSERTIONS 'DEFINED-ON-LINE '506) 
+(PUT 'SMT_PROCESSGETASSERTIONS 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PROCESSGETASSERTIONS 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE SMT_PROCESSGETASSERTIONS NIL
+    (PROGN (SMT_CHECKALCONSISTENCY) (SMT_SUCCESS-ASSERTIONS))) 
+(PUT 'SMT_CHECKALCONSISTENCY 'NUMBER-OF-ARGS 0) 
+(PUT 'SMT_CHECKALCONSISTENCY 'DEFINED-ON-LINE '512) 
+(PUT 'SMT_CHECKALCONSISTENCY 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_CHECKALCONSISTENCY 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE SMT_CHECKALCONSISTENCY NIL
+    (PROG (AL OAL)
+      (SETQ AL SMT_ASSERTIONL*)
+      (SETQ OAL SMT_OASSERTIONL*)
+      (PROG ()
+       WHILELABEL
+        (COND
+         ((NOT (AND AL OAL (EQUAL (CAR AL) (SMT_TORL (CAR OAL)))))
+          (RETURN NIL)))
+        (PROGN (SETQ AL (CDR AL)) (SETQ OAL (CDR OAL)))
+        (GO WHILELABEL))
+      (COND ((OR AL OAL) (SMT_ERROR ""))))) 
+(PUT 'SMT_SUCCESS-ASSERTIONS 'NUMBER-OF-ARGS 0) 
+(PUT 'SMT_SUCCESS-ASSERTIONS 'DEFINED-ON-LINE '524) 
+(PUT 'SMT_SUCCESS-ASSERTIONS 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_SUCCESS-ASSERTIONS 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE SMT_SUCCESS-ASSERTIONS NIL
+    (COND
+     (*SMTPLAIN
+      (PROGN
+       (IOTO_TPRIN2T "(")
+       (PROG (A)
+         (SETQ A SMT_OASSERTIONL*)
+        LAB
+         (COND ((NULL A) (RETURN NIL)))
+         ((LAMBDA (A) (IOTO_TPRIN2T (LIST "  " (SMT_FIXFLOATS A)))) (CAR A))
+         (SETQ A (CDR A))
+         (GO LAB))
+       (IOTO_TPRIN2T ")")))
+     (T (SMT_SUCCESS SMT_OASSERTIONL*)))) 
+(PUT 'SMT_FIXFLOATS 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_FIXFLOATS 'DEFINED-ON-LINE '533) 
+(PUT 'SMT_FIXFLOATS 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_FIXFLOATS 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_FIXFLOATS (FORM)
+    (COND ((ATOM FORM) FORM) ((EQCAR FORM '|:DN:|) (IOTO_SMAPRIN FORM))
+          (T
+           (CONS (CAR FORM)
+                 (PROG (D FORALL-RESULT FORALL-ENDPTR)
+                   (SETQ D (CDR FORM))
+                   (COND ((NULL D) (RETURN NIL)))
+                   (SETQ FORALL-RESULT
+                           (SETQ FORALL-ENDPTR
+                                   (CONS
+                                    ((LAMBDA (D) (SMT_FIXFLOATS D)) (CAR D))
+                                    NIL)))
+                  LOOPLABEL
+                   (SETQ D (CDR D))
+                   (COND ((NULL D) (RETURN FORALL-RESULT)))
+                   (RPLACD FORALL-ENDPTR
+                           (CONS ((LAMBDA (D) (SMT_FIXFLOATS D)) (CAR D)) NIL))
+                   (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                   (GO LOOPLABEL)))))) 
+(PUT 'SMT_PROCESSRESET 'NUMBER-OF-ARGS 0) 
+(PUT 'SMT_PROCESSRESET 'DEFINED-ON-LINE '542) 
+(PUT 'SMT_PROCESSRESET 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PROCESSRESET 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE SMT_PROCESSRESET NIL (PROGN (SMT_PROCESSRESET1) (SMT_SUCCESS 'SUCCESS))) 
+(PUT 'SMT_PROCESSRESET1 'NUMBER-OF-ARGS 0) 
+(PUT 'SMT_PROCESSRESET1 'DEFINED-ON-LINE '548) 
+(PUT 'SMT_PROCESSRESET1 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PROCESSRESET1 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE SMT_PROCESSRESET1 NIL
+    (PROG (PR O V *SMTSILENT)
+      (SETQ *SMTSILENT T)
+      (SMT_PROCESSRESETASSERTIONS)
+      (PROG (PR)
+        (SETQ PR SMT_OPTIONS*)
+       LAB
+        (COND ((NULL PR) (RETURN NIL)))
+        ((LAMBDA (PR)
+           (PROGN
+            (SETQ O (CAR PR))
+            (SETQ V (CAR (GET O 'SMT_ADMISSIBLE-VALUES)))
+            (SMT_PROCESSSETOPTION O V)))
+         (CAR PR))
+        (SETQ PR (CDR PR))
+        (GO LAB))
+      (SETQ SMT_MODEL* 'UNSET))) 
+(PUT 'SMT_PROCESSRESETASSERTIONS 'NUMBER-OF-ARGS 0) 
+(PUT 'SMT_PROCESSRESETASSERTIONS 'DEFINED-ON-LINE '560) 
+(PUT 'SMT_PROCESSRESETASSERTIONS 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PROCESSRESETASSERTIONS 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE SMT_PROCESSRESETASSERTIONS NIL
+    (PROGN
+     (SETQ SMT_ASSERTIONL* (SETQ SMT_OASSERTIONL* NIL))
+     (SMT_SUCCESS 'SUCCESS))) 
+(PUT 'SMT_PROCESSREDUCEEVAL 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_PROCESSREDUCEEVAL 'DEFINED-ON-LINE '566) 
+(PUT 'SMT_PROCESSREDUCEEVAL 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PROCESSREDUCEEVAL 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_PROCESSREDUCEEVAL (FORM) (PRIN2T (EVAL FORM))) 
+(PUT 'SMT_PROCESSREDUCEGETASSERTIONS 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_PROCESSREDUCEGETASSERTIONS 'DEFINED-ON-LINE '569) 
+(PUT 'SMT_PROCESSREDUCEGETASSERTIONS 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PROCESSREDUCEGETASSERTIONS 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_PROCESSREDUCEGETASSERTIONS (FORM)
+    (PROG (LHS RHS *NAT)
+      (SETQ RHS
+              (IOTO_SMAPRIN
+               (RL_MK*FOF
+                ((LAMBDA (G151)
+                   (COND ((AND G151 (CDR G151)) (CONS 'AND G151))
+                         ((NULL G151) (COND ((EQ 'AND 'AND) 'TRUE) (T 'FALSE)))
+                         (T (CAR G151))))
+                 SMT_ASSERTIONL*))))
+      (SETQ FORM (CDR FORM))
+      (COND
+       ((NULL FORM)
+        (PROGN
+         (SMT_PRIN2T (IOTO_PRINTLISTTOSTRING (LIST RHS "$")))
+         (SMT_SUCCESS 'SUCCESS)
+         (RETURN NIL))))
+      (SETQ LHS (CAR FORM))
+      (COND ((EQCAR LHS 'QUOTE) (SETQ LHS (CADR LHS))))
+      (SMT_PRIN2T (IOTO_PRINTLISTTOSTRING (LIST LHS " := " RHS "$")))
+      (SMT_SUCCESS 'SUCCESS))) 
+(PUT 'SMT_PROCESSSETOPTION 'NUMBER-OF-ARGS 2) 
+(PUT 'SMT_PROCESSSETOPTION 'DEFINED-ON-LINE '585) 
+(PUT 'SMT_PROCESSSETOPTION 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PROCESSSETOPTION 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE SMT_PROCESSSETOPTION (OPTION VALUE)
+    (PROG (PR W)
+      (SETQ PR (ATSOC OPTION SMT_OPTIONS*))
+      (COND
+       ((OR (NOT PR) (NOT (MEMBER VALUE (GET OPTION 'SMT_ADMISSIBLE-VALUES))))
+        (PROGN (SMT_PRIN2T 'UNSUPPORTED) (RETURN NIL))))
+      (COND
+       ((NEQ (CDR PR) VALUE)
+        (PROGN
+         (COND ((SETQ W (GET OPTION 'SMT_SWITCH)) (APPLY W (LIST VALUE))))
+         (SETCDR PR VALUE))))
+      (SMT_SUCCESS 'SUCCESS))) 
+(PUT 'SMT_PROCESSGETOPTION 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_PROCESSGETOPTION 'DEFINED-ON-LINE '601) 
+(PUT 'SMT_PROCESSGETOPTION 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PROCESSGETOPTION 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_PROCESSGETOPTION (OPTION)
+    (PROG (W)
+      (SETQ W (ATSOC OPTION SMT_OPTIONS*))
+      (COND ((NOT W) (PROGN (SMT_PRIN2T 'UNSUPPORTED) (RETURN NIL))))
+      (SMT_SUCCESS (CDR W)))) 
+(PUT 'SMT_PROCESSSETLOGIC 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_PROCESSSETLOGIC 'DEFINED-ON-LINE '611) 
+(PUT 'SMT_PROCESSSETLOGIC 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PROCESSSETLOGIC 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_PROCESSSETLOGIC (ID)
+    (COND
+     ((MEMQ ID '(|nra| |qf_nra|))
+      (PROGN (RL_SET '(OFSF)) (SMT_SUCCESS 'SUCCESS)))
+     ((OR (EQ ID '|qf_nia|) (EQ ID '|qf_lia|))
+      (PROGN (RL_SET '(PASF)) (SMT_SUCCESS 'SUCCESS)))
+     (T (SMT_ERROR "unknown logic")))) 
+(PUT 'SMT_PROCESSREAD 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_PROCESSREAD 'DEFINED-ON-LINE '621) 
+(PUT 'SMT_PROCESSREAD 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PROCESSREAD 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_PROCESSREAD (FILE)
+    (PROG (CH)
+      (SETQ CH (OPEN FILE 'INPUT))
+      (RDS CH)
+      (SMT_MAINLOOP)
+      (RDS NIL)
+      (CLOSE CH))) 
+(PUT 'SMT_SUCCESS 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_SUCCESS 'DEFINED-ON-LINE '630) 
+(PUT 'SMT_SUCCESS 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_SUCCESS 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_SUCCESS (RESPONSE)
+    (COND
+     ((NOT *SMTSILENT)
+      (PROGN
+       (COND
+        ((AND (EQ RESPONSE 'SUCCESS)
+              (EQ (SMT_GETOPTION '|:PRINT-SUCCESS|) 'FALSE))
+         (SMT_PRIN2T ""))
+        (T (SMT_PRIN2T RESPONSE))))))) 
+(PUT 'SMT_ERROR 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_ERROR 'DEFINED-ON-LINE '638) 
+(PUT 'SMT_ERROR 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_ERROR 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_ERROR (STR) (SMT_PRINT (LIST 'ERROR STR))) 
+(PUT 'SMT_PRINT 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_PRINT 'DEFINED-ON-LINE '641) 
+(PUT 'SMT_PRINT 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PRINT 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_PRINT (ITEM)
+    (COND
+     (*SMTPLAIN (COND ((NEQ ITEM "") (PRINT (COND (ITEM ITEM) (T "()"))))))
+     (T
+      (PROGN
+       (LR_RESULT)
+       (COND ((NEQ ITEM "") (PRIN1 (COND (ITEM ITEM) (T "()")))))
+       (LR_STATCOUNTER)
+       (PRIN2 0)
+       (LR_MODE)
+       (PRIN2 2))))) 
+(PUT 'SMT_PRIN2T 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_PRIN2T 'DEFINED-ON-LINE '653) 
+(PUT 'SMT_PRIN2T 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_PRIN2T 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_PRIN2T (ITEM)
+    (COND
+     (*SMTPLAIN (COND ((NEQ ITEM "") (PRIN2T (COND (ITEM ITEM) (T "()"))))))
+     (T
+      (PROGN
+       (LR_RESULT)
+       (COND ((NEQ ITEM "") (PRIN2 (COND (ITEM ITEM) (T "()")))))
+       (LR_STATCOUNTER)
+       (PRIN2 0)
+       (LR_MODE)
+       (PRIN2 2))))) 
+(PUT 'SMT_GETOPTION 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_GETOPTION 'DEFINED-ON-LINE '665) 
+(PUT 'SMT_GETOPTION 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_GETOPTION 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_GETOPTION (OPTION)
+    (PROG (W)
+      (SETQ W (ATSOC OPTION SMT_OPTIONS*))
+      (COND ((NOT W) (REDERR (LIST "smt_getOption:" OPTION "unkown"))))
+      (RETURN (CDR W)))) 
+(PUT 'SMT_XPANDLET 'NUMBER-OF-ARGS 1) 
+(DE SMT_XPANDLET (U) (SMT_XPANDLET1 U NIL)) 
+(PUT 'SMT_XPANDLET1 'NUMBER-OF-ARGS 2) 
+(DE SMT_XPANDLET1 (U LETAL)
+    (PROG (BL W OLETAL)
+      (COND
+       ((ATOM U) (RETURN (COND ((SETQ W (ATSOC U LETAL)) (CDR W)) (T U)))))
+      (COND
+       ((NOT (PAIRP U)) (REDERR (LIST "smt_xpandlet: something wrong:" U))))
+      (COND
+       ((EQ (CAR U) 'LET)
+        (PROGN
+         (SETQ U (CDR U))
+         (COND ((NOT U) (REDERR "smt_xpandlet: syntax error in let")))
+         (SETQ OLETAL LETAL)
+         (SETQ BL (PROG1 (CAR U) (SETQ U (CDR U))))
+         (PROG (B)
+           (SETQ B BL)
+          LAB
+           (COND ((NULL B) (RETURN NIL)))
+           ((LAMBDA (B)
+              (SETQ LETAL
+                      (CONS (CONS (CAR B) (SMT_XPANDLET1 (CADR B) OLETAL))
+                            LETAL)))
+            (CAR B))
+           (SETQ B (CDR B))
+           (GO LAB))
+         (COND ((NOT U) (REDERR "smt_xpandlet: syntax error in let")))
+         (SETQ W (SMT_XPANDLET1 (PROG1 (CAR U) (SETQ U (CDR U))) LETAL))
+         (COND (U (REDERR "smt_xpandlet: syntax error in let")))
+         (PROG (B)
+           (SETQ B BL)
+          LAB
+           (COND ((NULL B) (RETURN NIL)))
+           ((LAMBDA (B) (SETQ LETAL (CDR LETAL))) (CAR B))
+           (SETQ B (CDR B))
+           (GO LAB))
+         (RETURN W))))
+      (COND ((EQ (CAR U) '|:DN:|) (RETURN U)))
+      (RETURN
+       (CONS (CAR U)
+             (PROG (ARG FORALL-RESULT FORALL-ENDPTR)
+               (SETQ ARG (CDR U))
+               (COND ((NULL ARG) (RETURN NIL)))
+               (SETQ FORALL-RESULT
+                       (SETQ FORALL-ENDPTR
+                               (CONS
+                                ((LAMBDA (ARG) (SMT_XPANDLET1 ARG LETAL))
+                                 (CAR ARG))
+                                NIL)))
+              LOOPLABEL
+               (SETQ ARG (CDR ARG))
+               (COND ((NULL ARG) (RETURN FORALL-RESULT)))
+               (RPLACD FORALL-ENDPTR
+                       (CONS
+                        ((LAMBDA (ARG) (SMT_XPANDLET1 ARG LETAL)) (CAR ARG))
+                        NIL))
+               (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+               (GO LOOPLABEL)))))) 
+(PUT 'SMT_TORL 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_TORL 'DEFINED-ON-LINE '704) 
+(PUT 'SMT_TORL 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_TORL 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_TORL (FORM) (SMT_TORL1 (SMT_XPANDLET FORM))) 
+(PUT 'SMT_TORL1 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_TORL1 'DEFINED-ON-LINE '709) 
+(PUT 'SMT_TORL1 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_TORL1 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_TORL1 (FORM)
+    (PROG (OP W)
+      (COND ((MEMQ FORM '(TRUE FALSE)) (RETURN FORM)))
+      (SETQ OP (CAR FORM))
+      (COND ((OR (EQ OP '=>) (EQ OP 'IMPLIES)) (SETQ OP 'IMPL)))
+      (COND
+       ((MEMQ OP '(NOT IMPL))
+        (RETURN
+         (CONS OP
+               (PROG (ARG FORALL-RESULT FORALL-ENDPTR)
+                 (SETQ ARG (CDR FORM))
+                 (COND ((NULL ARG) (RETURN NIL)))
+                 (SETQ FORALL-RESULT
+                         (SETQ FORALL-ENDPTR
+                                 (CONS
+                                  ((LAMBDA (ARG) (SMT_TORL1 ARG)) (CAR ARG))
+                                  NIL)))
+                LOOPLABEL
+                 (SETQ ARG (CDR ARG))
+                 (COND ((NULL ARG) (RETURN FORALL-RESULT)))
+                 (RPLACD FORALL-ENDPTR
+                         (CONS ((LAMBDA (ARG) (SMT_TORL1 ARG)) (CAR ARG)) NIL))
+                 (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                 (GO LOOPLABEL))))))
+      (COND
+       ((MEMQ OP '(AND OR))
+        (RETURN
+         ((LAMBDA (G153)
+            (COND ((AND G153 (CDR G153)) (CONS OP G153))
+                  ((NULL G153) (COND ((EQ OP 'AND) 'TRUE) (T 'FALSE)))
+                  (T (CAR G153))))
+          (PROG (ARG FORALL-RESULT FORALL-ENDPTR)
+            (SETQ ARG (CDR FORM))
+            (COND ((NULL ARG) (RETURN NIL)))
+            (SETQ FORALL-RESULT
+                    (SETQ FORALL-ENDPTR
+                            (CONS ((LAMBDA (ARG) (SMT_TORL1 ARG)) (CAR ARG))
+                                  NIL)))
+           LOOPLABEL
+            (SETQ ARG (CDR ARG))
+            (COND ((NULL ARG) (RETURN FORALL-RESULT)))
+            (RPLACD FORALL-ENDPTR
+                    (CONS ((LAMBDA (ARG) (SMT_TORL1 ARG)) (CAR ARG)) NIL))
+            (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+            (GO LOOPLABEL))))))
+      (COND
+       ((EQ OP 'EXISTS)
+        (PROGN
+         (SETQ W (SMT_TORL1 (CADDR FORM)))
+         (PROG (L2)
+           (SETQ L2 (REVERSE (CADR FORM)))
+          LAB
+           (COND ((NULL L2) (RETURN NIL)))
+           ((LAMBDA (L2) (SETQ W (LIST 'EX (CAR L2) W))) (CAR L2))
+           (SETQ L2 (CDR L2))
+           (GO LAB))
+         (RETURN W))))
+      (COND
+       ((EQ OP 'FORALL)
+        (PROGN
+         (SETQ W (SMT_TORL1 (CADDR FORM)))
+         (PROG (L2)
+           (SETQ L2 (REVERSE (CADR FORM)))
+          LAB
+           (COND ((NULL L2) (RETURN NIL)))
+           ((LAMBDA (L2) (SETQ W (LIST 'ALL (CAR L2) W))) (CAR L2))
+           (SETQ L2 (CDR L2))
+           (GO LAB))
+         (RETURN W))))
+      (RETURN (RL_SMT2READAT FORM)))) 
+(PUT 'SMT_FROMRL 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_FROMRL 'DEFINED-ON-LINE '739) 
+(PUT 'SMT_FROMRL 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_FROMRL 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_FROMRL (F)
+    (PROG (OP)
+      (SETQ OP (COND ((ATOM F) F) (T (CAR F))))
+      (COND ((OR (EQ OP 'TRUE) (EQ OP 'FALSE)) (RETURN OP)))
+      (COND
+       ((MEMQ OP '(NOT AND OR))
+        (RETURN
+         (CONS OP
+               (PROG (SUBF FORALL-RESULT FORALL-ENDPTR)
+                 (SETQ SUBF (CDR F))
+                 (COND ((NULL SUBF) (RETURN NIL)))
+                 (SETQ FORALL-RESULT
+                         (SETQ FORALL-ENDPTR
+                                 (CONS
+                                  ((LAMBDA (SUBF) (SMT_FROMRL SUBF))
+                                   (CAR SUBF))
+                                  NIL)))
+                LOOPLABEL
+                 (SETQ SUBF (CDR SUBF))
+                 (COND ((NULL SUBF) (RETURN FORALL-RESULT)))
+                 (RPLACD FORALL-ENDPTR
+                         (CONS ((LAMBDA (SUBF) (SMT_FROMRL SUBF)) (CAR SUBF))
+                               NIL))
+                 (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                 (GO LOOPLABEL))))))
+      (COND
+       ((EQ OP 'IMPL)
+        (RETURN (LIST '=> (SMT_FROMRL (CADR F)) (SMT_FROMRL (CADDR F))))))
+      (COND
+       ((EQ OP 'REPL)
+        (RETURN (LIST '=> (SMT_FROMRL (CADDR F)) (SMT_FROMRL (CADR F))))))
+      (COND
+       ((EQ OP 'EQUIV)
+        (RETURN
+         (LIST 'AND (LIST '=> (SMT_FROMRL (CADR F)) (SMT_FROMRL (CADDR F)))
+               (LIST '=> (SMT_FROMRL (CADDR F)) (SMT_FROMRL (CADR F)))))))
+      (RETURN (SMT_FROMRLAT F)))) 
+(PUT 'SMT_FROMRLAT 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_FROMRLAT 'DEFINED-ON-LINE '757) 
+(PUT 'SMT_FROMRLAT 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_FROMRLAT 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_FROMRLAT (F)
+    (PROG (OPAL OP W LHS)
+      (SETQ OP (COND ((ATOM F) F) (T (CAR F))))
+      (SETQ LHS (PREPF (CADR F)))
+      (COND
+       ((EQ OP 'NEQ)
+        (RETURN (LIST 'NOT (SMT_FROMRLAT (LIST 'EQUAL (CADR F) NIL))))))
+      (SETQ OPAL
+              '((LESSP . <) (LEQ . <=) (GREATERP . >) (GEQ . >=) (EQUAL . =)))
+      (SETQ OP (COND ((SETQ W (ATSOC OP OPAL)) (CDR W)) (T OP)))
+      (RETURN (LIST OP (SMT_FROMRLTERM (PREPF (CADR F))) 0)))) 
+(PUT 'SMT_FROMRLTERM 'NUMBER-OF-ARGS 1) 
+(PUT 'SMT_FROMRLTERM 'DEFINED-ON-LINE '768) 
+(PUT 'SMT_FROMRLTERM 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_FROMRLTERM 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SMT_FROMRLTERM (U)
+    (PROG (OP ARGL OPAL W)
+      (COND ((OR (NUMBERP U) (IDP U)) (RETURN U)))
+      (PROG (G154)
+        (SETQ G154 U)
+        (SETQ OP (CAR G154))
+        (SETQ ARGL (CDR G154))
+        (RETURN G154))
+      (COND
+       ((EQ OP 'EXPT)
+        (RETURN
+         (SMT_FROMRLTERM
+          (CONS 'TIMES
+                (PROG (I FORALL-RESULT FORALL-ENDPTR)
+                  (SETQ I 1)
+                  (COND ((MINUSP (DIFFERENCE (CADR ARGL) I)) (RETURN NIL)))
+                  (SETQ FORALL-RESULT
+                          (SETQ FORALL-ENDPTR (CONS (CAR ARGL) NIL)))
+                 LOOPLABEL
+                  (SETQ I (PLUS2 I 1))
+                  (COND
+                   ((MINUSP (DIFFERENCE (CADR ARGL) I))
+                    (RETURN FORALL-RESULT)))
+                  (RPLACD FORALL-ENDPTR (CONS (CAR ARGL) NIL))
+                  (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                  (GO LOOPLABEL)))))))
+      (SETQ OPAL
+              '((DIFFERENCE . -) (MINUS . -) (PLUS . +) (TIMES . *)
+                (QUOTIENT . /)))
+      (SETQ OP (COND ((SETQ W (ATSOC OP OPAL)) (CDR W)) (T OP)))
+      (RETURN
+       (CONS OP
+             (PROG (SUBT FORALL-RESULT FORALL-ENDPTR)
+               (SETQ SUBT ARGL)
+               (COND ((NULL SUBT) (RETURN NIL)))
+               (SETQ FORALL-RESULT
+                       (SETQ FORALL-ENDPTR
+                               (CONS
+                                ((LAMBDA (SUBT) (SMT_FROMRLTERM SUBT))
+                                 (CAR SUBT))
+                                NIL)))
+              LOOPLABEL
+               (SETQ SUBT (CDR SUBT))
+               (COND ((NULL SUBT) (RETURN FORALL-RESULT)))
+               (RPLACD FORALL-ENDPTR
+                       (CONS ((LAMBDA (SUBT) (SMT_FROMRLTERM SUBT)) (CAR SUBT))
+                             NIL))
+               (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+               (GO LOOPLABEL)))))) 
+(PUT 'SMT_ABOUT 'NUMBER-OF-ARGS 0) 
+(PUT 'SMT_ABOUT 'DEFINED-ON-LINE '780) 
+(PUT 'SMT_ABOUT 'DEFINED-IN-FILE 'REDLOG/SMT/SMT.RED) 
+(PUT 'SMT_ABOUT 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE SMT_ABOUT NIL
+    (PROG (W L L2 REV REV2 DATE TIME YEAR)
+      (SETQ W (GET 'SMT 'REVISION))
+      (SETQ L (LTO_STRINGSPLIT W (LIST '| | $EOL$ CR* FF* TAB*)))
+      (SETQ REV (COMPRESS (CDR (EXPLODE (LTO_STRING2ID (NTH L 3))))))
+      (SETQ W (GET 'SMTREAD 'REVISION))
+      (SETQ L2 (LTO_STRINGSPLIT W (LIST '| | $EOL$ CR* FF* TAB*)))
+      (SETQ REV2 (LTO_ID2INT (LTO_STRING2ID (NTH L2 3))))
+      (COND ((GREATERP REV2 REV) (PROGN (SETQ L L2) (SETQ REV REV2))))
+      (SETQ DATE (NTH L 4))
+      (SETQ TIME (NTH L 5))
+      (SETQ YEAR (CAR (LTO_STRINGSPLIT DATE '(-))))
+      (IOTO_TPRIN2T
+       (LIST "Redlog SMT-LIB 2 REPL Revision " REV " of " DATE ", " TIME))
+      (IOTO_TPRIN2 (LIST "(c) 2013-" YEAR " T. Sturm"))
+      (IOTO_TPRIN2T "type (help) for help")
+      (TERPRI))) 
+(ENDMODULE) 

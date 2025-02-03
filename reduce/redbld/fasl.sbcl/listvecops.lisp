@@ -1,0 +1,458 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(MODULE (LIST 'LISTVECOPS)) 
+(CREATE-PACKAGE '(LISTVECOPS) NIL) 
+(GLOBAL '(CURSYM*)) 
+(PUT 'LISTPLUS 'NUMBER-OF-ARGS 2) 
+(PUT 'LISTPLUS 'DEFINED-ON-LINE '35) 
+(PUT 'LISTPLUS 'DEFINED-IN-FILE 'LISTVECOPS/LISTVECOPS.RED) 
+(PUT 'LISTPLUS 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE LISTPLUS (U V)
+    (PROG (R Z)
+      (SETQ Z
+              (PROG (J FORALL-RESULT FORALL-ENDPTR)
+                (SETQ J U)
+                (COND ((NULL J) (RETURN NIL)))
+                (SETQ FORALL-RESULT
+                        (SETQ FORALL-ENDPTR
+                                (CONS ((LAMBDA (J) (REVAL1 J V)) (CAR J))
+                                      NIL)))
+               LOOPLABEL
+                (SETQ J (CDR J))
+                (COND ((NULL J) (RETURN FORALL-RESULT)))
+                (RPLACD FORALL-ENDPTR
+                        (CONS ((LAMBDA (J) (REVAL1 J V)) (CAR J)) NIL))
+                (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                (GO LOOPLABEL)))
+      (PROG ()
+       WHILELABEL
+        (COND ((NOT (EQUAL (CAR Z) 0)) (RETURN NIL)))
+        (SETQ Z (CDR Z))
+        (GO WHILELABEL))
+      (SETQ R (CDAR Z))
+      (SETQ Z (CDR Z))
+      (PROG (J)
+        (SETQ J Z)
+       LAB
+        (COND ((NULL J) (RETURN NIL)))
+        ((LAMBDA (J)
+           (COND ((EQUAL J 0) NIL)
+                 ((NULL (EQCAR J 'LIST))
+                  (REDERR "Only a list can be added to a list."))
+                 (T (SETQ R (LISTADD2 R (CDR J) V)))))
+         (CAR J))
+        (SETQ J (CDR J))
+        (GO LAB))
+      (RETURN (CONS 'LIST R)))) 
+(PUT 'LISTADD2 'NUMBER-OF-ARGS 3) 
+(PUT 'LISTADD2 'DEFINED-ON-LINE '47) 
+(PUT 'LISTADD2 'DEFINED-IN-FILE 'LISTVECOPS/LISTVECOPS.RED) 
+(PUT 'LISTADD2 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE LISTADD2 (U V W)
+    (COND ((NULL U) (COND (V (REDERR "Unequal length lists in add.")) (T NIL)))
+          ((NULL V) (REDERR "Unequal length lists in add."))
+          (T
+           (CONS (REVAL1 (LIST 'PLUS (CAR U) (CAR V)) W)
+                 (LISTADD2 (CDR U) (CDR V) W))))) 
+(PUT 'PLUS 'RTYPEFN 'GETRTYPEOR) 
+(PUT 'PLUS 'LISTFN 'LISTPLUS) 
+(PUT 'LISTDIFFERENCE 'NUMBER-OF-ARGS 2) 
+(PUT 'LISTDIFFERENCE 'DEFINED-ON-LINE '57) 
+(PUT 'LISTDIFFERENCE 'DEFINED-IN-FILE 'LISTVECOPS/LISTVECOPS.RED) 
+(PUT 'LISTDIFFERENCE 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE LISTDIFFERENCE (U V)
+    (PROG (X Y)
+      (SETQ X (REVAL1 (CAR U) V))
+      (COND ((NULL (EQCAR X 'LIST)) (REDERR "Type error in difference.")))
+      (SETQ X (CDR X))
+      (SETQ Y (REVAL1 (CADR U) V))
+      (COND ((NULL (EQCAR Y 'LIST)) (REDERR "Type error in difference.")))
+      (SETQ Y (CDR Y))
+      (COND
+       ((NEQ (LENGTH X) (LENGTH Y))
+        (REDERR "Not equal length lists found in difference.")))
+      (RETURN (CONS 'LIST (LISTDIFFERENCE2 X Y V))))) 
+(PUT 'LISTDIFFERENCE2 'NUMBER-OF-ARGS 3) 
+(PUT 'LISTDIFFERENCE2 'DEFINED-ON-LINE '70) 
+(PUT 'LISTDIFFERENCE2 'DEFINED-IN-FILE 'LISTVECOPS/LISTVECOPS.RED) 
+(PUT 'LISTDIFFERENCE2 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE LISTDIFFERENCE2 (U V W)
+    (COND ((NULL U) NIL)
+          (T
+           (CONS (REVAL1 (LIST 'DIFFERENCE (CAR U) (CAR V)) W)
+                 (LISTDIFFERENCE2 (CDR U) (CDR V) W))))) 
+(PUT 'DIFFERENCE 'LISTFN 'LISTDIFFERENCE) 
+(PUT 'DIFFERENCE 'RTYPEFN 'GETRTYPEOR) 
+(PUT 'LISTMINUS 'NUMBER-OF-ARGS 2) 
+(PUT 'LISTMINUS 'DEFINED-ON-LINE '79) 
+(PUT 'LISTMINUS 'DEFINED-IN-FILE 'LISTVECOPS/LISTVECOPS.RED) 
+(PUT 'LISTMINUS 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE LISTMINUS (U V)
+    (PROG (X)
+      (SETQ X (REVAL1 (CAR U) V))
+      (COND ((NULL (EQCAR X 'LIST)) (RETURN X)))
+      (RETURN
+       (CONS 'LIST
+             (PROG (J FORALL-RESULT FORALL-ENDPTR)
+               (SETQ J (CDR X))
+               (COND ((NULL J) (RETURN NIL)))
+               (SETQ FORALL-RESULT
+                       (SETQ FORALL-ENDPTR
+                               (CONS
+                                ((LAMBDA (J) (REVAL1 (LIST 'MINUS J) V))
+                                 (CAR J))
+                                NIL)))
+              LOOPLABEL
+               (SETQ J (CDR J))
+               (COND ((NULL J) (RETURN FORALL-RESULT)))
+               (RPLACD FORALL-ENDPTR
+                       (CONS ((LAMBDA (J) (REVAL1 (LIST 'MINUS J) V)) (CAR J))
+                             NIL))
+               (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+               (GO LOOPLABEL)))))) 
+(PUT 'MINUS 'LISTFN 'LISTMINUS) 
+(PUT 'LISTTIMES 'NUMBER-OF-ARGS 2) 
+(PUT 'LISTTIMES 'DEFINED-ON-LINE '88) 
+(PUT 'LISTTIMES 'DEFINED-IN-FILE 'LISTVECOPS/LISTVECOPS.RED) 
+(PUT 'LISTTIMES 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE LISTTIMES (U V)
+    (PROG (X Z)
+      (SETQ X (REVAL1 (CAR U) V))
+      (PROG (J)
+        (SETQ J (CDR U))
+       LAB
+        (COND ((NULL J) (RETURN NIL)))
+        ((LAMBDA (J)
+           (PROGN
+            (SETQ Z (REVAL1 J V))
+            (SETQ X
+                    (COND
+                     ((EQCAR Z 'LIST)
+                      (COND
+                       ((EQCAR X 'LIST)
+                        (CONS 'LIST (LISTTIMES2 (CDR X) (CDR Z) V)))
+                       (T (CONS 'LIST (LISTTIMES1 (CDR Z) X V)))))
+                     ((EQCAR X 'LIST) (CONS 'LIST (LISTTIMES1 (CDR X) Z V)))
+                     (T (REVAL1 (LIST 'TIMES X Z) V))))))
+         (CAR J))
+        (SETQ J (CDR J))
+        (GO LAB))
+      (RETURN X))) 
+(PUT 'LISTTIMES1 'NUMBER-OF-ARGS 3) 
+(PUT 'LISTTIMES1 'DEFINED-ON-LINE '101) 
+(PUT 'LISTTIMES1 'DEFINED-IN-FILE 'LISTVECOPS/LISTVECOPS.RED) 
+(PUT 'LISTTIMES1 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE LISTTIMES1 (U V W)
+    (PROG (J FORALL-RESULT FORALL-ENDPTR)
+      (SETQ J U)
+      (COND ((NULL J) (RETURN NIL)))
+      (SETQ FORALL-RESULT
+              (SETQ FORALL-ENDPTR
+                      (CONS ((LAMBDA (J) (REVAL1 (LIST 'TIMES J V) W)) (CAR J))
+                            NIL)))
+     LOOPLABEL
+      (SETQ J (CDR J))
+      (COND ((NULL J) (RETURN FORALL-RESULT)))
+      (RPLACD FORALL-ENDPTR
+              (CONS ((LAMBDA (J) (REVAL1 (LIST 'TIMES J V) W)) (CAR J)) NIL))
+      (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+      (GO LOOPLABEL))) 
+(PUT 'LISTTIMES2 'NUMBER-OF-ARGS 3) 
+(PUT 'LISTTIMES2 'DEFINED-ON-LINE '104) 
+(PUT 'LISTTIMES2 'DEFINED-IN-FILE 'LISTVECOPS/LISTVECOPS.RED) 
+(PUT 'LISTTIMES2 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE LISTTIMES2 (U V W)
+    (COND
+     ((NULL U)
+      (COND (V (REDERR "Unequal length lists found in times.")) (T NIL)))
+     ((NULL V) (REDERR "Unequal length lists found in times."))
+     (T
+      (CONS (REVAL1 (LIST 'TIMES (CAR U) (CAR V)) W)
+            (LISTTIMES2 (CDR U) (CDR V) W))))) 
+(PUT 'TIMES 'LISTFN 'LISTTIMES) 
+(PUT 'LISTQUOTIENT 'NUMBER-OF-ARGS 2) 
+(PUT 'LISTQUOTIENT 'DEFINED-ON-LINE '112) 
+(PUT 'LISTQUOTIENT 'DEFINED-IN-FILE 'LISTVECOPS/LISTVECOPS.RED) 
+(PUT 'LISTQUOTIENT 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE LISTQUOTIENT (U V)
+    (PROG (X Y)
+      (SETQ X (REVAL1 (CAR U) V))
+      (SETQ Y (REVAL1 (CADR U) V))
+      (RETURN
+       (CONS 'LIST
+             (COND
+              ((NULL (EQCAR X 'LIST))
+               (PROG (J FORALL-RESULT FORALL-ENDPTR)
+                 (SETQ J (CDR Y))
+                 (COND ((NULL J) (RETURN NIL)))
+                 (SETQ FORALL-RESULT
+                         (SETQ FORALL-ENDPTR
+                                 (CONS
+                                  ((LAMBDA (J) (REVAL1 (LIST 'QUOTIENT X J) V))
+                                   (CAR J))
+                                  NIL)))
+                LOOPLABEL
+                 (SETQ J (CDR J))
+                 (COND ((NULL J) (RETURN FORALL-RESULT)))
+                 (RPLACD FORALL-ENDPTR
+                         (CONS
+                          ((LAMBDA (J) (REVAL1 (LIST 'QUOTIENT X J) V))
+                           (CAR J))
+                          NIL))
+                 (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                 (GO LOOPLABEL)))
+              ((EQCAR Y 'LIST) (LISTQUOTIENT2 (CDR X) (CDR Y) V))
+              (T
+               (PROG (J FORALL-RESULT FORALL-ENDPTR)
+                 (SETQ J (CDR X))
+                 (COND ((NULL J) (RETURN NIL)))
+                 (SETQ FORALL-RESULT
+                         (SETQ FORALL-ENDPTR
+                                 (CONS
+                                  ((LAMBDA (J) (REVAL1 (LIST 'QUOTIENT J Y) V))
+                                   (CAR J))
+                                  NIL)))
+                LOOPLABEL
+                 (SETQ J (CDR J))
+                 (COND ((NULL J) (RETURN FORALL-RESULT)))
+                 (RPLACD FORALL-ENDPTR
+                         (CONS
+                          ((LAMBDA (J) (REVAL1 (LIST 'QUOTIENT J Y) V))
+                           (CAR J))
+                          NIL))
+                 (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                 (GO LOOPLABEL)))))))) 
+(PUT 'LISTQUOTIENT2 'NUMBER-OF-ARGS 3) 
+(PUT 'LISTQUOTIENT2 'DEFINED-ON-LINE '122) 
+(PUT 'LISTQUOTIENT2 'DEFINED-IN-FILE 'LISTVECOPS/LISTVECOPS.RED) 
+(PUT 'LISTQUOTIENT2 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE LISTQUOTIENT2 (U V W)
+    (COND
+     ((NULL U)
+      (COND (V (REDERR "Unequal length lists found in quotient.")) (T NIL)))
+     ((NULL V) (REDERR "Unequal length lists found in quotient."))
+     (T
+      (CONS (REVAL1 (LIST 'QUOTIENT (CAR U) (CAR V)) W)
+            (LISTQUOTIENT2 (CDR U) (CDR V) W))))) 
+(PUT 'QUOTIENT 'LISTFN 'LISTQUOTIENT) 
+(PUT 'LISTEXPT 'NUMBER-OF-ARGS 2) 
+(PUT 'LISTEXPT 'DEFINED-ON-LINE '130) 
+(PUT 'LISTEXPT 'DEFINED-IN-FILE 'LISTVECOPS/LISTVECOPS.RED) 
+(PUT 'LISTEXPT 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE LISTEXPT (U V)
+    (PROG (X Y)
+      (SETQ X (REVAL1 (CAR U) V))
+      (SETQ Y (REVAL1 (CADR U) V))
+      (RETURN
+       (CONS 'LIST
+             (COND
+              ((NULL (EQCAR X 'LIST))
+               (PROG (J FORALL-RESULT FORALL-ENDPTR)
+                 (SETQ J (CDR Y))
+                 (COND ((NULL J) (RETURN NIL)))
+                 (SETQ FORALL-RESULT
+                         (SETQ FORALL-ENDPTR
+                                 (CONS
+                                  ((LAMBDA (J) (REVAL1 (LIST 'EXPT X J) V))
+                                   (CAR J))
+                                  NIL)))
+                LOOPLABEL
+                 (SETQ J (CDR J))
+                 (COND ((NULL J) (RETURN FORALL-RESULT)))
+                 (RPLACD FORALL-ENDPTR
+                         (CONS
+                          ((LAMBDA (J) (REVAL1 (LIST 'EXPT X J) V)) (CAR J))
+                          NIL))
+                 (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                 (GO LOOPLABEL)))
+              ((NULL (EQCAR Y 'LIST))
+               (PROG (J FORALL-RESULT FORALL-ENDPTR)
+                 (SETQ J (CDR X))
+                 (COND ((NULL J) (RETURN NIL)))
+                 (SETQ FORALL-RESULT
+                         (SETQ FORALL-ENDPTR
+                                 (CONS
+                                  ((LAMBDA (J) (REVAL1 (LIST 'EXPT J Y) V))
+                                   (CAR J))
+                                  NIL)))
+                LOOPLABEL
+                 (SETQ J (CDR J))
+                 (COND ((NULL J) (RETURN FORALL-RESULT)))
+                 (RPLACD FORALL-ENDPTR
+                         (CONS
+                          ((LAMBDA (J) (REVAL1 (LIST 'EXPT J Y) V)) (CAR J))
+                          NIL))
+                 (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                 (GO LOOPLABEL)))
+              (T (LISTEXPT2 (CDR X) (CDR Y) V))))))) 
+(PUT 'LISTEXPT2 'NUMBER-OF-ARGS 3) 
+(PUT 'LISTEXPT2 'DEFINED-ON-LINE '141) 
+(PUT 'LISTEXPT2 'DEFINED-IN-FILE 'LISTVECOPS/LISTVECOPS.RED) 
+(PUT 'LISTEXPT2 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE LISTEXPT2 (U V W)
+    (COND
+     ((NULL U)
+      (COND (V (REDERR "Unequal length lists found in expt.")) (T NIL)))
+     ((NULL V) (REDERR "Unequal length lists found in expt."))
+     (T
+      (CONS (REVAL1 (LIST 'EXPT (CAR U) (CAR V)) W)
+            (LISTEXPT2 (CDR U) (CDR V) W))))) 
+(PUT 'EXPT 'RTYPEFN 'GETRTYPEOR) 
+(PUT 'EXPT 'LISTFN 'LISTEXPT) 
+(PUT 'LISTDOTPROD 'NUMBER-OF-ARGS 2) 
+(PUT 'LISTDOTPROD 'DEFINED-ON-LINE '150) 
+(PUT 'LISTDOTPROD 'DEFINED-IN-FILE 'LISTVECOPS/LISTVECOPS.RED) 
+(PUT 'LISTDOTPROD 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE LISTDOTPROD (U V)
+    (PROG (X Y)
+      (SETQ X (REVAL1 (CAR U) V))
+      (SETQ Y (REVAL1 (CADR U) V))
+      (COND
+       ((NULL (AND (EQCAR X 'LIST) (EQCAR Y 'LIST)))
+        (REDERR "Dot product can only be applied to two lists.")))
+      (RETURN (MK*SQ (LISTDOTPROD2 (CDR X) (CDR Y)))))) 
+(PUT 'SIMPLDOT 'NUMBER-OF-ARGS 1) 
+(PUT 'SIMPLDOT 'DEFINED-ON-LINE '159) 
+(PUT 'SIMPLDOT 'DEFINED-IN-FILE 'LISTVECOPS/LISTVECOPS.RED) 
+(PUT 'SIMPLDOT 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SIMPLDOT (U)
+    (PROG (X Y)
+      (SETQ X (REVAL1 (CAR U) NIL))
+      (SETQ Y (REVAL1 (CADR U) NIL))
+      (COND
+       ((NULL (AND (EQCAR X 'LIST) (EQCAR Y 'LIST)))
+        (RETURN (MULTSQ (SIMP X) (SIMP Y)))))
+      (RETURN (SIMP (LISTDOTPROD2 (CDR X) (CDR Y)))))) 
+(PUT 'LDOT 'SIMPFN 'SIMPLDOT) 
+(PUT 'LISTDOTPROD2 'NUMBER-OF-ARGS 2) 
+(PUT 'LISTDOTPROD2 'DEFINED-ON-LINE '170) 
+(PUT 'LISTDOTPROD2 'DEFINED-IN-FILE 'LISTVECOPS/LISTVECOPS.RED) 
+(PUT 'LISTDOTPROD2 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE LISTDOTPROD2 (U V)
+    (PROG (X)
+      (SETQ X 0)
+     A
+      (COND
+       ((NULL U)
+        (COND (V (REDERR "Unequal length lists found in dot product."))
+              (T (RETURN X))))
+       ((NULL V) (REDERR "Unequal length lists found in dot product.")))
+      (SETQ X
+              (REVAL1 (LIST 'PLUS (REVAL1 (LIST 'LDOT (CAR U) (CAR V)) NIL) X)
+                      NIL))
+      (SETQ U (CDR U))
+      (SETQ V (CDR V))
+      (GO A))) 
+(INFIX (LIST 'LDOT)) 
+(PRECEDENCE (LIST 'LDOT 'TIMES)) 
+(NEWTOK '((* |.|) LDOT)) 
+(PUT 'LISTDF 'NUMBER-OF-ARGS 2) 
+(PUT 'LISTDF 'DEFINED-ON-LINE '189) 
+(PUT 'LISTDF 'DEFINED-IN-FILE 'LISTVECOPS/LISTVECOPS.RED) 
+(PUT 'LISTDF 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE LISTDF (U V)
+    (PROG (X)
+      (SETQ X (REVAL1 (CAR U) V))
+      (RETURN
+       (CONS 'LIST
+             (PROG (J FORALL-RESULT FORALL-ENDPTR)
+               (SETQ J (CDR X))
+               (COND ((NULL J) (RETURN NIL)))
+               (SETQ FORALL-RESULT
+                       (SETQ FORALL-ENDPTR
+                               (CONS
+                                ((LAMBDA (J)
+                                   (REVAL1 (CONS 'DF (CONS J (CDR U))) V))
+                                 (CAR J))
+                                NIL)))
+              LOOPLABEL
+               (SETQ J (CDR J))
+               (COND ((NULL J) (RETURN FORALL-RESULT)))
+               (RPLACD FORALL-ENDPTR
+                       (CONS
+                        ((LAMBDA (J) (REVAL1 (CONS 'DF (CONS J (CDR U))) V))
+                         (CAR J))
+                        NIL))
+               (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+               (GO LOOPLABEL)))))) 
+(PUT 'DF 'LISTFN 'LISTDF) 
+(PUT 'DF 'RTYPEFN 'GETRTYPECAR) 
+(PUT 'LISTINT 'NUMBER-OF-ARGS 2) 
+(PUT 'LISTINT 'DEFINED-ON-LINE '198) 
+(PUT 'LISTINT 'DEFINED-IN-FILE 'LISTVECOPS/LISTVECOPS.RED) 
+(PUT 'LISTINT 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE LISTINT (U V)
+    (PROG (X)
+      (SETQ X (REVAL1 (CAR U) V))
+      (RETURN
+       (CONS 'LIST
+             (PROG (J FORALL-RESULT FORALL-ENDPTR)
+               (SETQ J (CDR X))
+               (COND ((NULL J) (RETURN NIL)))
+               (SETQ FORALL-RESULT
+                       (SETQ FORALL-ENDPTR
+                               (CONS
+                                ((LAMBDA (J)
+                                   (REVAL1 (CONS 'INT (CONS J (CDR U))) V))
+                                 (CAR J))
+                                NIL)))
+              LOOPLABEL
+               (SETQ J (CDR J))
+               (COND ((NULL J) (RETURN FORALL-RESULT)))
+               (RPLACD FORALL-ENDPTR
+                       (CONS
+                        ((LAMBDA (J) (REVAL1 (CONS 'INT (CONS J (CDR U))) V))
+                         (CAR J))
+                        NIL))
+               (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+               (GO LOOPLABEL)))))) 
+(PUT 'INT 'LISTFN 'LISTINT) 
+(PUT 'INT 'RTYPEFN 'GETRTYPECAR) 
+(PUT 'LISTNTH 'NUMBER-OF-ARGS 1) 
+(PUT 'LISTNTH 'DEFINED-ON-LINE '207) 
+(PUT 'LISTNTH 'DEFINED-IN-FILE 'LISTVECOPS/LISTVECOPS.RED) 
+(PUT 'LISTNTH 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE LISTNTH (U)
+    (PROG (N)
+      (SETQ N (REVAL1 (CADR U) T))
+      (SETQ U (REVAL1 (CAR U) T))
+      (RETURN (NTH (CDR U) N)))) 
+(PUT 'LNTH 'PSOPFN 'LISTNTH) 
+(PUT 'LNTH 'RTYPEFN '(LAMBDA (X) 'YETUNKNOWNTYPE)) 
+(INFIX (LIST 'LNTH)) 
+(NEWTOK '((_) LNTH)) 
+(PRECEDENCE (LIST 'LNTH 'TIMES)) 
+(PUT 'SETLNTH 'NUMBER-OF-ARGS 1) 
+(PUT 'SETLNTH 'DEFINED-ON-LINE '235) 
+(PUT 'SETLNTH 'DEFINED-IN-FILE 'LISTVECOPS/LISTVECOPS.RED) 
+(PUT 'SETLNTH 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SETLNTH (U)
+    (PROG (L I X)
+      (SETQ L (CDR (LNTHEVAL0 (CAR U))))
+      (SETQ I (REVAL1 (CADR U) T))
+      (SETQ X (REVAL1 (CADDR U) T))
+      (SETCAR (PNTH L I) X)
+      (RMSUBS)
+      (RETURN X))) 
+(PUT 'LNTHEVAL0 'NUMBER-OF-ARGS 1) 
+(PUT 'LNTHEVAL0 'DEFINED-ON-LINE '245) 
+(PUT 'LNTHEVAL0 'DEFINED-IN-FILE 'LISTVECOPS/LISTVECOPS.RED) 
+(PUT 'LNTHEVAL0 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE LNTHEVAL0 (U)
+    (PROG (X)
+      (COND
+       ((ATOM U)
+        (COND ((EQCAR (SETQ X (GET U 'AVALUE)) 'LIST) (RETURN (CADR X)))
+              (T (REDERR (LIST U " is not a list"))))))
+      (COND ((EQ (CAR U) 'LIST) (RETURN U))
+            ((EQ (CAR U) 'LNTH)
+             (RETURN (NTH (LNTHEVAL0 (CADR U)) (PLUS (CADDR U) 1)))))
+      (REDERR (LIST U " invalid expression for lnth")))) 
+(PUT 'SETLNTH* 'PSOPFN 'SETLNTH) 
+(PUT 'LNTH 'SETQFN '(LAMBDA (U V W) (SETLNTH* U V W))) 
+(ENDMODULE) 

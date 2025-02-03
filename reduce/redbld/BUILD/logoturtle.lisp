@@ -1,0 +1,1470 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(MODULE (LIST 'LOGOTURTLE)) 
+(LOAD_PACKAGE (LIST 'GNUPLOT)) 
+(SWITCH (LIST 'TRLOGOTURTLE)) 
+(PUT 'TRLOGOTURTLE 'SIMPFG '((T (ON1 'TRPLOT)) (NIL (OFF1 'TRPLOT)))) 
+(SWITCH (LIST 'LOGOTURTLE_AUTODRAW)) 
+(FLUID
+ '(LOGOTURTLE-X-COORD* LOGOTURTLE-Y-COORD* LOGOTURTLE-HEADING*
+   *LOGOTURTLE-PEN-DOWN LOGOTURTLE-CURVE* LOGOTURTLE-CURVE-SEQ*
+   LOGOTURTLE-PLOT* LOGOTURTLE-WIN-MODE* *LOGOTURTLE-DRAW-NOTHING)) 
+(GLOBAL
+ '(LOGOTURTLE-X-MAX* LOGOTURTLE-Y-MAX* *LOGOTURTLE-SHOWN LOGOTURTLE-REL-LEN*
+   LOGOTURTLE-ANGLE* LOGOTURTLE-TERM* LOGOTURTLE-LABELS* LOGOTURTLE-NOARG*)) 
+(SETQ LOGOTURTLE-X-COORD* 0.0) 
+(SETQ LOGOTURTLE-Y-COORD* 0.0) 
+(SETQ LOGOTURTLE-HEADING* 0.0) 
+(SETQ LOGOTURTLE-WIN-MODE* 'WRAP) 
+(SETQ LOGOTURTLE-X-MAX* 100.0) 
+(SETQ LOGOTURTLE-Y-MAX* 100.0) 
+(SETQ LOGOTURTLE-REL-LEN* 0.1) 
+(SETQ LOGOTURTLE-ANGLE* 10.0) 
+(PUT 'LOGOTURTLE-MAKE-CURVE-SEQ 'DEFINED-ON-LINE '149) 
+(PUT 'LOGOTURTLE-MAKE-CURVE-SEQ 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LOGOTURTLE-MAKE-CURVE-SEQ 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DM LOGOTURTLE-MAKE-CURVE-SEQ (ARGS)
+    (CONS 'PROG
+          (CONS '(LC LW)
+                (APPEND
+                 (COND ((CDR ARGS) (LIST (CONS 'SETQ (CONS 'LC (CDR ARGS)))))
+                       (T
+                        '((SETQ LC (GET 'LOGOTURTLE-CURVE-SEQ* 'LC))
+                          (SETQ LW (GET 'LOGOTURTLE-CURVE-SEQ* 'LW)))))
+                 '((RETURN
+                    (CONS
+                     (CONS "lines"
+                           (APPEND (AND LC (LIST " lc rgb \"" LC "\""))
+                                   (AND LW (LIST " lw " LW))))
+                     LOGOTURTLE-CURVE-SEQ*))))))) 
+(PUT 'LOGOTURTLE-MAKE-FILL 'DEFINED-ON-LINE '175) 
+(PUT 'LOGOTURTLE-MAKE-FILL 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LOGOTURTLE-MAKE-FILL 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DM LOGOTURTLE-MAKE-FILL (ARGS)
+    (LIST 'PROG '(LC)
+          (LIST 'SETQ 'LC
+                (COND ((CDR ARGS) (CADR ARGS))
+                      (T '(GET 'LOGOTURTLE-CURVE-SEQ* 'LC))))
+          '(RETURN
+            (CONS (CONS "filledcurves" (AND LC (LIST " lc rgb \"" LC "\"")))
+                  (LIST LOGOTURTLE-CURVE*))))) 
+(FLAG '(LOGOTURTLE-MAKE-CURVE-SEQ LOGOTURTLE-MAKE-FILL) 'VARIADIC) 
+(PUT 'LOGOTURTLE-NEW-CURVE 'NUMBER-OF-ARGS 0) 
+(PUT 'LOGOTURTLE-NEW-CURVE 'DEFINED-ON-LINE '192) 
+(PUT 'LOGOTURTLE-NEW-CURVE 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LOGOTURTLE-NEW-CURVE 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE LOGOTURTLE-NEW-CURVE NIL
+    (SETQ LOGOTURTLE-CURVE*
+            (LIST (CONS LOGOTURTLE-X-COORD* LOGOTURTLE-Y-COORD*)))) 
+(PUT 'LOGOTURTLE-NEW-CURVE-SEQ 'NUMBER-OF-ARGS 0) 
+(PUT 'LOGOTURTLE-NEW-CURVE-SEQ 'DEFINED-ON-LINE '196) 
+(PUT 'LOGOTURTLE-NEW-CURVE-SEQ 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LOGOTURTLE-NEW-CURVE-SEQ 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE LOGOTURTLE-NEW-CURVE-SEQ NIL
+    (PROGN (SETQ LOGOTURTLE-CURVE-SEQ* NIL) (LOGOTURTLE-NEW-CURVE) NIL)) 
+(PUT 'LOGOTURTLE-SAVE-CURVE 'NUMBER-OF-ARGS 0) 
+(PUT 'LOGOTURTLE-SAVE-CURVE 'DEFINED-ON-LINE '202) 
+(PUT 'LOGOTURTLE-SAVE-CURVE 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LOGOTURTLE-SAVE-CURVE 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE LOGOTURTLE-SAVE-CURVE NIL
+    (COND
+     ((GREATERP (LENGTH LOGOTURTLE-CURVE*) 1)
+      (SETQ LOGOTURTLE-CURVE-SEQ*
+              (CONS LOGOTURTLE-CURVE* LOGOTURTLE-CURVE-SEQ*))))) 
+(PUT 'LOGOTURTLE-SAVE-CURVE-SEQ 'NUMBER-OF-ARGS 0) 
+(PUT 'LOGOTURTLE-SAVE-CURVE-SEQ 'DEFINED-ON-LINE '207) 
+(PUT 'LOGOTURTLE-SAVE-CURVE-SEQ 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LOGOTURTLE-SAVE-CURVE-SEQ 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE LOGOTURTLE-SAVE-CURVE-SEQ NIL
+    (PROGN
+     (LOGOTURTLE-SAVE-CURVE)
+     (COND
+      (LOGOTURTLE-CURVE-SEQ*
+       (SETQ LOGOTURTLE-PLOT*
+               (CONS
+                (PROG (LC LW)
+                  (SETQ LC (GET 'LOGOTURTLE-CURVE-SEQ* 'LC))
+                  (SETQ LW (GET 'LOGOTURTLE-CURVE-SEQ* 'LW))
+                  (RETURN
+                   (CONS
+                    (CONS "lines"
+                          (APPEND (AND LC (LIST " lc rgb \"" LC "\""))
+                                  (AND LW (LIST " lw " LW))))
+                    LOGOTURTLE-CURVE-SEQ*)))
+                LOGOTURTLE-PLOT*))))
+     NIL)) 
+(PUT 'LOGOTURTLE-GET-PLOT 'NUMBER-OF-ARGS 0) 
+(PUT 'LOGOTURTLE-GET-PLOT 'DEFINED-ON-LINE '215) 
+(PUT 'LOGOTURTLE-GET-PLOT 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LOGOTURTLE-GET-PLOT 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE LOGOTURTLE-GET-PLOT NIL
+    ((LAMBDA (LOGOTURTLE-CURVE* LOGOTURTLE-CURVE-SEQ* LOGOTURTLE-PLOT*)
+       (PROGN (LOGOTURTLE-SAVE-CURVE-SEQ) LOGOTURTLE-PLOT*))
+     LOGOTURTLE-CURVE* LOGOTURTLE-CURVE-SEQ* LOGOTURTLE-PLOT*)) 
+(SETQ LOGOTURTLE-NOARG*
+        '(DRAW HOME POS XCOR YCOR HEADING SHOWTURTLE HIDETURTLE CLEAN
+          CLEARSCREEN WRAP WINDOW FENCE FILL SHOWNP WINDOWSIZE TURTLEMODE
+          LABELFONT LABELCOLOR PENDOWN PENUP PENDOWNP PENCOLOR PENSIZE
+          BACKGROUND)) 
+(PROG (CMD)
+  (SETQ CMD LOGOTURTLE-NOARG*)
+ LAB
+  (COND ((NULL CMD) (RETURN NIL)))
+  ((LAMBDA (CMD) (REMPROP CMD 'STAT)) (CAR CMD))
+  (SETQ CMD (CDR CMD))
+  (GO LAB)) 
+(PUT 'DRAW 'NUMBER-OF-ARGS 0) 
+(PUT 'DRAW 'DEFINED-ON-LINE '236) 
+(PUT 'DRAW 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'DRAW 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE DRAW NIL
+    (PROG (PLOT)
+      (SETQ PLOT (LOGOTURTLE-GET-PLOT))
+      (COND
+       (*LOGOTURTLE-SHOWN (SETQ PLOT (CONS (LOGOTURTLE-SHOW-TURTLE) PLOT))))
+      (COND
+       ((OR PLOT LOGOTURTLE-LABELS* *LOGOTURTLE-DRAW-NOTHING)
+        (PROGN
+         (SETQ PLOT (REVERSE PLOT))
+         (COND (*TRLOGOTURTLE (PROGN (TERPRI) (PRETTYPRINT PLOT))))
+         (SETQ BYE-ACTIONS* (UNION '((PLOTRESET)) BYE-ACTIONS*))
+         (GP-INIT)
+         (PROG (BG)
+           (SETQ BG (GET 'LOGOTURTLE-PLOT* 'LOGOTURTLE-BG))
+           (COND
+            (BG
+             (PLOTPRIN2LT
+              (LIST "set term " LOGOTURTLE-TERM* " background rgb \"" BG
+                    "\"")))))
+         (PLOTPRIN2LT '("set title \"REDUCE Logo Turtle Plot\""))
+         (PLOTPRIN2LT '("set xlabel \"x\""))
+         (PLOTPRIN2LT '("set ylabel \"y\""))
+         (COND
+          (LOGOTURTLE-WIN-MODE*
+           (PROGN
+            (PLOTPRIN2LT
+             (LIST "set xrange [" (MINUS LOGOTURTLE-X-MAX*) ":"
+                   LOGOTURTLE-X-MAX* "]"))
+            (PLOTPRIN2LT
+             (LIST "set yrange [" (MINUS LOGOTURTLE-Y-MAX*) ":"
+                   LOGOTURTLE-Y-MAX* "]"))
+            NIL)))
+         (PLOTPRIN2LT '("set size ratio -1"))
+         (PLOTPRIN2LT '("unset key"))
+         (PROG (LABEL)
+           (SETQ LABEL LOGOTURTLE-LABELS*)
+          LAB
+           (COND ((NULL LABEL) (RETURN NIL)))
+           ((LAMBDA (LABEL)
+              (PROG (POS)
+                (SETQ POS (CADR LABEL))
+                (PLOTPRIN2 "set label \"")
+                (PLOTPRIN2L (CAR LABEL))
+                (PLOTPRIN2L (LIST "\" at " (CAR POS) "," (CDR POS) " front"))
+                (COND
+                 ((CDDR LABEL)
+                  (PROGN (PLOTPRIN2LT '("\\")) (PLOTPRIN2L (CDDR LABEL)))))
+                (PLOTTERPRI)))
+            (CAR LABEL))
+           (SETQ LABEL (CDR LABEL))
+           (GO LAB))
+         (PROG (FN STYLES)
+           (PROG (F OF)
+             (SETQ OF (WRS (SETQ F (OPEN (SETQ FN (PLOT-FILENAME)) 'OUTPUT))))
+             (SETQ STYLES
+                     (PROG (CURVE_SEQ FORALL-RESULT FORALL-ENDPTR)
+                       (SETQ CURVE_SEQ PLOT)
+                       (COND ((NULL CURVE_SEQ) (RETURN NIL)))
+                       (SETQ FORALL-RESULT
+                               (SETQ FORALL-ENDPTR
+                                       (CONS
+                                        ((LAMBDA (CURVE_SEQ)
+                                           (PROGN
+                                            (PROG (CURVE)
+                                              (SETQ CURVE (CDR CURVE_SEQ))
+                                             LAB
+                                              (COND
+                                               ((NULL CURVE) (RETURN NIL)))
+                                              ((LAMBDA (CURVE)
+                                                 (PROGN
+                                                  (PROG (POINT)
+                                                    (SETQ POINT CURVE)
+                                                   LAB
+                                                    (COND
+                                                     ((NULL POINT)
+                                                      (RETURN NIL)))
+                                                    ((LAMBDA (POINT)
+                                                       (PROGN
+                                                        (PRIN2 (CAR POINT))
+                                                        (PRIN2 " ")
+                                                        (PRIN2 (CDR POINT))
+                                                        (TERPRI)))
+                                                     (CAR POINT))
+                                                    (SETQ POINT (CDR POINT))
+                                                    (GO LAB))
+                                                  (TERPRI)))
+                                               (CAR CURVE))
+                                              (SETQ CURVE (CDR CURVE))
+                                              (GO LAB))
+                                            (TERPRI)
+                                            (CAR CURVE_SEQ)))
+                                         (CAR CURVE_SEQ))
+                                        NIL)))
+                      LOOPLABEL
+                       (SETQ CURVE_SEQ (CDR CURVE_SEQ))
+                       (COND ((NULL CURVE_SEQ) (RETURN FORALL-RESULT)))
+                       (RPLACD FORALL-ENDPTR
+                               (CONS
+                                ((LAMBDA (CURVE_SEQ)
+                                   (PROGN
+                                    (PROG (CURVE)
+                                      (SETQ CURVE (CDR CURVE_SEQ))
+                                     LAB
+                                      (COND ((NULL CURVE) (RETURN NIL)))
+                                      ((LAMBDA (CURVE)
+                                         (PROGN
+                                          (PROG (POINT)
+                                            (SETQ POINT CURVE)
+                                           LAB
+                                            (COND ((NULL POINT) (RETURN NIL)))
+                                            ((LAMBDA (POINT)
+                                               (PROGN
+                                                (PRIN2 (CAR POINT))
+                                                (PRIN2 " ")
+                                                (PRIN2 (CDR POINT))
+                                                (TERPRI)))
+                                             (CAR POINT))
+                                            (SETQ POINT (CDR POINT))
+                                            (GO LAB))
+                                          (TERPRI)))
+                                       (CAR CURVE))
+                                      (SETQ CURVE (CDR CURVE))
+                                      (GO LAB))
+                                    (TERPRI)
+                                    (CAR CURVE_SEQ)))
+                                 (CAR CURVE_SEQ))
+                                NIL))
+                       (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                       (GO LOOPLABEL)))
+             (WRS OF)
+             (CLOSE F))
+           (COND
+            (STYLES
+             (PROG (FST I)
+               (SETQ I 0)
+               (SETQ FST T)
+               (PROG (STYLE)
+                 (SETQ STYLE STYLES)
+                LAB
+                 (COND ((NULL STYLE) (RETURN NIL)))
+                 ((LAMBDA (STYLE)
+                    (PROGN
+                     (COND (FST (PLOTPRIN2LT (LIST "plot '" FN "'\\")))
+                           (T (PROGN (PLOTPRIN2LT '(",\\")) (PLOTPRIN2 "''"))))
+                     (PLOTPRIN2L (LIST " index " I " with "))
+                     (PLOTPRIN2L STYLE)
+                     (SETQ FST NIL)
+                     (SETQ I (PLUS I 1))
+                     NIL))
+                  (CAR STYLE))
+                 (SETQ STYLE (CDR STYLE))
+                 (GO LAB))
+               (PLOTTERPRI)))
+            (T
+             (PROGN
+              (PLOTPRIN2LT '("plot '-' with lines"))
+              (PLOTPRIN2LT '("0 0"))
+              (PLOTPRIN2LT '("e"))
+              NIL))))
+         (GP-SHOW)))))) 
+(DE LOGOTURTLE-AUTODRAW NIL (COND (*LOGOTURTLE_AUTODRAW (DRAW)))) 
+(PUT 'LOGOTURTLE-AUTODRAW 'NUMBER-OF-ARGS 0) 
+(PUT 'LOGOTURTLE-AUTODRAW 'DEFINED-ON-LINE '342) 
+(PUT 'LOGOTURTLE-AUTODRAW 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LOGOTURTLE-AUTODRAW 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(PUTC 'LOGOTURTLE-AUTODRAW 'INLINE
+      '(LAMBDA () (COND (*LOGOTURTLE_AUTODRAW (DRAW))))) 
+(DE LOGOTURTLE-AUTODRAW-NOTHING NIL
+    (COND
+     (*LOGOTURTLE_AUTODRAW
+      (PROG (*LOGOTURTLE-DRAW-NOTHING)
+        (SETQ *LOGOTURTLE-DRAW-NOTHING T)
+        (DRAW))))) 
+(PUT 'LOGOTURTLE-AUTODRAW-NOTHING 'NUMBER-OF-ARGS 0) 
+(PUT 'LOGOTURTLE-AUTODRAW-NOTHING 'DEFINED-ON-LINE '345) 
+(PUT 'LOGOTURTLE-AUTODRAW-NOTHING 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LOGOTURTLE-AUTODRAW-NOTHING 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(PUTC 'LOGOTURTLE-AUTODRAW-NOTHING 'INLINE
+      '(LAMBDA ()
+         (COND
+          (*LOGOTURTLE_AUTODRAW
+           (PROG (*LOGOTURTLE-DRAW-NOTHING)
+             (SETQ *LOGOTURTLE-DRAW-NOTHING T)
+             (DRAW)))))) 
+(PUT 'PLOTPRIN2L 'NUMBER-OF-ARGS 1) 
+(PUT 'PLOTPRIN2L 'DEFINED-ON-LINE '351) 
+(PUT 'PLOTPRIN2L 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'PLOTPRIN2L 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PLOTPRIN2L (L)
+    (PROG (X)
+      (SETQ X L)
+     LAB
+      (COND ((NULL X) (RETURN NIL)))
+      ((LAMBDA (X) (PLOTPRIN2 X)) (CAR X))
+      (SETQ X (CDR X))
+      (GO LAB))) 
+(PUT 'LOGOTURTLE-SHOW-TURTLE 'NUMBER-OF-ARGS 0) 
+(PUT 'LOGOTURTLE-SHOW-TURTLE 'DEFINED-ON-LINE '354) 
+(PUT 'LOGOTURTLE-SHOW-TURTLE 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LOGOTURTLE-SHOW-TURTLE 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE LOGOTURTLE-SHOW-TURTLE NIL
+    ((LAMBDA (LOGOTURTLE-X-COORD* LOGOTURTLE-Y-COORD* LOGOTURTLE-HEADING*)
+       (PROG (*LOGOTURTLE_AUTODRAW LOGOTURTLE-WIN-MODE* *LOGOTURTLE-PEN-DOWN
+              LOGOTURTLE-CURVE* LOGOTURTLE-CURVE-SEQ* LENGTH SIDE BASE
+              BASEANGLE)
+         (SETQ LENGTH
+                 (TIMES LOGOTURTLE-REL-LEN*
+                        (QUOTIENT (PLUS LOGOTURTLE-X-MAX* LOGOTURTLE-Y-MAX*)
+                                  2.0)))
+         (SETQ SIDE (QUOTIENT LENGTH (COSD LOGOTURTLE-ANGLE*)))
+         (SETQ BASE (TIMES 2.0 LENGTH (TAND LOGOTURTLE-ANGLE*)))
+         (SETQ BASEANGLE (DIFFERENCE 90.0 LOGOTURTLE-ANGLE*))
+         (LOGOTURTLE-FORWARD (DIFFERENCE LENGTH 1))
+         (PENDOWN)
+         (LOGOTURTLE-RIGHT LOGOTURTLE-ANGLE*)
+         (LOGOTURTLE-FORWARD (MINUS SIDE))
+         (LOGOTURTLE-RIGHT BASEANGLE)
+         (LOGOTURTLE-FORWARD BASE)
+         (LOGOTURTLE-RIGHT BASEANGLE)
+         (LOGOTURTLE-FORWARD (MINUS SIDE))
+         (SETQ LOGOTURTLE-CURVE-SEQ* (LIST LOGOTURTLE-CURVE*))
+         (RETURN
+          (PROG (LC LW)
+            (SETQ LC "black")
+            (RETURN
+             (CONS
+              (CONS "lines"
+                    (APPEND (AND LC (LIST " lc rgb \"" LC "\""))
+                            (AND LW (LIST " lw " LW))))
+              LOGOTURTLE-CURVE-SEQ*))))))
+     LOGOTURTLE-X-COORD* LOGOTURTLE-Y-COORD* LOGOTURTLE-HEADING*)) 
+(PUT 'LOGOTURTLE-FLOAT-ARGS 'NUMBER-OF-ARGS 3) 
+(PUT 'LOGOTURTLE-FLOAT-ARGS 'DEFINED-ON-LINE '384) 
+(PUT 'LOGOTURTLE-FLOAT-ARGS 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LOGOTURTLE-FLOAT-ARGS 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE LOGOTURTLE-FLOAT-ARGS (CMDNAME NARGS ARGS)
+    (PROG (RLSTP PR R *EXP)
+      (COND ((EQ NARGS 'LIST) (PROGN (SETQ RLSTP T) (SETQ NARGS 1))))
+      (COND
+       ((NOT (EQ (LENGTH ARGS) NARGS))
+        (REDERR (LIST "Improper number of arguments to" CMDNAME))))
+      (SETQ PR (PLOTROUNDED NIL))
+      (PRECISION 10)
+      (COND
+       (RLSTP
+        (PROGN (SETQ ARGS (GETRLIST (REVAL1 (CAR ARGS) T))) (SETQ NARGS NIL))))
+      (COND
+       ((EQ NARGS 1)
+        (COND ((NUMBERP (SETQ R (REVAL1 (CAR ARGS) T))) (FLOAT R))
+              ((AND (EQCAR R '|:RD:|) (FLOATP (SETQ R (CDR R)))) R)
+              (T (TYPERR R "real number"))))
+       (T
+        (SETQ R
+                (PROG (ARG FORALL-RESULT FORALL-ENDPTR)
+                  (SETQ ARG ARGS)
+                  (COND ((NULL ARG) (RETURN NIL)))
+                  (SETQ FORALL-RESULT
+                          (SETQ FORALL-ENDPTR
+                                  (CONS
+                                   ((LAMBDA (ARG)
+                                      (PROGN
+                                       (COND
+                                        ((NOT RLSTP)
+                                         (SETQ ARG (REVAL1 ARG T))))
+                                       (COND ((NUMBERP ARG) (FLOAT ARG))
+                                             ((AND (EQCAR ARG '|:RD:|)
+                                                   (FLOATP
+                                                    (SETQ ARG (CDR ARG))))
+                                              ARG)
+                                             (T
+                                              (TYPERR ARGS "real numbers")))))
+                                    (CAR ARG))
+                                   NIL)))
+                 LOOPLABEL
+                  (SETQ ARG (CDR ARG))
+                  (COND ((NULL ARG) (RETURN FORALL-RESULT)))
+                  (RPLACD FORALL-ENDPTR
+                          (CONS
+                           ((LAMBDA (ARG)
+                              (PROGN
+                               (COND ((NOT RLSTP) (SETQ ARG (REVAL1 ARG T))))
+                               (COND ((NUMBERP ARG) (FLOAT ARG))
+                                     ((AND (EQCAR ARG '|:RD:|)
+                                           (FLOATP (SETQ ARG (CDR ARG))))
+                                      ARG)
+                                     (T (TYPERR ARGS "real numbers")))))
+                            (CAR ARG))
+                           NIL))
+                  (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                  (GO LOOPLABEL)))))
+      (PLOTROUNDED PR)
+      (RETURN R))) 
+(PUT 'FORWARD 'NUMBER-OF-ARGS 1) 
+(PUT 'FORWARD 'DEFINED-ON-LINE '432) 
+(PUT 'FORWARD 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'FORWARD 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE FORWARD (DIST)
+    (LOGOTURTLE-FORWARD (PLUS (LOGOTURTLE-FLOAT-ARGS "FORWARD" 1 DIST)))) 
+(PUT 'FORWARD 'PSOPFN 'FORWARD) 
+(PUT 'BACK 'NUMBER-OF-ARGS 1) 
+(PUT 'BACK 'DEFINED-ON-LINE '439) 
+(PUT 'BACK 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'BACK 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE BACK (DIST)
+    (LOGOTURTLE-FORWARD (MINUS (LOGOTURTLE-FLOAT-ARGS "BACK" 1 DIST)))) 
+(PUT 'BACK 'PSOPFN 'BACK) 
+(PUT 'LOGOTURTLE-FORWARD 'NUMBER-OF-ARGS 1) 
+(PUT 'LOGOTURTLE-FORWARD 'DEFINED-ON-LINE '447) 
+(PUT 'LOGOTURTLE-FORWARD 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LOGOTURTLE-FORWARD 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE LOGOTURTLE-FORWARD (DIST)
+    (PROGN
+     (LOGOTURTLE-SETXY
+      (PLUS LOGOTURTLE-X-COORD* (TIMES DIST (SIND LOGOTURTLE-HEADING*)))
+      (PLUS LOGOTURTLE-Y-COORD* (TIMES DIST (COSD LOGOTURTLE-HEADING*))))
+     NIL)) 
+(PUT 'LEFT 'NUMBER-OF-ARGS 1) 
+(PUT 'LEFT 'DEFINED-ON-LINE '455) 
+(PUT 'LEFT 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LEFT 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE LEFT (DEGREES)
+    (LOGOTURTLE-RIGHT (MINUS (LOGOTURTLE-FLOAT-ARGS "LEFT" 1 DEGREES)))) 
+(PUT 'LEFT 'PSOPFN 'LEFT) 
+(PUT 'RIGHT 'NUMBER-OF-ARGS 1) 
+(PUT 'RIGHT 'DEFINED-ON-LINE '461) 
+(PUT 'RIGHT 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'RIGHT 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE RIGHT (DEGREES)
+    (LOGOTURTLE-RIGHT (PLUS (LOGOTURTLE-FLOAT-ARGS "RIGHT" 1 DEGREES)))) 
+(PUT 'RIGHT 'PSOPFN 'RIGHT) 
+(PUT 'LOGOTURTLE-RIGHT 'NUMBER-OF-ARGS 1) 
+(PUT 'LOGOTURTLE-RIGHT 'DEFINED-ON-LINE '467) 
+(PUT 'LOGOTURTLE-RIGHT 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LOGOTURTLE-RIGHT 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE LOGOTURTLE-RIGHT (DEGREES)
+    (LOGOTURTLE-SETHEADING (PLUS LOGOTURTLE-HEADING* DEGREES))) 
+(PUT 'SETPOS 'NUMBER-OF-ARGS 1) 
+(PUT 'SETPOS 'DEFINED-ON-LINE '472) 
+(PUT 'SETPOS 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'SETPOS 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SETPOS (POSN)
+    (APPLY 'LOGOTURTLE-SETXY (LOGOTURTLE-FLOAT-ARGS "POS" 'LIST POSN))) 
+(PUT 'SETPOS 'PSOPFN 'SETPOS) 
+(PUT 'SETXY 'NUMBER-OF-ARGS 1) 
+(PUT 'SETXY 'DEFINED-ON-LINE '479) 
+(PUT 'SETXY 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'SETXY 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SETXY (ARGS)
+    (APPLY (FUNCTION LOGOTURTLE-SETXY) (LOGOTURTLE-FLOAT-ARGS "SETXY" 2 ARGS))) 
+(PUT 'SETXY 'PSOPFN 'SETXY) 
+(PUT 'LOGOTURTLE-SETXY 'NUMBER-OF-ARGS 2) 
+(PUT 'LOGOTURTLE-SETXY 'DEFINED-ON-LINE '486) 
+(PUT 'LOGOTURTLE-SETXY 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LOGOTURTLE-SETXY 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE LOGOTURTLE-SETXY (XCOR YCOR)
+    (PROG (NEWXCOR NEWYCOR NEWX NEWY)
+      (SETQ NEWXCOR XCOR)
+      (SETQ NEWYCOR YCOR)
+      (COND
+       (*TRLOGOTURTLE
+        (PROGN
+         (TERPRI)
+         (PRIN2 (COND (*LOGOTURTLE-PEN-DOWN "draw") (T "move")))
+         (PRIN2 " from (")
+         (PRIN2 LOGOTURTLE-X-COORD*)
+         (PRIN2 ", ")
+         (PRIN2 LOGOTURTLE-Y-COORD*)
+         (PRIN2 ") to (")
+         (PRIN2 XCOR)
+         (PRIN2 ", ")
+         (PRIN2 YCOR)
+         (PRIN2T ")")
+         NIL)))
+      (COND
+       ((MEMQ LOGOTURTLE-WIN-MODE* '(FENCE WRAP))
+        (PROG ()
+          (COND
+           ((GREATERP XCOR LOGOTURTLE-X-MAX*)
+            (PROGN (SETQ NEWX LOGOTURTLE-X-MAX*) NIL))
+           ((LESSP XCOR (MINUS LOGOTURTLE-X-MAX*))
+            (PROGN (SETQ NEWX (MINUS LOGOTURTLE-X-MAX*)) NIL)))
+          (COND
+           (NEWX
+            (PROGN
+             (SETQ NEWYCOR
+                     (PLUS LOGOTURTLE-Y-COORD*
+                           (TIMES
+                            (QUOTIENT (DIFFERENCE YCOR LOGOTURTLE-Y-COORD*)
+                                      (DIFFERENCE XCOR LOGOTURTLE-X-COORD*))
+                            (DIFFERENCE NEWX LOGOTURTLE-X-COORD*))))
+             (COND
+              ((AND (LEQ NEWYCOR LOGOTURTLE-Y-MAX*)
+                    (GEQ NEWYCOR (MINUS LOGOTURTLE-Y-MAX*)))
+               (RETURN (SETQ NEWXCOR NEWX))))
+             (SETQ NEWX NIL)
+             (SETQ NEWYCOR YCOR)
+             NIL)))
+          (COND
+           ((GREATERP YCOR LOGOTURTLE-Y-MAX*)
+            (PROGN (SETQ NEWY LOGOTURTLE-Y-MAX*) NIL))
+           ((LESSP YCOR (MINUS LOGOTURTLE-Y-MAX*))
+            (PROGN (SETQ NEWY (MINUS LOGOTURTLE-Y-MAX*)) NIL)))
+          (COND
+           (NEWY
+            (PROGN
+             (SETQ NEWXCOR
+                     (PLUS LOGOTURTLE-X-COORD*
+                           (TIMES
+                            (QUOTIENT (DIFFERENCE XCOR LOGOTURTLE-X-COORD*)
+                                      (DIFFERENCE YCOR LOGOTURTLE-Y-COORD*))
+                            (DIFFERENCE NEWY LOGOTURTLE-Y-COORD*))))
+             (SETQ NEWYCOR NEWY)
+             NIL))))))
+      (COND
+       ((AND (EQ LOGOTURTLE-WIN-MODE* 'FENCE) (OR NEWX NEWY))
+        (PROGN (PRIN2 "Turtle out of bounds!") NIL)))
+      (COND
+       (*LOGOTURTLE-PEN-DOWN
+        (SETQ LOGOTURTLE-CURVE*
+                (CONS (CONS NEWXCOR NEWYCOR) LOGOTURTLE-CURVE*))))
+      (SETQ LOGOTURTLE-X-COORD* NEWXCOR)
+      (SETQ LOGOTURTLE-Y-COORD* NEWYCOR)
+      (COND
+       ((EQ LOGOTURTLE-WIN-MODE* 'WRAP)
+        (PROGN
+         (COND
+          (NEWX
+           (PROGN
+            (COND
+             (*LOGOTURTLE-PEN-DOWN
+              (PROGN
+               (LOGOTURTLE-SAVE-CURVE)
+               (SETQ LOGOTURTLE-X-COORD* (DIFFERENCE NEWXCOR (TIMES 2 NEWX)))
+               (LOGOTURTLE-NEW-CURVE)
+               NIL))
+             (T
+              (SETQ LOGOTURTLE-X-COORD* (DIFFERENCE NEWXCOR (TIMES 2 NEWX)))))
+            (LOGOTURTLE-SETXY (DIFFERENCE XCOR (TIMES 2 NEWX)) YCOR)
+            NIL))
+          (NEWY
+           (PROGN
+            (COND
+             (*LOGOTURTLE-PEN-DOWN
+              (PROGN
+               (LOGOTURTLE-SAVE-CURVE)
+               (SETQ LOGOTURTLE-Y-COORD* (DIFFERENCE NEWYCOR (TIMES 2 NEWY)))
+               (LOGOTURTLE-NEW-CURVE)
+               NIL))
+             (T
+              (SETQ LOGOTURTLE-Y-COORD* (DIFFERENCE NEWYCOR (TIMES 2 NEWY)))))
+            (LOGOTURTLE-SETXY XCOR (DIFFERENCE YCOR (TIMES 2 NEWY)))
+            NIL)))
+         NIL)))
+      (COND
+       ((AND *LOGOTURTLE_AUTODRAW (OR *LOGOTURTLE-PEN-DOWN *LOGOTURTLE-SHOWN))
+        (DRAW))))) 
+(PUT 'SETX 'NUMBER-OF-ARGS 1) 
+(PUT 'SETX 'DEFINED-ON-LINE '563) 
+(PUT 'SETX 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'SETX 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SETX (XCOR)
+    (LOGOTURTLE-SETXY (LOGOTURTLE-FLOAT-ARGS "SETX" 1 XCOR)
+     LOGOTURTLE-Y-COORD*)) 
+(PUT 'SETX 'PSOPFN 'SETX) 
+(PUT 'SETY 'NUMBER-OF-ARGS 1) 
+(PUT 'SETY 'DEFINED-ON-LINE '572) 
+(PUT 'SETY 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'SETY 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SETY (YCOR)
+    (LOGOTURTLE-SETXY LOGOTURTLE-X-COORD*
+     (LOGOTURTLE-FLOAT-ARGS "SETY" 1 YCOR))) 
+(PUT 'SETY 'PSOPFN 'SETY) 
+(PUT 'SETHEADING 'NUMBER-OF-ARGS 1) 
+(PUT 'SETHEADING 'DEFINED-ON-LINE '580) 
+(PUT 'SETHEADING 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'SETHEADING 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SETHEADING (DEGREES)
+    (LOGOTURTLE-SETHEADING (LOGOTURTLE-FLOAT-ARGS "SETHEADING" 1 DEGREES))) 
+(PUT 'SETHEADING 'PSOPFN 'SETHEADING) 
+(PUT 'LOGOTURTLE-SETHEADING 'NUMBER-OF-ARGS 1) 
+(PUT 'LOGOTURTLE-SETHEADING 'DEFINED-ON-LINE '587) 
+(PUT 'LOGOTURTLE-SETHEADING 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LOGOTURTLE-SETHEADING 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE LOGOTURTLE-SETHEADING (DEGREES)
+    (PROGN
+     (COND
+      ((GREATERP DEGREES 180.0)
+       (PROG ()
+        WHILELABEL
+         (COND ((NOT (GREATERP DEGREES 180.0)) (RETURN NIL)))
+         (SETQ DEGREES (DIFFERENCE DEGREES 360.0))
+         (GO WHILELABEL)))
+      ((LEQ DEGREES (MINUS 180.0))
+       (PROG ()
+        WHILELABEL
+         (COND ((NOT (LEQ DEGREES (MINUS 180.0))) (RETURN NIL)))
+         (SETQ DEGREES (PLUS DEGREES 360.0))
+         (GO WHILELABEL))))
+     (SETQ LOGOTURTLE-HEADING* DEGREES)
+     (COND ((AND *LOGOTURTLE_AUTODRAW *LOGOTURTLE-SHOWN) (DRAW)))
+     NIL)) 
+(PUT 'HOME 'NUMBER-OF-ARGS 0) 
+(PUT 'HOME 'DEFINED-ON-LINE '600) 
+(PUT 'HOME 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'HOME 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE HOME NIL
+    (PROGN (SETQ LOGOTURTLE-HEADING* 0.0) (LOGOTURTLE-SETXY 0.0 0.0) NIL)) 
+(PUT 'ARC 'NUMBER-OF-ARGS 1) 
+(PUT 'ARC 'DEFINED-ON-LINE '608) 
+(PUT 'ARC 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'ARC 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE ARC (ARGS)
+    (APPLY (FUNCTION LOGOTURTLE-ARC) (LOGOTURTLE-FLOAT-ARGS "ARC" 2 ARGS))) 
+(PUT 'ARC 'PSOPFN 'ARC) 
+(PUT 'CIRCLE 'NUMBER-OF-ARGS 1) 
+(PUT 'CIRCLE 'DEFINED-ON-LINE '619) 
+(PUT 'CIRCLE 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'CIRCLE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE CIRCLE (RADIUS)
+    (LOGOTURTLE-ARC 360.0 (LOGOTURTLE-FLOAT-ARGS "CIRCLE" 1 RADIUS))) 
+(PUT 'CIRCLE 'PSOPFN 'CIRCLE) 
+(PUT 'LOGOTURTLE-ARC 'NUMBER-OF-ARGS 2) 
+(PUT 'LOGOTURTLE-ARC 'DEFINED-ON-LINE '626) 
+(PUT 'LOGOTURTLE-ARC 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LOGOTURTLE-ARC 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE LOGOTURTLE-ARC (ANGLE RADIUS)
+    (PROG (NSTEPS H DELTA CURVE A)
+      (COND ((LEQ RADIUS 0.0) (TYPERR RADIUS "radius")))
+      (SETQ ANGLE (DEG2RAD ANGLE))
+      (SETQ H (DEG2RAD LOGOTURTLE-HEADING*))
+      (SETQ NSTEPS (FIX (ABS (TIMES 10.0 ANGLE))))
+      (SETQ DELTA (QUOTIENT ANGLE NSTEPS))
+      (SETQ CURVE
+              (PROG (N FORALL-RESULT FORALL-ENDPTR)
+                (SETQ N 0)
+                (COND ((MINUSP (DIFFERENCE NSTEPS N)) (RETURN NIL)))
+                (SETQ FORALL-RESULT
+                        (SETQ FORALL-ENDPTR
+                                (CONS
+                                 (PROGN
+                                  (SETQ A (PLUS H (TIMES N DELTA)))
+                                  (CONS
+                                   (PLUS LOGOTURTLE-X-COORD*
+                                         (TIMES RADIUS (SIN A)))
+                                   (PLUS LOGOTURTLE-Y-COORD*
+                                         (TIMES RADIUS (COS A)))))
+                                 NIL)))
+               LOOPLABEL
+                (SETQ N (PLUS2 N 1))
+                (COND ((MINUSP (DIFFERENCE NSTEPS N)) (RETURN FORALL-RESULT)))
+                (RPLACD FORALL-ENDPTR
+                        (CONS
+                         (PROGN
+                          (SETQ A (PLUS H (TIMES N DELTA)))
+                          (CONS
+                           (PLUS LOGOTURTLE-X-COORD* (TIMES RADIUS (SIN A)))
+                           (PLUS LOGOTURTLE-Y-COORD* (TIMES RADIUS (COS A)))))
+                         NIL))
+                (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                (GO LOOPLABEL)))
+      (SETQ LOGOTURTLE-CURVE-SEQ* (CONS CURVE LOGOTURTLE-CURVE-SEQ*))
+      (COND (*LOGOTURTLE_AUTODRAW (DRAW))))) 
+(PUT 'ELLIPTICARC 'NUMBER-OF-ARGS 1) 
+(PUT 'ELLIPTICARC 'DEFINED-ON-LINE '642) 
+(PUT 'ELLIPTICARC 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'ELLIPTICARC 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE ELLIPTICARC (ARGS)
+    (APPLY (FUNCTION LOGOTURTLE-ELLIPTICARC)
+           (LOGOTURTLE-FLOAT-ARGS "ELLIPTICARC" 4 ARGS))) 
+(PUT 'ELLIPTICARC 'PSOPFN 'ELLIPTICARC) 
+(PUT 'ELLIPSE 'NUMBER-OF-ARGS 1) 
+(PUT 'ELLIPSE 'DEFINED-ON-LINE '663) 
+(PUT 'ELLIPSE 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'ELLIPSE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE ELLIPSE (ARGS)
+    (APPLY (FUNCTION LOGOTURTLE-ELLIPTICARC)
+           (CONS 360.0
+                 (NCONC (LOGOTURTLE-FLOAT-ARGS "ELLIPSE" 2 ARGS) '(0.0))))) 
+(PUT 'ELLIPSE 'PSOPFN 'ELLIPSE) 
+(PUT 'LOGOTURTLE-ELLIPTICARC 'NUMBER-OF-ARGS 4) 
+(PUT 'LOGOTURTLE-ELLIPTICARC 'DEFINED-ON-LINE '679) 
+(PUT 'LOGOTURTLE-ELLIPTICARC 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LOGOTURTLE-ELLIPTICARC 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL GENERAL) GENERAL)) 
+(DE LOGOTURTLE-ELLIPTICARC (RANGE CROSS INLIN START)
+    (PROG (NSTEPS H DELTA CURVE COS_H SIN_H INLIN_SIN_H CROSS_COS_H INLIN_COS_H
+           CROSS_SIN_H)
+      (COND ((LEQ CROSS 0.0) (TYPERR CROSS "ellipse semi-axis")))
+      (COND ((LEQ INLIN 0.0) (TYPERR INLIN "ellipse semi-axis")))
+      (SETQ RANGE (DEG2RAD RANGE))
+      (SETQ START (DEG2RAD START))
+      (SETQ H (DEG2RAD LOGOTURTLE-HEADING*))
+      (SETQ COS_H (COS H))
+      (SETQ SIN_H (SIN H))
+      (SETQ INLIN_SIN_H (TIMES INLIN SIN_H))
+      (SETQ CROSS_COS_H (TIMES CROSS COS_H))
+      (SETQ INLIN_COS_H (TIMES INLIN COS_H))
+      (SETQ CROSS_SIN_H (TIMES CROSS SIN_H))
+      (SETQ NSTEPS (FIX (ABS (TIMES 10.0 RANGE))))
+      (SETQ DELTA (QUOTIENT RANGE NSTEPS))
+      (SETQ CURVE
+              (PROG (N FORALL-RESULT FORALL-ENDPTR)
+                (SETQ N 0)
+                (COND ((MINUSP (DIFFERENCE NSTEPS N)) (RETURN NIL)))
+                (SETQ FORALL-RESULT
+                        (SETQ FORALL-ENDPTR
+                                (CONS
+                                 (PROG (A COS_A SIN_A)
+                                   (SETQ A (PLUS START (TIMES N DELTA)))
+                                   (SETQ COS_A (COS A))
+                                   (SETQ SIN_A (SIN A))
+                                   (RETURN
+                                    (CONS
+                                     (PLUS LOGOTURTLE-X-COORD*
+                                           (TIMES INLIN_SIN_H COS_A)
+                                           (TIMES CROSS_COS_H SIN_A))
+                                     (PLUS LOGOTURTLE-Y-COORD*
+                                           (DIFFERENCE
+                                            (TIMES INLIN_COS_H COS_A)
+                                            (TIMES CROSS_SIN_H SIN_A))))))
+                                 NIL)))
+               LOOPLABEL
+                (SETQ N (PLUS2 N 1))
+                (COND ((MINUSP (DIFFERENCE NSTEPS N)) (RETURN FORALL-RESULT)))
+                (RPLACD FORALL-ENDPTR
+                        (CONS
+                         (PROG (A COS_A SIN_A)
+                           (SETQ A (PLUS START (TIMES N DELTA)))
+                           (SETQ COS_A (COS A))
+                           (SETQ SIN_A (SIN A))
+                           (RETURN
+                            (CONS
+                             (PLUS LOGOTURTLE-X-COORD*
+                                   (TIMES INLIN_SIN_H COS_A)
+                                   (TIMES CROSS_COS_H SIN_A))
+                             (PLUS LOGOTURTLE-Y-COORD*
+                                   (DIFFERENCE (TIMES INLIN_COS_H COS_A)
+                                               (TIMES CROSS_SIN_H SIN_A))))))
+                         NIL))
+                (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                (GO LOOPLABEL)))
+      (SETQ LOGOTURTLE-CURVE-SEQ* (CONS CURVE LOGOTURTLE-CURVE-SEQ*))
+      (COND (*LOGOTURTLE_AUTODRAW (DRAW))))) 
+(PUT 'ARC2 'NUMBER-OF-ARGS 1) 
+(PUT 'ARC2 'DEFINED-ON-LINE '702) 
+(PUT 'ARC2 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'ARC2 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE ARC2 (ARGS)
+    (APPLY (FUNCTION LOGOTURTLE-ARC2) (LOGOTURTLE-FLOAT-ARGS "ARC2" 2 ARGS))) 
+(PUT 'ARC2 'PSOPFN 'ARC2) 
+(PUT 'CIRCLE2 'NUMBER-OF-ARGS 1) 
+(PUT 'CIRCLE2 'DEFINED-ON-LINE '715) 
+(PUT 'CIRCLE2 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'CIRCLE2 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE CIRCLE2 (RADIUS)
+    (LOGOTURTLE-ARC2 360.0 (LOGOTURTLE-FLOAT-ARGS "CIRCLE2" 1 RADIUS))) 
+(PUT 'CIRCLE2 'PSOPFN 'CIRCLE2) 
+(PUT 'LOGOTURTLE-ARC2 'NUMBER-OF-ARGS 2) 
+(PUT 'LOGOTURTLE-ARC2 'DEFINED-ON-LINE '723) 
+(PUT 'LOGOTURTLE-ARC2 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LOGOTURTLE-ARC2 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE LOGOTURTLE-ARC2 (ANGLE RADIUS)
+    (PROG (NSTEPS A H X Y DELTA)
+      (COND ((LEQ RADIUS 0.0) (TYPERR RADIUS "radius")))
+      (COND ((LESSP ANGLE 0) (SETQ RADIUS (MINUS RADIUS))))
+      (SETQ A (DEG2RAD ANGLE))
+      (SETQ H (DEG2RAD LOGOTURTLE-HEADING*))
+      (SETQ X (PLUS LOGOTURTLE-X-COORD* (TIMES RADIUS (COS H))))
+      (SETQ Y (DIFFERENCE LOGOTURTLE-Y-COORD* (TIMES RADIUS (SIN H))))
+      (SETQ NSTEPS (FIX (ABS (TIMES 10.0 A))))
+      (SETQ DELTA (QUOTIENT A NSTEPS))
+      (PROG (*LOGOTURTLE_AUTODRAW)
+        (PROG (N)
+          (SETQ N 1)
+         LAB
+          (COND ((MINUSP (DIFFERENCE NSTEPS N)) (RETURN NIL)))
+          (PROGN
+           (SETQ A (PLUS H (TIMES N DELTA)))
+           (LOGOTURTLE-SETXY (DIFFERENCE X (TIMES RADIUS (COS A)))
+            (PLUS Y (TIMES RADIUS (SIN A)))))
+          (SETQ N (PLUS2 N 1))
+          (GO LAB)))
+      (LOGOTURTLE-SETHEADING (PLUS LOGOTURTLE-HEADING* ANGLE))
+      (COND
+       ((AND *LOGOTURTLE_AUTODRAW (OR *LOGOTURTLE-PEN-DOWN *LOGOTURTLE-SHOWN))
+        (DRAW))))) 
+(PUT 'POS 'NUMBER-OF-ARGS 0) 
+(PUT 'POS 'DEFINED-ON-LINE '748) 
+(PUT 'POS 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'POS 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE POS NIL (LIST 'LIST LOGOTURTLE-X-COORD* LOGOTURTLE-Y-COORD*)) 
+(PUT 'XCOR 'NUMBER-OF-ARGS 0) 
+(PUT 'XCOR 'DEFINED-ON-LINE '753) 
+(PUT 'XCOR 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'XCOR 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE XCOR NIL LOGOTURTLE-X-COORD*) 
+(PUT 'YCOR 'NUMBER-OF-ARGS 0) 
+(PUT 'YCOR 'DEFINED-ON-LINE '757) 
+(PUT 'YCOR 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'YCOR 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE YCOR NIL LOGOTURTLE-Y-COORD*) 
+(PUT 'HEADING 'NUMBER-OF-ARGS 0) 
+(PUT 'HEADING 'DEFINED-ON-LINE '761) 
+(PUT 'HEADING 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'HEADING 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE HEADING NIL LOGOTURTLE-HEADING*) 
+(PUT 'TOWARDS 'NUMBER-OF-ARGS 1) 
+(PUT 'TOWARDS 'DEFINED-ON-LINE '765) 
+(PUT 'TOWARDS 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'TOWARDS 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE TOWARDS (POSN)
+    (PROGN
+     (SETQ POSN (LOGOTURTLE-FLOAT-ARGS "TOWARDS" 'LIST POSN))
+     (ATAN2D (DIFFERENCE (CAR POSN) LOGOTURTLE-X-COORD*)
+             (DIFFERENCE (CADR POSN) LOGOTURTLE-Y-COORD*)))) 
+(PUT 'TOWARDS 'PSOPFN 'TOWARDS) 
+(PUT 'DISTANCE 'NUMBER-OF-ARGS 1) 
+(PUT 'DISTANCE 'DEFINED-ON-LINE '778) 
+(PUT 'DISTANCE 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'DISTANCE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE DISTANCE (POSN)
+    (PROGN
+     (SETQ POSN (LOGOTURTLE-FLOAT-ARGS "DISTANCE" 'LIST POSN))
+     (HYPOT (DIFFERENCE (CAR POSN) LOGOTURTLE-X-COORD*)
+            (DIFFERENCE (CADR POSN) LOGOTURTLE-Y-COORD*)))) 
+(PUT 'DISTANCE 'PSOPFN 'DISTANCE) 
+(PUT 'SHOWTURTLE 'NUMBER-OF-ARGS 0) 
+(PUT 'SHOWTURTLE 'DEFINED-ON-LINE '794) 
+(PUT 'SHOWTURTLE 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'SHOWTURTLE 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE SHOWTURTLE NIL
+    (COND
+     ((NOT *LOGOTURTLE-SHOWN)
+      (PROGN (SETQ *LOGOTURTLE-SHOWN T) (COND (*LOGOTURTLE_AUTODRAW (DRAW))))))) 
+(PUT 'HIDETURTLE 'NUMBER-OF-ARGS 0) 
+(PUT 'HIDETURTLE 'DEFINED-ON-LINE '801) 
+(PUT 'HIDETURTLE 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'HIDETURTLE 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE HIDETURTLE NIL
+    (COND
+     (*LOGOTURTLE-SHOWN
+      (PROGN
+       (SETQ *LOGOTURTLE-SHOWN NIL)
+       (COND
+        (*LOGOTURTLE_AUTODRAW
+         (PROG (*LOGOTURTLE-DRAW-NOTHING)
+           (SETQ *LOGOTURTLE-DRAW-NOTHING T)
+           (DRAW)))))))) 
+(PUT 'CLEAN 'NUMBER-OF-ARGS 0) 
+(PUT 'CLEAN 'DEFINED-ON-LINE '808) 
+(PUT 'CLEAN 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'CLEAN 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE CLEAN NIL
+    (PROGN
+     (SETQ LOGOTURTLE-LABELS*
+             (SETQ LOGOTURTLE-PLOT* (SETQ LOGOTURTLE-CURVE-SEQ* NIL)))
+     (SETQ LOGOTURTLE-CURVE*
+             (COND
+              (*LOGOTURTLE-PEN-DOWN
+               (LIST (CONS LOGOTURTLE-X-COORD* LOGOTURTLE-Y-COORD*)))))
+     (COND
+      (*LOGOTURTLE_AUTODRAW
+       (PROG (*LOGOTURTLE-DRAW-NOTHING)
+         (SETQ *LOGOTURTLE-DRAW-NOTHING T)
+         (DRAW)))))) 
+(PUT 'CLEARSCREEN 'NUMBER-OF-ARGS 0) 
+(PUT 'CLEARSCREEN 'DEFINED-ON-LINE '822) 
+(PUT 'CLEARSCREEN 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'CLEARSCREEN 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE CLEARSCREEN NIL
+    (PROG (*LOGOTURTLE_AUTODRAW)
+      (PLOTRESET)
+      (SETQ LOGOTURTLE-X-COORD* 0.0)
+      (SETQ LOGOTURTLE-Y-COORD* 0.0)
+      (SETQ LOGOTURTLE-HEADING* 0.0)
+      (CLEAN))) 
+(PUT 'SETWINDOWSIZE 'NUMBER-OF-ARGS 1) 
+(PUT 'SETWINDOWSIZE 'DEFINED-ON-LINE '833) 
+(PUT 'SETWINDOWSIZE 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'SETWINDOWSIZE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SETWINDOWSIZE (ARGS)
+    (PROG (L M N)
+      (COND
+       ((EQUAL (SETQ L (LENGTH ARGS)) 1)
+        (COND
+         ((NUMBERP (SETQ N (REVAL1 (CAR ARGS) T)))
+          (PROGN
+           (SETQ LOGOTURTLE-X-MAX* (SETQ LOGOTURTLE-Y-MAX* (ABS N)))
+           (RETURN NIL)))
+         ((AND (EQCAR N 'LIST) (NUMBERP (SETQ M (CADR N)))
+               (NUMBERP (SETQ N (CADDR N))))
+          (PROGN
+           (SETQ LOGOTURTLE-X-MAX* (ABS M))
+           (SETQ LOGOTURTLE-Y-MAX* (ABS N))
+           (RETURN NIL)))))
+       ((EQUAL L 2)
+        (COND
+         ((AND (NUMBERP (SETQ M (REVAL1 (CAR ARGS) T)))
+               (NUMBERP (SETQ N (REVAL1 (CADR ARGS) T))))
+          (PROGN
+           (SETQ LOGOTURTLE-X-MAX* (ABS M))
+           (SETQ LOGOTURTLE-Y-MAX* (ABS N))
+           (RETURN NIL))))))
+      (TYPERR ARGS "argument(s) to SETWINDOWSIZE"))) 
+(PUT 'SETWINDOWSIZE 'PSOPFN 'SETWINDOWSIZE) 
+(PUT 'WRAP 'NUMBER-OF-ARGS 0) 
+(PUT 'WRAP 'DEFINED-ON-LINE '863) 
+(PUT 'WRAP 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'WRAP 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE WRAP NIL (PROGN (SETQ LOGOTURTLE-WIN-MODE* 'WRAP) NIL)) 
+(PUT 'WINDOW 'NUMBER-OF-ARGS 0) 
+(PUT 'WINDOW 'DEFINED-ON-LINE '874) 
+(PUT 'WINDOW 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'WINDOW 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE WINDOW NIL (PROGN (SETQ LOGOTURTLE-WIN-MODE* 'WINDOW) NIL)) 
+(PUT 'FENCE 'NUMBER-OF-ARGS 0) 
+(PUT 'FENCE 'DEFINED-ON-LINE '884) 
+(PUT 'FENCE 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'FENCE 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE FENCE NIL (PROGN (SETQ LOGOTURTLE-WIN-MODE* 'FENCE) NIL)) 
+(PUT 'SETTURTLEMODE 'NUMBER-OF-ARGS 1) 
+(PUT 'SETTURTLEMODE 'DEFINED-ON-LINE '893) 
+(PUT 'SETTURTLEMODE 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'SETTURTLEMODE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SETTURTLEMODE (MODE)
+    (PROGN
+     (COND ((MEMQ MODE '(WRAP FENCE WINDOW)) (SETQ LOGOTURTLE-WIN-MODE* MODE))
+           ((EQ MODE 'FALSE) (SETQ LOGOTURTLE-WIN-MODE* NIL))
+           (T (TYPERR MODE "turtle mode")))
+     NIL)) 
+(FLAG '(SETTURTLEMODE) 'OPFN) 
+(PUT 'FILL 'NUMBER-OF-ARGS 0) 
+(PUT 'FILL 'DEFINED-ON-LINE '907) 
+(PUT 'FILL 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'FILL 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE FILL NIL
+    (PROG ()
+      (COND
+       ((GREATERP (LENGTH LOGOTURTLE-CURVE*) 1)
+        (COND
+         (LOGOTURTLE-CURVE-SEQ*
+          (SETQ LOGOTURTLE-PLOT*
+                  (CONS
+                   (PROG (LC LW)
+                     (SETQ LC (GET 'LOGOTURTLE-CURVE-SEQ* 'LC))
+                     (SETQ LW (GET 'LOGOTURTLE-CURVE-SEQ* 'LW))
+                     (RETURN
+                      (CONS
+                       (CONS "lines"
+                             (APPEND (AND LC (LIST " lc rgb \"" LC "\""))
+                                     (AND LW (LIST " lw " LW))))
+                       LOGOTURTLE-CURVE-SEQ*)))
+                   LOGOTURTLE-PLOT*)))))
+       (T
+        (COND
+         (LOGOTURTLE-CURVE-SEQ*
+          (PROGN
+           (SETQ LOGOTURTLE-CURVE* (CAR LOGOTURTLE-CURVE-SEQ*))
+           (SETQ LOGOTURTLE-CURVE-SEQ* (CDR LOGOTURTLE-CURVE-SEQ*))
+           (COND
+            (LOGOTURTLE-CURVE-SEQ*
+             (SETQ LOGOTURTLE-PLOT*
+                     (CONS
+                      (PROG (LC LW)
+                        (SETQ LC (GET 'LOGOTURTLE-CURVE-SEQ* 'LC))
+                        (SETQ LW (GET 'LOGOTURTLE-CURVE-SEQ* 'LW))
+                        (RETURN
+                         (CONS
+                          (CONS "lines"
+                                (APPEND (AND LC (LIST " lc rgb \"" LC "\""))
+                                        (AND LW (LIST " lw " LW))))
+                          LOGOTURTLE-CURVE-SEQ*)))
+                      LOGOTURTLE-PLOT*))))))
+         (LOGOTURTLE-PLOT*
+          (PROGN
+           (SETQ LOGOTURTLE-CURVE-SEQ* (CAR LOGOTURTLE-PLOT*))
+           (SETQ LOGOTURTLE-PLOT* (CDR LOGOTURTLE-PLOT*))
+           (SETQ LOGOTURTLE-CURVE* (CADDR LOGOTURTLE-CURVE-SEQ*))
+           (COND
+            ((CDDDR LOGOTURTLE-CURVE-SEQ*)
+             (PROGN
+              (SETQ LOGOTURTLE-CURVE-SEQ*
+                      (CONS (CAR LOGOTURTLE-CURVE-SEQ*)
+                            (CONS (CADR LOGOTURTLE-CURVE-SEQ*)
+                                  (CDDDR LOGOTURTLE-CURVE-SEQ*))))
+              (SETQ LOGOTURTLE-PLOT*
+                      (CONS LOGOTURTLE-CURVE-SEQ* LOGOTURTLE-PLOT*)))))))
+         (T (RETURN NIL)))))
+      (SETQ LOGOTURTLE-PLOT*
+              (CONS
+               (PROG (LC)
+                 (SETQ LC (GET 'LOGOTURTLE-CURVE-SEQ* 'LC))
+                 (RETURN
+                  (CONS
+                   (CONS "filledcurves" (AND LC (LIST " lc rgb \"" LC "\"")))
+                   (LIST LOGOTURTLE-CURVE*))))
+               LOGOTURTLE-PLOT*))
+      (LOGOTURTLE-NEW-CURVE-SEQ)
+      (COND (*LOGOTURTLE_AUTODRAW (DRAW))))) 
+(PUT 'FILLED 'NUMBER-OF-ARGS 1) 
+(PUT 'FILLED 'DEFINED-ON-LINE '951) 
+(PUT 'FILLED 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'FILLED 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE FILLED (ARGS)
+    (PROG (*LOGOTURTLE-PEN-DOWN COLOR)
+      (SETQ *LOGOTURTLE-PEN-DOWN T)
+      (SETQ COLOR
+              (OR (LOGOTURTLE-COLORSPEC (REVAL1 (CAR ARGS) T))
+                  (GET 'LOGOTURTLE-CURVE-SEQ* 'LC)))
+      (LOGOTURTLE-SAVE-CURVE-SEQ)
+      (LOGOTURTLE-NEW-CURVE)
+      (PROG (ARG)
+        (SETQ ARG (CDR ARGS))
+       LAB
+        (COND ((NULL ARG) (RETURN NIL)))
+        ((LAMBDA (ARG) (REVAL1 ARG T)) (CAR ARG))
+        (SETQ ARG (CDR ARG))
+        (GO LAB))
+      (COND
+       ((LEQ (LENGTH LOGOTURTLE-CURVE*) 1)
+        (PROGN
+         (COND
+          (LOGOTURTLE-CURVE-SEQ*
+           (PROGN
+            (SETQ LOGOTURTLE-CURVE* (CAR LOGOTURTLE-CURVE-SEQ*))
+            (SETQ LOGOTURTLE-CURVE-SEQ* (CDR LOGOTURTLE-CURVE-SEQ*))
+            (COND
+             (LOGOTURTLE-CURVE-SEQ*
+              (SETQ LOGOTURTLE-PLOT*
+                      (CONS
+                       (PROG (LC LW)
+                         (SETQ LC (GET 'LOGOTURTLE-CURVE-SEQ* 'LC))
+                         (SETQ LW (GET 'LOGOTURTLE-CURVE-SEQ* 'LW))
+                         (RETURN
+                          (CONS
+                           (CONS "lines"
+                                 (APPEND (AND LC (LIST " lc rgb \"" LC "\""))
+                                         (AND LW (LIST " lw " LW))))
+                           LOGOTURTLE-CURVE-SEQ*)))
+                       LOGOTURTLE-PLOT*))))))
+          (T (RETURN NIL))))))
+      (SETQ LOGOTURTLE-PLOT*
+              (CONS
+               (PROG (LC)
+                 (SETQ LC COLOR)
+                 (RETURN
+                  (CONS
+                   (CONS "filledcurves" (AND LC (LIST " lc rgb \"" LC "\"")))
+                   (LIST LOGOTURTLE-CURVE*))))
+               LOGOTURTLE-PLOT*))
+      (LOGOTURTLE-NEW-CURVE-SEQ)
+      (COND (*LOGOTURTLE_AUTODRAW (DRAW))))) 
+(PUT 'FILLED 'PSOPFN 'FILLED) 
+(PUT 'LABEL 'NUMBER-OF-ARGS 1) 
+(PUT 'LABEL 'DEFINED-ON-LINE '988) 
+(PUT 'LABEL 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LABEL 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE LABEL (TEXT)
+    (PROG (FONT COLOR STYLE)
+      (COND ((ATOM TEXT) (SETQ TEXT (LIST TEXT)))
+            (T
+             (PROGN
+              (COND ((NOT (EQCAR TEXT 'LIST)) (TYPERR TEXT "label text")))
+              (PROG (X)
+                (SETQ X (CDR TEXT))
+               LAB
+                (COND ((NULL X) (RETURN NIL)))
+                ((LAMBDA (X)
+                   (COND ((NOT (ATOM X)) (TYPERR TEXT "label text"))))
+                 (CAR X))
+                (SETQ X (CDR X))
+                (GO LAB))
+              (SETQ TEXT (CDR TEXT)))))
+      (COND
+       ((SETQ FONT (GET 'LOGOTURTLE-LABELS* 'FONT))
+        (PROG (FACE SIZE)
+          (SETQ FACE (CAR FONT))
+          (SETQ SIZE (CDR FONT))
+          (SETQ FONT '("\""))
+          (COND (SIZE (SETQ FONT (CONS "," (CONS SIZE FONT)))))
+          (COND (FACE (SETQ FONT (CONS FACE FONT))))
+          (SETQ FONT (CONS " font \"" FONT)))))
+      (COND
+       ((SETQ COLOR (GET 'LOGOTURTLE-LABELS* 'COLOR))
+        (SETQ COLOR (LIST " textcolor rgb \"" COLOR "\""))))
+      (SETQ STYLE (APPEND FONT COLOR))
+      (SETQ LOGOTURTLE-LABELS*
+              (CONS
+               (CONS TEXT
+                     (CONS (CONS LOGOTURTLE-X-COORD* LOGOTURTLE-Y-COORD*)
+                           STYLE))
+               LOGOTURTLE-LABELS*))
+      (COND (*LOGOTURTLE_AUTODRAW (DRAW))))) 
+(FLAG '(LABEL) 'OPFN) 
+(PUT 'SETLABELFONT 'NUMBER-OF-ARGS 1) 
+(PUT 'SETLABELFONT 'DEFINED-ON-LINE '1020) 
+(PUT 'SETLABELFONT 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'SETLABELFONT 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SETLABELFONT (ARGS)
+    (PROG (FACE SIZE ARG1)
+      (SETQ ARG1 (REVAL1 (CAR ARGS) T))
+      (COND
+       ((EQ ARG1 'FALSE)
+        (PROGN
+         (COND ((CDR ARGS) (GO ERROR)))
+         (REMPROP 'LOGOTURTLE-LABELS* 'FONT)
+         (RETURN NIL))))
+      (COND
+       ((EQCAR ARG1 'LIST)
+        (PROGN
+         (COND ((CDR ARGS) (GO ERROR)))
+         (SETQ FACE (CADR ARG1))
+         (SETQ SIZE (CADDR ARG1))))
+       ((FIXP ARG1) (PROGN (COND ((CDR ARGS) (GO ERROR))) (SETQ SIZE ARG1)))
+       (T
+        (PROGN
+         (SETQ FACE ARG1)
+         (COND ((CDR ARGS) (SETQ SIZE (REVAL1 (CADR ARGS) T)))))))
+      (COND
+       ((AND FACE (NOT (OR (IDP FACE) (STRINGP FACE))))
+        (TYPERR FACE "font face")))
+      (COND
+       ((AND SIZE (NOT (AND (FIXP SIZE) (GREATERP SIZE 0))))
+        (TYPERR SIZE "font size")))
+      (PUT 'LOGOTURTLE-LABELS* 'FONT (CONS FACE SIZE))
+      (RETURN NIL)
+     ERROR
+      (TYPERR ARGS "multiple SETLABELFONT arguments"))) 
+(PUT 'SETLABELFONT 'PSOPFN 'SETLABELFONT) 
+(PUT 'SETLABELCOLOR 'NUMBER-OF-ARGS 1) 
+(PUT 'SETLABELCOLOR 'DEFINED-ON-LINE '1062) 
+(PUT 'SETLABELCOLOR 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'SETLABELCOLOR 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SETLABELCOLOR (COLOR)
+    (PROGN
+     (COND
+      ((SETQ COLOR (LOGOTURTLE-COLORSPEC COLOR))
+       (PUT 'LOGOTURTLE-LABELS* 'COLOR COLOR))
+      (T (REMPROP 'LOGOTURTLE-LABELS* 'COLOR)))
+     NIL)) 
+(FLAG '(SETLABELCOLOR) 'OPFN) 
+(PUT 'SHOWNP 'NUMBER-OF-ARGS 0) 
+(PUT 'SHOWNP 'DEFINED-ON-LINE '1077) 
+(PUT 'SHOWNP 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'SHOWNP 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE SHOWNP NIL (COND (*LOGOTURTLE-SHOWN 'TRUE) (T 'FALSE))) 
+(PUT 'WINDOWSIZE 'NUMBER-OF-ARGS 0) 
+(PUT 'WINDOWSIZE 'DEFINED-ON-LINE '1082) 
+(PUT 'WINDOWSIZE 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'WINDOWSIZE 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE WINDOWSIZE NIL (LIST 'LIST LOGOTURTLE-X-MAX* LOGOTURTLE-Y-MAX*)) 
+(PUT 'TURTLEMODE 'NUMBER-OF-ARGS 0) 
+(PUT 'TURTLEMODE 'DEFINED-ON-LINE '1087) 
+(PUT 'TURTLEMODE 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'TURTLEMODE 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE TURTLEMODE NIL (OR LOGOTURTLE-WIN-MODE* 'FALSE)) 
+(PUT 'LABELFONT 'NUMBER-OF-ARGS 0) 
+(PUT 'LABELFONT 'DEFINED-ON-LINE '1092) 
+(PUT 'LABELFONT 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LABELFONT 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE LABELFONT NIL
+    (PROG (FONT FACE SIZE)
+      (COND
+       ((NOT (SETQ FONT (GET 'LOGOTURTLE-LABELS* 'FONT))) (RETURN 'FALSE)))
+      (SETQ FACE (CAR FONT))
+      (SETQ SIZE (CDR FONT))
+      (COND (FACE (RETURN (COND (SIZE (LIST 'LIST FACE SIZE)) (T FACE)))))
+      (RETURN (OR SIZE 'FALSE)))) 
+(PUT 'LABELCOLOR 'NUMBER-OF-ARGS 0) 
+(PUT 'LABELCOLOR 'DEFINED-ON-LINE '1104) 
+(PUT 'LABELCOLOR 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LABELCOLOR 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE LABELCOLOR NIL
+    (PROG (COLOR)
+      (SETQ COLOR (GET 'LOGOTURTLE-LABELS* 'COLOR))
+      (RETURN (COND (COLOR COLOR) (T 'FALSE))))) 
+(PUT 'PENDOWN 'NUMBER-OF-ARGS 0) 
+(PUT 'PENDOWN 'DEFINED-ON-LINE '1119) 
+(PUT 'PENDOWN 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'PENDOWN 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE PENDOWN NIL
+    (COND
+     ((NOT *LOGOTURTLE-PEN-DOWN)
+      (PROGN (LOGOTURTLE-NEW-CURVE) (SETQ *LOGOTURTLE-PEN-DOWN T) NIL)))) 
+(PUT 'PENUP 'NUMBER-OF-ARGS 0) 
+(PUT 'PENUP 'DEFINED-ON-LINE '1127) 
+(PUT 'PENUP 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'PENUP 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE PENUP NIL
+    (COND
+     (*LOGOTURTLE-PEN-DOWN
+      (PROGN
+       (LOGOTURTLE-SAVE-CURVE)
+       (SETQ LOGOTURTLE-CURVE* NIL)
+       (SETQ *LOGOTURTLE-PEN-DOWN NIL)
+       NIL)))) 
+(GLOBAL '(LOGOTURTLE-COLORS*)) 
+(SETQ LOGOTURTLE-COLORS* (MKVECT 15)) 
+(PUTV LOGOTURTLE-COLORS* 0 "black") 
+(PUTV LOGOTURTLE-COLORS* 1 "blue") 
+(PUTV LOGOTURTLE-COLORS* 2 "green") 
+(PUTV LOGOTURTLE-COLORS* 3 "cyan") 
+(PUTV LOGOTURTLE-COLORS* 4 "red") 
+(PUTV LOGOTURTLE-COLORS* 5 "magenta") 
+(PUTV LOGOTURTLE-COLORS* 6 "yellow") 
+(PUTV LOGOTURTLE-COLORS* 7 "white") 
+(PUTV LOGOTURTLE-COLORS* 8 "brown") 
+(PUTV LOGOTURTLE-COLORS* 9 "tan1") 
+(PUTV LOGOTURTLE-COLORS* 10 "forest-green") 
+(PUTV LOGOTURTLE-COLORS* 11 "aquamarine") 
+(PUTV LOGOTURTLE-COLORS* 12 "salmon") 
+(PUTV LOGOTURTLE-COLORS* 13 "purple") 
+(PUTV LOGOTURTLE-COLORS* 14 "orange") 
+(PUTV LOGOTURTLE-COLORS* 15 "grey") 
+(PUT 'SETPENCOLOR 'NUMBER-OF-ARGS 1) 
+(PUT 'SETPENCOLOR 'DEFINED-ON-LINE '1158) 
+(PUT 'SETPENCOLOR 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'SETPENCOLOR 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SETPENCOLOR (COLOR)
+    (PROGN
+     (SETQ COLOR (LOGOTURTLE-COLORSPEC COLOR))
+     (LOGOTURTLE-SAVE-CURVE-SEQ)
+     (COND (COLOR (PUT 'LOGOTURTLE-CURVE-SEQ* 'LC COLOR))
+           (T (REMPROP 'LOGOTURTLE-CURVE-SEQ* 'LC)))
+     (LOGOTURTLE-NEW-CURVE-SEQ)
+     NIL)) 
+(FLAG '(SETPENCOLOR) 'OPFN) 
+(PUT 'LOGOTURTLE-COLORSPEC 'NUMBER-OF-ARGS 1) 
+(PUT 'LOGOTURTLE-COLORSPEC 'DEFINED-ON-LINE '1192) 
+(PUT 'LOGOTURTLE-COLORSPEC 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LOGOTURTLE-COLORSPEC 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE LOGOTURTLE-COLORSPEC (COLOR)
+    (COND
+     ((AND (FIXP COLOR) (GEQ COLOR 0) (LEQ COLOR 15))
+      (GETV LOGOTURTLE-COLORS* COLOR))
+     ((STRINGP COLOR) COLOR)
+     ((IDP COLOR) (COND ((NOT (EQ COLOR 'FALSE)) COLOR)))
+     ((EQCAR COLOR 'LIST) (LOGOTURTLE-RGBLIST2HEXSTRING COLOR))
+     (T (TYPERR COLOR "color number 0--15, color name, RGB list or false")))) 
+(GLOBAL '(LOGOTURTLE-HEX-DIGITS*)) 
+(SETQ LOGOTURTLE-HEX-DIGITS* (MKVECT 15)) 
+(PUTV LOGOTURTLE-HEX-DIGITS* 0 '|0|) 
+(PUTV LOGOTURTLE-HEX-DIGITS* 1 '|1|) 
+(PUTV LOGOTURTLE-HEX-DIGITS* 2 '|2|) 
+(PUTV LOGOTURTLE-HEX-DIGITS* 3 '|3|) 
+(PUTV LOGOTURTLE-HEX-DIGITS* 4 '|4|) 
+(PUTV LOGOTURTLE-HEX-DIGITS* 5 '|5|) 
+(PUTV LOGOTURTLE-HEX-DIGITS* 6 '|6|) 
+(PUTV LOGOTURTLE-HEX-DIGITS* 7 '|7|) 
+(PUTV LOGOTURTLE-HEX-DIGITS* 8 '|8|) 
+(PUTV LOGOTURTLE-HEX-DIGITS* 9 '|9|) 
+(PUTV LOGOTURTLE-HEX-DIGITS* 10 '|a|) 
+(PUTV LOGOTURTLE-HEX-DIGITS* 11 '|b|) 
+(PUTV LOGOTURTLE-HEX-DIGITS* 12 '|c|) 
+(PUTV LOGOTURTLE-HEX-DIGITS* 13 '|d|) 
+(PUTV LOGOTURTLE-HEX-DIGITS* 14 '|e|) 
+(PUTV LOGOTURTLE-HEX-DIGITS* 15 '|f|) 
+(PUT 'LOGOTURTLE-RGBLIST2HEXSTRING 'NUMBER-OF-ARGS 1) 
+(PUT 'LOGOTURTLE-RGBLIST2HEXSTRING 'DEFINED-ON-LINE '1224) 
+(PUT 'LOGOTURTLE-RGBLIST2HEXSTRING 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LOGOTURTLE-RGBLIST2HEXSTRING 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE LOGOTURTLE-RGBLIST2HEXSTRING (COLOR)
+    (PROG (PR V)
+      (SETQ V '(|"|))
+      (COND
+       ((NOT (EQ (LENGTH COLOR) 4))
+        (TYPERR COLOR "RGB list of percent color saturations")))
+      (SETQ PR (PLOTROUNDED NIL))
+      (PRECISION 10)
+      (PROG (P)
+        (SETQ P (REVERSIP (CDR COLOR)))
+       LAB
+        (COND ((NULL P) (RETURN NIL)))
+        ((LAMBDA (P)
+           (PROGN
+            (SETQ P (REVAL1 P T))
+            (SETQ P
+                    (COND ((FIXP P) (FLOAT P))
+                          ((AND (EQCAR P '|:RD:|) (FLOATP (SETQ P (CDR P))))
+                           P)))
+            (COND
+             ((OR (NULL P) (LESSP P 0.0) (GREATERP P 100.0))
+              (TYPERR COLOR "RGB list of percent color saturations")))
+            (SETQ P (FIX (PLUS (TIMES P 2.55) 0.5)))
+            (SETQ P (DIVIDE P 16))
+            (SETQ V
+                    (CONS (GETV LOGOTURTLE-HEX-DIGITS* (CAR P))
+                          (CONS (GETV LOGOTURTLE-HEX-DIGITS* (CDR P)) V)))))
+         (CAR P))
+        (SETQ P (CDR P))
+        (GO LAB))
+      (PLOTROUNDED PR)
+      (RETURN (COMPRESS (CONS '|"| (CONS '|#| V)))))) 
+(PUT 'SETPALETTE 'NUMBER-OF-ARGS 2) 
+(PUT 'SETPALETTE 'DEFINED-ON-LINE '1252) 
+(PUT 'SETPALETTE 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'SETPALETTE 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE SETPALETTE (COLORNUMBER RGBLIST)
+    (PROGN
+     (COND
+      ((AND (FIXP COLORNUMBER) (GEQ COLORNUMBER 0) (LEQ COLORNUMBER 15))
+       (PUTV LOGOTURTLE-COLORS* COLORNUMBER
+             (COND ((OR (STRINGP RGBLIST) (IDP RGBLIST)) RGBLIST)
+                   ((EQCAR RGBLIST 'LIST)
+                    (LOGOTURTLE-RGBLIST2HEXSTRING RGBLIST))
+                   (T (TYPERR RGBLIST "color name or RGB list")))))
+      (T (TYPERR COLORNUMBER "color number between 8 and 15")))
+     NIL)) 
+(FLAG '(SETPALETTE) 'OPFN) 
+(PUT 'SETPENSIZE 'NUMBER-OF-ARGS 1) 
+(PUT 'SETPENSIZE 'DEFINED-ON-LINE '1274) 
+(PUT 'SETPENSIZE 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'SETPENSIZE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SETPENSIZE (SIZE)
+    (PROG (SZ)
+      (COND ((AND (FIXP SIZE) (GREATERP SIZE 0)) (SETQ SZ SIZE))
+            ((NOT (EQ SIZE 'FALSE)) (TYPERR SIZE "positive integer or false")))
+      (LOGOTURTLE-SAVE-CURVE-SEQ)
+      (COND (SZ (PUT 'LOGOTURTLE-CURVE-SEQ* 'LW SZ))
+            (T (REMPROP 'LOGOTURTLE-CURVE-SEQ* 'LW)))
+      (LOGOTURTLE-NEW-CURVE-SEQ))) 
+(FLAG '(SETPENSIZE) 'OPFN) 
+(PUT 'SETBACKGROUND 'NUMBER-OF-ARGS 1) 
+(PUT 'SETBACKGROUND 'DEFINED-ON-LINE '1297) 
+(PUT 'SETBACKGROUND 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'SETBACKGROUND 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SETBACKGROUND (COLOR)
+    (PROG ()
+      (COND
+       ((NULL (OR LOGOTURTLE-TERM* (SETQ LOGOTURTLE-TERM* (GETENV "GNUTERM"))))
+        (RETURN
+         (MSGPRI "GNUTERM environment variable not set" NIL NIL NIL NIL))))
+      (COND
+       ((SETQ COLOR (LOGOTURTLE-COLORSPEC COLOR))
+        (PUT 'LOGOTURTLE-PLOT* 'LOGOTURTLE-BG COLOR))
+       (T (REMPROP 'LOGOTURTLE-PLOT* 'LOGOTURTLE-BG))))) 
+(FLAG '(SETBACKGROUND) 'OPFN) 
+(PUT 'PENDOWNP 'NUMBER-OF-ARGS 0) 
+(PUT 'PENDOWNP 'DEFINED-ON-LINE '1318) 
+(PUT 'PENDOWNP 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'PENDOWNP 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE PENDOWNP NIL (COND (*LOGOTURTLE-PEN-DOWN 'TRUE) (T 'FALSE))) 
+(PUT 'PENCOLOR 'NUMBER-OF-ARGS 0) 
+(PUT 'PENCOLOR 'DEFINED-ON-LINE '1322) 
+(PUT 'PENCOLOR 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'PENCOLOR 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE PENCOLOR NIL
+    (PROG (COLOR)
+      (SETQ COLOR (GET 'LOGOTURTLE-CURVE-SEQ* 'LC))
+      (RETURN (COND (COLOR COLOR) (T 'FALSE))))) 
+(PUT 'PALETTE 'NUMBER-OF-ARGS 1) 
+(PUT 'PALETTE 'DEFINED-ON-LINE '1331) 
+(PUT 'PALETTE 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'PALETTE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PALETTE (COLORNUMBER)
+    (COND
+     ((AND (FIXP COLORNUMBER) (GEQ COLORNUMBER 0) (LEQ COLORNUMBER 15))
+      (GETV LOGOTURTLE-COLORS* COLORNUMBER))
+     (T (TYPERR COLORNUMBER "color number between 0 and 15")))) 
+(FLAG '(PALETTE) 'OPFN) 
+(PUT 'PENSIZE 'NUMBER-OF-ARGS 0) 
+(PUT 'PENSIZE 'DEFINED-ON-LINE '1343) 
+(PUT 'PENSIZE 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'PENSIZE 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE PENSIZE NIL
+    (PROG (SIZE)
+      (SETQ SIZE (GET 'LOGOTURTLE-CURVE-SEQ* 'LW))
+      (RETURN (COND (SIZE SIZE) (T 'FALSE))))) 
+(PUT 'BACKGROUND 'NUMBER-OF-ARGS 0) 
+(PUT 'BACKGROUND 'DEFINED-ON-LINE '1353) 
+(PUT 'BACKGROUND 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'BACKGROUND 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE BACKGROUND NIL
+    (PROG (COLORSPEC)
+      (SETQ COLORSPEC (GET 'LOGOTURTLE-PLOT* 'LOGOTURTLE-BG))
+      (RETURN (COND (COLORSPEC COLORSPEC) (T 'FALSE))))) 
+(PUT 'SAVEPICT 'NUMBER-OF-ARGS 1) 
+(PUT 'SAVEPICT 'DEFINED-ON-LINE '1372) 
+(PUT 'SAVEPICT 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'SAVEPICT 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SAVEPICT (IDENTIFIER)
+    (PROGN
+     (COND
+      ((NOT (IDP IDENTIFIER))
+       (TYPERR IDENTIFIER "LogoTurtle SAVEPICT identifier")))
+     (PUT 'LOGOTURTLE-PLOT* IDENTIFIER
+          (CONS (LOGOTURTLE-GET-PLOT) LOGOTURTLE-LABELS*))
+     NIL)) 
+(FLAG '(SAVEPICT) 'OPFN) 
+(PUT 'LOADPICT 'NUMBER-OF-ARGS 1) 
+(PUT 'LOADPICT 'DEFINED-ON-LINE '1385) 
+(PUT 'LOADPICT 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LOADPICT 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE LOADPICT (IDENTIFIERS)
+    (PROG (TMP)
+      (SETQ LOGOTURTLE-PLOT* (SETQ LOGOTURTLE-LABELS* NIL))
+      (PROG (ID)
+        (SETQ ID IDENTIFIERS)
+       LAB
+        (COND ((NULL ID) (RETURN NIL)))
+        ((LAMBDA (ID)
+           (PROGN
+            (COND
+             ((NOT
+               (AND (IDP (SETQ ID (REVAL1 ID T)))
+                    (SETQ TMP (GET 'LOGOTURTLE-PLOT* ID))))
+              (TYPERR ID "LogoTurtle LOADPICT identifier")))
+            (COND
+             ((CAR TMP)
+              (SETQ LOGOTURTLE-PLOT* (APPEND (CAR TMP) LOGOTURTLE-PLOT*))))
+            (COND ((CDR TMP) (NCONC LOGOTURTLE-LABELS* (CDR TMP))))))
+         (CAR ID))
+        (SETQ ID (CDR ID))
+        (GO LAB))
+      (SETQ LOGOTURTLE-CURVE* (SETQ LOGOTURTLE-CURVE-SEQ* NIL))
+      (COND (*LOGOTURTLE_AUTODRAW (DRAW))))) 
+(PUT 'LOADPICT 'PSOPFN 'LOADPICT) 
+(PUT 'LOGOTURTLE-STAT 'NUMBER-OF-ARGS 0) 
+(PUT 'LOGOTURTLE-STAT 'DEFINED-ON-LINE '1417) 
+(PUT 'LOGOTURTLE-STAT 'DEFINED-IN-FILE 'PLOT/LOGOTURTLE.RED) 
+(PUT 'LOGOTURTLE-STAT 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE LOGOTURTLE-STAT NIL
+    (PROG (CMD)
+      (SETQ CMD CURSYM*)
+      (SCAN)
+      (COND
+       ((EQ CURSYM* '*LPAR*)
+        (PROGN
+         (SCAN)
+         (COND
+          ((NOT (EQ CURSYM* '*RPAR*))
+           (PROGN
+            (LPRIM (LIST CMD "takes no arguments"))
+            (PROG ()
+             WHILELABEL
+              (COND ((NOT (NOT (EQ CURSYM* '*RPAR*))) (RETURN NIL)))
+              (SCAN)
+              (GO WHILELABEL)))))
+         (SCAN))))
+      (RETURN (LIST CMD)))) 
+(FLAG '(LOGOTURTLE-STAT) 'ENDSTATFN) 
+(PROG (CMD)
+  (SETQ CMD LOGOTURTLE-NOARG*)
+ LAB
+  (COND ((NULL CMD) (RETURN NIL)))
+  ((LAMBDA (CMD) (PUT CMD 'STAT 'LOGOTURTLE-STAT)) (CAR CMD))
+  (SETQ CMD (CDR CMD))
+  (GO LAB)) 
+(FLAG '(POS WINDOWSIZE LABELFONT) 'NOCHANGE) 
+(ENDMODULE) 

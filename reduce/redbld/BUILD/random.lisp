@@ -1,0 +1,110 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(MODULE (LIST 'RANDOM)) 
+(GLOBAL '(UNIDEV_VEC* RANDOMMODULUS*)) 
+(GLOBAL '(UNIDEV_FAC* UNIDEV_NEXT* UNIDEV_NEXTP* UNIDEV_MJ*)) 
+(GLOBAL '(RANDOMSEED*)) 
+(SETQ UNIDEV_VEC* (MKVECT 54)) 
+(SETQ RANDOMMODULUS* 100000000) 
+(SETQ UNIDEV_FAC* (QUOTIENT 1.0 RANDOMMODULUS*)) 
+(FLAG '(RANDOM RANDOM_NEW_SEED) 'OPFN) 
+(PUT 'RANDOM_NEW_SEED 'NUMBER-OF-ARGS 1) 
+(PUT 'RANDOM_NEW_SEED 'DEFINED-ON-LINE '60) 
+(PUT 'RANDOM_NEW_SEED 'DEFINED-IN-FILE 'RTOOLS/RANDOM.RED) 
+(PUT 'RANDOM_NEW_SEED 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE RANDOM_NEW_SEED (OFFSET)
+    (PROG (MJ MK ML II)
+      (COND
+       ((OR (NOT (FIXP OFFSET)) (LEQ OFFSET 0))
+        (TYPERR OFFSET "positive integer")))
+      (SETQ MJ (REMAINDER OFFSET RANDOMMODULUS*))
+      (PUTV UNIDEV_VEC* 54 MJ)
+      (SETQ MK (PLUS MJ 1))
+      (PROG (I)
+        (SETQ I 1)
+       LAB
+        (COND ((MINUSP (DIFFERENCE 54 I)) (RETURN NIL)))
+        (PROGN
+         (SETQ ML (IDIFFERENCE MK MJ))
+         (COND ((IMINUSP ML) (SETQ ML (IPLUS2 ML RANDOMMODULUS*))))
+         (SETQ II (REMAINDER (TIMES 21 I) 55))
+         (PUTV UNIDEV_VEC* (IDIFFERENCE II 1) ML)
+         (SETQ MK MJ)
+         (SETQ MJ ML))
+        (SETQ I (PLUS2 I 1))
+        (GO LAB))
+      (PROG (K)
+        (SETQ K 1)
+       LAB
+        (COND ((MINUSP (DIFFERENCE 4 K)) (RETURN NIL)))
+        (PROGN
+         (PROG (I)
+           (SETQ I 0)
+          LAB
+           (COND ((MINUSP (DIFFERENCE 54 I)) (RETURN NIL)))
+           (PROGN
+            (SETQ ML
+                    (IDIFFERENCE (GETV UNIDEV_VEC* I)
+                                 (GETV UNIDEV_VEC*
+                                       (REMAINDER (IPLUS2 I 31) 55))))
+            (COND ((IMINUSP ML) (SETQ ML (IPLUS2 ML RANDOMMODULUS*))))
+            (PUTV UNIDEV_VEC* I ML))
+           (SETQ I (PLUS2 I 1))
+           (GO LAB)))
+        (SETQ K (PLUS2 K 1))
+        (GO LAB))
+      (SETQ UNIDEV_NEXT* 0)
+      (SETQ UNIDEV_NEXTP* 31)
+      (RETURN NIL))) 
+(PUT 'NEXT-RANDOM-NUMBER 'NUMBER-OF-ARGS 0) 
+(PUT 'NEXT-RANDOM-NUMBER 'DEFINED-ON-LINE '90) 
+(PUT 'NEXT-RANDOM-NUMBER 'DEFINED-IN-FILE 'RTOOLS/RANDOM.RED) 
+(PUT 'NEXT-RANDOM-NUMBER 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE NEXT-RANDOM-NUMBER NIL
+    (PROG (MJ)
+      (COND ((EQUAL UNIDEV_NEXT* 54) (SETQ UNIDEV_NEXT* 0))
+            (T (SETQ UNIDEV_NEXT* (IPLUS2 UNIDEV_NEXT* 1))))
+      (COND ((EQUAL UNIDEV_NEXTP* 54) (SETQ UNIDEV_NEXTP* 0))
+            (T (SETQ UNIDEV_NEXTP* (IPLUS2 UNIDEV_NEXTP* 1))))
+      (SETQ MJ
+              (IDIFFERENCE (GETV UNIDEV_VEC* UNIDEV_NEXT*)
+                           (GETV UNIDEV_VEC* UNIDEV_NEXTP*)))
+      (COND ((IMINUSP MJ) (SETQ MJ (IPLUS2 MJ RANDOMMODULUS*))))
+      (PUTV UNIDEV_VEC* UNIDEV_NEXT* MJ)
+      (RETURN MJ))) 
+(PUT 'RANDOM 'NUMBER-OF-ARGS 1) 
+(PUT 'RANDOM 'DEFINED-ON-LINE '104) 
+(PUT 'RANDOM 'DEFINED-IN-FILE 'RTOOLS/RANDOM.RED) 
+(PUT 'RANDOM 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE RANDOM (SIZE)
+    (PROG (M R)
+      (COND
+       ((OR (NOT (NUMBERP SIZE)) (LEQ SIZE 0))
+        (TYPERR SIZE "positive number")))
+      (COND
+       ((FLOATP SIZE)
+        (PROGN
+         (SETQ R (TIMES (FLOAT (NEXT-RANDOM-NUMBER)) UNIDEV_FAC*))
+         (RETURN
+          (TIMES (PLUS (FLOAT (NEXT-RANDOM-NUMBER)) R) UNIDEV_FAC* SIZE))))
+       (T
+        (PROGN
+         (PROG ()
+          REPEATLABEL
+           (PROGN
+            (SETQ R (NEXT-RANDOM-NUMBER))
+            (SETQ M RANDOMMODULUS*)
+            (PROG ()
+             WHILELABEL
+              (COND ((NOT (LESSP M SIZE)) (RETURN NIL)))
+              (PROGN
+               (SETQ M (TIMES M RANDOMMODULUS*))
+               (SETQ R (PLUS (TIMES RANDOMMODULUS* R) (NEXT-RANDOM-NUMBER))))
+              (GO WHILELABEL))
+            NIL)
+           (COND
+            ((NOT (LESSP R (DIFFERENCE M (REMAINDER M SIZE))))
+             (GO REPEATLABEL))))
+         (RETURN (REMAINDER R SIZE))))))) 
+(RANDOM_NEW_SEED 1) 
+(ENDMODULE) 

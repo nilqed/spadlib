@@ -1,0 +1,28 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(MODULE (LIST 'MANINP)) 
+(FLUID '(INTVAR)) 
+(PUT 'FINDMANINPARM 'NUMBER-OF-ARGS 1) 
+(PUT 'FINDMANINPARM 'DEFINED-ON-LINE '32) 
+(PUT 'FINDMANINPARM 'DEFINED-IN-FILE 'ALGINT/MANINP.RED) 
+(PUT 'FINDMANINPARM 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE FINDMANINPARM (PLACES)
+    (PROG (SQRTS VARS U)
+      (SETQ SQRTS (SQRTSINPLACES PLACES))
+     LOOP
+      (COND ((NULL SQRTS) (RETURN NIL)))
+      (SETQ VARS (GETVARIABLES (SIMP (CADR (CAR SQRTS)))))
+     INNERLOOP
+      (COND ((NULL VARS) (PROGN (SETQ SQRTS (CDR SQRTS)) (GO LOOP))))
+      (SETQ U (CAR VARS))
+      (SETQ VARS (CDR VARS))
+      (COND ((EQ U INTVAR) (GO INNERLOOP)))
+      (COND ((ATOM U) (RETURN U)))
+      (COND
+       ((EQ (CAR U) 'SQRT)
+        (PROGN
+         (SETQ U (SIMP (CADR U)))
+         (SETQ VARS (VARSINSF (CAR U) (VARSINSF (CDR U) VARS)))
+         (GO INNERLOOP))))
+      (INTERR "Unrecognised differentiation candidate"))) 
+(ENDMODULE) 

@@ -1,0 +1,38 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(MODULE (LIST 'SFGAMMA)) 
+(CREATE-PACKAGE '(SFGAMMA SFGAMM SFPSI SFIGAMMA) '(CONTRIB SPECFN)) 
+(FLUID '(BERNOULLI-ALIST SF-ALIST *SAVEFS)) 
+(DE SQ2BF* (X)
+    (COND ((FIXP X) (CONS '|:RD:| (CONS X 0)))
+          (T
+           ((LAMBDA (Y)
+              (COND
+               ((NEQ (CAR Y) '|:RD:|)
+                ((LAMBDA (U) (COND ((ATOM U) U) (T (CONS '|:RD:| U))))
+                 (CDR (*RN2RD Y))))
+               (T (COND ((ATOM (CDR Y)) (CDR Y)) (T (CONS '|:RD:| (CDR Y)))))))
+            (*Q2F (SIMP* X)))))) 
+(PUT 'SQ2BF* 'NUMBER-OF-ARGS 1) 
+(PUT 'SQ2BF* 'DEFINED-ON-LINE '40) 
+(PUT 'SQ2BF* 'DEFINED-IN-FILE 'SPECFN/SFGAMMA.RED) 
+(PUT 'SQ2BF* 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(PUTC 'SQ2BF* 'INLINE
+      '(LAMBDA (X)
+         (COND ((FIXP X) (CONS '|:RD:| (CONS X 0)))
+               (T
+                ((LAMBDA (Y)
+                   (COND
+                    ((NEQ (CAR Y) '|:RD:|)
+                     ((LAMBDA (U) (COND ((ATOM U) U) (T (CONS '|:RD:| U))))
+                      (CDR (*RN2RD Y))))
+                    (T
+                     (COND ((ATOM (CDR Y)) (CDR Y))
+                           (T (CONS '|:RD:| (CDR Y)))))))
+                 (*Q2F (SIMP* X))))))) 
+(PUT '|C:PREC:| 'NUMBER-OF-ARGS 0) 
+(PUT '|C:PREC:| 'DEFINED-ON-LINE '45) 
+(PUT '|C:PREC:| 'DEFINED-IN-FILE 'SPECFN/SFGAMMA.RED) 
+(PUT '|C:PREC:| 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(PUTC '|C:PREC:| 'SMACRO '(LAMBDA () |:BPREC:|)) 
+(ENDMODULE) 

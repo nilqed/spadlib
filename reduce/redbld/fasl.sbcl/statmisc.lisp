@@ -1,0 +1,206 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(MODULE (LIST 'WRITE)) 
+(REMPROP 'DEFINE 'STAT) 
+(PUT 'DEFINE 'NUMBER-OF-ARGS 1) 
+(PUT 'DEFINE 'DEFINED-ON-LINE '35) 
+(PUT 'DEFINE 'DEFINED-IN-FILE 'RLISP/STATMISC.RED) 
+(PUT 'DEFINE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE DEFINE (U)
+    (PROG (X)
+      (SETQ X U)
+     LAB
+      (COND ((NULL X) (RETURN NIL)))
+      ((LAMBDA (X)
+         (COND
+          ((OR (NOT (EQCAR X 'EQUAL)) (NOT (IDP (CADR X))))
+           (TYPERR X "DEFINE declaration"))
+          (T (PUT (CADR X) 'NEWNAM (CADDR X)))))
+       (CAR X))
+      (SETQ X (CDR X))
+      (GO LAB))) 
+(DEFLIST '((DEFINE RLIS)) 'STAT) 
+(FLAG '(DEFINE) 'EVAL) 
+(PUT 'FORMWRITE 'NUMBER-OF-ARGS 3) 
+(PUT 'FORMWRITE 'DEFINED-ON-LINE '47) 
+(PUT 'FORMWRITE 'DEFINED-IN-FILE 'RLISP/STATMISC.RED) 
+(PUT 'FORMWRITE 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE FORMWRITE (U VARS MODE)
+    (PROG (BOOL1 BOOL2 X Y Z)
+      (SETQ U (CDR U))
+      (SETQ BOOL1 (EQUAL MODE 'SYMBOLIC))
+      (PROG ()
+       WHILELABEL
+        (COND ((NOT U) (RETURN NIL)))
+        (PROGN
+         (SETQ X (FORMC (CAR U) VARS MODE))
+         (SETQ Y (GETSETVARS X))
+         (SETQ Z
+                 (CONS
+                  (COND (BOOL1 (LIST 'PRIN2 X))
+                        (T
+                         (LIST 'ASSGNPRI X (COND (Y (CONS 'LIST Y)) (T NIL))
+                               (COND
+                                ((NOT (CDR U))
+                                 (COND ((NOT BOOL2) ''ONLY) (T ''LAST)))
+                                ((NOT BOOL2) ''FIRST) (T NIL)))))
+                  Z))
+         (SETQ BOOL2 T)
+         (SETQ U (CDR U)))
+        (GO WHILELABEL))
+      (COND (BOOL1 (SETQ Z (CONS NIL Z))))
+      (RETURN
+       (COND ((NULL Z) NIL) ((NULL (CDR Z)) (CAR Z))
+             (T (CONS 'PROGN (REVERSIP* Z))))))) 
+(PUT 'WRITE 'STAT 'RLIS) 
+(PUT 'WRITE 'FORMFN 'FORMWRITE) 
+(FLAG '(TESTECHO) 'SWITCH) 
+(PUT 'ECHOPR 'STAT 'RLIS) 
+(PUT 'ECHOPR 'FORMFN 'FORMECHOPR) 
+(PUT 'FORMECHOPR 'NUMBER-OF-ARGS 3) 
+(PUT 'FORMECHOPR 'DEFINED-ON-LINE '83) 
+(PUT 'FORMECHOPR 'DEFINED-IN-FILE 'RLISP/STATMISC.RED) 
+(PUT 'FORMECHOPR 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE FORMECHOPR (U VARS MODE)
+    ((LAMBDA (X)
+       (LIST 'PROGN X
+             (LIST 'COND
+                   (LIST '(AND *TESTECHO OFL*)
+                         (LIST (LIST 'LAMBDA '(N) (LIST 'PROGN X '(WRS N) NIL))
+                               '(WRS NIL))))))
+     (FORMWRITE U VARS MODE))) 
+(FLUID '(ALL-NEW-SYMBOLS CURRENT-NEW-SYMBOLS NEW-SYMBOL-COUNTER)) 
+(SETQ ALL-NEW-SYMBOLS NIL) 
+(SETQ NEW-SYMBOL-COUNTER 0) 
+(PUT 'LOCAL-SYMBOL 'NUMBER-OF-ARGS 1) 
+(PUT 'LOCAL-SYMBOL 'DEFINED-ON-LINE '124) 
+(PUT 'LOCAL-SYMBOL 'DEFINED-IN-FILE 'RLISP/STATMISC.RED) 
+(PUT 'LOCAL-SYMBOL 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE LOCAL-SYMBOL (ENV)
+    (PROG (R)
+     TRYAGAIN
+      (COND
+       ((NULL CURRENT-NEW-SYMBOLS)
+        (PROGN
+         (SETQ NEW-SYMBOL-COUNTER (PLUS NEW-SYMBOL-COUNTER 1))
+         (SETQ R
+                 (INTERN
+                  (LIST2STRING (APPEND '(W) (EXPLODE NEW-SYMBOL-COUNTER)))))
+         (SETQ ALL-NEW-SYMBOLS (APPEND ALL-NEW-SYMBOLS (LIST R)))))
+       (T
+        (PROGN
+         (SETQ R (CAR CURRENT-NEW-SYMBOLS))
+         (SETQ CURRENT-NEW-SYMBOLS (CDR CURRENT-NEW-SYMBOLS)))))
+      (COND
+       ((OR (FLUIDP R) (GLOBALP R) (GET R 'CONSTANT?) (SMEMBER R ENV))
+        (GO TRYAGAIN)))
+      (RETURN R))) 
+(PUT 'CHEAPTOEVALUATE 'NUMBER-OF-ARGS 1) 
+(PUT 'CHEAPTOEVALUATE 'DEFINED-ON-LINE '143) 
+(PUT 'CHEAPTOEVALUATE 'DEFINED-IN-FILE 'RLISP/STATMISC.RED) 
+(PUT 'CHEAPTOEVALUATE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE CHEAPTOEVALUATE (U) (OR (ATOM U) (EQCAR U 'QUOTE))) 
+(PUT 'ALLCHEAPTOEVALUATE 'NUMBER-OF-ARGS 1) 
+(PUT 'ALLCHEAPTOEVALUATE 'DEFINED-ON-LINE '146) 
+(PUT 'ALLCHEAPTOEVALUATE 'DEFINED-IN-FILE 'RLISP/STATMISC.RED) 
+(PUT 'ALLCHEAPTOEVALUATE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE ALLCHEAPTOEVALUATE (L)
+    (OR (NULL L) (AND (CHEAPTOEVALUATE (CAR L)) (ALLCHEAPTOEVALUATE (CDR L))))) 
+(PUT 'PUSHPOP-LOCALS 'NUMBER-OF-ARGS 5) 
+(PUT 'PUSHPOP-LOCALS 'DEFINED-ON-LINE '150) 
+(PUT 'PUSHPOP-LOCALS 'DEFINED-IN-FILE 'RLISP/STATMISC.RED) 
+(PUT 'PUSHPOP-LOCALS 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL GENERAL GENERAL) GENERAL)) 
+(DE PUSHPOP-LOCALS (L R W G1 U)
+    (COND ((NULL L) (CONS R (CONS W G1)))
+          ((CHEAPTOEVALUATE (CAR L))
+           (PUSHPOP-LOCALS (CDR L) R (CONS (CAR L) W) G1 U))
+          (T
+           (PROG (G)
+             (SETQ G (LOCAL-SYMBOL U))
+             (RETURN
+              (PUSHPOP-LOCALS (CDR L) (CONS (LIST 'SETQ G (CAR L)) R)
+                              (CONS G W) (CONS G G1) U)))))) 
+(PUT 'FORMPUSH 'NUMBER-OF-ARGS 3) 
+(PUT 'FORMPUSH 'DEFINED-ON-LINE '159) 
+(PUT 'FORMPUSH 'DEFINED-IN-FILE 'RLISP/STATMISC.RED) 
+(PUT 'FORMPUSH 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE FORMPUSH (U VARS MODE)
+    (PROG (A B G G1 R W)
+      (SETQ CURRENT-NEW-SYMBOLS ALL-NEW-SYMBOLS)
+      (SETQ U (CDR U))
+      (COND
+       ((NEQ (SETQ G (LENGTH U)) 2)
+        (REDERR (LIST "push called with" G "arguments instead of 2"))))
+      (SETQ A (CAR U))
+      (SETQ B (CADR U))
+      (COND
+       ((OR (ATOM B) (ALLCHEAPTOEVALUATE (CDR B)))
+        (PROGN
+         (COND
+          ((CHEAPTOEVALUATE A)
+           (PROGN
+            (COND
+             ((EQUAL A B)
+              (RETURN
+               (FORMC (LIST 'PROG1 A (LIST 'SETQ B (LIST 'CONS A B))) VARS
+                      MODE)))
+             (T
+              (RETURN
+               (FORMC (LIST 'PROGN (LIST 'SETQ B (LIST 'CONS A B)) A) VARS
+                      MODE)))))))
+         (SETQ G (LOCAL-SYMBOL U))
+         (RETURN
+          (FORMC
+           (LIST 'PROG (LIST G) (LIST 'SETQ G A)
+                 (LIST 'SETQ B (LIST 'CONS G B)) (LIST 'RETURN G))
+           VARS MODE)))))
+      (SETQ R (PUSHPOP-LOCALS (CDR B) NIL NIL NIL U))
+      (SETQ G1 (CDDR R))
+      (SETQ W (CONS (CAR B) (REVERSE (CADR R))))
+      (SETQ R (REVERSE (CAR R)))
+      (RETURN
+       (FORMC
+        (CONS 'PROG
+              (CONS G1
+                    (APPEND R
+                            (LIST
+                             (LIST 'RETURN
+                                   (LIST 'CAR
+                                         (LIST 'SETQ W (LIST 'CONS A W))))))))
+        VARS MODE)))) 
+(PUT 'PUSH 'FORMFN 'FORMPUSH) 
+(PUT 'FORMPOP 'NUMBER-OF-ARGS 3) 
+(PUT 'FORMPOP 'DEFINED-ON-LINE '195) 
+(PUT 'FORMPOP 'DEFINED-IN-FILE 'RLISP/STATMISC.RED) 
+(PUT 'FORMPOP 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE FORMPOP (U VARS MODE)
+    (PROG (G G1 A R W)
+      (SETQ CURRENT-NEW-SYMBOLS ALL-NEW-SYMBOLS)
+      (SETQ U (CDR U))
+      (COND
+       ((NEQ (SETQ G (LENGTH U)) 1)
+        (REDERR (LIST "pop called with" G "arguments instead of 1"))))
+      (SETQ A (CAR U))
+      (COND
+       ((OR (ATOM A) (ALLCHEAPTOEVALUATE (CDR A)))
+        (RETURN
+         (FORMC (LIST 'PROG1 (LIST 'CAR A) (LIST 'SETQ A (LIST 'CDR A))) VARS
+                MODE))))
+      (SETQ R (PUSHPOP-LOCALS (CDR A) NIL NIL NIL U))
+      (SETQ G1 (CONS (SETQ G (LOCAL-SYMBOL U)) (CDDR R)))
+      (SETQ W (CONS (CAR A) (REVERSE (CADR R))))
+      (SETQ R (REVERSE (CAR R)))
+      (RETURN
+       (FORMC
+        (CONS 'PROG
+              (CONS G1
+                    (APPEND R
+                            (LIST (LIST 'SETQ G (LIST 'CAR W))
+                                  (LIST 'SETQ W (LIST 'CDR W))
+                                  (LIST 'RETURN G)))))
+        VARS MODE)))) 
+(PUT 'POP 'FORMFN 'FORMPOP) 
+(ENDMODULE) 

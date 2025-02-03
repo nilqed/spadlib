@@ -1,0 +1,3593 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(MODULE (LIST 'PHYSOP)) 
+(CREATE-PACKAGE '(PHYSOP) '(CONTRIB PHYSICS)) 
+(LOAD-PACKAGE 'NONCOM2) 
+(NEWTOK '((|\||) OPAPPLY)) 
+(FLAG '(OPAPPLY) 'SPACED) 
+(GLOBAL '(*PHYSOP-LOADED)) 
+(SETQ *PHYSOP-LOADED T) 
+(FLUID '(*NOSQ)) 
+(SETQ *NOSQ T) 
+(FLUID '(FRLIS* OBRKP*)) 
+(NEWTOK '((D O T) DOT)) 
+(FLAG '(DOT) 'SPACED) 
+(FLUID '(ALGLIST* SUBFG* WTL*)) 
+(GLOBAL '(TSTACK* MUL*)) 
+(FLUID '(OPORDER* DEFOPORDER* PHYSOPINDICES* PHYSOPVARIND*)) 
+(FLUID '(PHYSOPLIST*)) 
+(GLOBAL '(SPECOPLIST*)) 
+(FLUID '(*ANTICOM *ANTICOMMCHK *CONTRACT *CONTRACT2 *HARDSTOP)) 
+(FLUID '(*INDFLG INDCNT* *NCMP NCMP*)) 
+(SETQ INDCNT* 0) 
+(SETQ *CONTRACT2 NIL) 
+(SETQ *HARDSTOP NIL) 
+(SWITCH (LIST 'CONTRACT)) 
+(SWITCH (LIST 'ANTICOM)) 
+(GLOBAL '(IDX)) 
+(PUT 'PHYSOP 'NAME 'PHYSOP) 
+(PUT 'PHYSOP 'EVFN '*PHYSOPSM*) 
+(PUT 'PHYSOP 'TYPELETFN 'PHYSOPTYPELET) 
+(PUT 'REDERR2 'NUMBER-OF-ARGS 2) 
+(PUT 'REDERR2 'DEFINED-ON-LINE '183) 
+(PUT 'REDERR2 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'REDERR2 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE REDERR2 (U V)
+    (PROG () (MSGPRI "Error in procedure " U ": " NIL NIL) (REDERR V))) 
+(PUT 'PHYSOP-MULTFNC 'NUMBER-OF-ARGS 2) 
+(PUT 'PHYSOP-MULTFNC 'DEFINED-ON-LINE '195) 
+(PUT 'PHYSOP-MULTFNC 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOP-MULTFNC 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE PHYSOP-MULTFNC (U V)
+    (PROG (X Y)
+      (SETQ X (PHYSOP-MULTF (CDAR U) (LIST (CAR V))))
+      (COND ((NULL X) NIL)
+            ((AND (NOT (OR (ATOM X) (ATOM (CAR X)))) (EQ (CAAAR X) (CAAAR U))
+                  (OR (NOT (PHYSOPP (CAAAR X))) *CONTRACT2))
+             (SETQ X
+                     (ADDF
+                      (COND
+                       ((NULL
+                         (SETQ Y (MKSPM (CAAAR U) (PLUS (CDAAR U) (CDAAR X)))))
+                        NIL)
+                       ((EQUAL Y 1) (CDAR X)) (T (LIST (CONS Y (CDAR X)))))
+                      (PHYSOP-MULTF (LIST (CONS (CAAR U) 1)) (CDR X)))))
+            (((LAMBDA (U)
+                (COND ((ATOM U) (FLAGP U 'NONCOM))
+                      (T (FLAGP (CAR U) 'NONCOM))))
+              (CAAAR U))
+             (COND
+              ((AND (NULL (NONCOMMUTING (CAAAR U) (CAAAR X)))
+                    (NULL (PHYSOP-ORDOP (CAAAR U) (CAAAR X))))
+               (COND
+                ((NULL
+                  (SETQ Y (PHYSOP-MULTF (LIST (CONS (CAAR U) 1)) (CDAR X))))
+                 (SETQ X (PHYSOP-MULTF (LIST (CONS (CAAR U) 1)) (CDR X))))
+                (T
+                 (SETQ X
+                         (ADDF (LIST (CONS (CAAR X) Y))
+                               (PHYSOP-MULTF (LIST (CONS (CAAR U) 1))
+                                (CDR X)))))))
+              (T (SETQ X (LIST (CONS (CAAR U) X))))))
+            (T
+             ((LAMBDA (**PROCESSED)
+                (SETQ X (PHYSOP-MULTF (LIST (CONS (CAAR U) 1)) X)))
+              T)))
+      (RETURN
+       (ADDF X
+             (ADDF (PHYSOP-MULTF (CDR U) V)
+                   (PHYSOP-MULTF (LIST (CAR U)) (CDR V))))))) 
+(PUT 'PHYSOP-MULTF 'NUMBER-OF-ARGS 2) 
+(PUT 'PHYSOP-MULTF 'DEFINED-ON-LINE '222) 
+(PUT 'PHYSOP-MULTF 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOP-MULTF 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE PHYSOP-MULTF (U V)
+    (PROG (X Y)
+     A
+      (COND ((OR (NULL U) (NULL V)) (RETURN NIL)) ((EQUAL U 1) (RETURN V))
+            ((EQUAL V 1) (RETURN U))
+            ((OR (ATOM U) (ATOM (CAR U))) (RETURN (MULTD U V)))
+            ((OR (ATOM V) (ATOM (CAR V))) (RETURN (MULTD V U)))
+            ((NOT (OR *EXP NCMP* WTL* X))
+             (PROGN
+              (SETQ U (MKPROD U))
+              (SETQ V (MKPROD V))
+              (SETQ X T)
+              (GO A))))
+      (SETQ X (CAAAR U))
+      (SETQ Y (CAAAR V))
+      (COND
+       ((AND (NONCOMP2F V)
+             (OR
+              (COND ((ATOM X) (FLAGP X 'NONCOM)) (T (FLAGP (CAR X) 'NONCOM)))
+              (NULL **PROCESSED)))
+        (RETURN (PHYSOP-MULTFNC U V)))
+       ((AND (PHYSOP-ORDOP X Y) (NEQ X Y))
+        (PROGN
+         (SETQ X (PHYSOP-MULTF (CDAR U) V))
+         (SETQ Y (PHYSOP-MULTF (CDR U) V))
+         (RETURN (COND ((NULL X) Y) (T (CONS (CONS (CAAR U) X) Y))))))
+       ((AND (EQUAL X Y) (OR (NOT (PHYSOPP X)) *CONTRACT2))
+        (PROGN
+         (SETQ X (MKSPM X (PLUS (CDAAR U) (CDAAR V))))
+         (SETQ Y
+                 (ADDF (PHYSOP-MULTF (CDR U) V)
+                       (PHYSOP-MULTF (LIST (CAR U)) (CDR V))))
+         (RETURN
+          (COND
+           ((OR (NULL X) (NULL (SETQ U (PHYSOP-MULTF (CDAR U) (CDAR V)))))
+            (PROGN (SETQ *ASYMP* T) Y))
+           ((EQUAL X 1) (ADDF U Y)) ((NULL *MCD) (ADDF (LIST (CONS X U)) Y))
+           (T (CONS (CONS X U) Y)))))))
+      (SETQ X (PHYSOP-MULTF U (CDAR V)))
+      (SETQ Y (PHYSOP-MULTF U (CDR V)))
+      (RETURN (COND ((NULL X) Y) (T (CONS (CONS (CAAR V) X) Y)))))) 
+(PUT 'NONCOMP2F 'NUMBER-OF-ARGS 1) 
+(PUT 'NONCOMP2F 'DEFINED-ON-LINE '265) 
+(PUT 'NONCOMP2F 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'NONCOMP2F 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE NONCOMP2F (U)
+    (PROG (V)
+     TOP
+      (COND ((OR (ATOM U) (ATOM (CAR U))) (RETURN NIL))
+            ((ATOM (SETQ V (CAAAR U)))
+             (PROGN (COND ((FLAGP V 'NONCOM) (RETURN T)))))
+            ((FLAGP (CAR V) 'NONCOM) (RETURN T))
+            ((NONCOMP2F (CDAR U)) (RETURN T)))
+      (SETQ U (CDR U))
+      (GO TOP))) 
+(PUT 'OPMTCH* 'NUMBER-OF-ARGS 1) 
+(PUT 'OPMTCH* 'DEFINED-ON-LINE '280) 
+(PUT 'OPMTCH* 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'OPMTCH* 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE OPMTCH* (U)
+    (PROG (X FLG)
+      (SETQ FLG SUBFG*)
+      (SETQ SUBFG* T)
+      (SETQ X (OPMTCH U))
+      (SETQ SUBFG* FLG)
+      (RETURN X))) 
+(PUT 'REVAL3 'NUMBER-OF-ARGS 1) 
+(PUT 'REVAL3 'DEFINED-ON-LINE '287) 
+(PUT 'REVAL3 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'REVAL3 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE REVAL3 (U) ((LAMBDA (X) (MK*SQ X)) (SIMP U))) 
+(PUT 'OPORDER 'NUMBER-OF-ARGS 1) 
+(PUT 'OPORDER 'DEFINED-ON-LINE '295) 
+(PUT 'OPORDER 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'OPORDER 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE OPORDER (U)
+    (PROG ()
+      (COND ((NOT (LISTP U)) (REDERR2 'OPORDER "invalid argument to oporder")))
+      (COND ((EQUAL U '(NIL)) (SETQ OPORDER* DEFOPORDER*))
+            (T
+             (PROG (X)
+               (SETQ X (REVERSE U))
+              LAB
+               (COND ((NULL X) (RETURN NIL)))
+               ((LAMBDA (X)
+                  (PROGN
+                   (COND
+                    ((NOT (PHYSOPP X))
+                     (REDERR2 'OPORDER (LIST X " is not a PHYSOP"))))
+                   (SETQ OPORDER* (NCONC (LIST X) (PHYSOPDELETE X OPORDER*)))))
+                (CAR X))
+               (SETQ X (CDR X))
+               (GO LAB))))
+      (RESET_OPNUMS)
+      (RMSUBS))) 
+(RLISTAT '(OPORDER)) 
+(PUT 'PHYSOPDELETE 'NUMBER-OF-ARGS 2) 
+(PUT 'PHYSOPDELETE 'DEFINED-ON-LINE '310) 
+(PUT 'PHYSOPDELETE 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPDELETE 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE PHYSOPDELETE (U V)
+    (COND ((ATOM U) (DELETE U V))
+          (T
+           (DELETE U
+                   (DELETE (CAR U)
+                           (DELETE (REMOVEINDICES U (COLLECTINDICES U)) V)))))) 
+(PUT 'OPNUM* 'NUMBER-OF-ARGS 1) 
+(PUT 'OPNUM* 'DEFINED-ON-LINE '316) 
+(PUT 'OPNUM* 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'OPNUM* 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE OPNUM* (U)
+    (PROG (OP ARGLIST OPNUMS)
+      (COND ((NOT (IDP U)) (SETQ U (REMOVEINDICES U (COLLECTINDICES U)))))
+      (COND ((IDP U) (SETQ OP U))
+            (T (PROGN (SETQ OP (CAR U)) (SETQ ARGLIST (CDR U)) NIL)))
+      (SETQ OPNUMS (GET OP 'OPNUM))
+      (COND ((SETQ U (ASSOC ARGLIST OPNUMS)) (RETURN (CDR U)))
+            (T (RETURN (CDR (ASSOC NIL OPNUMS))))))) 
+(PUT 'RESET_OPNUMS 'NUMBER-OF-ARGS 0) 
+(PUT 'RESET_OPNUMS 'DEFINED-ON-LINE '327) 
+(PUT 'RESET_OPNUMS 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'RESET_OPNUMS 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE RESET_OPNUMS NIL
+    (PROG (X LST N OP ARGLIST)
+      (SETQ LST OPORDER*)
+      (SETQ N 1)
+     A
+      (COND ((NULL LST) (RETURN NIL)))
+      (SETQ X (CAR LST))
+      (SETQ LST (CDR LST))
+      (COND ((IDP X) (PROGN (SETQ OP X) (SETQ ARGLIST NIL)))
+            (T (PROGN (SETQ OP (CAR X)) (SETQ ARGLIST (CDR X)))))
+      (PUT OP 'OPNUM (*XADD (CONS ARGLIST N) (GET OP 'OPNUM)))
+      (SETQ N (PLUS N 1))
+      (GO A))) 
+(PUT '*XADD 'NUMBER-OF-ARGS 2) 
+(PUT '*XADD 'DEFINED-ON-LINE '340) 
+(PUT '*XADD 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT '*XADD 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE *XADD (U V)
+    (PROG (X)
+      (SETQ X V)
+      (PROG ()
+       WHILELABEL
+        (COND ((NOT (AND X (NOT (EQUAL (CAR U) (CAAR X))))) (RETURN NIL)))
+        (SETQ X (CDR X))
+        (GO WHILELABEL))
+      (COND (X (SETQ V (DELETE (CAR X) V))))
+      (SETQ V (CONS U V))
+      (RETURN V))) 
+(PUT 'PHYSOP-ORDOP 'NUMBER-OF-ARGS 2) 
+(PUT 'PHYSOP-ORDOP 'DEFINED-ON-LINE '352) 
+(PUT 'PHYSOP-ORDOP 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOP-ORDOP 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE PHYSOP-ORDOP (U V)
+    (PROG (X Y Z NX NY)
+      (COND
+       ((NOT (AND (*PHYSOPP U) (*PHYSOPP V)))
+        (RETURN (COND ((*PHYSOPP U) NIL) ((*PHYSOPP V) T) (T (ORDOP2 U V))))))
+      (COND ((IDP U) (SETQ X (GET U 'PHYSOPNAME)))
+            (T
+             (PROGN
+              (SETQ X (GET (CAR U) 'PHYSOPNAME))
+              (SETQ X (CONS X (CDR U)))
+              (SETQ U (CAR U))
+              NIL)))
+      (COND ((MEMBER U SPECOPLIST*) (RETURN T)))
+      (COND ((IDP V) (SETQ Y (GET V 'PHYSOPNAME)))
+            (T
+             (PROGN
+              (SETQ Y (GET (CAR V) 'PHYSOPNAME))
+              (SETQ Y (CONS Y (CDR V)))
+              (SETQ V (CAR V))
+              NIL)))
+      (COND ((MEMBER V SPECOPLIST*) (RETURN T)))
+      (SETQ NX (OPNUM* X))
+      (SETQ NY (OPNUM* Y))
+      (RETURN
+       (COND ((LESSP NX NY) T) ((GREATERP NX NY) NIL) ((IDP X) T) ((IDP Y) NIL)
+             (T (PHYSOP-ORDOP (CDR X) (CDR Y))))))) 
+(PUT 'ORDOP2 'NUMBER-OF-ARGS 2) 
+(PUT 'ORDOP2 'DEFINED-ON-LINE '394) 
+(PUT 'ORDOP2 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'ORDOP2 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE ORDOP2 (U V)
+    (PROG (X)
+      (SETQ X KORD*)
+     A
+      (COND ((NULL X) (RETURN (ORDP U V))) ((EQ U (CAR X)) (RETURN T))
+            ((EQ V (CAR X)) (RETURN NIL)))
+      (SETQ X (CDR X))
+      (GO A))) 
+(PUT 'PHYSOPORDCHK 'NUMBER-OF-ARGS 2) 
+(PUT 'PHYSOPORDCHK 'DEFINED-ON-LINE '413) 
+(PUT 'PHYSOPORDCHK 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPORDCHK 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE PHYSOPORDCHK (U V)
+    (PROG (X Y Z OPLIST LST)
+      (SETQ X (DELETEMULT* (*COLLECTPHYSOPS U)))
+      (SETQ Y (DELETEMULT* (*COLLECTPHYSOPS V)))
+      (RETURN
+       (COND ((NULL X) T) ((NULL Y) NIL)
+             ((OR (MEMBER 'UNIT X) (MEMBER 'UNIT Y)) NIL)
+             (T (PHYSOPORDCHK* X Y)))))) 
+(PUT 'NCMPCHK 'NUMBER-OF-ARGS 2) 
+(PUT 'NCMPCHK 'DEFINED-ON-LINE '429) 
+(PUT 'NCMPCHK 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'NCMPCHK 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE NCMPCHK (X Y) (OR (NOT (NONCOMMUTING X Y)) (PHYSOP-ORDOP X Y))) 
+(PUT 'PHYSOPORDCHK* 'NUMBER-OF-ARGS 2) 
+(PUT 'PHYSOPORDCHK* 'DEFINED-ON-LINE '434) 
+(PUT 'PHYSOPORDCHK* 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPORDCHK* 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE PHYSOPORDCHK* (U V)
+    (PROG (X Y LST)
+      (SETQ X (CAR U))
+      (SETQ U (CDR U))
+      (COND
+       ((NULL U)
+        (COND
+         ((NULL (CDR V))
+          (RETURN (AND (NCMPCHK X (CAR V)) (NOT (EQUAL (INVP X) (CAR V))))))
+         (T
+          (PROGN
+           (SETQ LST
+                   (PROG (Y FORALL-RESULT FORALL-ENDPTR)
+                     (SETQ Y V)
+                     (COND ((NULL Y) (RETURN NIL)))
+                     (SETQ FORALL-RESULT
+                             (SETQ FORALL-ENDPTR
+                                     (CONS ((LAMBDA (Y) (NCMPCHK X Y)) (CAR Y))
+                                           NIL)))
+                    LOOPLABEL
+                     (SETQ Y (CDR Y))
+                     (COND ((NULL Y) (RETURN FORALL-RESULT)))
+                     (RPLACD FORALL-ENDPTR
+                             (CONS ((LAMBDA (Y) (NCMPCHK X Y)) (CAR Y)) NIL))
+                     (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                     (GO LOOPLABEL)))
+           (COND ((MEMBER NIL LST) (RETURN NIL)) (T (RETURN T)))))))
+       (T (RETURN (AND (PHYSOPORDCHK* (LIST X) V) (PHYSOPORDCHK* U V))))))) 
+(PUT 'PHYSOPP 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPP 'DEFINED-ON-LINE '454) 
+(PUT 'PHYSOPP 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPP 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPP (U)
+    (COND ((ATOM U) (AND (IDP U) (EQ (GET U 'RTYPE) 'PHYSOP)))
+          (T (AND (IDP (CAR U)) (EQ (GET (CAR U) 'RTYPE) 'PHYSOP))))) 
+(PUT '*PHYSOPP 'NUMBER-OF-ARGS 1) 
+(PUT '*PHYSOPP 'DEFINED-ON-LINE '460) 
+(PUT '*PHYSOPP 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT '*PHYSOPP 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE *PHYSOPP (U)
+    (COND ((ATOM U) (AND (IDP U) (GET U 'PHYSTYPE)))
+          (T (AND (IDP (CAR U)) (GET (CAR U) 'PHYSTYPE))))) 
+(PUT 'PHYSOPP* 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPP* 'DEFINED-ON-LINE '466) 
+(PUT 'PHYSOPP* 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPP* 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPP* (U)
+    (OR (PHYSOPP U)
+        (AND (NOT (ATOM U))
+             (OR (FLAGP (CAR U) 'PHYSOPFN)
+                 (AND (FLAGP (CAR U) 'PHYSOPARITH) (HASONEPHYSOP (CDR U)))
+                 (AND (FLAGP (CAR U) 'PHYSOPMAPPING) (HASONEPHYSOP (CDR U))))))) 
+(PUT '*PHYSOPP* 'NUMBER-OF-ARGS 1) 
+(PUT '*PHYSOPP* 'DEFINED-ON-LINE '473) 
+(PUT '*PHYSOPP* 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT '*PHYSOPP* 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE *PHYSOPP* (U) (OR (PHYSOPP* U) (GETPHYSTYPE U))) 
+(PUT 'HASONEPHYSOP 'NUMBER-OF-ARGS 1) 
+(PUT 'HASONEPHYSOP 'DEFINED-ON-LINE '476) 
+(PUT 'HASONEPHYSOP 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'HASONEPHYSOP 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE HASONEPHYSOP (U)
+    (COND ((NULL U) NIL) (T (OR (PHYSOPP* (CAR U)) (HASONEPHYSOP (CDR U)))))) 
+(PUT 'AREALLPHYSOPS 'NUMBER-OF-ARGS 1) 
+(PUT 'AREALLPHYSOPS 'DEFINED-ON-LINE '480) 
+(PUT 'AREALLPHYSOPS 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'AREALLPHYSOPS 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE AREALLPHYSOPS (U)
+    (COND ((NULL U) NIL) ((NULL (CDR U)) (*PHYSOPP* (CAR U)))
+          (T (AND (*PHYSOPP* (CAR U)) (AREALLPHYSOPS (CDR U)))))) 
+(PUT 'SCALOP 'NUMBER-OF-ARGS 1) 
+(PUT 'SCALOP 'DEFINED-ON-LINE '488) 
+(PUT 'SCALOP 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'SCALOP 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SCALOP (U)
+    (PROG (Y)
+      (PROG (X)
+        (SETQ X U)
+       LAB
+        (COND ((NULL X) (RETURN NIL)))
+        ((LAMBDA (X)
+           (COND
+            ((NOT (IDP X))
+             (MSGPRI "cannot declare" X "a scalar operator" NIL NIL))
+            ((PHYSOPP X)
+             (MSGPRI X "already declared as" (GET X 'PHYSTYPE) NIL NIL))
+            (T
+             (PROGN
+              (SETQ Y (GETTYPE X))
+              (COND
+               ((MEMQ Y '(MATRIX OPERATOR ARRAY PROCEDURE))
+                (MSGPRI X "already defined as" Y NIL NIL))
+               (T
+                (PROGN
+                 (PUT X 'RTYPE 'PHYSOP)
+                 (PUT X 'PHYSTYPE 'SCALAR)
+                 (PUT X 'PSIMPFN 'PHYSOPSIMP)
+                 (PUT X 'PHYSOPNAME X)
+                 (SETQ DEFOPORDER* (NCONC DEFOPORDER* (LIST X)))
+                 (SETQ OPORDER* (NCONC OPORDER* (LIST X)))
+                 (SETQ PHYSOPLIST* (NCONC PHYSOPLIST* (LIST X)))
+                 (INVPHYSOP X)
+                 (ADJ2 X)
+                 (INVADJ X)
+                 (RESET_OPNUMS)
+                 NIL)))
+              NIL))))
+         (CAR X))
+        (SETQ X (CDR X))
+        (GO LAB))
+      (RETURN NIL))) 
+(PUT 'SCALOPP 'NUMBER-OF-ARGS 1) 
+(PUT 'SCALOPP 'DEFINED-ON-LINE '513) 
+(PUT 'SCALOPP 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'SCALOPP 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE SCALOPP (U)
+    (OR (AND (IDP U) (EQUAL (GET U 'PHYSTYPE) 'SCALAR))
+        (AND (NOT (ATOM U))
+             (OR (EQUAL (GET (CAR U) 'PHYSTYPE) 'SCALAR)
+                 (AND (EQUAL (GET (CAR U) 'PHYSTYPE) 'VECTOR)
+                      (ISANINDEX (CADR U)))
+                 (AND (EQUAL (GET (CAR U) 'PHYSTYPE) 'TENSOR)
+                      (GEQ (LENGTH (CDR U)) (GET (CAR U) 'TENSDIMEN))
+                      (AREALLINDICES
+                       (PROG (K FORALL-RESULT FORALL-ENDPTR)
+                         (SETQ K 1)
+                         (COND
+                          ((MINUSP (DIFFERENCE (GET (CAR U) 'TENSDIMEN) K))
+                           (RETURN NIL)))
+                         (SETQ FORALL-RESULT
+                                 (SETQ FORALL-ENDPTR
+                                         (CONS (NTH (CDR U) K) NIL)))
+                        LOOPLABEL
+                         (SETQ K (PLUS2 K 1))
+                         (COND
+                          ((MINUSP (DIFFERENCE (GET (CAR U) 'TENSDIMEN) K))
+                           (RETURN FORALL-RESULT)))
+                         (RPLACD FORALL-ENDPTR (CONS (NTH (CDR U) K) NIL))
+                         (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                         (GO LOOPLABEL)))))))) 
+(PUT 'VECOP 'NUMBER-OF-ARGS 1) 
+(PUT 'VECOP 'DEFINED-ON-LINE '521) 
+(PUT 'VECOP 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'VECOP 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE VECOP (U)
+    (PROG (Y)
+      (PROG (X)
+        (SETQ X U)
+       LAB
+        (COND ((NULL X) (RETURN NIL)))
+        ((LAMBDA (X)
+           (COND
+            ((NOT (IDP X))
+             (MSGPRI "cannot declare" X "a vector operator" NIL NIL))
+            ((PHYSOPP X)
+             (MSGPRI X "already declared as" (GET X 'PHYSTYPE) NIL NIL))
+            (T
+             (PROGN
+              (SETQ Y (GETTYPE X))
+              (COND
+               ((MEMQ Y '(MATRIX OPERATOR ARRAY PROCEDURE))
+                (MSGPRI X "already defined as" Y NIL NIL))
+               (T
+                (PROGN
+                 (PUT X 'RTYPE 'PHYSOP)
+                 (PUT X 'PHYSTYPE 'VECTOR)
+                 (PUT X 'PSIMPFN 'PHYSOPSIMP)
+                 (PUT X 'PHYSOPNAME X)
+                 (SETQ DEFOPORDER* (NCONC DEFOPORDER* (LIST X)))
+                 (SETQ OPORDER* (NCONC OPORDER* (LIST X)))
+                 (SETQ PHYSOPLIST* (NCONC PHYSOPLIST* (LIST X)))
+                 (INVPHYSOP X)
+                 (ADJ2 X)
+                 (INVADJ X)
+                 (RESET_OPNUMS)
+                 NIL)))
+              NIL))))
+         (CAR X))
+        (SETQ X (CDR X))
+        (GO LAB))
+      (RETURN NIL))) 
+(PUT 'VECOPP 'NUMBER-OF-ARGS 1) 
+(PUT 'VECOPP 'DEFINED-ON-LINE '545) 
+(PUT 'VECOPP 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'VECOPP 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE VECOPP (U)
+    (OR (AND (IDP U) (EQUAL (GET U 'PHYSTYPE) 'VECTOR))
+        (AND (NOT (ATOM U)) (EQUAL (GET (CAR U) 'PHYSTYPE) 'VECTOR)
+             (NOT (ISANINDEX (CADR U)))))) 
+(PUT 'TENSOP 'NUMBER-OF-ARGS 1) 
+(PUT 'TENSOP 'DEFINED-ON-LINE '549) 
+(PUT 'TENSOP 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'TENSOP 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE TENSOP (U)
+    (PROG (Y N)
+      (PROG (X)
+        (SETQ X U)
+       LAB
+        (COND ((NULL X) (RETURN NIL)))
+        ((LAMBDA (X)
+           (PROGN
+            (COND
+             ((OR (IDP X) (NOT (NUMBERP (CADR X))))
+              (MSGPRI "Tensor operator" X "declared without dimension" NIL
+                      NIL))
+             (T
+              (PROGN
+               (SETQ N (CADR X))
+               (SETQ X (CAR X))
+               (COND
+                ((NOT (IDP X))
+                 (MSGPRI "cannot declare" X "a tensor operator" NIL NIL))
+                ((PHYSOPP X)
+                 (MSGPRI X "already declared as" (GET X 'PHYSTYPE) NIL NIL))
+                (T
+                 (PROGN
+                  (SETQ Y (GETTYPE X))
+                  (COND
+                   ((MEMQ Y '(MATRIX OPERATOR ARRAY PROCEDURE))
+                    (MSGPRI X "already defined as" Y NIL NIL))
+                   (T
+                    (PROGN
+                     (PUT X 'RTYPE 'PHYSOP)
+                     (PUT X 'PHYSTYPE 'TENSOR)
+                     (PUT X 'PSIMPFN 'PHYSOPSIMP)
+                     (PUT X 'PHYSOPNAME X)
+                     (PUT X 'TENSDIMEN N)
+                     (SETQ DEFOPORDER* (NCONC DEFOPORDER* (LIST X)))
+                     (SETQ OPORDER* (NCONC OPORDER* (LIST X)))
+                     (SETQ PHYSOPLIST* (NCONC PHYSOPLIST* (LIST X)))
+                     (INVPHYSOP X)
+                     (ADJ2 X)
+                     (INVADJ X)
+                     (RESET_OPNUMS)
+                     NIL)))))))))))
+         (CAR X))
+        (SETQ X (CDR X))
+        (GO LAB))
+      (RETURN NIL))) 
+(PUT 'TENSOPP 'NUMBER-OF-ARGS 1) 
+(PUT 'TENSOPP 'DEFINED-ON-LINE '587) 
+(PUT 'TENSOPP 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'TENSOPP 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE TENSOPP (U)
+    (OR (AND (IDP U) (EQUAL (GET U 'PHYSTYPE) 'TENSOR))
+        (AND (NOT (ATOM U)) (EQUAL (GET (CAR U) 'PHYSTYPE) 'TENSOR)
+             (NOT (ISANINDEX (CADR U)))))) 
+(PUT 'STATE 'NUMBER-OF-ARGS 1) 
+(PUT 'STATE 'DEFINED-ON-LINE '591) 
+(PUT 'STATE 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'STATE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE STATE (U)
+    (PROG (Y)
+      (PROG (X)
+        (SETQ X U)
+       LAB
+        (COND ((NULL X) (RETURN NIL)))
+        ((LAMBDA (X)
+           (COND ((NOT (IDP X)) (MSGPRI "cannot declare" X "a state" NIL NIL))
+                 ((PHYSOPP X)
+                  (MSGPRI X "already declared as" (GET X 'PHYSTYPE) NIL NIL))
+                 (T
+                  (PROGN
+                   (SETQ Y (GETTYPE X))
+                   (COND
+                    ((MEMQ Y '(MATRIX OPERATOR ARRAY PROCEDURE))
+                     (MSGPRI X "already defined as" Y NIL NIL))
+                    (T
+                     (PROGN
+                      (PUT X 'RTYPE 'PHYSOP)
+                      (PUT X 'PHYSTYPE 'STATE)
+                      (PUT X 'PSIMPFN 'PHYSOPSIMP)
+                      (PUT X 'PHYSOPNAME X)
+                      (SETQ DEFOPORDER* (NCONC DEFOPORDER* (LIST X)))
+                      (SETQ OPORDER* (NCONC OPORDER* (LIST X)))
+                      (SETQ PHYSOPLIST* (NCONC PHYSOPLIST* (LIST X)))
+                      (ADJ2 X)
+                      (RESET_OPNUMS)
+                      NIL)))))))
+         (CAR X))
+        (SETQ X (CDR X))
+        (GO LAB))
+      (RETURN NIL))) 
+(PUT '|PO:STATEP| 'NUMBER-OF-ARGS 1) 
+(PUT '|PO:STATEP| 'DEFINED-ON-LINE '614) 
+(PUT '|PO:STATEP| 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT '|PO:STATEP| 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE |PO:STATEP| (U)
+    (OR (AND (IDP U) (EQUAL (GET U 'PHYSTYPE) 'STATE))
+        (AND (NOT (ATOM U)) (IDP (CAR U))
+             (EQUAL (GET (CAR U) 'PHYSTYPE) 'STATE)))) 
+(PUT 'STATEP* 'NUMBER-OF-ARGS 1) 
+(PUT 'STATEP* 'DEFINED-ON-LINE '618) 
+(PUT 'STATEP* 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'STATEP* 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE STATEP* (U) (EQUAL (GETPHYSTYPE U) 'STATE)) 
+(PUT 'PHYSINDEX 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSINDEX 'DEFINED-ON-LINE '625) 
+(PUT 'PHYSINDEX 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSINDEX 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSINDEX (U)
+    (PROG (Y)
+      (PROG (X)
+        (SETQ X U)
+       LAB
+        (COND ((NULL X) (RETURN NIL)))
+        ((LAMBDA (X)
+           (PROGN
+            (COND
+             ((NOT (IDP X)) (MSGPRI "cannot declare" X "an index" NIL NIL))
+             ((PHYSOPP X)
+              (MSGPRI X "already declared as" (GET X 'PHYSTYPE) NIL NIL))
+             (T
+              (PROGN
+               (SETQ Y (GETTYPE X))
+               (COND
+                ((MEMQ Y '(MATRIX OPERATOR ARRAY PROCEDURE))
+                 (MSGPRI Y "already defined as" Y NIL NIL))
+                (T (PUTANEWINDEX X))))))))
+         (CAR X))
+        (SETQ X (CDR X))
+        (GO LAB))
+      (RETURN NIL))) 
+(PUT 'PHYSINDEXP 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSINDEXP 'DEFINED-ON-LINE '639) 
+(PUT 'PHYSINDEXP 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSINDEXP 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSINDEXP (U)
+    (COND ((AND (IDP U) (ISANINDEX U)) T)
+          ((AND (IDLISTP U) (AREALLINDICES U)) T) (T NIL))) 
+(FLAG '(PHYSINDEXP) 'OPFN) 
+(FLAG '(PHYSINDEXP) 'BOOLEAN) 
+(DEFLIST
+ '((SCALOP RLIS) (VECOP RLIS) (TENSOP RLIS) (STATE RLIS) (PHYSINDEX RLIS))
+ 'STAT) 
+(PUT 'ISANINDEX 'NUMBER-OF-ARGS 1) 
+(PUT 'ISANINDEX 'DEFINED-ON-LINE '653) 
+(PUT 'ISANINDEX 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'ISANINDEX 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE ISANINDEX (U)
+    (AND (IDP U)
+         (OR (MEMQ U PHYSOPINDICES*) (MEMBER U PHYSOPVARIND*)
+             (AND (MEMQ U FRLIS*)
+                  (MEMBER (REVASSOC U FRASC*) PHYSOPINDICES*))))) 
+(PUT 'ISAVARINDEX 'NUMBER-OF-ARGS 1) 
+(PUT 'ISAVARINDEX 'DEFINED-ON-LINE '658) 
+(PUT 'ISAVARINDEX 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'ISAVARINDEX 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE ISAVARINDEX (U) (MEMBER U PHYSOPVARIND*)) 
+(PUT 'AREALLINDICES 'NUMBER-OF-ARGS 1) 
+(PUT 'AREALLINDICES 'DEFINED-ON-LINE '662) 
+(PUT 'AREALLINDICES 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'AREALLINDICES 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE AREALLINDICES (U)
+    (AND (ISANINDEX (CAR U)) (OR (NULL (CDR U)) (AREALLINDICES (CDR U))))) 
+(PUT 'PUTANEWINDEX 'NUMBER-OF-ARGS 1) 
+(PUT 'PUTANEWINDEX 'DEFINED-ON-LINE '666) 
+(PUT 'PUTANEWINDEX 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PUTANEWINDEX 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PUTANEWINDEX (U)
+    (PROG (INDX)
+      (SETQ INDX U)
+      (COND ((ISANINDEX INDX) NIL)
+            ((OR (NOT (ATOM INDX)) (GETRTYPE INDX))
+             (REDERR2 'PUTANEWINDEX (LIST INDX "is not an  index")))
+            (T (SETQ PHYSOPINDICES* (NCONC PHYSOPINDICES* (LIST INDX)))))
+      (RETURN NIL))) 
+(PUT 'PUTANEWINDEX* 'NUMBER-OF-ARGS 1) 
+(PUT 'PUTANEWINDEX* 'DEFINED-ON-LINE '677) 
+(PUT 'PUTANEWINDEX* 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PUTANEWINDEX* 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PUTANEWINDEX* (U)
+    (PROG (X)
+      (COND ((NOT (IDP U)) (RETURN NIL)))
+      (SETQ X (EXPLODE U))
+      (COND ((LESSP (LENGTH X) 4) (RETURN NIL)))
+      (SETQ X
+              (PROG (J FORALL-RESULT FORALL-ENDPTR)
+                (SETQ J 1)
+                (COND ((MINUSP (DIFFERENCE 3 J)) (RETURN NIL)))
+                (SETQ FORALL-RESULT (SETQ FORALL-ENDPTR (CONS (NTH X J) NIL)))
+               LOOPLABEL
+                (SETQ J (PLUS2 J 1))
+                (COND ((MINUSP (DIFFERENCE 3 J)) (RETURN FORALL-RESULT)))
+                (RPLACD FORALL-ENDPTR (CONS (NTH X J) NIL))
+                (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                (GO LOOPLABEL)))
+      (COND ((NOT (OR (EQUAL X '(I D X)) (EQUAL X '(I D X)))) (RETURN NIL)))
+      (SETQ PHYSOPINDICES* (NCONC PHYSOPINDICES* (LIST U)))
+      (RETURN T))) 
+(PUT 'MAKEANEWINDEX 'NUMBER-OF-ARGS 0) 
+(PUT 'MAKEANEWINDEX 'DEFINED-ON-LINE '689) 
+(PUT 'MAKEANEWINDEX 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'MAKEANEWINDEX 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE MAKEANEWINDEX NIL
+    (PROG (X N)
+      (SETQ N 0)
+     A
+      (SETQ N (PLUS N 1))
+      (SETQ X (MKID 'IDX N))
+      (COND ((ISANINDEX X) (GO A)) (T (PUTANEWINDEX X)))
+      (RETURN X))) 
+(PUT 'MAKEANEWVARINDEX 'NUMBER-OF-ARGS 0) 
+(PUT 'MAKEANEWVARINDEX 'DEFINED-ON-LINE '700) 
+(PUT 'MAKEANEWVARINDEX 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'MAKEANEWVARINDEX 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE MAKEANEWVARINDEX NIL
+    (PROG (X Y N)
+      (SETQ N 0)
+      (SETQ Y (MAKEANEWINDEX))
+      (SETQ X (INTERN (COMPRESS (APPEND (EXPLODE '=) (EXPLODE Y)))))
+      (NCONC FRLIS* (LIST X))
+      (SETQ PHYSOPVARIND* (NCONC PHYSOPVARIND* (LIST X)))
+      (SETQ FRASC* (NCONC FRASC* (LIST (CONS Y X))))
+      (RETURN X))) 
+(PUT 'GETVARINDEX 'NUMBER-OF-ARGS 1) 
+(PUT 'GETVARINDEX 'DEFINED-ON-LINE '714) 
+(PUT 'GETVARINDEX 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'GETVARINDEX 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE GETVARINDEX (N)
+    (PROG (ILEN)
+      (COND
+       ((NOT (NUMBERP N))
+        (REDERR2 'GETVARINDEX "invalid argument to getvarindex")))
+      (SETQ ILEN (LENGTH PHYSOPVARIND*))
+      (RETURN
+       (COND ((GREATERP N ILEN) (MAKEANEWVARINDEX))
+             (T (NTH PHYSOPVARIND* N)))))) 
+(PUT 'TRANSFORMVARINDEX 'NUMBER-OF-ARGS 1) 
+(PUT 'TRANSFORMVARINDEX 'DEFINED-ON-LINE '724) 
+(PUT 'TRANSFORMVARINDEX 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'TRANSFORMVARINDEX 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE TRANSFORMVARINDEX (U)
+    (PROG (X)
+      (SETQ X (EXPLODE U))
+      (COND ((OR (LESSP (LENGTH X) 3) (NOT (EQ (NTH X 2) '=))) (RETURN U)))
+      (SETQ X (INTERN (COMPRESS (PNTH X 3))))
+      (PUTANEWINDEX X)
+      (COND
+       ((NOT (ATSOC X FRASC*)) (SETQ FRASC* (NCONC FRASC* (LIST (CONS X U))))))
+      (RETURN X))) 
+(PUT 'INSERTINDICES 'NUMBER-OF-ARGS 2) 
+(PUT 'INSERTINDICES 'DEFINED-ON-LINE '738) 
+(PUT 'INSERTINDICES 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'INSERTINDICES 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE INSERTINDICES (U X)
+    (COND
+     ((OR (AND (IDP X) (NOT (ISANINDEX X)))
+          (AND (IDLISTP X) (NOT (AREALLINDICES X))))
+      (REDERR2 'INSERTINDICES "invalid indices to insertindex"))
+     ((VECOPP U)
+      (COND ((IDP U) (LIST U X)) (T (CONS (CAR U) (CONS X (CDR U))))))
+     ((TENSOPP U)
+      (COND ((IDP U) (CONS U X)) (T (CONS (CAR U) (NCONC X (CDR U))))))
+     (T U))) 
+(PUT 'INSERTFREEINDICES 'NUMBER-OF-ARGS 2) 
+(PUT 'INSERTFREEINDICES 'DEFINED-ON-LINE '750) 
+(PUT 'INSERTFREEINDICES 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'INSERTFREEINDICES 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE INSERTFREEINDICES (U FLG)
+    (PROG (N X)
+      (COND
+       ((VECOPP U)
+        (PROGN
+         (SETQ X
+                 (COND (FLG (TRANSFORMVARINDEX (GETVARINDEX (PLUS INDCNT* 1))))
+                       (T (GETVARINDEX (PLUS INDCNT* 1)))))
+         (RETURN (INSERTINDICES U X))))
+       ((TENSOPP U)
+        (PROGN
+         (SETQ N (GET U 'TENSDIMEN))
+         (SETQ X
+                 (PROG (K FORALL-RESULT FORALL-ENDPTR)
+                   (SETQ K 1)
+                   (COND ((MINUSP (DIFFERENCE N K)) (RETURN NIL)))
+                   (SETQ FORALL-RESULT
+                           (SETQ FORALL-ENDPTR
+                                   (CONS
+                                    (COND
+                                     (FLG
+                                      (TRANSFORMVARINDEX
+                                       (GETVARINDEX (PLUS INDCNT* K))))
+                                     (T (GETVARINDEX (PLUS INDCNT* K))))
+                                    NIL)))
+                  LOOPLABEL
+                   (SETQ K (PLUS2 K 1))
+                   (COND ((MINUSP (DIFFERENCE N K)) (RETURN FORALL-RESULT)))
+                   (RPLACD FORALL-ENDPTR
+                           (CONS
+                            (COND
+                             (FLG
+                              (TRANSFORMVARINDEX
+                               (GETVARINDEX (PLUS INDCNT* K))))
+                             (T (GETVARINDEX (PLUS INDCNT* K))))
+                            NIL))
+                   (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                   (GO LOOPLABEL)))
+         (RETURN (INSERTINDICES U X))))
+       (T
+        (REDERR2 'INSERTFREEINDICES "invalid argument to insertfreeindices"))))) 
+(PUT 'COLLECTINDICES_REVERSED 'NUMBER-OF-ARGS 2) 
+(PUT 'COLLECTINDICES_REVERSED 'DEFINED-ON-LINE '790) 
+(PUT 'COLLECTINDICES_REVERSED 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'COLLECTINDICES_REVERSED 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE COLLECTINDICES_REVERSED (U R)
+    (PROG ()
+      (COND
+       ((ATOM U)
+        (PROGN (COND ((ISANINDEX U) (RETURN (CONS U R))) (T (RETURN R))))))
+      (PROG ()
+       WHILELABEL
+        (COND ((NOT U) (RETURN NIL)))
+        (PROGN (SETQ R (COLLECTINDICES_REVERSED (CAR U) R)) (SETQ U (CDR U)))
+        (GO WHILELABEL))
+      (RETURN R))) 
+(PUT 'COLLECTINDICES 'NUMBER-OF-ARGS 1) 
+(PUT 'COLLECTINDICES 'DEFINED-ON-LINE '801) 
+(PUT 'COLLECTINDICES 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'COLLECTINDICES 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE COLLECTINDICES (U) (REVERSIP (COLLECTINDICES_REVERSED U NIL))) 
+(PUT 'REMOVEINDICES 'NUMBER-OF-ARGS 2) 
+(PUT 'REMOVEINDICES 'DEFINED-ON-LINE '805) 
+(PUT 'REMOVEINDICES 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'REMOVEINDICES 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE REMOVEINDICES (U X)
+    (PROG (OP)
+      (COND
+       ((FLAGP 'REMOVEINDICES 'TRACING)
+        (TRWRITE (LIST 'REMOVEINDICES "u= " U " x= " X))))
+      (COND ((OR (NULL X) (IDP U) (NOT (*PHYSOPP U))) (RETURN U)))
+      (COND
+       ((OR (AND (IDP X) (NOT (ISANINDEX X)))
+            (AND (IDLISTP X) (NOT (AREALLINDICES X))))
+        (REDERR2 'REMOVEINDICES "invalid arguments to removeindices")))
+      (SETQ OP (CAR U))
+      (SETQ U (CDR U))
+      (COND ((NULL U) (RETURN OP)) ((IDP X) (SETQ U (DELETE X U)))
+            (T
+             (PROG (Y)
+               (SETQ Y X)
+              LAB
+               (COND ((NULL Y) (RETURN NIL)))
+               ((LAMBDA (Y) (SETQ U (DELETE Y U))) (CAR Y))
+               (SETQ Y (CDR Y))
+               (GO LAB))))
+      (RETURN (COND ((NULL U) OP) (T (CONS OP U)))))) 
+(PUT 'DEADINDICES 'NUMBER-OF-ARGS 1) 
+(PUT 'DEADINDICES 'DEFINED-ON-LINE '827) 
+(PUT 'DEADINDICES 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'DEADINDICES 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE DEADINDICES (U)
+    (PROG (X RES)
+      (COND ((OR (NULL U) (ATOM U)) (RETURN NIL)))
+      (SETQ X (COLLECTINDICES U))
+      (PROG (Y)
+        (SETQ Y X)
+       LAB
+        (COND ((NULL Y) (RETURN NIL)))
+        ((LAMBDA (Y) (COND ((MEMQ Y (MEMQ Y X)) (SETQ RES (CONS Y RES)))))
+         (CAR Y))
+        (SETQ Y (CDR Y))
+        (GO LAB))
+      (RETURN (REVERSIP RES)))) 
+(PUT 'COLLECTPHYSOPS_REVERSED 'NUMBER-OF-ARGS 2) 
+(PUT 'COLLECTPHYSOPS_REVERSED 'DEFINED-ON-LINE '856) 
+(PUT 'COLLECTPHYSOPS_REVERSED 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'COLLECTPHYSOPS_REVERSED 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE COLLECTPHYSOPS_REVERSED (U R)
+    (PROG ()
+      (COND
+       ((ATOM U)
+        (PROGN (COND ((PHYSOPP U) (RETURN (CONS U R))) (T (RETURN R)))))
+       ((PHYSOPP U) (RETURN (CONS (REMOVEINDICES U (COLLECTINDICES U)) R))))
+      (PROG ()
+       WHILELABEL
+        (COND ((NOT (NOT (ATOM U))) (RETURN NIL)))
+        (PROGN (SETQ R (COLLECTPHYSOPS_REVERSED (CAR U) R)) (SETQ U (CDR U)))
+        (GO WHILELABEL))
+      (RETURN R))) 
+(PUT 'COLLECTPHYSOPS 'NUMBER-OF-ARGS 1) 
+(PUT 'COLLECTPHYSOPS 'DEFINED-ON-LINE '870) 
+(PUT 'COLLECTPHYSOPS 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'COLLECTPHYSOPS 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE COLLECTPHYSOPS (U) (REVERSIP (COLLECTPHYSOPS_REVERSED U NIL))) 
+(PUT '*COLLECTPHYSOPS_REVERSED 'NUMBER-OF-ARGS 2) 
+(PUT '*COLLECTPHYSOPS_REVERSED 'DEFINED-ON-LINE '886) 
+(PUT '*COLLECTPHYSOPS_REVERSED 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT '*COLLECTPHYSOPS_REVERSED 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE *COLLECTPHYSOPS_REVERSED (U R)
+    (PROG ()
+      (COND ((PHYSOPP U) (RETURN (CONS U R))))
+      (PROG ()
+       WHILELABEL
+        (COND ((NOT (NOT (ATOM U))) (RETURN NIL)))
+        (PROGN (SETQ R (*COLLECTPHYSOPS_REVERSED (CAR U) R)) (SETQ U (CDR U)))
+        (GO WHILELABEL))
+      (RETURN R))) 
+(PUT '*COLLECTPHYSOPS 'NUMBER-OF-ARGS 1) 
+(PUT '*COLLECTPHYSOPS 'DEFINED-ON-LINE '897) 
+(PUT '*COLLECTPHYSOPS 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT '*COLLECTPHYSOPS 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE *COLLECTPHYSOPS (U) (REVERSIP (*COLLECTPHYSOPS_REVERSED U NIL))) 
+(PUT 'COLLECTPHYSOPS* 'NUMBER-OF-ARGS 1) 
+(PUT 'COLLECTPHYSOPS* 'DEFINED-ON-LINE '901) 
+(PUT 'COLLECTPHYSOPS* 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'COLLECTPHYSOPS* 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE COLLECTPHYSOPS* (U)
+    (PROG (Y FORALL-RESULT FORALL-ENDPTR)
+      (SETQ Y (COLLECTPHYSOPS U))
+      (COND ((NULL Y) (RETURN NIL)))
+      (SETQ FORALL-RESULT
+              (SETQ FORALL-ENDPTR
+                      (CONS
+                       ((LAMBDA (Y) (COND ((IDP Y) Y) (T (CAR Y)))) (CAR Y))
+                       NIL)))
+     LOOPLABEL
+      (SETQ Y (CDR Y))
+      (COND ((NULL Y) (RETURN FORALL-RESULT)))
+      (RPLACD FORALL-ENDPTR
+              (CONS ((LAMBDA (Y) (COND ((IDP Y) Y) (T (CAR Y)))) (CAR Y)) NIL))
+      (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+      (GO LOOPLABEL))) 
+(PUT 'COLLECTPHYSTYPE 'NUMBER-OF-ARGS 1) 
+(PUT 'COLLECTPHYSTYPE 'DEFINED-ON-LINE '904) 
+(PUT 'COLLECTPHYSTYPE 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'COLLECTPHYSTYPE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE COLLECTPHYSTYPE (U)
+    (COND ((PHYSOPP U) (LIST (GETPHYSTYPE U))) ((ATOM U) NIL)
+          (T
+           (DELETEMULT*
+            (PROG (V FORALL-RESULT FORALL-ENDPTR)
+              (SETQ V U)
+              (COND ((NULL V) (RETURN NIL)))
+              (SETQ FORALL-RESULT
+                      (SETQ FORALL-ENDPTR
+                              (CONS ((LAMBDA (V) (GETPHYSTYPE V)) (CAR V))
+                                    NIL)))
+             LOOPLABEL
+              (SETQ V (CDR V))
+              (COND ((NULL V) (RETURN FORALL-RESULT)))
+              (RPLACD FORALL-ENDPTR
+                      (CONS ((LAMBDA (V) (GETPHYSTYPE V)) (CAR V)) NIL))
+              (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+              (GO LOOPLABEL)))))) 
+(PUT 'GETRTYPE 'NUMBER-OF-ARGS 1) 
+(PUT 'GETRTYPE 'DEFINED-ON-LINE '916) 
+(PUT 'GETRTYPE 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'GETRTYPE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE GETRTYPE (U)
+    (PROG (X Y)
+      (RETURN
+       (COND ((NULL U) NIL)
+             ((ATOM U)
+              (COND ((NOT (IDP U)) (AND (NOT (NUMBERP U)) (GETRTYPE1 U)))
+                    ((FLAGP U 'SHARE)
+                     (COND ((EQ (SETQ X (EVAL U)) U) NIL) (T (GETRTYPE X))))
+                    ((OR
+                      (AND (SETQ X (GET U 'AVALUE))
+                           (NOT (MEMQ (CAR X) '(SCALAR GENERIC))))
+                      (AND (SETQ X (GET U 'RTYPE)) (SETQ X (LIST X))))
+                     (COND ((SETQ Y (GET (CAR X) 'RTYPEFN)) (APPLY1 Y NIL))
+                           (T (CAR X))))
+                    (T NIL)))
+             ((NOT (IDP (CAR U))) NIL) ((PHYSOPP* U) 'PHYSOP)
+             ((AND (SETQ X (GET (CAR U) 'AVALUE))
+                   (SETQ X (GET (CAR X) 'RTYPEFN)))
+              (APPLY1 X (CDR U)))
+             ((EQ (CAR U) 'SUB) 'YETUNKNOWNTYPE) (T (GETRTYPE2 U)))))) 
+(PUT 'GETNEWTYPE 'NUMBER-OF-ARGS 1) 
+(PUT 'GETNEWTYPE 'DEFINED-ON-LINE '947) 
+(PUT 'GETNEWTYPE 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'GETNEWTYPE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE GETNEWTYPE (U) (AND (NOT (ATOM U)) (GET (CAR U) 'NEWTYPE))) 
+(PUT 'GETPHYSTYPE 'NUMBER-OF-ARGS 1) 
+(PUT 'GETPHYSTYPE 'DEFINED-ON-LINE '950) 
+(PUT 'GETPHYSTYPE 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'GETPHYSTYPE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE GETPHYSTYPE (U)
+    (PROG (X)
+      (RETURN
+       (COND
+        ((PHYSOPP U)
+         (COND ((SCALOPP U) 'SCALAR) ((VECOPP U) 'VECTOR) ((TENSOPP U) 'TENSOR)
+               ((|PO:STATEP| U) 'STATE) (T NIL)))
+        ((ATOM U) NIL) ((SETQ X (GET (CAR U) 'PHYSTYPE)) X)
+        ((SETQ X (GET (CAR U) 'PHYSTYPEFN)) (APPLY1 X (CDR U)))
+        ((NULL (SETQ X (COLLECTPHYSTYPE U))) NIL) ((NULL (CDR X)) (CAR X))
+        ((MEMBER 'STATE X) 'STATE)
+        (T (REDERR2 'GETPHYSTYPE (LIST "PHYSOP type conflict in" U))))))) 
+(PUT 'GETPHYSTYPECAR 'NUMBER-OF-ARGS 1) 
+(PUT 'GETPHYSTYPECAR 'DEFINED-ON-LINE '975) 
+(PUT 'GETPHYSTYPECAR 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'GETPHYSTYPECAR 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE GETPHYSTYPECAR (U) (AND (NOT (ATOM U)) (GETPHYSTYPE (CAR U)))) 
+(PUT 'GETPHYSTYPEOR 'NUMBER-OF-ARGS 1) 
+(PUT 'GETPHYSTYPEOR 'DEFINED-ON-LINE '978) 
+(PUT 'GETPHYSTYPEOR 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'GETPHYSTYPEOR 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE GETPHYSTYPEOR (U)
+    (AND (NOT (ATOM U)) (OR (GETPHYSTYPE (CAR U)) (GETPHYSTYPEOR (CDR U))))) 
+(PUT 'GETPHYSTYPEALL 'NUMBER-OF-ARGS 1) 
+(PUT 'GETPHYSTYPEALL 'DEFINED-ON-LINE '981) 
+(PUT 'GETPHYSTYPEALL 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'GETPHYSTYPEALL 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE GETPHYSTYPEALL (ARGS)
+    (PROG (X)
+      (COND ((NULL (SETQ X (COLLECTPHYSTYPE (DELETEALL 0 ARGS)))) (RETURN NIL))
+            ((CDR X)
+             (REDERR2 'GETPHYSTYPEALL (LIST "PHYSOP type mismatch in" ARGS)))
+            (T (RETURN (CAR X)))))) 
+(PUT 'PHYSOP*SQ 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOP*SQ 'DEFINED-ON-LINE '994) 
+(PUT 'PHYSOP*SQ 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOP*SQ 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOP*SQ (U)
+    (PROG (X)
+      (SETQ X (*COLLECTPHYSOPS (*Q2A1 (CAR U) *NOSQ)))
+      (RETURN (COND ((NULL X) NIL) (T 'PHYSOP))))) 
+(DEFLIST '((*SQ PHYSOP*SQ)) 'RTYPEFN) 
+(PUT 'GETPHYSTYPE*SQ 'NUMBER-OF-ARGS 1) 
+(PUT 'GETPHYSTYPE*SQ 'DEFINED-ON-LINE '1008) 
+(PUT 'GETPHYSTYPE*SQ 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'GETPHYSTYPE*SQ 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE GETPHYSTYPE*SQ (U) (GETPHYSTYPESF (CAAR U))) 
+(DEFLIST '((*SQ GETPHYSTYPE*SQ)) 'PHYSTYPEFN) 
+(PUT 'GETPHYSTYPESF 'NUMBER-OF-ARGS 1) 
+(PUT 'GETPHYSTYPESF 'DEFINED-ON-LINE '1013) 
+(PUT 'GETPHYSTYPESF 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'GETPHYSTYPESF 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE GETPHYSTYPESF (U)
+    (COND ((OR (NULL U) (DOMAIN*P U)) NIL)
+          (T (OR (GETPHYSTYPE (CAAAR U)) (GETPHYSTYPESF (CDAR U)))))) 
+(PUT 'PHYSOPSIMP*SQ 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPSIMP*SQ 'DEFINED-ON-LINE '1023) 
+(PUT 'PHYSOPSIMP*SQ 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPSIMP*SQ 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPSIMP*SQ (U)
+    (COND ((CADR U) (CAR U))
+          ((PHYSOP*SQ U) (PHYSOP2SQ (PHYSOPSM* (*Q2A1 (CAR U) *NOSQ))))
+          (T (RESIMP (CAR U))))) 
+(PUT '*SQ 'SIMPFN 'PHYSOPSIMP*SQ) 
+(PUT '*PHYSOPSM* 'NUMBER-OF-ARGS 2) 
+(PUT '*PHYSOPSM* 'DEFINED-ON-LINE '1033) 
+(PUT '*PHYSOPSM* 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT '*PHYSOPSM* 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE *PHYSOPSM* (U V)
+    (PROG (X CONTRACTFLG)
+      (SETQ CONTRACTFLG *CONTRACT)
+      (SETQ *CONTRACT NIL)
+      (SETQ *HARDSTOP NIL)
+      (COND
+       ((PHYSOPP U)
+        (COND ((SETQ X (GET U 'RVALUE)) (SETQ U (PHYSOPAEVAL X)))
+              ((IDP U) (RETURN U))
+              ((SETQ X (GET (CAR U) 'PSIMPFN)) (SETQ U (APPLY1 X U)))
+              (T (RETURN (PHYSOPSIMP U))))))
+      (SETQ U (PHYSOPSM* U))
+      (COND
+       (*HARDSTOP
+        (PROGN
+         (PROGN (PRIN2 "        *************** WARNING: ***************") NIL)
+         (TERPRI)
+         (PROGN
+          (PRIN2 "Evaluation incomplete due to missing elementary relations")
+          NIL)
+         (TERPRI)
+         (RETURN U))))
+      (COND
+       ((OR *MATCH POWLIS1*)
+        (PROGN (SETQ U (PHYSOPSUBS U)) (SETQ U (PHYSOPSIM* U)) NIL)))
+      (COND ((NOT CONTRACTFLG) (RETURN U))
+            (T
+             (PROGN
+              (SETQ *CONTRACT CONTRACTFLG)
+              (RETURN (PHYSOPCONTRACT U))))))) 
+(PUT 'PHYSOPSIM* 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPSIM* 'DEFINED-ON-LINE '1064) 
+(PUT 'PHYSOPSIM* 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPSIM* 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPSIM* (U)
+    (COND ((EQCAR U '|:DN:|) (PREPSQ (SIMP U))) ((*PHYSOPP* U) (PHYSOPSM* U))
+          (T U))) 
+(PUT 'PHYSOP2SQ 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOP2SQ 'DEFINED-ON-LINE '1068) 
+(PUT 'PHYSOP2SQ 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOP2SQ 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOP2SQ (U)
+    (PROG (X)
+      (RETURN
+       (COND
+        ((PHYSOPP U)
+         (COND ((SETQ X (GET U 'RVALUE)) (PHYSOP2SQ X))
+               ((IDP U) (CONS (LIST (CONS (CONS U 1) 1)) 1))
+               ((SETQ X (GET (CAR U) 'PSIMPFN))
+                (COND
+                 ((PHYSOPP (SETQ X (APPLY1 X U)))
+                  (CONS (LIST (CONS (GETPOWER (FKERN X) 1) 1)) 1))
+                 (T (CADR (PHYSOPSM* X)))))
+               ((AND (GET (CAR U) 'OPMTCH) (SETQ X (OPMTCH* U))) (PHYSOP2SQ X))
+               (T (CONS (LIST (CONS (GETPOWER (FKERN U) 1) 1)) 1))))
+        ((ATOM U) (SIMP U)) ((EQ (CAR U) '*SQ) (CADR U))
+        ((NULL (GETPHYSTYPE U)) (SIMP U)) (T (PHYSOP2SQ (PHYSOPSM* U))))))) 
+(PUT 'PHYSOPSM* 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPSM* 'DEFINED-ON-LINE '1088) 
+(PUT 'PHYSOPSM* 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPSM* 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPSM* (U)
+    (PROG (OPER ARGS Y V PHYSOPFLG)
+      (COND ((OR (NULL U) (NUMBERP U)) (SETQ V U))
+            ((PHYSOPP U)
+             (SETQ V
+                     (COND ((SETQ Y (GET U 'RVALUE)) (PHYSOPAEVAL Y))
+                           ((IDP U) U)
+                           ((SETQ Y (GET (CAR U) 'PSIMPFN)) (APPLY1 Y U))
+                           ((AND (GET (CAR U) 'OPMTCH) (SETQ Y (OPMTCH* U))) Y)
+                           (T U))))
+            ((ATOM U) (SETQ V (REVAL1 U NIL)))
+            (T
+             (PROGN
+              (SETQ OPER (CAR U))
+              (SETQ ARGS (CDR U))
+              (COND
+               ((SETQ Y (GET OPER 'PHYSOPFUNCTION))
+                (COND
+                 ((FLAGP OPER 'PHYSOPARITH)
+                  (COND ((HASONEPHYSOP ARGS) (SETQ V (APPLY Y (LIST ARGS))))
+                        (T (SETQ V (REVAL3 (CONS OPER ARGS))))))
+                 ((FLAGP OPER 'PHYSOPFN)
+                  (COND ((AREALLPHYSOPS ARGS) (SETQ V (APPLY Y (LIST ARGS))))
+                        (T
+                         (REDERR2 'PHYSOPSM*
+                          (LIST "invalid call of " OPER " with args: "
+                                ARGS)))))
+                 (T
+                  (REDERR2 'PHYSOPSM*
+                   (LIST OPER " has been flagged Physopfunction"
+                         " but is not defined")))))
+               ((AND (FLAGP OPER 'PHYSOPMAPPING) (*PHYSOPP* ARGS))
+                (SETQ V
+                        (MK*SQ
+                         (CONS
+                          (LIST (CONS (GETPOWER (FKERN (CONS OPER ARGS)) 1) 1))
+                          1))))
+               ((EQUAL OPER 'PROG) (SETQ V (PHYSOPPROG ARGS)))
+               (T (SETQ V (REVAL1 U NIL)))))))
+      (RETURN V))) 
+(PUT 'PHYSOPSUBS 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPSUBS 'DEFINED-ON-LINE '1128) 
+(PUT 'PHYSOPSUBS 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPSUBS 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPSUBS (U)
+    (PROG (ULIST KORD ALGLIST*)
+      (SETQ ALGLIST* (CONS NIL NIL))
+      (SETQ U (PHYSOP2SQ U))
+      (PROG (X)
+        (SETQ X PHYSOPLIST*)
+       LAB
+        (COND ((NULL X) (RETURN NIL)))
+        ((LAMBDA (X) (PROGN (REMPROP X 'RTYPE) (PUT X 'SIMPFN 'SIMPIDEN)))
+         (CAR X))
+        (SETQ X (CDR X))
+        (GO LAB))
+      (REMFLAG '(DOT) 'PHYSOPFN)
+      (PUT 'DOT 'SIMPFN 'SIMPIDEN)
+      (SETQ U (SUBS2 U))
+      (SETQ U (*Q2A1 U *NOSQ))
+      (PROG (X)
+        (SETQ X PHYSOPLIST*)
+       LAB
+        (COND ((NULL X) (RETURN NIL)))
+        ((LAMBDA (X) (PROGN (REMPROP X 'SIMPFN) (PUT X 'RTYPE 'PHYSOP)))
+         (CAR X))
+        (SETQ X (CDR X))
+        (GO LAB))
+      (REMPROP 'DOT 'SIMPFN)
+      (FLAG '(DOT) 'PHYSOPFN)
+      (RETURN U))) 
+(PUT 'PHYSOPAEVAL 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPAEVAL 'DEFINED-ON-LINE '1161) 
+(PUT 'PHYSOPAEVAL 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPAEVAL 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPAEVAL (U)
+    (PROG (X)
+      (RETURN
+       (COND
+        ((PHYSOPP U)
+         (COND
+          ((SETQ X (GET U 'RVALUE))
+           (COND ((EQ (CAR X) '*SQ) (*Q2A1 (CADR X) *NOSQ)) (T X)))
+          ((ATOM U) U) ((SETQ X (GET (CAR U) 'PSIMPFN)) (APPLY1 X U))
+          ((AND (GET (CAR U) 'OPMTCH) (SETQ X (OPMTCH* U))) X) (T U)))
+        ((AND (NOT (ATOM U)) (EQ (CAR U) '*SQ)) (*Q2A1 (CADR U) *NOSQ))
+        (T U))))) 
+(PUT 'PHYSOPCONTRACT 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPCONTRACT 'DEFINED-ON-LINE '1177) 
+(PUT 'PHYSOPCONTRACT 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPCONTRACT 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPCONTRACT (U)
+    (PROG (X X1 W Y Z ULIST VECLIST TENSLIST OLDMATCH OLDPOWERS ALGLIST*
+           NCMPLIST)
+      (SETQ ALGLIST* (CONS NIL NIL))
+      (SETQ U (PHYSOPAEVAL U))
+      (COND ((PHYSOPP U) (RETURN (MK*SQ (PHYSOP2SQ U))))
+            ((NOT (GETPHYSTYPE U)) (RETURN (REVAL1 U NIL))))
+      (SETQ *CONTRACT2 T)
+      (SETQ ULIST (COLLECTPHYSOPS U))
+      (SETQ VECLIST
+              (PROG (X FORALL-RESULT FORALL-ENDPTR)
+                (SETQ X ULIST)
+                (COND ((NULL X) (RETURN NIL)))
+                (SETQ FORALL-RESULT
+                        (SETQ FORALL-ENDPTR
+                                (CONS
+                                 ((LAMBDA (X) (COND ((VECOPP X) X) (T NIL)))
+                                  (CAR X))
+                                 NIL)))
+               LOOPLABEL
+                (SETQ X (CDR X))
+                (COND ((NULL X) (RETURN FORALL-RESULT)))
+                (RPLACD FORALL-ENDPTR
+                        (CONS
+                         ((LAMBDA (X) (COND ((VECOPP X) X) (T NIL))) (CAR X))
+                         NIL))
+                (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                (GO LOOPLABEL)))
+      (SETQ TENSLIST
+              (PROG (X FORALL-RESULT FORALL-ENDPTR)
+                (SETQ X ULIST)
+                (COND ((NULL X) (RETURN NIL)))
+                (SETQ FORALL-RESULT
+                        (SETQ FORALL-ENDPTR
+                                (CONS
+                                 ((LAMBDA (X) (COND ((TENSOPP X) X) (T NIL)))
+                                  (CAR X))
+                                 NIL)))
+               LOOPLABEL
+                (SETQ X (CDR X))
+                (COND ((NULL X) (RETURN FORALL-RESULT)))
+                (RPLACD FORALL-ENDPTR
+                        (CONS
+                         ((LAMBDA (X) (COND ((TENSOPP X) X) (T NIL))) (CAR X))
+                         NIL))
+                (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                (GO LOOPLABEL)))
+      (SETQ VECLIST (DELETEMULT* (DELETEALL NIL VECLIST)))
+      (SETQ TENSLIST (DELETEMULT* (DELETEALL NIL TENSLIST)))
+      (SETQ OLDMATCH *MATCH)
+      (SETQ *MATCH NIL)
+      (SETQ OLDPOWERS POWLIS1*)
+      (SETQ POWLIS1* NIL)
+      (PROG (X)
+        (SETQ X PHYSOPLIST*)
+       LAB
+        (COND ((NULL X) (RETURN NIL)))
+        ((LAMBDA (X)
+           (PROGN
+            (REMPROP X 'RTYPE)
+            (PUT X 'SIMPFN 'SIMPIDEN)
+            (COND ((NONCOMP* X) (SETQ NCMPLIST (CONS X NCMPLIST))))
+            NIL))
+         (CAR X))
+        (SETQ X (CDR X))
+        (GO LAB))
+      (REMFLAG '(DOT OPAPPLY) 'PHYSOPFN)
+      (FLAG SPECOPLIST* 'NONCOM)
+      (SETQ *NCMP T)
+      (PROG (X)
+        (SETQ X SPECOPLIST*)
+       LAB
+        (COND ((NULL X) (RETURN NIL)))
+        ((LAMBDA (X)
+           (PROGN (PUT X 'SIMPFN 'SIMPIDEN) (PUT X 'NONCOMMUTES NCMPLIST)))
+         (CAR X))
+        (SETQ X (CDR X))
+        (GO LAB))
+      (SETQ Y (GETVARINDEX 1))
+      (SETQ FRLIS* (NCONC FRLIS* (LIST '=NV)))
+      (SETQ FRASC* (NCONC FRASC* (LIST (CONS 'NV '=NV))))
+      (PROG (X)
+        (SETQ X VECLIST)
+       LAB
+        (COND ((NULL X) (RETURN NIL)))
+        ((LAMBDA (X)
+           (PROGN
+            (LET2 (LIST 'EXPT (INSERTINDICES X (TRANSFORMVARINDEX Y)) 'NV)
+                  (LIST 'EXPT X 'NV) NIL T)
+            (SETQ X1 (DELETE X VECLIST))
+            (PROG (W)
+              (SETQ W X1)
+             LAB
+              (COND ((NULL W) (RETURN NIL)))
+              ((LAMBDA (W)
+                 (PROGN
+                  (SETQ Z
+                          (LIST
+                           (LIST (CONS (INSERTINDICES X Y) 1)
+                                 (CONS (INSERTINDICES W Y) 1))
+                           (CONS NIL T) (LIST 'DOT X W) NIL))
+                  (SETQ *MATCH (APPEND (LIST Z) *MATCH))))
+               (CAR W))
+              (SETQ W (CDR W))
+              (GO LAB))))
+         (CAR X))
+        (SETQ X (CDR X))
+        (GO LAB))
+      (SETQ FRLIS* (NCONC FRLIS* (LIST '=NT)))
+      (SETQ FRASC* (NCONC FRASC* (LIST (CONS 'NT '=NT))))
+      (PROG (X)
+        (SETQ X TENSLIST)
+       LAB
+        (COND ((NULL X) (RETURN NIL)))
+        ((LAMBDA (X)
+           (LET2 (LIST 'EXPT (INSERTFREEINDICES X T) 'NT) (LIST 'EXPT X 'NT)
+                 NIL T))
+         (CAR X))
+        (SETQ X (CDR X))
+        (GO LAB))
+      (SETQ U (SIMP* U))
+      (SETQ POWLIS1* OLDPOWERS)
+      (SETQ *MATCH OLDMATCH)
+      (PROG (X)
+        (SETQ X PHYSOPLIST*)
+       LAB
+        (COND ((NULL X) (RETURN NIL)))
+        ((LAMBDA (X) (PROGN (REMPROP X 'SIMPFN) (PUT X 'RTYPE 'PHYSOP)))
+         (CAR X))
+        (SETQ X (CDR X))
+        (GO LAB))
+      (FLAG '(DOT OPAPPLY) 'PHYSOPFN)
+      (REMFLAG SPECOPLIST* 'NONCOM)
+      (PROG (X)
+        (SETQ X SPECOPLIST*)
+       LAB
+        (COND ((NULL X) (RETURN NIL)))
+        ((LAMBDA (X) (PROGN (REMPROP X 'NONCOMMUTES) (REMPROP X 'SIMPFN)))
+         (CAR X))
+        (SETQ X (CDR X))
+        (GO LAB))
+      (SETQ *CONTRACT2 NIL)
+      (RETURN (MK*SQ U)))) 
+(PUT 'PHYSOPSIMP 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPSIMP 'DEFINED-ON-LINE '1252) 
+(PUT 'PHYSOPSIMP 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPSIMP 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPSIMP (U)
+    (PROG (OPNAME W X Y FLG)
+      (COND ((IDP U) (RETURN U)))
+      (SETQ OPNAME (CAR U))
+      (SETQ X
+              (PROG (J FORALL-RESULT FORALL-ENDPTR)
+                (SETQ J (CDR U))
+                (COND ((NULL J) (RETURN NIL)))
+                (SETQ FORALL-RESULT
+                        (SETQ FORALL-ENDPTR
+                                (CONS
+                                 ((LAMBDA (J)
+                                    (COND
+                                     ((AND (IDP J)
+                                           (OR (ISANINDEX J) (ISAVARINDEX J)))
+                                      J)
+                                     (T (PHYSOPSM* J))))
+                                  (CAR J))
+                                 NIL)))
+               LOOPLABEL
+                (SETQ J (CDR J))
+                (COND ((NULL J) (RETURN FORALL-RESULT)))
+                (RPLACD FORALL-ENDPTR
+                        (CONS
+                         ((LAMBDA (J)
+                            (COND
+                             ((AND (IDP J) (OR (ISANINDEX J) (ISAVARINDEX J)))
+                              J)
+                             (T (PHYSOPSM* J))))
+                          (CAR J))
+                         NIL))
+                (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                (GO LOOPLABEL)))
+      (SETQ U
+              (CONS OPNAME
+                    (PROG (J FORALL-RESULT FORALL-ENDPTR)
+                      (SETQ J X)
+                      (COND ((NULL J) (RETURN NIL)))
+                      (SETQ FORALL-RESULT
+                              (SETQ FORALL-ENDPTR
+                                      (CONS
+                                       ((LAMBDA (J)
+                                          (COND
+                                           ((EQCAR J '*SQ) (PREPSQXX (CADR J)))
+                                           (T J)))
+                                        (CAR J))
+                                       NIL)))
+                     LOOPLABEL
+                      (SETQ J (CDR J))
+                      (COND ((NULL J) (RETURN FORALL-RESULT)))
+                      (RPLACD FORALL-ENDPTR
+                              (CONS
+                               ((LAMBDA (J)
+                                  (COND ((EQCAR J '*SQ) (PREPSQXX (CADR J)))
+                                        (T J)))
+                                (CAR J))
+                               NIL))
+                      (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                      (GO LOOPLABEL))))
+      (COND ((SETQ X (OPMTCH* U)) (RETURN X)))
+      (COND
+       ((AND (SCALOPP U) (TENSOPP OPNAME))
+        (PROGN
+         (SETQ Y (GET OPNAME 'TENSDIMEN))
+         (SETQ X
+                 (PROG (K FORALL-RESULT FORALL-ENDPTR)
+                   (SETQ K 1)
+                   (COND ((MINUSP (DIFFERENCE Y K)) (RETURN NIL)))
+                   (SETQ FORALL-RESULT
+                           (SETQ FORALL-ENDPTR (CONS (NTH (CDR U) K) NIL)))
+                  LOOPLABEL
+                   (SETQ K (PLUS2 K 1))
+                   (COND ((MINUSP (DIFFERENCE Y K)) (RETURN FORALL-RESULT)))
+                   (RPLACD FORALL-ENDPTR (CONS (NTH (CDR U) K) NIL))
+                   (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                   (GO LOOPLABEL)))
+         (COND
+          ((GREATERP (LENGTH (CDR U)) Y) (SETQ Y (PNTH (CDR U) (PLUS Y 1))))
+          (T (SETQ Y NIL)))
+         (COND ((FLAGP OPNAME 'SYMMETRIC) (SETQ U (CONS OPNAME (ORDN X))))
+               ((FLAGP OPNAME 'ANTISYMMETRIC)
+                (PROGN
+                 (COND ((REPEATS X) (RETURN 0))
+                       ((NOT (PERMP (SETQ W (ORDN X)) X)) (SETQ FLG T)))
+                 (SETQ X W)
+                 (SETQ U (CONS OPNAME X))))
+               (T (SETQ U (CONS OPNAME X))))
+         (COND (Y (SETQ U (APPEND U Y))))
+         (RETURN (COND (FLG (LIST 'MINUS U)) (T U)))))
+       ((VECOPP U)
+        (PROGN (COND ((LISTP U) (PUTANEWINDEX* (CADR U)))) (RETURN U)))
+       ((TENSOPP U)
+        (PROGN
+         (COND
+          ((LISTP U)
+           (PROG (J)
+             (SETQ J 1)
+            LAB
+             (COND ((MINUSP (DIFFERENCE (LENGTH (CDR U)) J)) (RETURN NIL)))
+             (PUTANEWINDEX* (NTH (CDR U) J))
+             (SETQ J (PLUS2 J 1))
+             (GO LAB))))
+         (RETURN U)))
+       (T (RETURN U))))) 
+(FLAG '(QUOTIENT TIMES EXPT DIFFERENCE MINUS PLUS OPAPPLY) 'PHYSOPARITH) 
+(FLAG '(ADJ RECIP DOT COMMUTE ANTICOMMUTE) 'PHYSOPFN) 
+(FLAG '(SUB) 'PHYSOPARITH) 
+(FLAG '(SIN COS TAN ASIN ACOS ATAN SQRT INT DF LOG EXP SINH COSH TANH)
+      'PHYSOPMAPPING) 
+(PUT 'CHECKPHYSOPMAP 'NUMBER-OF-ARGS 1) 
+(PUT 'CHECKPHYSOPMAP 'DEFINED-ON-LINE '1302) 
+(PUT 'CHECKPHYSOPMAP 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'CHECKPHYSOPMAP 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE CHECKPHYSOPMAP (U)
+    (PROG (X)
+     A
+      (COND ((OR (NULL U) (DOMAIN*P U) (ATOM U) (NULL (CDR U))) (RETURN NIL)))
+      (SETQ X (CAR U))
+      (SETQ U (CDR U))
+      (COND
+       ((AND (LISTP X) (FLAGP (CAR X) 'PHYSOPMAPPING) (HASONEPHYSOP (CDR X)))
+        (RETURN T)))
+      (GO A))) 
+(PUT 'PHYSOPFN 'NUMBER-OF-ARGS 2) 
+(PUT 'PHYSOPFN 'DEFINED-ON-LINE '1312) 
+(PUT 'PHYSOPFN 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPFN 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE PHYSOPFN (OPER PROC) (PROG () (PUT OPER 'PHYSOPFUNCTION PROC))) 
+(PHYSOPFN 'DIFFERENCE 'PHYSOPDIFF) 
+(PUT 'PHYSOPDIFF 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPDIFF 'DEFINED-ON-LINE '1319) 
+(PUT 'PHYSOPDIFF 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPDIFF 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPDIFF (ARGS)
+    (PROG (LHT RHT LHTYPE RHTYPE)
+      (SETQ LHT (PHYSOPSIM* (CAR ARGS)))
+      (PROG (V)
+        (SETQ V (CDR ARGS))
+       LAB
+        (COND ((NULL V) (RETURN NIL)))
+        ((LAMBDA (V)
+           (PROGN
+            (SETQ RHT (PHYSOPSIM* V))
+            (SETQ LHTYPE (GETPHYSTYPE LHT))
+            (SETQ RHTYPE (GETPHYSTYPE RHT))
+            (COND
+             ((AND (AND RHTYPE LHTYPE) (NOT (EQ LHTYPE RHTYPE)))
+              (REDERR2 'PHYSOPDIFF "type mismatch in diff")))
+            (SETQ LHT
+                    (MK*SQ (ADDSQ (PHYSOP2SQ LHT) (NEGSQ (PHYSOP2SQ RHT)))))))
+         (CAR V))
+        (SETQ V (CDR V))
+        (GO LAB))
+      (RETURN LHT))) 
+(PUT 'DIFFERENCE 'PHYSTYPEFN 'GETPHYSTYPEALL) 
+(PHYSOPFN 'MINUS 'PHYSOPMINUS) 
+(PUT 'PHYSOPMINUS 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPMINUS 'DEFINED-ON-LINE '1338) 
+(PUT 'PHYSOPMINUS 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPMINUS 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPMINUS (ARG)
+    (PROG (RHT RHTYPE)
+      (SETQ RHT (PHYSOPSIM* (CAR ARG)))
+      (SETQ RHT (MK*SQ (NEGSQ (PHYSOP2SQ RHT))))
+      (RETURN RHT))) 
+(PUT 'MINUS 'PHYSTYPEFN 'GETPHYSTYPECAR) 
+(PHYSOPFN 'PLUS 'PHYSOPPLUS) 
+(PUT 'PHYSOPPLUS 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPPLUS 'DEFINED-ON-LINE '1350) 
+(PUT 'PHYSOPPLUS 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPPLUS 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPPLUS (ARGS)
+    (PROG (LHT RHT LHTYPE RHTYPE)
+      (SETQ LHT (PHYSOPSIM* (CAR ARGS)))
+      (PROG (V)
+        (SETQ V (CDR ARGS))
+       LAB
+        (COND ((NULL V) (RETURN NIL)))
+        ((LAMBDA (V)
+           (PROGN
+            (SETQ RHT (PHYSOPSIM* V))
+            (SETQ LHTYPE (GETPHYSTYPE LHT))
+            (SETQ RHTYPE (GETPHYSTYPE RHT))
+            (COND
+             ((AND (AND RHTYPE LHTYPE) (NOT (EQ LHTYPE RHTYPE)))
+              (REDERR2 'PHYSOPPLUS "type mismatch in plus ")))
+            (SETQ LHT (MK*SQ (ADDSQ (PHYSOP2SQ LHT) (PHYSOP2SQ RHT))))))
+         (CAR V))
+        (SETQ V (CDR V))
+        (GO LAB))
+      (RETURN LHT))) 
+(PUT 'PLUS 'PHYSTYPEFN 'GETPHYSTYPEALL) 
+(PHYSOPFN 'TIMES 'PHYSOPTIMES) 
+(PUT 'PHYSOPTIMES 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPTIMES 'DEFINED-ON-LINE '1369) 
+(PUT 'PHYSOPTIMES 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPTIMES 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPTIMES (ARGS)
+    (PROG (LHT RHT LHTYPE RHTYPE X MUL)
+      (COND
+       ((AND (EQUAL TSTACK* 0) MUL*)
+        (PROGN (SETQ MUL MUL*) (SETQ MUL* NIL) NIL)))
+      (SETQ TSTACK* (PLUS TSTACK* 1))
+      (SETQ LHT (PHYSOPSIM* (CAR ARGS)))
+      (PROG (V)
+        (SETQ V (CDR ARGS))
+       LAB
+        (COND ((NULL V) (RETURN NIL)))
+        ((LAMBDA (V)
+           (PROGN
+            (SETQ RHT (PHYSOPSIM* V))
+            (SETQ LHTYPE (GETPHYSTYPE LHT))
+            (SETQ RHTYPE (GETPHYSTYPE RHT))
+            (COND
+             ((NOT LHTYPE)
+              (COND
+               ((NOT RHTYPE)
+                (SETQ LHT (MK*SQ (MULTSQ (PHYSOP2SQ LHT) (PHYSOP2SQ RHT)))))
+               ((ZEROP LHT) (SETQ LHT (MK*SQ (CONS NIL 1))))
+               ((ONEP LHT) (SETQ LHT (MK*SQ (PHYSOP2SQ RHT))))
+               (T
+                (SETQ LHT (MK*SQ (MULTSQ (PHYSOP2SQ LHT) (PHYSOP2SQ RHT)))))))
+             ((NOT RHTYPE)
+              (SETQ LHT
+                      (COND ((ZEROP RHT) (MK*SQ (CONS NIL 1)))
+                            ((ONEP RHT) (MK*SQ (PHYSOP2SQ LHT)))
+                            (T
+                             (MK*SQ
+                              (MULTSQ (PHYSOP2SQ RHT) (PHYSOP2SQ LHT)))))))
+             ((AND (PHYSOPORDCHK (PHYSOPAEVAL LHT) (PHYSOPAEVAL RHT))
+                   (EQUAL LHTYPE RHTYPE) (EQUAL LHTYPE 'SCALAR))
+              (SETQ LHT (MK*SQ (MULTSQ (PHYSOP2SQ LHT) (PHYSOP2SQ RHT)))))
+             (T (SETQ LHT (MULTOPOP* LHT RHT))))))
+         (CAR V))
+        (SETQ V (CDR V))
+        (GO LAB))
+     B
+      (COND ((OR (NULL MUL*) (GREATERP TSTACK* 1)) (GO C)))
+      (SETQ LHT (APPLY1 (CAR MUL*) LHT))
+      (SETQ MUL* (CDR MUL*))
+      (GO B)
+     C
+      (SETQ TSTACK* (DIFFERENCE TSTACK* 1))
+      (COND ((EQUAL TSTACK* 0) (SETQ MUL* MUL)))
+      (RETURN LHT))) 
+(PUT 'TIMES 'PHYSTYPEFN 'GETPHYSTYPETIMES) 
+(PUT 'GETPHYSTYPETIMES 'NUMBER-OF-ARGS 1) 
+(PUT 'GETPHYSTYPETIMES 'DEFINED-ON-LINE '1403) 
+(PUT 'GETPHYSTYPETIMES 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'GETPHYSTYPETIMES 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE GETPHYSTYPETIMES (ARGS)
+    (PROG (X)
+      (COND
+       ((NULL (SETQ X (DELETEALL NIL (COLLECTPHYSTYPE ARGS)))) (RETURN NIL))
+       ((NULL (CDR X)) (RETURN (CAR X)))
+       (T (REDERR2 'GETPHYSTYPETIMES (LIST "PHYSOP type mismatch in" ARGS)))))) 
+(PUT 'MULTOPOP* 'NUMBER-OF-ARGS 2) 
+(PUT 'MULTOPOP* 'DEFINED-ON-LINE '1412) 
+(PUT 'MULTOPOP* 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'MULTOPOP* 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE MULTOPOP* (U V)
+    (PROG (X Y U1 V1 STAC* RES)
+      (SETQ U1 (PHYSOPAEVAL U))
+      (SETQ V1 (PHYSOPAEVAL V))
+      (COND ((AND (PHYSOPP U1) (PHYSOPP V1)) (SETQ RES (MULTOPOP U1 V1)))
+            ((PHYSOPP V1)
+             (COND
+              ((MEMQ (CAR U1) '(PLUS DIFFERENCE MINUS))
+               (PROGN
+                (SETQ X
+                        (PROG (Y FORALL-RESULT FORALL-ENDPTR)
+                          (SETQ Y (CDR U1))
+                          (COND ((NULL Y) (RETURN NIL)))
+                          (SETQ FORALL-RESULT
+                                  (SETQ FORALL-ENDPTR
+                                          (CONS
+                                           ((LAMBDA (Y)
+                                              (PHYSOPTIMES (LIST Y V)))
+                                            (CAR Y))
+                                           NIL)))
+                         LOOPLABEL
+                          (SETQ Y (CDR Y))
+                          (COND ((NULL Y) (RETURN FORALL-RESULT)))
+                          (RPLACD FORALL-ENDPTR
+                                  (CONS
+                                   ((LAMBDA (Y) (PHYSOPTIMES (LIST Y V)))
+                                    (CAR Y))
+                                   NIL))
+                          (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                          (GO LOOPLABEL)))
+                (SETQ RES (REVAL3 (CONS (CAR U1) X)))))
+              ((EQ (CAR U1) 'TIMES)
+               (PROGN
+                (SETQ STAC* (REVERSE (CDR U1)))
+                (SETQ Y V)
+                (PROG ()
+                 WHILELABEL
+                  (COND ((NOT STAC*) (RETURN NIL)))
+                  (PROGN
+                   (SETQ X (CAR STAC*))
+                   (SETQ Y (PHYSOPTIMES (LIST X Y)))
+                   (SETQ STAC* (CDR STAC*))
+                   NIL)
+                  (GO WHILELABEL))
+                (SETQ RES Y)))
+              ((EQ (CAR U1) 'QUOTIENT)
+               (SETQ RES
+                       (MK*SQ
+                        (MULTSQ (PHYSOP2SQ (PHYSOPTIMES (LIST (CADR U1) V)))
+                                (INVSQ (PHYSOP2SQ (CADDR U1)))))))
+              (T (SETQ RES (PHYSOPTIMES (LIST U1 V1))))))
+            ((MEMQ (CAR V1) '(PLUS DIFFERENCE MINUS))
+             (PROGN
+              (SETQ X
+                      (PROG (Y FORALL-RESULT FORALL-ENDPTR)
+                        (SETQ Y (CDR V1))
+                        (COND ((NULL Y) (RETURN NIL)))
+                        (SETQ FORALL-RESULT
+                                (SETQ FORALL-ENDPTR
+                                        (CONS
+                                         ((LAMBDA (Y) (PHYSOPTIMES (LIST U Y)))
+                                          (CAR Y))
+                                         NIL)))
+                       LOOPLABEL
+                        (SETQ Y (CDR Y))
+                        (COND ((NULL Y) (RETURN FORALL-RESULT)))
+                        (RPLACD FORALL-ENDPTR
+                                (CONS
+                                 ((LAMBDA (Y) (PHYSOPTIMES (LIST U Y)))
+                                  (CAR Y))
+                                 NIL))
+                        (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                        (GO LOOPLABEL)))
+              (SETQ RES (REVAL3 (CONS (CAR V1) X)))))
+            ((EQ (CAR V1) 'TIMES)
+             (PROGN
+              (SETQ STAC* (CDR V1))
+              (SETQ Y U)
+              (PROG ()
+               WHILELABEL
+                (COND ((NOT STAC*) (RETURN NIL)))
+                (PROGN
+                 (SETQ X (CAR STAC*))
+                 (SETQ Y (PHYSOPTIMES (LIST Y X)))
+                 (SETQ STAC* (CDR STAC*))
+                 NIL)
+                (GO WHILELABEL))
+              (SETQ RES Y)))
+            ((EQ (CAR V1) 'QUOTIENT)
+             (SETQ RES
+                     (MK*SQ
+                      (MULTSQ (PHYSOP2SQ (PHYSOPTIMES (LIST U (CADR V1))))
+                              (INVSQ (PHYSOP2SQ (CADDR V1)))))))
+            (T (SETQ RES (PHYSOPTIMES (LIST U1 V1)))))
+      (RETURN RES))) 
+(PUT 'MULTOPOP 'NUMBER-OF-ARGS 2) 
+(PUT 'MULTOPOP 'DEFINED-ON-LINE '1458) 
+(PUT 'MULTOPOP 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'MULTOPOP 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE MULTOPOP (U V)
+    (PROG (RES X LTYPE RTYPE)
+      (SETQ LTYPE (GETPHYSTYPE U))
+      (SETQ RTYPE (GETPHYSTYPE V))
+      (COND ((NEQ LTYPE RTYPE) (REDERR2 'MULTOPOP "type conflict in TIMES"))
+            ((EQUAL (INVP U) V)
+             (SETQ RES (MK*SQ (CONS (LIST (CONS (CONS 'UNIT 1) 1)) 1))))
+            ((EQUAL U 'UNIT)
+             (SETQ RES
+                     (MK*SQ (CONS (LIST (CONS (GETPOWER (FKERN V) 1) 1)) 1))))
+            ((EQUAL V 'UNIT)
+             (SETQ RES
+                     (MK*SQ (CONS (LIST (CONS (GETPOWER (FKERN U) 1) 1)) 1))))
+            ((PHYSOP-ORDOP U V)
+             (SETQ RES
+                     (MK*SQ
+                      (CONS
+                       (PHYSOP-MULTFNC (LIST (CONS (GETPOWER (FKERN U) 1) 1))
+                        (LIST (CONS (GETPOWER (FKERN V) 1) 1)))
+                       1))))
+            ((NONCOMMUTING U V)
+             (PROGN
+              (SETQ X (COMM2 U V))
+              (SETQ RES
+                      (COND
+                       (*ANTICOMMCHK
+                        (PHYSOPPLUS (LIST (LIST 'MINUS (LIST 'TIMES V U)) X)))
+                       (T (PHYSOPPLUS (LIST (LIST 'TIMES V U) X)))))))
+            (T
+             (SETQ RES
+                     (MK*SQ
+                      (CONS
+                       (PHYSOP-MULTFNC (LIST (CONS (GETPOWER (FKERN V) 1) 1))
+                        (LIST (CONS (GETPOWER (FKERN U) 1) 1)))
+                       1)))))
+      (RETURN RES))) 
+(PHYSOPFN 'EXPT 'PHYSOPEXPT) 
+(PUT 'PHYSOPEXPT 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPEXPT 'DEFINED-ON-LINE '1482) 
+(PUT 'PHYSOPEXPT 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPEXPT 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPEXPT (ARGS)
+    (PROG (N1 N2 LHT RHT LHTYPE RHTYPE X Y Z)
+      (SETQ LHT (PHYSOPSM* (CAR ARGS)))
+      (SETQ RHT (PHYSOPSM* (CADR ARGS)))
+      (SETQ LHTYPE (PHYSOPP LHT))
+      (SETQ RHTYPE (PHYSOPP RHT))
+      (COND
+       (RHTYPE
+        (REDERR2 'PHYSOPEXPT "operators in the exponent cannot be handled")))
+      (COND ((NOT (GETPHYSTYPE LHT)) (SETQ LHT (REVAL3 (LIST 'EXPT LHT RHT)))))
+      (COND
+       ((NOT LHTYPE)
+        (COND
+         ((NUMBERP RHT)
+          (PROGN
+           (SETQ N1 (CAR (DIVIDE RHT 2)))
+           (SETQ N2 (CDR (DIVIDE RHT 2)))
+           (SETQ LHTYPE (GETPHYSTYPE LHT))
+           (COND
+            ((AND LHTYPE (ZEROP RHT))
+             (SETQ LHT (MK*SQ (CONS (LIST (CONS (CONS 'UNIT 1) 1)) 1))))
+            ((EQUAL LHTYPE 'VECTOR)
+             (PROGN
+              (SETQ X
+                      (PROG (K FORALL-RESULT FORALL-ENDPTR)
+                        (SETQ K 1)
+                        (COND ((MINUSP (DIFFERENCE N1 K)) (RETURN NIL)))
+                        (SETQ FORALL-RESULT
+                                (SETQ FORALL-ENDPTR
+                                        (CONS (PHYSOPDOT (LIST LHT LHT)) NIL)))
+                       LOOPLABEL
+                        (SETQ K (PLUS2 K 1))
+                        (COND
+                         ((MINUSP (DIFFERENCE N1 K)) (RETURN FORALL-RESULT)))
+                        (RPLACD FORALL-ENDPTR
+                                (CONS (PHYSOPDOT (LIST LHT LHT)) NIL))
+                        (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                        (GO LOOPLABEL)))
+              (COND ((ONEP N1) (SETQ X (CONS 1 X))))
+              (SETQ LHT
+                      (COND ((ZEROP N2) (PHYSOPTIMES X))
+                            (T (PHYSOPTIMES (APPEND X (LIST LHT))))))
+              NIL))
+            ((EQUAL LHTYPE 'TENSOR)
+             (PROGN
+              (SETQ X
+                      (PROG (K FORALL-RESULT FORALL-ENDPTR)
+                        (SETQ K 1)
+                        (COND ((MINUSP (DIFFERENCE N1 K)) (RETURN NIL)))
+                        (SETQ FORALL-RESULT
+                                (SETQ FORALL-ENDPTR
+                                        (CONS (PHYSOPTENS (LIST LHT LHT))
+                                              NIL)))
+                       LOOPLABEL
+                        (SETQ K (PLUS2 K 1))
+                        (COND
+                         ((MINUSP (DIFFERENCE N1 K)) (RETURN FORALL-RESULT)))
+                        (RPLACD FORALL-ENDPTR
+                                (CONS (PHYSOPTENS (LIST LHT LHT)) NIL))
+                        (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                        (GO LOOPLABEL)))
+              (COND ((ONEP N1) (SETQ X (CONS 1 X))))
+              (SETQ LHT
+                      (COND ((ZEROP N2) (PHYSOPTIMES X))
+                            (T (PHYSOPTIMES (APPEND X (LIST LHT))))))
+              NIL))
+            ((EQUAL LHTYPE 'STATE)
+             (REDERR2 'PHYSOPEXPT
+              "expressions involving states cannot be exponentiated"))
+            (T
+             (PROGN
+              (SETQ LHT (PHYSOPAEVAL LHT))
+              (SETQ X (DELETEMULT* (COLLECTINDICES LHT)))
+              (SETQ Z LHT)
+              (PROG (K)
+                (SETQ K 2)
+               LAB
+                (COND ((MINUSP (DIFFERENCE RHT K)) (RETURN NIL)))
+                (PROGN
+                 (PROG (X1)
+                   (SETQ X1 X)
+                  LAB
+                   (COND ((NULL X1) (RETURN NIL)))
+                   ((LAMBDA (X1)
+                      (COND
+                       ((ISAVARINDEX X1)
+                        (SETQ LHT (SUBST (MAKEANEWVARINDEX) X1 LHT)))
+                       (T (SETQ LHT (SUBST (MAKEANEWINDEX) X1 LHT)))))
+                    (CAR X1))
+                   (SETQ X1 (CDR X1))
+                   (GO LAB))
+                 (SETQ Y (APPEND Y (LIST LHT)))
+                 (SETQ LHT Z)
+                 NIL)
+                (SETQ K (PLUS2 K 1))
+                (GO LAB))
+              (SETQ LHT (PHYSOPTIMES (CONS Z Y)))
+              NIL)))
+           NIL))
+         (T
+          (SETQ LHT (MK*SQ (SIMPX1 (PHYSOPAEVAL LHT) (PHYSOPAEVAL RHT) 1))))))
+       ((EQUAL LHT 'UNIT)
+        (SETQ LHT (MK*SQ (CONS (LIST (CONS (CONS 'UNIT 1) 1)) 1))))
+       ((NUMBERP RHT) (SETQ LHT (EXPTEXPAND LHT RHT)))
+       (T
+        (SETQ LHT
+                (MK*SQ
+                 (CONS (LIST (CONS (CONS LHT (PHYSOPAEVAL RHT)) 1)) 1)))))
+      (RETURN LHT))) 
+(PUT 'EXPT 'PHYSTYPEFN 'GETPHYSTYPEEXPT) 
+(PUT 'GETPHYSTYPEEXPT 'NUMBER-OF-ARGS 1) 
+(PUT 'GETPHYSTYPEEXPT 'DEFINED-ON-LINE '1533) 
+(PUT 'GETPHYSTYPEEXPT 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'GETPHYSTYPEEXPT 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE GETPHYSTYPEEXPT (ARGS)
+    (PROG (X)
+      (SETQ X (GETPHYSTYPECAR ARGS))
+      (RETURN
+       (COND ((NULL X) NIL)
+             ((AND (NUMBERP (CADR ARGS)) (EVENP (CADR ARGS))) 'SCALAR) (T X))))) 
+(PUT 'EXPTEXPAND 'NUMBER-OF-ARGS 2) 
+(PUT 'EXPTEXPAND 'DEFINED-ON-LINE '1542) 
+(PUT 'EXPTEXPAND 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'EXPTEXPAND 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE EXPTEXPAND (U N)
+    (PROG (BOOL X Y V N1 N2 RES FLG)
+      (COND
+       ((NOT (NUMBERP N))
+        (REDERR2 'EXPTEXPAND (LIST "invalid argument " N " to EXPT"))))
+      (COND
+       ((ZEROP N) (RETURN (MK*SQ (CONS (LIST (CONS (CONS 'UNIT 1) 1)) 1)))))
+      (SETQ BOOL (COND ((LESSP N 0) T) (T NIL)))
+      (SETQ N (COND (BOOL (ABS N)) (T N)))
+      (SETQ N1 (CAR (DIVIDE N 2)))
+      (SETQ N2 (CDR (DIVIDE N 2)))
+      (COND
+       ((ZEROP N1)
+        (RETURN
+         (MK*SQ
+          (CONS
+           (LIST (CONS (GETPOWER (FKERN (COND (BOOL (INVP U)) (T U))) 1) 1))
+           1)))))
+      (SETQ RES (CONS 1 1))
+      (PROG (K)
+        (SETQ K 1)
+       LAB
+        (COND ((MINUSP (DIFFERENCE N1 K)) (RETURN NIL)))
+        (PROGN
+         (COND
+          ((SCALOPP U)
+           (COND
+            (BOOL
+             (SETQ X
+                     (CONS
+                      (PHYSOP-MULTF
+                       (LIST (CONS (GETPOWER (FKERN (INVP U)) 1) 1))
+                       (LIST (CONS (GETPOWER (FKERN (INVP U)) 1) 1)))
+                      1)))
+            (T
+             (SETQ X
+                     (CONS
+                      (PHYSOP-MULTF (LIST (CONS (GETPOWER (FKERN U) 1) 1))
+                       (LIST (CONS (GETPOWER (FKERN U) 1) 1)))
+                      1)))))
+          ((VECOPP U)
+           (COND
+            (BOOL
+             (SETQ X
+                     (MULTSQ (CONS 1 1)
+                             (INVSQ (PHYSOP2SQ (PHYSOPDOT (LIST U U)))))))
+            (T (SETQ X (PHYSOP2SQ (PHYSOPDOT (LIST U U)))))))
+          ((TENSOPP U)
+           (PROGN
+            (COND
+             (BOOL
+              (SETQ X
+                      (MULTSQ (CONS 1 1)
+                              (INVSQ (PHYSOP2SQ (PHYSOPTENS (LIST U U)))))))
+             (T (SETQ X (PHYSOP2SQ (PHYSOPTENS (LIST U U))))))))
+          (T (REDERR2 'EXPTEXPAND "cannot raise a state to a power")))
+         (SETQ RES (MULTSQ RES X)))
+        (SETQ K (PLUS2 K 1))
+        (GO LAB))
+     B
+      (COND ((ZEROP N2) (RETURN (MK*SQ RES))))
+      (SETQ U (COND (BOOL (INVP U)) (T U)))
+      (RETURN
+       (MK*SQ (MULTSQ RES (CONS (LIST (CONS (GETPOWER (FKERN U) 1) 1)) 1)))))) 
+(PHYSOPFN 'QUOTIENT 'PHYSOPQUOTIENT) 
+(PUT 'PHYSOPQUOTIENT 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPQUOTIENT 'DEFINED-ON-LINE '1579) 
+(PUT 'PHYSOPQUOTIENT 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPQUOTIENT 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPQUOTIENT (ARGS)
+    (PROG (LHT RHT Y LHTYPE RHTYPE)
+      (SETQ LHT (PHYSOPSIM* (CAR ARGS)))
+      (SETQ RHT (PHYSOPSIM* (CADR ARGS)))
+      (SETQ LHTYPE (GETPHYSTYPE (CAR ARGS)))
+      (SETQ RHTYPE (GETPHYSTYPE (CADR ARGS)))
+      (COND
+       ((MEMQ RHTYPE '(VECTOR STATE TENSOR))
+        (REDERR2 'PHYSOPQUOTIENT "invalid quotient"))
+       ((NOT RHTYPE)
+        (RETURN (MK*SQ (MULTSQ (PHYSOP2SQ LHT) (INVSQ (PHYSOP2SQ RHT)))))))
+      (SETQ LHTYPE (PHYSOPP LHT))
+      (SETQ RHT (PHYSOPAEVAL RHT))
+      (SETQ RHTYPE (PHYSOPP RHT))
+      (COND
+       (RHTYPE
+        (COND
+         ((NOT LHTYPE)
+          (SETQ LHT
+                  (MK*SQ
+                   (MULTSQ (PHYSOP2SQ LHT)
+                           (CONS
+                            (LIST (CONS (GETPOWER (FKERN (INVP RHT)) 1) 1))
+                            1)))))
+         (T (SETQ LHT (PHYSOPTIMES (LIST LHT (INVP RHT)))))))
+       ((AND (EQ (CAR RHT) 'TIMES) (NULL (DEADINDICES RHT)))
+        (PROGN
+         (SETQ RHT (REVERSE (CDR RHT)))
+         (SETQ RHT
+                 (PROG (X FORALL-RESULT FORALL-ENDPTR)
+                   (SETQ X RHT)
+                   (COND ((NULL X) (RETURN NIL)))
+                   (SETQ FORALL-RESULT
+                           (SETQ FORALL-ENDPTR
+                                   (CONS
+                                    ((LAMBDA (X) (PHYSOPQUOTIENT (LIST 1 X)))
+                                     (CAR X))
+                                    NIL)))
+                  LOOPLABEL
+                   (SETQ X (CDR X))
+                   (COND ((NULL X) (RETURN FORALL-RESULT)))
+                   (RPLACD FORALL-ENDPTR
+                           (CONS
+                            ((LAMBDA (X) (PHYSOPQUOTIENT (LIST 1 X))) (CAR X))
+                            NIL))
+                   (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                   (GO LOOPLABEL)))
+         (SETQ LHT (PHYSOPTIMES (APPEND (LIST LHT) RHT)))))
+       (T (SETQ LHT (MK*SQ (MULTSQ (PHYSOP2SQ LHT) (INVSQ (PHYSOP2SQ RHT)))))))
+      (RETURN LHT))) 
+(PUT 'QUOTIENT 'PHYSTYPEFN 'GETPHYSTYPEOR) 
+(PHYSOPFN 'RECIP 'PHYSOPRECIP) 
+(PUT 'PHYSOPRECIP 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPRECIP 'DEFINED-ON-LINE '1608) 
+(PUT 'PHYSOPRECIP 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPRECIP 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPRECIP (ARGS) (PHYSOPQUOTIENT (LIST 1 ARGS))) 
+(PUT 'RECIP 'PHYSTYPEFN 'GETPHYSTYPECAR) 
+(PUT 'INVPHYSOP 'NUMBER-OF-ARGS 1) 
+(PUT 'INVPHYSOP 'DEFINED-ON-LINE '1613) 
+(PUT 'INVPHYSOP 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'INVPHYSOP 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE INVPHYSOP (U)
+    (PROG (X Y)
+      (COND
+       ((NOT (PHYSOPP U)) (REDERR2 'INVPHYSOP "invalid argument to INVERSE")))
+      (COND ((EQUAL U 'UNIT) (RETURN U)))
+      (SETQ Y (COND ((IDP U) U) (T (CAR U))))
+      (SETQ X (REVERSIP (EXPLODE Y)))
+      (SETQ X (INTERN (COMPRESS (NCONC (REVERSIP X) (LIST '! '- '|1|)))))
+      (PUT Y 'INVERSE X)
+      (PUT X 'INVERSE Y)
+      (PUT X 'PHYSOPNAME Y)
+      (COND
+       ((NOT (PHYSOPP X))
+        (PROGN
+         (PUT X 'RTYPE 'PHYSOP)
+         (PUT X 'PHYSTYPE (GET Y 'PHYSTYPE))
+         (PUT X 'PSIMPFN 'PHYSOPSIMP)
+         (PUT X 'TENSDIMEN (GET Y 'TENSDIMEN))
+         (SETQ PHYSOPLIST* (NCONC PHYSOPLIST* (LIST X)))
+         NIL)))
+      (COND ((IDP U) (RETURN X)) (T (RETURN (NCONC (LIST X) (CDR U))))))) 
+(PUT 'INVP 'NUMBER-OF-ARGS 1) 
+(PUT 'INVP 'DEFINED-ON-LINE '1634) 
+(PUT 'INVP 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'INVP 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE INVP (U)
+    (COND ((EQUAL U 'UNIT) U) ((ATOM U) (GET U 'INVERSE))
+          ((MEMBER (CAR U) '(COMM ANTICOMM)) (LIST 'QUOTIENT 1 U))
+          (T (CONS (GET (CAR U) 'INVERSE) (CDR U))))) 
+(PHYSOPFN 'SUB 'PHYSOPSUB) 
+(REMPROP 'SUB 'PHYSOPFUNCTION) 
+(PUT 'SUB 'PHYSOPFUNCTION 'SUBEVAL) 
+(PUT 'PHYSOP 'SUBFN 'PHYSOPSUB) 
+(PUT 'PHYSOPSUB 'NUMBER-OF-ARGS 2) 
+(PUT 'PHYSOPSUB 'DEFINED-ON-LINE '1650) 
+(PUT 'PHYSOPSUB 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPSUB 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE PHYSOPSUB (U V)
+    (PROG (RES)
+      (COND ((OR (NULL U) (NULL V)) (RETURN V)))
+      (SETQ V (PHYSOPAEVAL V))
+      (PROG (X)
+        (SETQ X U)
+       LAB
+        (COND ((NULL X) (RETURN NIL)))
+        ((LAMBDA (X) (SETQ V (SUBST (CDR X) (CAR X) V))) (CAR X))
+        (SETQ X (CDR X))
+        (GO LAB))
+      (RETURN (PHYSOPSM* V)))) 
+(PUT 'PHYSOPPROG 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPPROG 'DEFINED-ON-LINE '1661) 
+(PUT 'PHYSOPPROG 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPPROG 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPPROG (U)
+    (PROG (X)
+      (PROG (X)
+        (SETQ X PHYSOPLIST*)
+       LAB
+        (COND ((NULL X) (RETURN NIL)))
+        ((LAMBDA (X) (PROGN (REMPROP X 'RTYPE) (PUT X 'SIMPFN 'SIMPIDEN)))
+         (CAR X))
+        (SETQ X (CDR X))
+        (GO LAB))
+      (SETQ U (REVAL1 (CONS 'PROG U) NIL))
+      (SETQ U (PHYSOPAEVAL U))
+      (PROG (X)
+        (SETQ X PHYSOPLIST*)
+       LAB
+        (COND ((NULL X) (RETURN NIL)))
+        ((LAMBDA (X) (PROGN (REMPROP X 'SIMPFN) (PUT X 'RTYPE 'PHYSOP)))
+         (CAR X))
+        (SETQ X (CDR X))
+        (GO LAB))
+      (RETURN (PHYSOPSM* U)))) 
+(PHYSOPFN 'DOT 'PHYSOPDOT) 
+(INFIX (LIST 'DOT)) 
+(PRECEDENCE (LIST 'DOT 'TIMES)) 
+(PUT 'PHYSOPDOT 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPDOT 'DEFINED-ON-LINE '1685) 
+(PUT 'PHYSOPDOT 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPDOT 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPDOT (ARGS)
+    (PROG (LHT RHT LHTYPE RHTYPE X N RES)
+      (SETQ LHT (PHYSOPAEVAL (PHYSOPSIM* (CAR ARGS))))
+      (SETQ RHT (PHYSOPAEVAL (PHYSOPSIM* (CADR ARGS))))
+      (SETQ LHTYPE (GETPHYSTYPE LHT))
+      (SETQ RHTYPE (GETPHYSTYPE RHT))
+      (COND
+       ((NOT (AND (AND LHTYPE RHTYPE) (EQ LHTYPE 'VECTOR)))
+        (REDERR2 'PHYSOPDOT "invalid arguments to dotproduct")))
+      (SETQ LHTYPE (PHYSOPP LHT))
+      (SETQ RHTYPE (PHYSOPP RHT))
+      (COND
+       (RHTYPE
+        (COND
+         (LHTYPE
+          (PROGN
+           (COND
+            (*INDFLG
+             (PROGN
+              (SETQ LHT (INSERTFREEINDICES LHT NIL))
+              (SETQ RHT (INSERTFREEINDICES RHT NIL))
+              (SETQ INDCNT* (PLUS INDCNT* 1))
+              NIL))
+            (T
+             (PROGN
+              (SETQ X (MAKEANEWINDEX))
+              (SETQ LHT (INSERTINDICES LHT X))
+              (SETQ RHT (INSERTINDICES RHT X))
+              NIL)))
+           (SETQ RES (PHYSOPTIMES (LIST LHT RHT)))))
+         (T
+          (PROGN
+           (COND
+            ((EQ (CAR LHT) 'MINUS)
+             (SETQ RES
+                     (MK*SQ
+                      (NEGSQ (PHYSOP2SQ (PHYSOPDOT (LIST (CADR LHT) RHT)))))))
+            ((EQ (CAR LHT) 'DIFFERENCE)
+             (SETQ RES
+                     (MK*SQ
+                      (ADDSQ (PHYSOP2SQ (PHYSOPDOT (LIST (CADR LHT) RHT)))
+                             (NEGSQ
+                              (PHYSOP2SQ
+                               (PHYSOPDOT (LIST (CADDR LHT) RHT))))))))
+            ((EQ (CAR LHT) 'PLUS)
+             (PROGN
+              (SETQ X
+                      (PROG (Y FORALL-RESULT FORALL-ENDPTR)
+                        (SETQ Y (CDR LHT))
+                        (COND ((NULL Y) (RETURN NIL)))
+                        (SETQ FORALL-RESULT
+                                (SETQ FORALL-ENDPTR
+                                        (CONS
+                                         ((LAMBDA (Y) (PHYSOPDOT (LIST Y RHT)))
+                                          (CAR Y))
+                                         NIL)))
+                       LOOPLABEL
+                        (SETQ Y (CDR Y))
+                        (COND ((NULL Y) (RETURN FORALL-RESULT)))
+                        (RPLACD FORALL-ENDPTR
+                                (CONS
+                                 ((LAMBDA (Y) (PHYSOPDOT (LIST Y RHT)))
+                                  (CAR Y))
+                                 NIL))
+                        (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                        (GO LOOPLABEL)))
+              (SETQ RES (REVAL3 (APPEND (LIST 'PLUS) X)))))
+            ((EQ (CAR LHT) 'QUOTIENT)
+             (PROGN
+              (COND
+               ((NOT (VECOPP (CADR LHT)))
+                (REDERR2 'PHYSOPDOT "argument to DOT"))
+               (T
+                (SETQ RES
+                        (MK*SQ
+                         (MULTSQ (PHYSOP2SQ (PHYSOPDOT (LIST (CADR LHT) RHT)))
+                                 (INVSQ (PHYSOP2SQ (CADDR LHT))))))))))
+            ((EQ (CAR LHT) 'TIMES)
+             (PROGN
+              (PROG (Y)
+                (SETQ Y (CDR LHT))
+               LAB
+                (COND ((NULL Y) (RETURN NIL)))
+                ((LAMBDA (Y) (COND ((EQ (GETPHYSTYPE Y) 'VECTOR) (SETQ X Y))))
+                 (CAR Y))
+                (SETQ Y (CDR Y))
+                (GO LAB))
+              (SETQ LHT (DELETE X (CDR LHT)))
+              (SETQ RES
+                      (PHYSOPTIMES
+                       (NCONC LHT (LIST (PHYSOPDOT (LIST X RHT))))))))
+            (T (REDERR2 'PHYSOPDOT "invalid arguments to DOT"))))))))
+      (COND
+       ((NOT RHTYPE)
+        (PROGN
+         (COND
+          ((EQ (CAR RHT) 'MINUS)
+           (SETQ RES
+                   (MK*SQ
+                    (NEGSQ (PHYSOP2SQ (PHYSOPDOT (LIST LHT (CADR RHT))))))))
+          ((EQ (CAR RHT) 'DIFFERENCE)
+           (SETQ RES
+                   (MK*SQ
+                    (ADDSQ (PHYSOP2SQ (PHYSOPDOT (LIST LHT (CADR RHT))))
+                           (NEGSQ
+                            (PHYSOP2SQ (PHYSOPDOT (LIST LHT (CADDR RHT)))))))))
+          ((EQ (CAR RHT) 'PLUS)
+           (PROGN
+            (SETQ X
+                    (PROG (Y FORALL-RESULT FORALL-ENDPTR)
+                      (SETQ Y (CDR RHT))
+                      (COND ((NULL Y) (RETURN NIL)))
+                      (SETQ FORALL-RESULT
+                              (SETQ FORALL-ENDPTR
+                                      (CONS
+                                       ((LAMBDA (Y) (PHYSOPDOT (LIST LHT Y)))
+                                        (CAR Y))
+                                       NIL)))
+                     LOOPLABEL
+                      (SETQ Y (CDR Y))
+                      (COND ((NULL Y) (RETURN FORALL-RESULT)))
+                      (RPLACD FORALL-ENDPTR
+                              (CONS
+                               ((LAMBDA (Y) (PHYSOPDOT (LIST LHT Y))) (CAR Y))
+                               NIL))
+                      (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                      (GO LOOPLABEL)))
+            (SETQ RES (REVAL3 (APPEND (LIST 'PLUS) X)))))
+          ((EQ (CAR RHT) 'QUOTIENT)
+           (PROGN
+            (COND
+             ((NOT (VECOPP (CADR RHT)))
+              (REDERR2 'PHYSOPDOT "invalid argument to DOT"))
+             (T
+              (SETQ RES
+                      (MK*SQ
+                       (MULTSQ (PHYSOP2SQ (PHYSOPDOT (LIST LHT (CADR RHT))))
+                               (INVSQ (PHYSOP2SQ (CADDR RHT))))))))))
+          ((EQ (CAR RHT) 'TIMES)
+           (PROGN
+            (PROG (Y)
+              (SETQ Y (CDR RHT))
+             LAB
+              (COND ((NULL Y) (RETURN NIL)))
+              ((LAMBDA (Y) (COND ((EQ (GETPHYSTYPE Y) 'VECTOR) (SETQ X Y))))
+               (CAR Y))
+              (SETQ Y (CDR Y))
+              (GO LAB))
+            (SETQ RHT (DELETE X (CDR RHT)))
+            (SETQ RES
+                    (PHYSOPTIMES
+                     (NCONC RHT (LIST (PHYSOPDOT (LIST LHT X))))))))
+          (T (REDERR2 'PHYSOPDOT "invalid arguments to DOT"))))))
+      (RETURN RES))) 
+(PUT 'DOT 'PHYSTYPE 'SCALAR) 
+(PUT 'PHYSOPTENS 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPTENS 'DEFINED-ON-LINE '1751) 
+(PUT 'PHYSOPTENS 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPTENS 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPTENS (ARGS)
+    (PROG (LHT RHT LHTYPE RHTYPE X N RES)
+      (SETQ LHT (PHYSOPAEVAL (PHYSOPSIM* (CAR ARGS))))
+      (SETQ RHT (PHYSOPAEVAL (PHYSOPSIM* (CADR ARGS))))
+      (SETQ LHTYPE (GETPHYSTYPE LHT))
+      (SETQ RHTYPE (GETPHYSTYPE RHT))
+      (COND
+       ((NOT (AND (AND LHTYPE RHTYPE) (EQ LHTYPE 'TENSOR)))
+        (REDERR2 'PHYSOPTENS "invalid arguments to tensproduct")))
+      (SETQ LHTYPE (PHYSOPP LHT))
+      (SETQ RHTYPE (PHYSOPP RHT))
+      (COND
+       (RHTYPE
+        (COND
+         (LHTYPE
+          (PROGN
+           (SETQ N (GET LHT 'TENSDIMEN))
+           (COND
+            ((NEQ N (GET RHT 'TENSDIMEN))
+             (REDERR2 'PHYSOPTENS
+              "tensors must have the same dimension to be multiplied")))
+           (COND
+            (*INDFLG
+             (PROGN
+              (SETQ LHT (INSERTFREEINDICES LHT NIL))
+              (SETQ RHT (INSERTFREEINDICES RHT NIL))
+              (SETQ INDCNT* (PLUS INDCNT* N))
+              NIL))
+            (T
+             (PROGN
+              (SETQ X
+                      (PROG (K FORALL-RESULT FORALL-ENDPTR)
+                        (SETQ K 1)
+                        (COND ((MINUSP (DIFFERENCE N K)) (RETURN NIL)))
+                        (SETQ FORALL-RESULT
+                                (SETQ FORALL-ENDPTR
+                                        (CONS (MAKEANEWINDEX) NIL)))
+                       LOOPLABEL
+                        (SETQ K (PLUS2 K 1))
+                        (COND
+                         ((MINUSP (DIFFERENCE N K)) (RETURN FORALL-RESULT)))
+                        (RPLACD FORALL-ENDPTR (CONS (MAKEANEWINDEX) NIL))
+                        (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                        (GO LOOPLABEL)))
+              (SETQ LHT (INSERTINDICES LHT X))
+              (SETQ RHT (INSERTINDICES RHT X))
+              NIL)))
+           (SETQ RES (PHYSOPTIMES (LIST LHT RHT)))))
+         (T
+          (PROGN
+           (COND
+            ((EQ (CAR LHT) 'MINUS)
+             (SETQ RES
+                     (MK*SQ
+                      (NEGSQ (PHYSOP2SQ (PHYSOPTENS (LIST (CADR LHT) RHT)))))))
+            ((EQ (CAR LHT) 'DIFFERENCE)
+             (SETQ RES
+                     (MK*SQ
+                      (ADDSQ (PHYSOP2SQ (PHYSOPTENS (LIST (CADR LHT) RHT)))
+                             (NEGSQ
+                              (PHYSOP2SQ
+                               (PHYSOPTENS (LIST (CADDR LHT) RHT))))))))
+            ((EQ (CAR LHT) 'PLUS)
+             (PROGN
+              (SETQ X
+                      (PROG (Y FORALL-RESULT FORALL-ENDPTR)
+                        (SETQ Y (CDR LHT))
+                        (COND ((NULL Y) (RETURN NIL)))
+                        (SETQ FORALL-RESULT
+                                (SETQ FORALL-ENDPTR
+                                        (CONS
+                                         ((LAMBDA (Y)
+                                            (PHYSOPTENS (LIST Y RHT)))
+                                          (CAR Y))
+                                         NIL)))
+                       LOOPLABEL
+                        (SETQ Y (CDR Y))
+                        (COND ((NULL Y) (RETURN FORALL-RESULT)))
+                        (RPLACD FORALL-ENDPTR
+                                (CONS
+                                 ((LAMBDA (Y) (PHYSOPTENS (LIST Y RHT)))
+                                  (CAR Y))
+                                 NIL))
+                        (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                        (GO LOOPLABEL)))
+              (SETQ RES (REVAL3 (APPEND (LIST 'PLUS) X)))))
+            ((EQ (CAR LHT) 'QUOTIENT)
+             (PROGN
+              (COND
+               ((NOT (TENSOPP (CADR LHT)))
+                (REDERR2 'PHYSOPTENS "invalid argument to TENS"))
+               (T
+                (SETQ RES
+                        (MK*SQ
+                         (MULTSQ (PHYSOP2SQ (PHYSOPTENS (LIST (CADR LHT) RHT)))
+                                 (INVSQ (PHYSOP2SQ (CADDR LHT))))))))))
+            ((EQ (CAR LHT) 'TIMES)
+             (PROGN
+              (PROG (Y)
+                (SETQ Y (CDR LHT))
+               LAB
+                (COND ((NULL Y) (RETURN NIL)))
+                ((LAMBDA (Y) (COND ((EQ (GETPHYSTYPE Y) 'TENSOR) (SETQ X Y))))
+                 (CAR Y))
+                (SETQ Y (CDR Y))
+                (GO LAB))
+              (SETQ LHT (DELETE X (CDR LHT)))
+              (SETQ RES
+                      (PHYSOPTIMES
+                       (NCONC LHT (LIST (PHYSOPTENS (LIST X RHT))))))))
+            (T (REDERR2 'PHYSOPTENS "invalid arguments to TENS"))))))))
+      (COND
+       ((NOT RHTYPE)
+        (PROGN
+         (COND
+          ((EQ (CAR RHT) 'MINUS)
+           (SETQ RES
+                   (MK*SQ
+                    (NEGSQ (PHYSOP2SQ (PHYSOPTENS (LIST LHT (CADR RHT))))))))
+          ((EQ (CAR RHT) 'DIFFERENCE)
+           (SETQ RES
+                   (MK*SQ
+                    (ADDSQ (PHYSOP2SQ (PHYSOPTENS (LIST LHT (CADR RHT))))
+                           (NEGSQ
+                            (PHYSOP2SQ
+                             (PHYSOPTENS (LIST LHT (CADDR RHT)))))))))
+          ((EQ (CAR RHT) 'PLUS)
+           (PROGN
+            (SETQ X
+                    (PROG (Y FORALL-RESULT FORALL-ENDPTR)
+                      (SETQ Y (CDR RHT))
+                      (COND ((NULL Y) (RETURN NIL)))
+                      (SETQ FORALL-RESULT
+                              (SETQ FORALL-ENDPTR
+                                      (CONS
+                                       ((LAMBDA (Y) (PHYSOPTENS (LIST LHT Y)))
+                                        (CAR Y))
+                                       NIL)))
+                     LOOPLABEL
+                      (SETQ Y (CDR Y))
+                      (COND ((NULL Y) (RETURN FORALL-RESULT)))
+                      (RPLACD FORALL-ENDPTR
+                              (CONS
+                               ((LAMBDA (Y) (PHYSOPTENS (LIST LHT Y))) (CAR Y))
+                               NIL))
+                      (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                      (GO LOOPLABEL)))
+            (SETQ RES (REVAL3 (APPEND (LIST 'PLUS) X)))))
+          ((EQ (CAR RHT) 'QUOTIENT)
+           (PROGN
+            (COND
+             ((NOT (TENSOPP (CADR RHT)))
+              (REDERR2 'PHYSOPTENS "invalid argument to TENS"))
+             (T
+              (SETQ RES
+                      (MK*SQ
+                       (MULTSQ (PHYSOP2SQ (PHYSOPTENS (LIST LHT (CADR RHT))))
+                               (INVSQ (PHYSOP2SQ (CADDR RHT))))))))))
+          ((EQ (CAR RHT) 'TIMES)
+           (PROGN
+            (PROG (Y)
+              (SETQ Y (CDR RHT))
+             LAB
+              (COND ((NULL Y) (RETURN NIL)))
+              ((LAMBDA (Y) (COND ((EQ (GETPHYSTYPE Y) 'TENSOR) (SETQ X Y))))
+               (CAR Y))
+              (SETQ Y (CDR Y))
+              (GO LAB))
+            (SETQ RHT (DELETE X (CDR RHT)))
+            (SETQ RES
+                    (PHYSOPTIMES
+                     (NCONC RHT (LIST (PHYSOPTENS (LIST LHT X))))))))
+          (T (REDERR2 'PHYSOPTENS "invalid arguments to TENS"))))))
+      (RETURN RES))) 
+(PUT 'TENS 'PHYSTYPE 'SCALAR) 
+(PUT 'COMM2 'NUMBER-OF-ARGS 2) 
+(PUT 'COMM2 'DEFINED-ON-LINE '1824) 
+(PUT 'COMM2 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'COMM2 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE COMM2 (U V)
+    (PROG (X UTYPE VTYPE Y Z Z1 RES)
+      (COND
+       ((NOT (AND (PHYSOPP U) (PHYSOPP V)))
+        (REDERR2 'COMM2 "invalid arguments to COMM")))
+      (SETQ UTYPE (GETPHYSTYPE U))
+      (SETQ VTYPE (GETPHYSTYPE V))
+      (COND
+       ((AND (NOT (EQ UTYPE 'SCALAR)) (EQ VTYPE 'SCALAR))
+        (REDERR2 'COMM2 "comm2 can only handle scalar operators")))
+      (SETQ *ANTICOMMCHK NIL)
+      (COND
+       ((NOT (NONCOMMUTING U V))
+        (RETURN
+         (COND
+          (*ANTICOM
+           (MK*SQ
+            (CONS
+             (PHYSOP-MULTF (COND ((ZEROP 2) NIL) (T 2))
+              (PHYSOP-MULTFNC (LIST (CONS (GETPOWER (FKERN V) 1) 1))
+               (LIST (CONS (GETPOWER (FKERN U) 1) 1))))
+             1)))
+          (T (MK*SQ (CONS NIL 1)))))))
+      (SETQ X (LIST U V))
+      (SETQ Z (OPMTCH* (CONS 'COMM X)))
+      (COND
+       ((NULL Z)
+        (SETQ Z
+                (COND
+                 ((SETQ Y (OPMTCH* (CONS 'COMM (REVERSE X))))
+                  (PHYSOPSIM* (LIST 'MINUS Y)))
+                 (T NIL)))))
+      (COND ((AND Z (NULL *ANTICOM)) (SETQ RES (PHYSOPSIM* Z)))
+            (T
+             (PROGN
+              (SETQ Z1 (OPMTCH* (CONS 'ANTICOMM X)))
+              (COND
+               ((NULL Z1)
+                (SETQ Z1
+                        (COND
+                         ((SETQ Y (OPMTCH* (CONS 'ANTICOMM (REVERSE X)))) Y)
+                         (T NIL)))))
+              (COND
+               (Z1
+                (PROGN (SETQ *ANTICOMMCHK T) (SETQ RES (PHYSOPSIM* Z1))))))))
+      (COND
+       ((NULL RES)
+        (PROGN
+         (SETQ *HARDSTOP T)
+         (COND
+          ((NULL *ANTICOM)
+           (SETQ RES
+                   (MK*SQ
+                    (CONS (LIST (CONS (GETPOWER (FKERN (CONS 'COMM X)) 1) 1))
+                          1))))
+          (T
+           (PROGN
+            (SETQ *ANTICOMMCHK T)
+            (SETQ RES
+                    (MK*SQ
+                     (CONS
+                      (LIST (CONS (GETPOWER (FKERN (CONS 'ANTICOMM X)) 1) 1))
+                      1)))))))))
+      (RETURN RES))) 
+(PHYSOPFN 'COMMUTE 'PHYSOPCOMMUTE) 
+(PUT 'PHYSOPCOMMUTE 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPCOMMUTE 'DEFINED-ON-LINE '1861) 
+(PUT 'PHYSOPCOMMUTE 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPCOMMUTE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPCOMMUTE (ARGS)
+    (PROG (LHT RHT LHTYPE RHTYPE X N RES FLG)
+      (SETQ LHT (PHYSOPAEVAL (PHYSOPSIM* (CAR ARGS))))
+      (SETQ RHT (PHYSOPAEVAL (PHYSOPSIM* (CADR ARGS))))
+      (SETQ LHTYPE (GETPHYSTYPE LHT))
+      (SETQ RHTYPE (GETPHYSTYPE RHT))
+      (COND ((NOT (AND LHTYPE RHTYPE)) (RETURN (MK*SQ (*D2Q 0))))
+            ((NOT (EQUAL RHTYPE LHTYPE))
+             (REDERR2 'PHYSOPCOMMUTE
+              "physops of different types cannot be commuted"))
+            ((NOT (EQ LHTYPE 'SCALAR))
+             (REDERR2 'PHYSOPCOMMUTE
+              "commutators only implemented for scalar physop expressions")))
+      (SETQ LHTYPE (PHYSOPP LHT))
+      (SETQ RHTYPE (PHYSOPP RHT))
+      (COND
+       (RHTYPE
+        (COND
+         (LHTYPE
+          (PROGN
+           (SETQ RES (COMM2 LHT RHT))
+           (COND
+            (*ANTICOMMCHK
+             (SETQ RES
+                     (PHYSOPDIFF (LIST RES (PHYSOPTIMES (LIST 2 RHT LHT)))))))
+           NIL))
+         (T
+          (SETQ RES
+                  (MK*SQ
+                   (NEGSQ (PHYSOP2SQ (PHYSOPCOMMUTE (LIST RHT LHT)))))))))
+       (T
+        (PROGN
+         (COND
+          ((EQ (CAR RHT) 'MINUS)
+           (SETQ RES
+                   (MK*SQ
+                    (NEGSQ
+                     (PHYSOP2SQ (PHYSOPCOMMUTE (LIST LHT (CADR RHT)))))))))
+         (COND
+          ((EQ (CAR RHT) 'DIFFERENCE)
+           (SETQ RES
+                   (MK*SQ
+                    (ADDSQ (PHYSOP2SQ (PHYSOPCOMMUTE (LIST LHT (CADR RHT))))
+                           (NEGSQ
+                            (PHYSOP2SQ
+                             (PHYSOPCOMMUTE (LIST LHT (CADDR RHT))))))))))
+         (COND
+          ((EQ (CAR RHT) 'PLUS)
+           (PROGN
+            (SETQ X
+                    (PROG (Y FORALL-RESULT FORALL-ENDPTR)
+                      (SETQ Y (CDR RHT))
+                      (COND ((NULL Y) (RETURN NIL)))
+                      (SETQ FORALL-RESULT
+                              (SETQ FORALL-ENDPTR
+                                      (CONS
+                                       ((LAMBDA (Y)
+                                          (PHYSOPCOMMUTE (LIST LHT Y)))
+                                        (CAR Y))
+                                       NIL)))
+                     LOOPLABEL
+                      (SETQ Y (CDR Y))
+                      (COND ((NULL Y) (RETURN FORALL-RESULT)))
+                      (RPLACD FORALL-ENDPTR
+                              (CONS
+                               ((LAMBDA (Y) (PHYSOPCOMMUTE (LIST LHT Y)))
+                                (CAR Y))
+                               NIL))
+                      (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                      (GO LOOPLABEL)))
+            (SETQ RES (REVAL3 (APPEND (LIST 'PLUS) X))))))
+         (COND
+          ((MEMQ (CAR RHT) '(EXPT DOT COMMUTE))
+           (SETQ RES (PHYSOPCOMMUTE (LIST LHT (PHYSOPSIM* RHT))))))
+         (COND
+          ((EQ (CAR RHT) 'QUOTIENT)
+           (COND
+            ((PHYSOPP (CADDR RHT))
+             (SETQ RES (PHYSOPCOMMUTE (LIST LHT (PHYSOPSIM* RHT)))))
+            (T
+             (SETQ RES
+                     (MK*SQ
+                      (MULTSQ (PHYSOP2SQ (PHYSOPCOMMUTE (LIST LHT (CADR RHT))))
+                              (INVSQ (PHYSOP2SQ (CADDR RHT))))))))))
+         (COND
+          ((EQ (CAR RHT) 'TIMES)
+           (PROGN
+            (SETQ N (LENGTH (CDR RHT)))
+            (COND
+             ((EQUAL N 2)
+              (SETQ RES
+                      (REVAL3
+                       (LIST 'PLUS
+                             (PHYSOPSIM*
+                              (LIST 'TIMES (CADR RHT)
+                                    (PHYSOPCOMMUTE (LIST LHT (CADDR RHT)))))
+                             (PHYSOPSIM*
+                              (LIST 'TIMES
+                                    (PHYSOPCOMMUTE (LIST LHT (CADR RHT)))
+                                    (CADDR RHT)))))))
+             (T
+              (SETQ RES
+                      (REVAL3
+                       (LIST 'PLUS
+                             (PHYSOPSIM*
+                              (LIST 'TIMES (CADR RHT)
+                                    (PHYSOPCOMMUTE
+                                     (LIST LHT (APPEND '(TIMES) (CDDR RHT))))))
+                             (PHYSOPSIM*
+                              (APPEND
+                               (LIST 'TIMES
+                                     (PHYSOPCOMMUTE (LIST LHT (CADR RHT))))
+                               (CDDR RHT))))))))))))))
+      (RETURN RES))) 
+(PUT 'COMMUTE 'PHYSTYPE 'SCALAR) 
+(PHYSOPFN 'ANTICOMMUTE 'PHYSOPANTICOMMUTE) 
+(PUT 'PHYSOPANTICOMMUTE 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPANTICOMMUTE 'DEFINED-ON-LINE '1920) 
+(PUT 'PHYSOPANTICOMMUTE 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPANTICOMMUTE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPANTICOMMUTE (ARGS)
+    (PROG (LHT RHT LHTYPE RHTYPE X N RES FLG)
+      (SETQ LHT (PHYSOPAEVAL (PHYSOPSIM* (CAR ARGS))))
+      (SETQ RHT (PHYSOPAEVAL (PHYSOPSIM* (CADR ARGS))))
+      (SETQ LHTYPE (GETPHYSTYPE LHT))
+      (SETQ RHTYPE (GETPHYSTYPE RHT))
+      (COND
+       ((NOT (AND LHTYPE RHTYPE))
+        (RETURN
+         (MK*SQ
+          (REVAL1 (LIST 'PLUS (LIST 'TIMES LHT RHT) (LIST 'TIMES RHT LHT))
+                  NIL))))
+       ((NOT (EQUAL RHTYPE LHTYPE))
+        (REDERR2 'PHYSOPANTICOMMUTE
+         "physops of different types cannot be commuted"))
+       ((NOT (EQ LHTYPE 'SCALAR))
+        (REDERR2 'PHYSOPANTICOMMUTE
+         "commutators only implemented for scalar physop expressions")))
+      (SETQ LHTYPE (PHYSOPP LHT))
+      (SETQ RHTYPE (PHYSOPP RHT))
+      (COND
+       (RHTYPE
+        (COND
+         (LHTYPE
+          (PROGN
+           (SETQ X (COMM2 LHT RHT))
+           (COND
+            ((NULL *ANTICOMMCHK)
+             (COND
+              (*HARDSTOP
+               (SETQ RES
+                       (MK*SQ
+                        (CONS
+                         (LIST
+                          (CONS (GETPOWER (FKERN (LIST 'ANTICOMM LHT RHT)) 1)
+                                1))
+                         1))))
+              (T
+               (SETQ RES
+                       (REVAL3
+                        (LIST 'PLUS X (PHYSOPTIMES (LIST 2 RHT LHT))))))))
+            (T (SETQ RES X)))
+           NIL))
+         (T (SETQ RES (PHYSOPSIM* (PHYSOPANTICOMMUTE (LIST RHT LHT)))))))
+       (T
+        (PROGN
+         (COND
+          ((EQ (CAR RHT) 'MINUS)
+           (SETQ RES
+                   (MK*SQ
+                    (NEGSQ
+                     (PHYSOP2SQ (PHYSOPANTICOMMUTE (LIST LHT (CADR RHT)))))))))
+         (COND
+          ((EQ (CAR RHT) 'DIFFERENCE)
+           (MK*SQ
+            (ADDSQ (PHYSOP2SQ (PHYSOPANTICOMMUTE (LIST LHT (CADR RHT))))
+                   (NEGSQ
+                    (PHYSOP2SQ (PHYSOPANTICOMMUTE (LIST LHT (CADDR RHT)))))))))
+         (COND
+          ((EQ (CAR RHT) 'PLUS)
+           (PROGN
+            (SETQ X
+                    (PROG (Y FORALL-RESULT FORALL-ENDPTR)
+                      (SETQ Y (CDR RHT))
+                      (COND ((NULL Y) (RETURN NIL)))
+                      (SETQ FORALL-RESULT
+                              (SETQ FORALL-ENDPTR
+                                      (CONS
+                                       ((LAMBDA (Y)
+                                          (PHYSOPANTICOMMUTE (LIST LHT Y)))
+                                        (CAR Y))
+                                       NIL)))
+                     LOOPLABEL
+                      (SETQ Y (CDR Y))
+                      (COND ((NULL Y) (RETURN FORALL-RESULT)))
+                      (RPLACD FORALL-ENDPTR
+                              (CONS
+                               ((LAMBDA (Y) (PHYSOPANTICOMMUTE (LIST LHT Y)))
+                                (CAR Y))
+                               NIL))
+                      (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                      (GO LOOPLABEL)))
+            (SETQ RES (REVAL3 (APPEND (LIST 'PLUS) X)))))
+          (T
+           (SETQ RES
+                   (PHYSOPPLUS
+                    (LIST (PHYSOPTIMES (LIST LHT RHT))
+                          (PHYSOPTIMES (LIST RHT LHT)))))))
+         NIL)))
+      (RETURN RES))) 
+(PUT 'ANTICOMMUTE 'PHYSTYPE 'SCALAR) 
+(PUT 'COMMSIMP 'NUMBER-OF-ARGS 1) 
+(PUT 'COMMSIMP 'DEFINED-ON-LINE '1968) 
+(PUT 'COMMSIMP 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'COMMSIMP 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE COMMSIMP (U)
+    (PROG (OPNAME X Y FLG RES)
+      (SETQ OPNAME (CAR U))
+      (SETQ X (PHYSOPSIM* (CADR U)))
+      (SETQ Y (PHYSOPSIM* (CADDR U)))
+      (SETQ FLG *ANTICOM)
+      (COND ((EQUAL OPNAME 'ANTICOMM) (SETQ *ANTICOM T)))
+      (SETQ RES
+              (COND ((AND (PHYSOPP X) (PHYSOPP Y)) (PHYSOPAEVAL (COMM2 X Y)))
+                    ((EQ OPNAME 'COMM)
+                     (LIST 'COMMUTE (PHYSOPAEVAL X) (PHYSOPAEVAL Y)))
+                    (T (LIST 'ANTICOMMUTE (PHYSOPAEVAL X) (PHYSOPAEVAL Y)))))
+      (SETQ *ANTICOM FLG)
+      (RETURN RES))) 
+(PHYSOPFN 'OPAPPLY 'PHYSOPAPPLY) 
+(INFIX (LIST 'OPAPPLY)) 
+(PRECEDENCE (LIST 'OPAPPLY 'DIFFERENCE)) 
+(PUT 'PHYSOPAPPLY 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPAPPLY 'DEFINED-ON-LINE '1994) 
+(PUT 'PHYSOPAPPLY 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPAPPLY 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPAPPLY (ARGS)
+    (PROG (LHTYPE RHTYPE WAVE OP WAVEFCT RES X Y FLG)
+      (SETQ LHTYPE (STATEP* (CAR ARGS)))
+      (SETQ RHTYPE (STATEP* (CADR ARGS)))
+      (COND ((AND RHTYPE LHTYPE) (RETURN (STATEMULT (CAR ARGS) (CADR ARGS))))
+            (RHTYPE
+             (PROGN
+              (SETQ WAVE (PHYSOPAEVAL (PHYSOPSIM* (CADR ARGS))))
+              (SETQ OP (PHYSOPAEVAL (PHYSOPSIM* (CAR ARGS))))))
+            (LHTYPE
+             (PROGN
+              (SETQ WAVE (PHYSOPAEVAL (PHYSOPADJ (LIST (CAR ARGS)))))
+              (SETQ OP (PHYSOPAEVAL (PHYSOPADJ (CDR ARGS))))))
+            ((OR (ZEROP (CAR ARGS)) (ZEROP (CADR ARGS)))
+             (RETURN (MK*SQ (CONS NIL 1))))
+            (T (REDERR2 'OPAPPLY "invalid arguments to opapply")))
+      (COND
+       ((NULL (GETPHYSTYPE OP))
+        (SETQ RES (MK*SQ (MULTSQ (PHYSOP2SQ OP) (PHYSOP2SQ WAVE)))))
+       ((NOT (PHYSOPP OP))
+        (COND
+         ((EQ (CAR OP) 'MINUS)
+          (SETQ RES
+                  (MK*SQ
+                   (NEGSQ (PHYSOP2SQ (PHYSOPAPPLY (LIST (CADR OP) WAVE)))))))
+         ((MEMQ (CAR OP) '(PLUS DIFFERENCE))
+          (PROGN
+           (PROG (Y)
+             (SETQ Y (CDR OP))
+            LAB
+             (COND ((NULL Y) (RETURN NIL)))
+             ((LAMBDA (Y)
+                (PROGN
+                 (SETQ RES (NCONC RES (LIST (PHYSOPAPPLY (LIST Y WAVE)))))
+                 (COND (*HARDSTOP (SETQ FLG T)))
+                 (SETQ *HARDSTOP NIL)
+                 NIL))
+              (CAR Y))
+             (SETQ Y (CDR Y))
+             (GO LAB))
+           (COND (FLG (SETQ *HARDSTOP T)))
+           (SETQ RES (REVAL3 (CONS (CAR OP) RES)))))
+         ((MEMQ (CAR OP) '(DOT COMMUTE ANTICOMMUTE EXPT))
+          (SETQ RES (PHYSOPAPPLY (LIST (PHYSOPSIM* OP) WAVE))))
+         ((EQ (CAR OP) 'QUOTIENT)
+          (COND
+           ((PHYSOPP (CADDR OP))
+            (SETQ RES (PHYSOPAPPLY (LIST (PHYSOPSIM* OP) WAVE))))
+           (T
+            (SETQ RES
+                    (MK*SQ
+                     (MULTSQ (PHYSOP2SQ (PHYSOPAPPLY (LIST (CADR OP) WAVE)))
+                             (INVSQ (PHYSOP2SQ (CADDR OP)))))))))
+         ((EQ (CAR OP) 'TIMES)
+          (PROGN
+           (SETQ OP (REVERSE (CDR OP)))
+           (PROG ()
+            WHILELABEL
+             (COND ((NOT OP) (RETURN NIL)))
+             (PROGN
+              (SETQ X (CAR OP))
+              (SETQ OP (CDR OP))
+              (SETQ WAVE (PHYSOPAPPLY (LIST X WAVE))))
+             (GO WHILELABEL))
+           (COND
+            (*HARDSTOP
+             (COND ((NULL OP) (SETQ RES WAVE))
+                   (T
+                    (PROGN
+                     (SETQ X (PHYSOPAEVAL WAVE))
+                     (SETQ OP (CONS 'TIMES (REVERSE OP)))
+                     (PROG ()
+                      WHILELABEL
+                       (COND ((NOT X) (RETURN NIL)))
+                       (PROGN
+                        (SETQ Y (CAR X))
+                        (SETQ X (CDR X))
+                        (COND
+                         ((AND (LISTP Y) (SETQ Y (ASSOC 'OPAPPLY Y)))
+                          (PROGN
+                           (SETQ WAVEFCT
+                                   (LIST 'OPAPPLY (NCONC OP (LIST (CADR Y)))
+                                         (CADDR Y)))
+                           (SETQ WAVE (SUBST WAVEFCT Y WAVE))
+                           NIL)))
+                        NIL)
+                       (GO WHILELABEL))
+                     (SETQ RES WAVE)
+                     NIL))))
+            (T (SETQ RES WAVE)))
+           NIL))
+         (T (REDERR2 'OPAPPLY "invalid operator to opapply"))))
+       ((EQUAL OP 'UNIT) (SETQ RES (MK*SQ (PHYSOP2SQ WAVE))))
+       ((OR (PHYSOPP WAVE) (EQCAR WAVE 'OPAPPLY)
+            (AND (FLAGP (CAR WAVE) 'PHYSOPMAPPING) (STATEP* (CDR WAVE))))
+        (PROGN
+         (SETQ X (OPMTCH* (LIST 'OPAPPLY OP WAVE)))
+         (COND
+          ((NULL X)
+           (SETQ X
+                   (PHYSOPADJ
+                    (LIST (OPMTCH* (LIST 'OPAPPLY (ADJP WAVE) (ADJP OP))))))))
+         (COND
+          ((NULL X)
+           (PROGN
+            (SETQ *HARDSTOP T)
+            (SETQ RES
+                    (MK*SQ
+                     (CONS
+                      (LIST
+                       (CONS (GETPOWER (FKERN (LIST 'OPAPPLY OP WAVE)) 1) 1))
+                      1)))
+            NIL))
+          (T (SETQ RES (MK*SQ (PHYSOP2SQ X)))))
+         NIL))
+       (T
+        (PROGN
+         (SETQ X WAVE)
+         (SETQ WAVE NIL)
+         (PROG ()
+          WHILELABEL
+           (COND ((NOT X) (RETURN NIL)))
+           (PROGN
+            (SETQ WAVEFCT (CAR X))
+            (SETQ X (CDR X))
+            (COND
+             ((STATEP* WAVEFCT)
+              (SETQ WAVE
+                      (NCONC WAVE
+                             (LIST
+                              (PHYSOPAEVAL (PHYSOPAPPLY (LIST OP WAVEFCT)))))))
+             (T (SETQ WAVE (NCONC WAVE (LIST WAVEFCT)))))
+            (COND (*HARDSTOP (SETQ FLG T)))
+            (SETQ *HARDSTOP NIL))
+           (GO WHILELABEL))
+         (COND (FLG (SETQ *HARDSTOP T)))
+         (SETQ RES (MK*SQ (PHYSOP2SQ WAVE)))
+         NIL)))
+      (RETURN RES))) 
+(PUT 'OPAPPLY 'PHYSTYPEFN 'GETPHYSTYPESTATE) 
+(PUT 'GETPHYSTYPESTATE 'NUMBER-OF-ARGS 1) 
+(PUT 'GETPHYSTYPESTATE 'DEFINED-ON-LINE '2082) 
+(PUT 'GETPHYSTYPESTATE 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'GETPHYSTYPESTATE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE GETPHYSTYPESTATE (ARGS)
+    (COND ((AND (STATEP* (CAR ARGS)) (STATEP* (CADR ARGS))) NIL) (T 'STATE))) 
+(PUT 'STATEMULT 'NUMBER-OF-ARGS 2) 
+(PUT 'STATEMULT 'DEFINED-ON-LINE '2086) 
+(PUT 'STATEMULT 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'STATEMULT 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE STATEMULT (U V)
+    (PROG (X Y RES FLG)
+      (COND
+       ((NOT (OR (STATEP* U) (STATEP* V)))
+        (REDERR2 'STATEMULT "invalid args to statemult")))
+      (COND ((EQCAR V 'OPAPPLY) (RETURN (EXPECTVAL U (CADR V) (CADDR V)))))
+      (COND ((EQCAR U 'OPAPPLY) (RETURN (EXPECTVAL (CADR U) (CADDR U) V))))
+      (SETQ U (PHYSOPAEVAL (PHYSOPSIM* U)))
+      (SETQ V (PHYSOPAEVAL (PHYSOPSIM* V)))
+      (COND
+       ((PHYSOPP U)
+        (COND
+         ((PHYSOPP V)
+          (PROGN
+           (SETQ X (OPMTCH* (LIST 'OPAPPLY U V)))
+           (COND (X (SETQ RES (PHYSOP2SQ (REVAL1 X NIL))))
+                 (T
+                  (PROGN
+                   (SETQ X (OPMTCH* (LIST 'OPAPPLY V U)))
+                   (COND
+                    ((NULL X)
+                     (PROGN
+                      (SETQ *HARDSTOP T)
+                      (SETQ RES
+                              (CONS
+                               (LIST
+                                (CONS (GETPOWER (FKERN (LIST 'OPAPPLY U V)) 1)
+                                      1))
+                               1))))
+                    (T (SETQ RES (PHYSOP2SQ (REVAL1 (COMPCONJ X) NIL))))))))
+           NIL))
+         (T
+          (PROGN
+           (SETQ X (DELETEMULT* (*COLLECTPHYSOPS V)))
+           (PROG (Y)
+             (SETQ Y X)
+            LAB
+             (COND ((NULL Y) (RETURN NIL)))
+             ((LAMBDA (Y)
+                (PROGN
+                 (SETQ V (SUBST (PHYSOPAEVAL (STATEMULT U Y)) Y V))
+                 (COND (*HARDSTOP (SETQ FLG T)))
+                 (SETQ *HARDSTOP NIL)
+                 NIL))
+              (CAR Y))
+             (SETQ Y (CDR Y))
+             (GO LAB))
+           (COND (FLG (SETQ *HARDSTOP T)))
+           (SETQ RES (PHYSOP2SQ V))
+           NIL))))
+       (T
+        (PROGN
+         (SETQ X (DELETEMULT* (*COLLECTPHYSOPS U)))
+         (PROG (Y)
+           (SETQ Y X)
+          LAB
+           (COND ((NULL Y) (RETURN NIL)))
+           ((LAMBDA (Y)
+              (PROGN
+               (SETQ U (SUBST (PHYSOPAEVAL (STATEMULT Y V)) Y U))
+               (COND (*HARDSTOP (SETQ FLG T)))
+               (SETQ *HARDSTOP NIL)
+               NIL))
+            (CAR Y))
+           (SETQ Y (CDR Y))
+           (GO LAB))
+         (COND (FLG (SETQ *HARDSTOP T)))
+         (SETQ RES (PHYSOP2SQ U))
+         NIL)))
+      (RETURN (MK*SQ RES)))) 
+(PUT 'EXPECTVAL 'NUMBER-OF-ARGS 3) 
+(PUT 'EXPECTVAL 'DEFINED-ON-LINE '2141) 
+(PUT 'EXPECTVAL 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'EXPECTVAL 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE EXPECTVAL (U OP V)
+    (PROG (X Y Z FLG RES)
+      (SETQ OP (PHYSOPAEVAL (PHYSOPSIM* OP)))
+      (COND
+       ((NULL (GETPHYSTYPE OP))
+        (RETURN
+         (MK*SQ
+          (MULTSQ (PHYSOP2SQ OP) (PHYSOP2SQ (PHYSOPAPPLY (LIST U V))))))))
+      (COND
+       ((PHYSOPP OP)
+        (PROGN
+         (SETQ X (PHYSOPAPPLY (LIST OP V)))
+         (COND
+          (*HARDSTOP
+           (PROGN
+            (SETQ *HARDSTOP NIL)
+            (SETQ X (PHYSOPAPPLY (LIST U OP)))
+            (SETQ RES
+                    (COND
+                     (*HARDSTOP
+                      (MK*SQ
+                       (CONS
+                        (LIST
+                         (CONS
+                          (GETPOWER
+                           (FKERN (LIST 'OPAPPLY (LIST 'OPAPPLY U OP) V)) 1)
+                          1))
+                        1)))
+                     (T (PHYSOPAPPLY (LIST X V)))))))
+          (T (SETQ RES (PHYSOPAPPLY (LIST U X)))))))
+       ((EQ (CAR OP) 'MINUS)
+        (SETQ RES (MK*SQ (NEGSQ (PHYSOP2SQ (EXPECTVAL U (CADR OP) V))))))
+       ((EQ (CAR OP) 'QUOTIENT)
+        (COND ((PHYSOPP (CADDR OP)) (SETQ RES (EXPECTVAL U (PHYSOPSM* OP) V)))
+              (T
+               (SETQ RES
+                       (MK*SQ
+                        (MULTSQ (PHYSOP2SQ (EXPECTVAL U (CADR OP) V))
+                                (INVSQ (PHYSOP2SQ (CADDR OP)))))))))
+       ((MEMQ (CAR OP) '(DOT COMMUTE ANTICOMMUTE EXPT))
+        (SETQ RES (EXPECTVAL U (PHYSOPSM* OP) V)))
+       ((MEMQ (CAR OP) '(PLUS DIFFERENCE))
+        (PROGN
+         (PROG (Y)
+           (SETQ Y (CDR OP))
+          LAB
+           (COND ((NULL Y) (RETURN NIL)))
+           ((LAMBDA (Y)
+              (PROGN
+               (SETQ X (NCONC X (LIST (EXPECTVAL U Y V))))
+               (COND (*HARDSTOP (SETQ FLG *HARDSTOP)))
+               (SETQ *HARDSTOP NIL)))
+            (CAR Y))
+           (SETQ Y (CDR Y))
+           (GO LAB))
+         (COND (FLG (SETQ *HARDSTOP T)))
+         (SETQ RES (REVAL3 (CONS (CAR OP) X)))
+         NIL))
+       ((EQ (CAR OP) 'TIMES)
+        (PROGN
+         (SETQ X (PHYSOPAPPLY (LIST OP V)))
+         (COND ((NOT *HARDSTOP) (RETURN (PHYSOPAPPLY (LIST U X)))))
+         (SETQ X (CDR OP))
+         (PROG ()
+          WHILELABEL
+           (COND ((NOT (AND X *HARDSTOP (NOT FLG))) (RETURN NIL)))
+           (PROGN
+            (SETQ Y (CAR X))
+            (SETQ X (CDR X))
+            (COND
+             ((NOT (GETPHYSTYPE Y))
+              (PROGN (SETQ V (PHYSOPAPPLY (LIST Y V))) (SETQ Y V) NIL))
+             (T
+              (PROGN
+               (SETQ *HARDSTOP NIL)
+               (SETQ Z (PHYSOPAPPLY (LIST U Y)))
+               (COND
+                (*HARDSTOP
+                 (PROGN
+                  (SETQ FLG T)
+                  (SETQ X (CONS Y X))
+                  (SETQ Y
+                          (COND
+                           ((NULL (CDR X))
+                            (LIST 'OPAPPLY (CAR X) (PHYSOPAEVAL V)))
+                           (T
+                            (LIST 'OPAPPLY (CONS 'TIMES X) (PHYSOPAEVAL V)))))
+                  NIL))
+                (T
+                 (PROGN
+                  (SETQ U Z)
+                  (SETQ Y
+                          (COND ((NULL X) V)
+                                ((NULL (CDR X))
+                                 (PHYSOPAPPLY (LIST (CAR X) (PHYSOPAEVAL V))))
+                                (T
+                                 (PHYSOPAPPLY
+                                  (LIST (CONS 'TIMES X)
+                                        (PHYSOPAEVAL V)))))))))))))
+           (GO WHILELABEL))
+         (SETQ RES
+                 (COND
+                  (*HARDSTOP
+                   (MK*SQ
+                    (CONS
+                     (LIST
+                      (CONS
+                       (GETPOWER
+                        (FKERN (LIST 'OPAPPLY (PHYSOPAEVAL U) (PHYSOPAEVAL Y)))
+                        1)
+                       1))
+                     1)))
+                  (T (PHYSOPAPPLY (LIST U Y)))))
+         NIL))
+       (T (REDERR2 'EXPECTVAL "invalid args to expectval")))
+      (RETURN RES))) 
+(PUT 'COMPCONJ 'NUMBER-OF-ARGS 1) 
+(PUT 'COMPCONJ 'DEFINED-ON-LINE '2210) 
+(PUT 'COMPCONJ 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'COMPCONJ 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE COMPCONJ (U)
+    (PROG (X)
+      (COND ((OR (NULL U) (NUMBERP U)) (RETURN U))
+            ((AND (IDP U) (SETQ X (GET U 'RVALUE)))
+             (PROGN
+              (SETQ X (SUBST (LIST 'MINUS 'I) 'I X))
+              (PUT U 'RVALUE X)
+              (RETURN U)))
+            (T (RETURN (SUBST (LIST 'MINUS 'I) 'I U)))))) 
+(PHYSOPFN 'ADJ 'PHYSOPADJ) 
+(PUT 'PHYSOPADJ 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPADJ 'DEFINED-ON-LINE '2225) 
+(PUT 'PHYSOPADJ 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPADJ 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPADJ (ARG)
+    (PROG (RHT RHTYPE X N RES)
+      (SETQ RHT (PHYSOPAEVAL (PHYSOPSIM* (CAR ARG))))
+      (SETQ RHTYPE (PHYSOPP RHT))
+      (COND
+       (RHTYPE
+        (RETURN
+         (MK*SQ
+          (CONS (LIST (CONS (GETPOWER (FKERN (PHYSOPSM* (ADJP RHT))) 1) 1))
+                1))))
+       (T
+        (PROGN
+         (COND ((NOT (GETPHYSTYPE RHT)) (SETQ RES (REVAL1 (COMPCONJ RHT) NIL)))
+               ((EQ (CAR RHT) 'MINUS)
+                (SETQ RES
+                        (MK*SQ
+                         (NEGSQ (PHYSOP2SQ (PHYSOPADJ (LIST (CADR RHT))))))))
+               ((EQ (CAR RHT) 'DIFFERENCE)
+                (SETQ RES
+                        (MK*SQ
+                         (ADDSQ (PHYSOP2SQ (PHYSOPADJ (LIST (CADR RHT))))
+                                (NEGSQ
+                                 (PHYSOP2SQ
+                                  (PHYSOPADJ (LIST (CADDR RHT)))))))))
+               ((EQ (CAR RHT) 'PLUS)
+                (PROGN
+                 (SETQ X
+                         (PROG (Y FORALL-RESULT FORALL-ENDPTR)
+                           (SETQ Y (CDR RHT))
+                           (COND ((NULL Y) (RETURN NIL)))
+                           (SETQ FORALL-RESULT
+                                   (SETQ FORALL-ENDPTR
+                                           (CONS
+                                            ((LAMBDA (Y) (PHYSOPADJ (LIST Y)))
+                                             (CAR Y))
+                                            NIL)))
+                          LOOPLABEL
+                           (SETQ Y (CDR Y))
+                           (COND ((NULL Y) (RETURN FORALL-RESULT)))
+                           (RPLACD FORALL-ENDPTR
+                                   (CONS
+                                    ((LAMBDA (Y) (PHYSOPADJ (LIST Y))) (CAR Y))
+                                    NIL))
+                           (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                           (GO LOOPLABEL)))
+                 (SETQ RES (REVAL3 (CONS 'PLUS X)))))
+               ((EQ (CAR RHT) 'QUOTIENT)
+                (PROGN
+                 (COND
+                  ((NOT (GETPHYSTYPE (CADR RHT)))
+                   (REDERR2 'PHYSOPADJ "invalid argument to ADJ"))
+                  (T
+                   (SETQ RES
+                           (MK*SQ
+                            (MULTSQ (PHYSOP2SQ (PHYSOPADJ (LIST (CADR RHT))))
+                                    (INVSQ (PHYSOP2SQ (CADDR RHT))))))))))
+               ((EQ (CAR RHT) 'TIMES)
+                (PROGN
+                 (SETQ X
+                         (PROG (Y FORALL-RESULT FORALL-ENDPTR)
+                           (SETQ Y (CDR RHT))
+                           (COND ((NULL Y) (RETURN NIL)))
+                           (SETQ FORALL-RESULT
+                                   (SETQ FORALL-ENDPTR
+                                           (CONS
+                                            ((LAMBDA (Y) (PHYSOPADJ (LIST Y)))
+                                             (CAR Y))
+                                            NIL)))
+                          LOOPLABEL
+                           (SETQ Y (CDR Y))
+                           (COND ((NULL Y) (RETURN FORALL-RESULT)))
+                           (RPLACD FORALL-ENDPTR
+                                   (CONS
+                                    ((LAMBDA (Y) (PHYSOPADJ (LIST Y))) (CAR Y))
+                                    NIL))
+                           (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                           (GO LOOPLABEL)))
+                 (SETQ RES (PHYSOPTIMES (REVERSE X)))))
+               ((FLAGP (CAR RHT) 'PHYSOPMAPPING)
+                (SETQ RES
+                        (MK*SQ
+                         (CONS
+                          (LIST
+                           (CONS
+                            (GETPOWER
+                             (FKERN
+                              (LIST (CAR RHT)
+                                    (PHYSOPAEVAL (PHYSOPADJ (CDR RHT)))))
+                             1)
+                            1))
+                          1))))
+               (T (SETQ RES (PHYSOPADJ (LIST (PHYSOPSIM* RHT)))))))))
+      (RETURN RES))) 
+(PUT 'ADJ 'PHYSTYPEFN 'GETPHYSTYPECAR) 
+(PUT 'ADJ2 'NUMBER-OF-ARGS 1) 
+(PUT 'ADJ2 'DEFINED-ON-LINE '2256) 
+(PUT 'ADJ2 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'ADJ2 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE ADJ2 (U)
+    (PROG (X Y)
+      (COND ((NOT (PHYSOPP U)) (REDERR2 'ADJ2 "invalid argument to adj2")))
+      (COND ((EQUAL U 'UNIT) (RETURN U)))
+      (SETQ Y (COND ((IDP U) U) (T (CAR U))))
+      (SETQ X (REVERSE (EXPLODE Y)))
+      (SETQ X (INTERN (COMPRESS (NCONC (REVERSE X) (LIST '! '+)))))
+      (PUT Y 'ADJOINT X)
+      (PUT X 'ADJOINT Y)
+      (PUT X 'PHYSOPNAME X)
+      (COND
+       ((NOT (PHYSOPP X))
+        (PROGN
+         (PUT X 'RTYPE 'PHYSOP)
+         (PUT X 'PHYSTYPE (GET Y 'PHYSTYPE))
+         (PUT X 'PSIMPFN 'PHYSOPSIMP)
+         (PUT X 'TENSDIMEN (GET Y 'TENSDIMEN))
+         (SETQ DEFOPORDER* (NCONC DEFOPORDER* (LIST X)))
+         (SETQ OPORDER* (NCONC OPORDER* (LIST X)))
+         (SETQ PHYSOPLIST* (NCONC PHYSOPLIST* (LIST X)))
+         NIL)))
+      (COND ((IDP U) (RETURN X)) (T (RETURN (CONS X (CDR U))))))) 
+(PUT 'INVADJ 'NUMBER-OF-ARGS 1) 
+(PUT 'INVADJ 'DEFINED-ON-LINE '2278) 
+(PUT 'INVADJ 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'INVADJ 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE INVADJ (U)
+    (PROG (X Y)
+      (COND ((NOT (PHYSOPP U)) (REDERR2 'INVADJ "invalid argument to invadj")))
+      (COND ((EQUAL U 'UNIT) (RETURN U)))
+      (SETQ Y (COND ((IDP U) U) (T (CAR U))))
+      (SETQ X (REVERSE (EXPLODE Y)))
+      (SETQ X (INTERN (COMPRESS (NCONC (REVERSE X) (LIST '! '+ '! '- '|1|)))))
+      (PUT X 'ADJOINT (GET Y 'INVERSE))
+      (PUT X 'INVERSE (GET Y 'ADJOINT))
+      (PUT (GET Y 'INVERSE) 'ADJOINT X)
+      (PUT (GET Y 'ADJOINT) 'INVERSE X)
+      (PUT X 'PHYSOPNAME (GET Y 'ADJOINT))
+      (COND
+       ((NOT (PHYSOPP X))
+        (PROGN
+         (PUT X 'RTYPE 'PHYSOP)
+         (PUT X 'PHYSTYPE (GET Y 'PHYSTYPE))
+         (PUT X 'PSIMPFN 'PHYSOPSIMP)
+         (PUT X 'TENSDIMEN (GET Y 'TENSDIMEN))
+         (SETQ PHYSOPLIST* (NCONC PHYSOPLIST* (LIST X)))
+         NIL)))
+      (COND ((IDP U) (RETURN X)) (T (RETURN (CONS X (CDR U))))))) 
+(PUT 'ADJP 'NUMBER-OF-ARGS 1) 
+(PUT 'ADJP 'DEFINED-ON-LINE '2301) 
+(PUT 'ADJP 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'ADJP 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE ADJP (U)
+    (COND ((EQUAL U 'UNIT) U) ((ATOM U) (GET U 'ADJOINT))
+          ((EQUAL (CAR U) 'COMM) (LIST 'COMM (ADJP (CADDR U)) (ADJP (CADR U))))
+          ((EQUAL (CAR U) 'ANTICOMM)
+           (LIST 'ANTICOMM (ADJP (CADR U)) (ADJP (CADDR U))))
+          (T (CONS (GET (CAR U) 'ADJOINT) (CDR U))))) 
+(PUT 'PHYSOPTYPELET 'NUMBER-OF-ARGS 5) 
+(PUT 'PHYSOPTYPELET 'DEFINED-ON-LINE '2315) 
+(PUT 'PHYSOPTYPELET 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPTYPELET 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL GENERAL GENERAL) GENERAL)) 
+(DE PHYSOPTYPELET (U V LTYPE B RTYPE)
+    (PROG (X Y N U1 V1 Z CONTRACT)
+      (COND ((AND (NOT (PHYSOPP U)) (GETPHYSTYPE U)) (GO C)))
+      (SETQ U1 (COND ((ATOM U) U) (T (CAR U))))
+      (COND
+       (LTYPE
+        (COND ((EQUAL RTYPE LTYPE) (GO A))
+              ((OR (NULL B) (ZEROP V)
+                   (AND (LISTP V)
+                        (OR (EQUAL (CAR V) 'PROG) (EQUAL (CAR V) 'COND)))
+                   (AND (NOT (ATOM U)) (EQUAL (CAR U) 'OPAPPLY)))
+               (RETURN (PHYSOPSET U V B)))
+              (T
+               (REDERR2 'PHYSOPTYPELET
+                (LIST "physop type mismatch in assignement " U " := " V)))))
+       ((NULL (SETQ X (GETPHYSTYPE V))) (RETURN (PHYSOPSET U V B)))
+       (T
+        (PROGN
+         (COND ((EQUAL X 'SCALAR) (SCALOP (LIST U1))))
+         (COND ((EQUAL X 'VECTOR) (VECOP (LIST U1))))
+         (COND ((EQUAL X 'STATE) (STATE (LIST U1))))
+         (COND
+          ((EQUAL X 'TENSOR)
+           (TENSOP (LIST (LIST 'LIST U1 (LIST 'GET V 'TENSDIMEN))))))
+         (SETQ LTYPE RTYPE))))
+     A
+      (COND ((AND B (OR (NOT (ATOM U)) (FLAGP U 'USED*))) (RMSUBS)))
+      (PHYSOPSET U V B)
+      (COND
+       ((AND B (NEQ (GETPHYSTYPE U) (GETPHYSTYPE V)))
+        (REDERR2 'PHYSOPTYPELET
+         (LIST "physop type mismatch in assignement " U " <=> " V))))
+      (COND
+       ((AND (NOT (ATOM U)) (EQUAL (CAR U) 'COMM))
+        (PHYSOPSET (LIST 'COMM (ADJP (CADDR U)) (ADJP (CADR U))) (LIST 'ADJ V)
+         B)))
+      (COND
+       ((AND (NOT (ATOM U)) (EQUAL (CAR U) 'ANTICOMM))
+        (PHYSOPSET (LIST (CAR U) (ADJP (CADR U)) (ADJP (CADDR U)))
+         (LIST 'ADJ V) B)))
+      (COND
+       ((OR (NULL (SETQ X (GETPHYSTYPE U))) (EQUAL X 'STATE) (EQUAL X 'SCALAR))
+        (RETURN NIL)))
+      (SETQ U1 U)
+      (SETQ V1 V)
+      (COND
+       ((OR (EQ X 'VECTOR) (EQ X 'TENSOR))
+        (PROGN
+         (SETQ X (COLLECTPHYSOPS U))
+         (PROG (Z)
+           (SETQ Z X)
+          LAB
+           (COND ((NULL Z) (RETURN NIL)))
+           ((LAMBDA (Z) (SETQ U1 (SUBST (INSERTFREEINDICES Z NIL) Z U1)))
+            (CAR Z))
+           (SETQ Z (CDR Z))
+           (GO LAB))
+         (SETQ X (COLLECTPHYSOPS V))
+         (PROG (Z)
+           (SETQ Z X)
+          LAB
+           (COND ((NULL Z) (RETURN NIL)))
+           ((LAMBDA (Z) (SETQ V1 (SUBST (INSERTFREEINDICES Z NIL) Z V1)))
+            (CAR Z))
+           (SETQ Z (CDR Z))
+           (GO LAB)))))
+      (PHYSOPTYPELET U1 V1 LTYPE B RTYPE)
+      (RETURN NIL)
+     C
+      (COND ((EQUAL (CAR U) 'OPAPPLY) (RETURN (PHYSOPSET U V B))))
+      (SETQ *INDFLG T)
+      (SETQ INDCNT* 0)
+      (SETQ CONTRACT *CONTRACT2)
+      (SETQ *CONTRACT2 T)
+      (SETQ U (PHYSOPSM* U))
+      (SETQ *INDFLG NIL)
+      (SETQ INDCNT* 0)
+      (SETQ *CONTRACT2 CONTRACT)
+      (SETQ X (GETPHYSTYPE U))
+      (SETQ Y (GETPHYSTYPE V))
+      (COND
+       ((AND B (OR (NOT (OR Y (ZEROP V))) (AND Y (NEQ X Y))))
+        (REDERR2 'PHYSOPTYPELET "phystype mismatch in LET")))
+      (SETQ U (PHYSOPAEVAL U))
+      (COND
+       ((EQUAL (CAR U) 'PLUS)
+        (PROGN
+         (SETQ U1 (CDDR U))
+         (SETQ U (CADR U))
+         (SETQ V (LIST 'PLUS V))
+         (PROG (X)
+           (SETQ X U1)
+          LAB
+           (COND ((NULL X) (RETURN NIL)))
+           ((LAMBDA (X)
+              (PROGN
+               (SETQ X (LIST 'MINUS X))
+               (SETQ V (APPEND V (LIST X)))
+               NIL))
+            (CAR X))
+           (SETQ X (CDR X))
+           (GO LAB))
+         NIL)))
+      (COND
+       ((EQUAL (CAR U) 'DIFFERENCE)
+        (PROGN
+         (SETQ U1 (CDDR U))
+         (SETQ U (CADR U))
+         (SETQ V (APPEND (LIST 'PLUS V) (LIST U1)))
+         NIL)))
+      (COND
+       ((EQUAL (CAR U) 'MINUS)
+        (PROGN (SETQ U (CADR U)) (SETQ V (LIST 'MINUS V)) NIL)))
+      (COND
+       ((EQUAL (CAR U) 'EXPT)
+        (PROGN
+         (SETQ U (CONS (CADR U) (CADDR U)))
+         (SETQ POWLIS1*
+                 (XADD*
+                  (CONS U (LIST (CONS NIL (COND (MCOND* MCOND*) (T T))) V NIL))
+                  POWLIS1* B))))
+       ((EQUAL (CAR U) 'QUOTIENT)
+        (PROGN
+         (SETQ V (LIST 'TIMES V (CADDR U)))
+         (PHYSOPTYPELET (CADR U) V LTYPE B RTYPE)
+         NIL))
+       (T
+        (PROGN
+         (SETQ U1 NIL)
+         (PROG (X)
+           (SETQ X (CDR U))
+          LAB
+           (COND ((NULL X) (RETURN NIL)))
+           ((LAMBDA (X)
+              (PROGN
+               (COND
+                ((EQUAL (CAR X) 'EXPT)
+                 (SETQ U1 (APPEND U1 (LIST (CONS (CADR X) (CADDR X))))))
+                ((EQUAL (CAR X) 'QUOTIENT)
+                 (PROGN
+                  (SETQ V (LIST 'TIMES V (CADDR X)))
+                  (SETQ U1
+                          (APPEND U1
+                                  (LIST
+                                   (COND
+                                    ((EQUAL (CADR X) 'EXPT)
+                                     (CONS (CADDR X) (CADDDR X)))
+                                    (T (CONS (CADR X) 1))))))
+                  NIL))
+                (T (SETQ U1 (APPEND U1 (LIST (CONS X 1))))))
+               NIL))
+            (CAR X))
+           (SETQ X (CDR X))
+           (GO LAB))
+         (SETQ *MATCH
+                 (XADD*
+                  (CONS U1
+                        (LIST (CONS NIL (COND (MCOND* MCOND*) (T T))) V NIL))
+                  *MATCH B))
+         NIL)))
+      (RETURN NIL))) 
+(PUT 'PHYSOPSET 'NUMBER-OF-ARGS 3) 
+(PUT 'PHYSOPSET 'DEFINED-ON-LINE '2449) 
+(PUT 'PHYSOPSET 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPSET 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE PHYSOPSET (U V B)
+    (PROG ()
+      (COND
+       ((NOT (ATOM U))
+        (PUT (CAR U) 'OPMTCH
+             (XADD*
+              (CONS (CDR U)
+                    (LIST (CONS NIL (COND (MCOND* MCOND*) (T T))) V NIL))
+              (GET (CAR U) 'OPMTCH) B)))
+       (B
+        (COND ((PHYSOPP U) (PUT U 'RVALUE (PHYSOPSIM* V)))
+              (T
+               (PUT U 'AVALUE
+                    (LIST 'SCALAR
+                          (LIST '*SQ (CADR (PHYSOPSIM* V))
+                                (NOT *HARDSTOP)))))))
+       ((NOT (MEMBER U SPECOPLIST*))
+        (PROGN (REMPROP U 'RVALUE) (REMPROP U 'OPMTCH) NIL)))
+      (SETQ *HARDSTOP NIL))) 
+(PUT 'CLEARPHYSOP 'NUMBER-OF-ARGS 1) 
+(PUT 'CLEARPHYSOP 'DEFINED-ON-LINE '2467) 
+(PUT 'CLEARPHYSOP 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'CLEARPHYSOP 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE CLEARPHYSOP (U)
+    (PROG (Y)
+      (PROG (X)
+        (SETQ X U)
+       LAB
+        (COND ((NULL X) (RETURN NIL)))
+        ((LAMBDA (X)
+           (PROGN
+            (COND
+             ((NOT (AND (PHYSOPP X) (IDP X)))
+              (REDERR2 'CLEARPHYSOP
+               (LIST "invalid argument " X " to CLEARPHYSOP"))))
+            (SETQ Y (INVP X))
+            (REMPROP Y 'RTYPE)
+            (REMPROP Y 'TENSDIMEN)
+            (REMPROP Y 'PHYSTYPE)
+            (REMPROP Y 'PSIMPFN)
+            (REMPROP Y 'INVERSE)
+            (REMPROP Y 'ADJOINT)
+            (REMPROP Y 'RVALUE)
+            (SETQ OPORDER* (DELETE Y OPORDER*))
+            (SETQ DEFOPORDER* (DELETE Y DEFOPORDER*))
+            (SETQ PHYSOPLIST* (DELETE Y PHYSOPLIST*))
+            (SETQ Y (ADJP X))
+            (REMPROP Y 'RTYPE)
+            (REMPROP Y 'TENSDIMEN)
+            (REMPROP Y 'PHYSTYPE)
+            (REMPROP Y 'PSIMPFN)
+            (REMPROP Y 'INVERSE)
+            (REMPROP Y 'ADJOINT)
+            (REMPROP Y 'RVALUE)
+            (SETQ OPORDER* (DELETE Y OPORDER*))
+            (SETQ DEFOPORDER* (DELETE Y DEFOPORDER*))
+            (SETQ PHYSOPLIST* (DELETE Y PHYSOPLIST*))
+            (REMPROP X 'RTYPE)
+            (REMPROP X 'TENSDIMEN)
+            (REMPROP X 'PHYSTYPE)
+            (REMPROP X 'PSIMPFN)
+            (REMPROP X 'INVERSE)
+            (REMPROP X 'ADJOINT)
+            (REMPROP X 'RVALUE)
+            (SETQ OPORDER* (DELETE X OPORDER*))
+            (SETQ DEFOPORDER* (DELETE X DEFOPORDER*))
+            (SETQ PHYSOPLIST* (DELETE X PHYSOPLIST*))
+            NIL))
+         (CAR X))
+        (SETQ X (CDR X))
+        (GO LAB))
+      (RETURN NIL))) 
+(RLISTAT '(CLEARPHYSOP)) 
+(PUT 'PHYSOPPRI 'NUMBER-OF-ARGS 1) 
+(PUT 'PHYSOPPRI 'DEFINED-ON-LINE '2518) 
+(PUT 'PHYSOPPRI 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'PHYSOPPRI 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE PHYSOPPRI (U)
+    (PROG (X Y Z X1)
+      (SETQ X (COND ((IDP U) U) (T (CAR U))))
+      (SETQ Y (COND ((IDP U) NIL) (T (CDR U))))
+      (TRWRITE
+       (LIST 'PHYSOPPRI "x= " X " y= " Y "nat= " '*NAT " contract= "
+             '*CONTRACT))
+      (COND ((AND *NAT (NOT *CONTRACT)) (GO A)))
+      (SETQ X (COMPRESS (APPEND (CONS '|"| (EXPLODE X)) (LIST '|"|))))
+      (PRIN2* X)
+      (COND
+       (Y
+        (PROGN
+         (PRIN2* "(")
+         (SETQ OBRKP* NIL)
+         (INPRINT '*COMMA* 0 Y)
+         (SETQ OBRKP* T)
+         (PRIN2* ")"))))
+      (RETURN U)
+     A
+      (SETQ X (REVERSE (EXPLODE X)))
+      (COND
+       ((GREATERP (LENGTH X) 2)
+        (COND
+         ((EQUAL (CADR X) '-)
+          (PROGN
+           (SETQ Z (COMPRESS (LIST '- '|1|)))
+           (SETQ X (COMPRESS (REVERSE (PNTH X 4))))
+           NIL))
+         ((EQUAL (CAR X) '+)
+          (PROGN (SETQ Z '+) (SETQ X (COMPRESS (REVERSE (PNTH X 3)))) NIL))
+         (T (SETQ X (COMPRESS (REVERSE X))))))
+       (T (SETQ X (COMPRESS (REVERSE X)))))
+      (SETQ X (COMPRESS (APPEND (CONS '|"| (EXPLODE X)) (LIST '|"|))))
+      (SETQ X1 (COND (Y (CONS X Y)) (T X)))
+      (TRWRITE (LIST 'PHYSOPPRI "x= " X " z= " Z " x1= " X1))
+      (COND (Z (EXPTPRI (LIST 'EXPT X1 Z) (GET 'EXPT 'INFIX)))
+            (T
+             (PROGN
+              (PRIN2* X)
+              (COND
+               (Y
+                (PROGN
+                 (PRIN2* "(")
+                 (SETQ OBRKP* NIL)
+                 (INPRINT '*COMMA* 0 Y)
+                 (SETQ OBRKP* T)
+                 (PRIN2* ")")))))))
+      (RETURN U))) 
+(PUT 'MAPRINT 'NUMBER-OF-ARGS 2) 
+(PUT 'MAPRINT 'DEFINED-ON-LINE '2562) 
+(PUT 'MAPRINT 'DEFINED-IN-FILE 'HEPHYS/PHYSOP.RED) 
+(PUT 'MAPRINT 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE MAPRINT (L P**)
+    (PROG (P X Y)
+      (SETQ P P**)
+      (COND ((NULL L) (RETURN NIL))
+            ((PHYSOPP L) (RETURN (APPLY1 'PHYSOPPRI L)))
+            ((ATOM L)
+             (PROGN
+              (COND ((VECTORP L) (VEC-MAPRIN L P**))
+                    ((OR (NOT (NUMBERP L)) (NOT (LESSP L 0))
+                         (LEQ P (GET 'MINUS 'INFIX)))
+                     (PRIN2* L))
+                    (T (PROGN (PRIN2* "(") (PRIN2* L) (PRIN2* ")"))))
+              (RETURN L)))
+            ((NOT (ATOM (CAR L))) (MAPRINT (CAR L) P))
+            ((OR
+              (AND (SETQ X (GET (CAR L) 'PPRIFN))
+                   (NOT (EQ (APPLY2 X L P) 'FAILED)))
+              (AND (SETQ X (GET (CAR L) 'PRIFN))
+                   (NOT (EQ (APPLY1 X L) 'FAILED))))
+             (RETURN L))
+            ((SETQ X (GET (CAR L) 'INFIX))
+             (PROGN
+              (SETQ P (NOT (GREATERP X P)))
+              (COND
+               (P
+                (PROGN
+                 (SETQ Y ORIG*)
+                 (PRIN2* "(")
+                 (SETQ ORIG*
+                         (COND ((LESSP POSN* 18) POSN*) (T (PLUS ORIG* 3)))))))
+              (INPRINT (CAR L) X (CDR L))
+              (COND (P (PROGN (PRIN2* ")") (SETQ ORIG* Y))))
+              (RETURN L)))
+            (T (PRIN2* (CAR L))))
+      (PRIN2* "(")
+      (SETQ OBRKP* NIL)
+      (SETQ Y ORIG*)
+      (SETQ ORIG* (COND ((LESSP POSN* 18) POSN*) (T (PLUS ORIG* 3))))
+      (COND ((CDR L) (INPRINT '*COMMA* 0 (CDR L))))
+      (SETQ OBRKP* T)
+      (SETQ ORIG* Y)
+      (PRIN2* ")")
+      (RETURN L))) 
+(SETQ SPECOPLIST* (LIST 'DOT 'COMM 'ANTICOMM 'OPAPPLY)) 
+(PUT 'COMM 'RTYPE 'PHYSOP) 
+(PUT 'COMM 'PHYSTYPE 'SCALAR) 
+(PUT 'COMM 'PSIMPFN 'COMMSIMP) 
+(PUT 'ANTICOMM 'RTYPE 'PHYSOP) 
+(PUT 'ANTICOMM 'PHYSTYPE 'SCALAR) 
+(PUT 'ANTICOMM 'PSIMPFN 'COMMSIMP) 
+(SETQ PHYSOPLIST* (LIST 'COMM 'ANTICOMM)) 
+(SCALOP (LIST 'UNIT)) 
+(FLAG '(UNIT COMM ANTICOMM OPAPPLY) 'RESERVED) 
+(ENDMODULE) 

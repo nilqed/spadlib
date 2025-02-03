@@ -1,0 +1,12 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(MODULE (LIST 'MRI_OFSF)) 
+(REVISION 'MRI_OFSF
+          "$Id: mri_ofsf.red 6013 2021-09-09 08:22:53Z thomas-sturm $") 
+(COPYRIGHT 'MRI_OFSF "(c) 2008-2021 T. Sturm") 
+(LOAD-PACKAGE 'REDLOG) 
+(LOAD-PACKAGE 'OFSF) 
+(RL_COPYC 'MRI_OFSF 'OFSF) 
+(RL_BBIADD 'MRI_OFSF 'RL_SIMPLAT1* 'MRI_SIMPLAT1) 
+(RL_BBIADD 'MRI_OFSF 'RL_NEGATEAT* 'MRI_NEGATEAT) 
+(ENDMODULE) 

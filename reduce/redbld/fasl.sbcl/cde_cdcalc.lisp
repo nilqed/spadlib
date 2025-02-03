@@ -1,0 +1,408 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(MODULE (LIST 'CDE_CDCALC)) 
+(PUT 'SUM_CDIFFOP 'NUMBER-OF-ARGS 3) 
+(PUT 'SUM_CDIFFOP 'DEFINED-ON-LINE '40) 
+(PUT 'SUM_CDIFFOP 'DEFINED-IN-FILE 'CDE/CDE_CDCALC.RED) 
+(PUT 'SUM_CDIFFOP 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE SUM_CDIFFOP (CD1 CD2 CD3)
+    (PROG (PARITY1 LARGCD1 TARGET1)
+      (CHECK_CDIFF_SAMETYPE CD1 CD2)
+      (SETQ PARITY1 (GET 'CDNARG CD1))
+      (SETQ LARGCD1 (GET 'CDLARG CD1))
+      (SETQ TARGET1 (GET 'CDTARGET CD1))
+      (MK_CDIFFOP CD3 PARITY1 LARGCD1 TARGET1))) 
+(FLAG '(SUM_CDIFFOP) 'OPFN) 
+(PUT 'SCALARMULT_CDIFFOP 'NUMBER-OF-ARGS 3) 
+(PUT 'SCALARMULT_CDIFFOP 'DEFINED-ON-LINE '61) 
+(PUT 'SCALARMULT_CDIFFOP 'DEFINED-IN-FILE 'CDE/CDE_CDCALC.RED) 
+(PUT 'SCALARMULT_CDIFFOP 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE SCALARMULT_CDIFFOP (CFM CD1 CD2)
+    (PROG (PARITY1 LARGCD1 TARGET1)
+      (SETQ PARITY1 (GET 'CDNARG CD1))
+      (SETQ LARGCD1 (GET 'CDLARG CD1))
+      (SETQ TARGET1 (GET 'CDTARGET CD1))
+      (MK_CDIFFOP CD2 PARITY1 LARGCD1 TARGET1)
+      (RETURN CFM))) 
+(PUT 'ELL_SCALAR_FUNCTION_ODD 'NUMBER-OF-ARGS 1) 
+(PUT 'ELL_SCALAR_FUNCTION_ODD 'DEFINED-ON-LINE '84) 
+(PUT 'ELL_SCALAR_FUNCTION_ODD 'DEFINED-IN-FILE 'CDE/CDE_CDCALC.RED) 
+(PUT 'ELL_SCALAR_FUNCTION_ODD 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE ELL_SCALAR_FUNCTION_ODD (FCT)
+    (PROG (SUPERFUN TEMPVARMIND TEMPDVAR TEMPMIND TEMPODDVAR)
+      (COND
+       ((NOT (CDE_FREEOFL FCT ALL_PARAMETRIC_ODD*))
+        (REDERR "Linearization only works for even functions")))
+      (COND
+       ((NOT (EQN (LENGTH DEP_VAR*) (LENGTH ODD_VAR*)))
+        (REDERR "Even and odd variables must be the same in number!")))
+      (SETQ SUPERFUN
+              (PROG (EL FORALL-RESULT FORALL-ENDPTR)
+                (SETQ EL ALL_PARAMETRIC_DER*)
+                (COND ((NULL EL) (RETURN NIL)))
+                (SETQ FORALL-RESULT
+                        (SETQ FORALL-ENDPTR
+                                (CONS
+                                 ((LAMBDA (EL)
+                                    (PROGN
+                                     (SETQ TEMPVARMIND (IDTOMIND 0 EL))
+                                     (SETQ TEMPDVAR (CAR TEMPVARMIND))
+                                     (SETQ TEMPMIND (CADR TEMPVARMIND))
+                                     (SETQ TEMPODDVAR
+                                             (NTH ODD_VAR*
+                                                  (CDE_POSITION TEMPDVAR
+                                                   DEP_VAR*)))
+                                     (REVAL1
+                                      (LIST 'TIMES (LIST 'DF FCT EL)
+                                            (MIND_TO_EID
+                                             (LIST TEMPODDVAR TEMPMIND)))
+                                      NIL)))
+                                  (CAR EL))
+                                 NIL)))
+               LOOPLABEL
+                (SETQ EL (CDR EL))
+                (COND ((NULL EL) (RETURN FORALL-RESULT)))
+                (RPLACD FORALL-ENDPTR
+                        (CONS
+                         ((LAMBDA (EL)
+                            (PROGN
+                             (SETQ TEMPVARMIND (IDTOMIND 0 EL))
+                             (SETQ TEMPDVAR (CAR TEMPVARMIND))
+                             (SETQ TEMPMIND (CADR TEMPVARMIND))
+                             (SETQ TEMPODDVAR
+                                     (NTH ODD_VAR*
+                                          (CDE_POSITION TEMPDVAR DEP_VAR*)))
+                             (REVAL1
+                              (LIST 'TIMES (LIST 'DF FCT EL)
+                                    (MIND_TO_EID (LIST TEMPODDVAR TEMPMIND)))
+                              NIL)))
+                          (CAR EL))
+                         NIL))
+                (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                (GO LOOPLABEL)))
+      (COND (*CHECKORD (CHECK_LETOP SUPERFUN)))
+      (RETURN (REVAL1 (CONS 'PLUS SUPERFUN) NIL)))) 
+(PUT 'SET_OP_ONEARG 'NUMBER-OF-ARGS 3) 
+(PUT 'SET_OP_ONEARG 'DEFINED-ON-LINE '109) 
+(PUT 'SET_OP_ONEARG 'DEFINED-IN-FILE 'CDE/CDE_CDCALC.RED) 
+(PUT 'SET_OP_ONEARG 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE SET_OP_ONEARG (OP ARG VAL) (SETK (LIST OP ARG) VAL)) 
+(PUT 'ELL_FUNCTION_ODD 'NUMBER-OF-ARGS 2) 
+(PUT 'ELL_FUNCTION_ODD 'DEFINED-ON-LINE '114) 
+(PUT 'ELL_FUNCTION_ODD 'DEFINED-IN-FILE 'CDE/CDE_CDCALC.RED) 
+(PUT 'ELL_FUNCTION_ODD 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE ELL_FUNCTION_ODD (L_FCT NAME_ELL_ODD)
+    (PROG (N_DEP_VAR N_FCT SL_FCT TEMPEXPR)
+      (COND
+       ((NOT (AND (LISTP L_FCT) (EQUAL (CAR L_FCT) 'LIST)))
+        (REDERR "The first argument must be a list, ie a vector function")))
+      (SETQ SL_FCT (CDR L_FCT))
+      (SETQ N_FCT (LENGTH SL_FCT))
+      (SETQ N_DEP_VAR (LENGTH DEP_VAR*))
+      (MK_SUPERFUN NAME_ELL_ODD 1 (LENGTH SL_FCT))
+      (PROG (I)
+        (SETQ I 1)
+       LAB
+        (COND ((MINUSP (DIFFERENCE N_FCT I)) (RETURN NIL)))
+        (PROGN
+         (SETQ TEMPEXPR (ELL_SCALAR_FUNCTION_ODD (NTH SL_FCT I)))
+         (SET_OP_ONEARG NAME_ELL_ODD I TEMPEXPR)
+         NIL)
+        (SETQ I (PLUS2 I 1))
+        (GO LAB)))) 
+(FLAG '(ELL_FUNCTION_ODD) 'OPFN) 
+(PUT 'ELL_FUNCTION 'NUMBER-OF-ARGS 2) 
+(PUT 'ELL_FUNCTION 'DEFINED-ON-LINE '138) 
+(PUT 'ELL_FUNCTION 'DEFINED-IN-FILE 'CDE/CDE_CDCALC.RED) 
+(PUT 'ELL_FUNCTION 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE ELL_FUNCTION (L_FCT NAME_ELL)
+    (PROG (NAME_ELL_SF)
+      (COND
+       ((NOT (AND (LISTP L_FCT) (EQUAL (CAR L_FCT) 'LIST)))
+        (REDERR "The first argument must be a list, ie a vector function")))
+      (SETQ NAME_ELL_SF
+              (INTERN
+               (COMPRESS (APPEND (EXPLODE NAME_ELL) (CONS '_ (EXPLODE 'SF))))))
+      (ELL_FUNCTION_ODD L_FCT NAME_ELL_SF)
+      (RETURN (CONV_SUPERFUN2CDIFF NAME_ELL_SF NAME_ELL)))) 
+(FLAG '(ELL_FUNCTION) 'OPFN) 
+(PUT 'ADJOINT_SCALAR_ODD 'NUMBER-OF-ARGS 2) 
+(PUT 'ADJOINT_SCALAR_ODD 'DEFINED-ON-LINE '156) 
+(PUT 'ADJOINT_SCALAR_ODD 'DEFINED-IN-FILE 'CDE/CDE_CDCALC.RED) 
+(PUT 'ADJOINT_SCALAR_ODD 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE ADJOINT_SCALAR_ODD (SUPERFUN OVAR)
+    (PROG (TALLODD TMIND TCOEFF TINDVARS ARG1 ARG2 TSIGN SUPERFUNADJ)
+      (SETQ SUPERFUNADJ (CONS NIL 1))
+      (SETQ TALLODD (SELECT_ALL_DERS 1 OVAR ALL_PARAMETRIC_ODD*))
+      (PROG (EL)
+        (SETQ EL TALLODD)
+       LAB
+        (COND ((NULL EL) (RETURN NIL)))
+        ((LAMBDA (EL)
+           (COND
+            ((NOT (EQN (SETQ TCOEFF (COEFFN SUPERFUN EL 1)) 0))
+             (PROGN
+              (SETQ TMIND (CADR (IDTOMIND 1 EL)))
+              (SETQ TINDVARS
+                      (PROG (I FORALL-RESULT FORALL-ENDPTR)
+                        (SETQ I 1)
+                       STARTOVER
+                        (COND
+                         ((MINUSP (DIFFERENCE N_INDEP_VAR I)) (RETURN NIL)))
+                        (SETQ FORALL-RESULT
+                                (LIST (NTH INDEP_VAR* I) (NTH TMIND I)))
+                        (SETQ FORALL-ENDPTR (LASTPAIR FORALL-RESULT))
+                        (SETQ I (PLUS2 I 1))
+                        (COND ((ATOM FORALL-ENDPTR) (GO STARTOVER)))
+                       LOOPLABEL
+                        (COND
+                         ((MINUSP (DIFFERENCE N_INDEP_VAR I))
+                          (RETURN FORALL-RESULT)))
+                        (RPLACD FORALL-ENDPTR
+                                (LIST (NTH INDEP_VAR* I) (NTH TMIND I)))
+                        (SETQ FORALL-ENDPTR (LASTPAIR FORALL-ENDPTR))
+                        (SETQ I (PLUS2 I 1))
+                        (GO LOOPLABEL)))
+              (SETQ ARG1
+                      (CONS (REVAL1 (LIST 'TIMES TCOEFF OVAR) NIL) TINDVARS))
+              (SETQ TSIGN
+                      (REVAL1 (LIST 'EXPT (MINUS 1) (LENGTH_MULTIINDEX TMIND))
+                              NIL))
+              (SETQ ARG2
+                      (REVAL1 (LIST 'TIMES TSIGN (MK*SQ (COMPUTE_TD ARG1)))
+                              NIL))
+              (SETQ SUPERFUNADJ (ADDSQ (SIMP ARG2) SUPERFUNADJ))
+              NIL))))
+         (CAR EL))
+        (SETQ EL (CDR EL))
+        (GO LAB))
+      (COND (*CHECKORD (CHECK_LETOP SUPERFUNADJ)))
+      (RETURN (PREPSQ SUPERFUNADJ)))) 
+(PUT 'ADJOINT_CDIFFOP 'NUMBER-OF-ARGS 2) 
+(PUT 'ADJOINT_CDIFFOP 'DEFINED-ON-LINE '179) 
+(PUT 'ADJOINT_CDIFFOP 'DEFINED-IN-FILE 'CDE/CDE_CDCALC.RED) 
+(PUT 'ADJOINT_CDIFFOP 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE ADJOINT_CDIFFOP (CDIFFOP CDADJ)
+    (PROG (LEN_ARG N_ARG LEN_TARGET LEN_ADJ_ARG LEN_ADJ_TARGET INDEX_ADJ TEMPOP
+           TEMPODD TEMPADJ TEMPADJ_IJ CDADJ_SF)
+      (CHECK_CDIFF_ONEARG CDIFFOP)
+      (SETQ LEN_ARG (GET 'CDLARG CDIFFOP))
+      (SETQ N_ARG (CADR LEN_ARG))
+      (SETQ LEN_TARGET (GET 'CDTARGET CDIFFOP))
+      (SETQ LEN_ADJ_ARG (LIST 'LIST LEN_TARGET))
+      (SETQ LEN_ADJ_TARGET (CADR LEN_ARG))
+      (MK_CDIFFOP CDADJ 1 LEN_ADJ_ARG LEN_ADJ_TARGET)
+      (SETQ INDEX_ADJ (CADR LEN_ADJ_ARG))
+      (PROG (I)
+        (SETQ I 1)
+       LAB
+        (COND ((MINUSP (DIFFERENCE INDEX_ADJ I)) (RETURN NIL)))
+        (PROG (J)
+          (SETQ J 1)
+         LAB
+          (COND ((MINUSP (DIFFERENCE LEN_ADJ_TARGET J)) (RETURN NIL)))
+          (PROGN
+           (SETQ TEMPODD (NTH ODD_VAR* J))
+           (SETQ TEMPOP (REVAL1 (LIST CDIFFOP J I TEMPODD) NIL))
+           (SETQ TEMPADJ (SIMP (ADJOINT_SCALAR_ODD TEMPOP TEMPODD)))
+           (COND (*CHECKORD (CHECK_LETOP TEMPADJ)))
+           (SETQ TEMPADJ_IJ (SPLIT_SUPERFUN (PREPSQ TEMPADJ) TEMPODD))
+           (DEFINE_CDIFFOP TEMPADJ_IJ (LIST CDADJ I J))
+           NIL)
+          (SETQ J (PLUS2 J 1))
+          (GO LAB))
+        (SETQ I (PLUS2 I 1))
+        (GO LAB))
+      (SETQ CDADJ_SF
+              (INTERN
+               (COMPRESS (APPEND (EXPLODE CDADJ) (CONS '_ (EXPLODE 'SF))))))
+      (CONV_CDIFF2SUPERFUN CDADJ CDADJ_SF))) 
+(FLAG '(ADJOINT_CDIFFOP) 'OPFN) 
+(PUT 'INDEX_PAR 'NUMBER-OF-ARGS 1) 
+(PUT 'INDEX_PAR 'DEFINED-ON-LINE '214) 
+(PUT 'INDEX_PAR 'DEFINED-IN-FILE 'CDE/CDE_CDCALC.RED) 
+(PUT 'INDEX_PAR 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE INDEX_PAR (IND)
+    (PROG (L_DV RETVAL)
+      (SETQ L_DV (LENGTH DEP_VAR*))
+      (COND ((LEQ IND L_DV) (SETQ RETVAL 0)) (T (SETQ RETVAL 1)))
+      (RETURN RETVAL))) 
+(PUT 'ELL_SUPERMAP 'NUMBER-OF-ARGS 2) 
+(PUT 'ELL_SUPERMAP 'DEFINED-ON-LINE '223) 
+(PUT 'ELL_SUPERMAP 'DEFINED-IN-FILE 'CDE/CDE_CDCALC.RED) 
+(PUT 'ELL_SUPERMAP 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE ELL_SUPERMAP (SM_NAME SCDOP)
+    (PROG (PAR_SM L_EVEN L_ODD L_DV L_OV L_TOT_I L_TOT_J TEMPSIGN)
+      (COND
+       ((NOT (SUPERMAPP SM_NAME))
+        (REDERR "Error: the argument must be a declared supermap")))
+      (SETQ PAR_SM (GET 'SMPAR SM_NAME))
+      (SETQ L_EVEN (GET 'SMAPECOMP SM_NAME))
+      (SETQ L_ODD (GET 'SMAPOCOMP SM_NAME))
+      (SETQ L_DV (LENGTH DEP_VAR*))
+      (SETQ L_OV (LENGTH ODD_VAR*))
+      (SETQ L_TOT_I (REVAL1 (LIST 'PLUS L_EVEN L_ODD) NIL))
+      (SETQ L_TOT_J (REVAL1 (LIST 'PLUS L_DV L_OV) NIL))
+      (MK_SCDIFFOP SCDOP PAR_SM 1 (LIST 'LIST (LIST 'LIST L_DV L_OV))
+       (LIST 'LIST L_EVEN L_ODD))
+      (PROG (I)
+        (SETQ I 1)
+       LAB
+        (COND ((MINUSP (DIFFERENCE L_TOT_I I)) (RETURN NIL)))
+        (PROG (J)
+          (SETQ J 1)
+         LAB
+          (COND ((MINUSP (DIFFERENCE L_TOT_J J)) (RETURN NIL)))
+          (PROGN
+           (SETQ TEMPSIGN
+                   (REVAL1
+                    (LIST 'EXPT (MINUS 1)
+                          (LIST 'TIMES (LIST 'PLUS PAR_SM (INDEX_PAR I) 1)
+                                (INDEX_PAR J)))
+                    NIL))
+           (DEFINE_COMPONENT_ELL_SUPERMAP SM_NAME I J TEMPSIGN SCDOP))
+          (SETQ J (PLUS2 J 1))
+          (GO LAB))
+        (SETQ I (PLUS2 I 1))
+        (GO LAB)))) 
+(PUT 'DEFINE_COMPONENT_ELL_SUPERMAP 'NUMBER-OF-ARGS 5) 
+(PUT 'DEFINE_COMPONENT_ELL_SUPERMAP 'DEFINED-ON-LINE '253) 
+(PUT 'DEFINE_COMPONENT_ELL_SUPERMAP 'DEFINED-IN-FILE 'CDE/CDE_CDCALC.RED) 
+(PUT 'DEFINE_COMPONENT_ELL_SUPERMAP 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL GENERAL GENERAL) GENERAL)) 
+(DE DEFINE_COMPONENT_ELL_SUPERMAP (SM_NAME I J TEMPSIGN SCDOP)
+    (PROG (TEMPVAR TEMPPAR TEMPLVAR TEMPMIND TEMPDERNAME TEMPCF L_COEFF)
+      (SETQ TEMPPAR (INDEX_PAR J))
+      (COND
+       ((EQN TEMPPAR 0)
+        (PROGN
+         (SETQ TEMPVAR (NTH DEP_VAR* J))
+         (SETQ TEMPLVAR (SELECT_ALL_DERS TEMPPAR TEMPVAR ALL_PARAMETRIC_DER*))
+         (SETQ TEMPDERNAME 'DF)))
+       (T
+        (PROGN
+         (SETQ TEMPVAR (NTH ODD_VAR* (DIFFERENCE J (LENGTH DEP_VAR*))))
+         (SETQ TEMPLVAR (SELECT_ALL_DERS TEMPPAR TEMPVAR ALL_PARAMETRIC_ODD*))
+         (SETQ TEMPDERNAME 'DF_ODD))))
+      (SETQ L_COEFF (LIST))
+      (PROG (EL)
+        (SETQ EL TEMPLVAR)
+       LAB
+        (COND ((NULL EL) (RETURN NIL)))
+        ((LAMBDA (EL)
+           (PROGN
+            (SETQ TEMPMIND (CADR (IDTOMIND TEMPPAR EL)))
+            (SETQ TEMPCF
+                    (REVAL1
+                     (LIST 'TIMES TEMPSIGN
+                           (LIST TEMPDERNAME (REVAL1 (LIST SM_NAME I) NIL) EL))
+                     NIL))
+            (SETQ L_COEFF
+                    (CONS (LIST 'LIST TEMPCF (CONS 'LIST TEMPMIND)) L_COEFF))
+            NIL))
+         (CAR EL))
+        (SETQ EL (CDR EL))
+        (GO LAB))
+      (LOAD_CDIFFOP0 SCDOP (LIST I J) L_COEFF))) 
+(FLAG '(ELL_SUPERMAP) 'OPFN) 
+(PUT 'LOAD_ADJ_CDIFFOP0 'NUMBER-OF-ARGS 4) 
+(PUT 'LOAD_ADJ_CDIFFOP0 'DEFINED-ON-LINE '284) 
+(PUT 'LOAD_ADJ_CDIFFOP0 'DEFINED-IN-FILE 'CDE/CDE_CDCALC.RED) 
+(PUT 'LOAD_ADJ_CDIFFOP0 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL GENERAL) GENERAL)) 
+(DE LOAD_ADJ_CDIFFOP0 (OPNAME PAR INDS L_COEFF)
+    (PROG (PHI SIGN_COMP TEMPEXP TEMPCF TEMPLMIND TEMPSIGN CHANGE_EXPAND_TD)
+      (SETQ PHI (GENSYM))
+      (SETQ CHANGE_EXPAND_TD 0)
+      (COND
+       ((EQ (GET 'TD 'SIMPFN) 'COMPUTE_TD)
+        (PROGN (SETQ CHANGE_EXPAND_TD 1) (NOEXPAND_TD))))
+      (PUT 'ODDPROD* 'SIMPFN 'SIMPIDEN)
+      (SETQ SIGN_COMP
+              (REVAL1
+               (LIST 'EXPT (MINUS 1)
+                     (REVAL1
+                      (LIST 'TIMES
+                            (REVAL1 (LIST 'PLUS PAR (INDEX_PAR (CAR INDS)))
+                                    NIL)
+                            (REVAL1
+                             (LIST 'PLUS (INDEX_PAR (CAR INDS))
+                                   (INDEX_PAR (CADR INDS)))
+                             NIL))
+                      NIL))
+               NIL))
+      (SETQ TEMPEXP (LIST))
+      (PROG (EL)
+        (SETQ EL L_COEFF)
+       LAB
+        (COND ((NULL EL) (RETURN NIL)))
+        ((LAMBDA (EL)
+           (PROGN
+            (SETQ TEMPCF (CADR EL))
+            (SETQ TEMPLMIND (CADDR EL))
+            (SETQ TEMPSIGN
+                    (REVAL1
+                     (LIST 'EXPT (MINUS 1) (LENGTH_MULTIINDEX (CDR TEMPLMIND)))
+                     NIL))
+            (SETQ TEMPEXP
+                    (CONS
+                     (REVAL1
+                      (LIST 'TIMES TEMPSIGN
+                            (REVAL1
+                             (LIST 'TD_MIND
+                                   (REVAL1 (LIST 'ODDPROD* TEMPCF PHI) NIL)
+                                   TEMPLMIND)
+                             NIL))
+                      NIL)
+                     TEMPEXP))
+            NIL))
+         (CAR EL))
+        (SETQ EL (CDR EL))
+        (GO LAB))
+      (SETQ TEMPEXP
+              (REVAL1 (LIST 'TIMES SIGN_COMP (REVAL1 (CONS 'PLUS TEMPEXP) NIL))
+                      NIL))
+      (CDE_EV_FORALL (CDE_FORALL_FORM OPNAME INDS (LIST PHI) TEMPEXP))
+      (PUT 'ODDPROD* 'SIMPFN 'EV_ODD_PRODUCT)
+      (RETURN (COND ((EQN CHANGE_EXPAND_TD 1) (EXPAND_TD)))))) 
+(PUT 'ADJOINT_SCDIFFOP 'NUMBER-OF-ARGS 2) 
+(PUT 'ADJOINT_SCDIFFOP 'DEFINED-ON-LINE '331) 
+(PUT 'ADJOINT_SCDIFFOP 'DEFINED-IN-FILE 'CDE/CDE_CDCALC.RED) 
+(PUT 'ADJOINT_SCDIFFOP 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE ADJOINT_SCDIFFOP (SCDOP ADJ_SCDOP)
+    (PROG (L_ARG L_TAR PAR L_COEFF L_ARG_ADJ L_TAR_ADJ TOT_I TOT_J INDS)
+      (CHECK_SCDIFF_ONEARG SCDOP)
+      (SETQ L_ARG (GET 'SCDLARG SCDOP))
+      (SETQ L_TAR (GET 'SCDTARGET SCDOP))
+      (SETQ L_ARG_ADJ (LIST 'LIST L_TAR))
+      (SETQ L_TAR_ADJ (CADR L_ARG))
+      (SETQ PAR (GET 'SCDPAR SCDOP))
+      (MK_SCDIFFOP ADJ_SCDOP PAR 1 L_ARG_ADJ L_TAR_ADJ)
+      (SETQ L_ARG_ADJ (CDR (CADR L_ARG_ADJ)))
+      (SETQ L_TAR_ADJ (CDR L_TAR_ADJ))
+      (SETQ TOT_I (REVAL1 (LIST 'PLUS (CAR L_ARG_ADJ) (CADR L_ARG_ADJ)) NIL))
+      (SETQ TOT_J (REVAL1 (LIST 'PLUS (CAR L_TAR_ADJ) (CADR L_TAR_ADJ)) NIL))
+      (SETQ L_COEFF (CDR (ALL_COEFF_SCDIFFOP SCDOP)))
+      (PROG (EL)
+        (SETQ EL L_COEFF)
+       LAB
+        (COND ((NULL EL) (RETURN NIL)))
+        ((LAMBDA (EL)
+           (PROGN
+            (SETQ INDS (REVERSE (CDR (CADR EL))))
+            (LOAD_ADJ_CDIFFOP0 ADJ_SCDOP PAR INDS (CDDR EL))
+            NIL))
+         (CAR EL))
+        (SETQ EL (CDR EL))
+        (GO LAB)))) 
+(FLAG '(ADJOINT_SCDIFFOP) 'OPFN) 
+(PUT 'CDE_CDCALC 'NUMBER-OF-ARGS 0) 
+(PUT 'CDE_CDCALC 'DEFINED-ON-LINE '363) 
+(PUT 'CDE_CDCALC 'DEFINED-IN-FILE 'CDE/CDE_CDCALC.RED) 
+(PUT 'CDE_CDCALC 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE CDE_CDCALC NIL (PRIN2 "")) 
+(ENDMODULE) 

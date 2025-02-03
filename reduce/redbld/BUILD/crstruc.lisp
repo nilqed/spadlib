@@ -1,0 +1,50 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(MODULE (LIST 'STRUCTURAL_EQNS)) 
+(PUT 'INI_STRUC 'NUMBER-OF-ARGS 0) 
+(PUT 'INI_STRUC 'DEFINED-ON-LINE '42) 
+(PUT 'INI_STRUC 'DEFINED-IN-FILE 'CRACK/CRSTRUC.RED) 
+(PUT 'INI_STRUC 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE INI_STRUC NIL
+    (PROG (DONE)
+      (SETQ DONE (AEVAL 'STRUC_DONE))
+      (COND
+       ((OR (NOT (PAIRP DONE)) (NEQ (CAR DONE) 'LIST))
+        (REDERR "struc_done not properly initialized!"))
+       (T (SETQ DONE (CDR DONE))))
+      (SETQ LEX_FC NIL)
+      (SETQ LEX_DF NIL)
+      (SETQ QUICK_DECOUP T)
+      (SETQ PROC_LIST_
+              '(SUBST_LEVEL_03 ALG_LENGTH_REDUCTION DECOUPLING SUBST_LEVEL_05
+                CHANGE_PROC_LIST))
+      (SETQ ADJUST_FNC T))) 
+(PUT 'CHANGE_PROC_LIST 'NUMBER-OF-ARGS 1) 
+(PUT 'CHANGE_PROC_LIST 'DEFINED-ON-LINE '79) 
+(PUT 'CHANGE_PROC_LIST 'DEFINED-IN-FILE 'CRACK/CRSTRUC.RED) 
+(PUT 'CHANGE_PROC_LIST 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE CHANGE_PROC_LIST (ARGLIST)
+    (PROG (FCTS)
+      (SETQ PROC_LIST_
+              '(TO_DO SUBST_LEVEL_05 SEPARATION QUICK_INTEGRATION
+                FULL_INTEGRATION INTEGRATION SUBST_DERIVATIVE SUBST_LEVEL_4
+                UNDETLINODE GEN_SEPARATION DECOUPLING DIFF_LENGTH_REDUCTION
+                UNDO_SUBST_DERIVATIVE))
+      (SETQ STRUC_EQN NIL)
+      (SETQ FCTS (UNION (CADR ARGLIST) (SETDIFF FTEM_ (CADR ARGLIST))))
+      (COND
+       (PRINT_
+        (PROGN
+         (TERPRI)
+         (PROGN
+          (PRIN2 "The priority list of procedures is changed. The new one is:")
+          NIL)
+         (PRIPROLI PROC_LIST_)
+         (TERPRI)
+         (PROGN (PRIN2 "The current situation:") NIL)
+         (PRINT_STATISTIC (CAR ARGLIST) FCTS)
+         (PRINT_PDES (CAR ARGLIST))
+         (PRINT_INEQ (CONS INEQ_ INEQ_OR))
+         NIL)))
+      (RETURN ARGLIST))) 
+(ENDMODULE) 

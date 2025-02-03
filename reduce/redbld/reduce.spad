@@ -1,0 +1,162 @@
+)abbrev package REDBOOT ReduceBootstrap
+++ Author: Kurt Pagani
+++ Date Created: Sun Oct 13 13:15:47 CEST 2024
+++ License: BSD
+++ References:
+++   URL: https://reduce-algebra.sourceforge.io/documentation.php
+++
+++   [1] REDUCE User's Manual [ HTML | PDF ] – a comprehensive guide to 
+++       the REDUCE language and the supported packages.
+++   [2] Inside Reduce – how to build REDUCE, the structure of the REDUCE 
+++       source code, and some low-level programming features; 
+++   [3] Symbolic Mode Primer [ HTML | PDF ] – an introduction to 
+++       programming in the REDUCE implementation language, RLISP, which 
+++       is Standard Lisp with REDUCE (essentially ALGOL 60) syntax;
+++   [4] Standard Lisp Report [ HTML | PDF ] – defines Standard Lisp, the 
+++       dialect of Lisp assumed by REDUCE;
+++   [5] PSL Users Manual [ HTML | PDF ] – documents Portable Standard Lisp, 
+++       the original implementation of Standard Lisp;
+++   [6] https://github.com/reduce-algebra/reduce-algebra/tree/master
+++       folder: /common-lisp/README.md
+++   [7] Francis J. Wright: https://sites.google.com/site/fjwcentaur/
+++
+++ Description:
+++
+ReduceBootstrap : Exports == Implementation where
+
+  SEX ==> SExpression
+  sys(s) ==> systemCommand(s)$MoreSystemCommands
+  lisp1(s)  ==> sys(string(FORMAT('NIL,"lisp ~A",s)$Lisp)) 
+  
+  Exports ==  with
+  
+    init : () -> SEX
+      ++ \spad{init()} initializes bootstraping process of REDUCE.
+      ++ This function has to be called in the first place.
+    coerce : % -> OutputForm
+      ++ n/a
+    loadSLonCL : () -> SEX
+      ++ \spad{loadSLonCL()} loads STANDARD-LISP on COMMON-LISP.
+    loadBootstrap : () -> SEX
+      ++ \spad{loadBootstrap()} loads the CL file bootstrap.lisp.
+    getRes0 : () -> SEX
+      ++ \spad{getRes0()} reads the content of BOOT:RESULT00 and returns
+      ++ its value as a SExpression.
+    setRes0 : String -> SEX
+      ++ \spad{setRes0(s)} evaluates the standard-lisp command s (a string),
+      ++ in the STANDARD-LISP environment and stores the result in the 
+      ++ variable BOOT:RESULT00.
+    pkgBOOT : () -> SEX
+      ++ \spad{pkgBOOT} changes to the package :BOOT.
+    pkgSTDLISP : () -> SEX
+      ++ \spad{pkgSTDLISP} changes to the package :STANDARD-LISP.
+    pkgCLUSER : () -> SEX
+      ++ \spad{pkgCLUSER} changes to the package :CL-USER.
+    pkg? : () -> SEX
+      ++ \spad{pkg?()} shows the current package (i.e. CL:*PACKAGE*).
+    saveReadtable : () -> SEX
+      ++ \spad{saveReadtable()} saves the current cl::*readtable* into the
+      ++ variable BOOT:SAVED_READTABLE.
+    restoreReadtable : () -> SEX
+      ++ \spad{restoreReadtable()} restores the BOOT:SAVED_READTABLE
+      ++ as CL::*READTABLE* (same as BOOT:*READTABLE*).
+    setSLreadtable : () -> SEX
+      ++ \spad{setSLreadtable()} sets the current cl::*readtable* to 
+      ++ STANDARD-LISP:*SL-READTABLE*. This is necessary when dealing
+      ++ with floating point arithmetic.
+    props : Symbol -> SEX 
+      ++ \spad{props(s)} gives the properties of a REDUCE symbol as
+      ++ described in [2].
+    lispEval :String -> SEX
+      ++ \spad{lispEval(s)} reads from string s and evaluates in lisp.
+      ++ Actually: (eval (read-from-string s)).
+    slEval :String -> SEX
+      ++ \spad{slEval(s)} reads from string s and evaluates in package 
+      ++ standard lisp and returns to boot package afterwards.
+      ++ Examples: slEval "(setk 'x 12)", slEval "(setk 'y 23)",
+      ++ slEval "(reval '(plus x y))", slEval "(explode 'abc)"
+      ++ Note: Use the switch "on defn" in REDUCE to see the SL code
+      ++ translation of the input. That code can be evaluated with slEval
+      ++ directly where one may substitute "aeval" by "reval". The first
+      ++ one gives as *SQ, *SF (standard forms) while the latter provides a 
+      ++ readable (i.e less obscure) SExpression.
+    
+  Implementation == add
+  
+    lispEval(s:String):SEX ==
+      EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp 
+      
+    slEval(s:String):SEX ==
+      pkgSTDLISP()
+      r:=lispEval s
+      pkgBOOT()
+      return r
+  
+    pkgBOOT():SEX == lispEval "(cl::in-package :boot)"
+    pkgSTDLISP():SEX == lispEval "(cl::in-package :standard-lisp)"
+    pkgCLUSER():SEX == lispEval "lisp (cl::in-package :cl-user)"
+    pkg?():SEX == lispEval "cl::*package*"
+  
+    saveReadtable():SEX == 
+      lispEval "(cl::setf boot::saved-readtable cl::*readtable*)"    
+    restoreReadtable():SEX == 
+      lispEval "(cl::setf cl::*readtable* boot::saved-readtable)" 
+    setSLreadtable():SEX ==
+      lispEval "(cl::setf cl::*readtable* sl::*sl-readtable*)"
+      -- necessary when dealing with floats
+    
+    defRes0():SEX == 
+      lispEval "(cl::defvar boot::result00 T)"
+    setRes0(s:String):SEX ==
+      lispEval string(FORMAT('NIL,"(cl::setf boot::result00 ~A)",s)$Lisp) 
+    getRes0():SEX == RESULT00$Lisp
+    
+    loadSLonCL():SEX ==
+      saveReadtable()
+      lispEval "(load _"sl-on-cl.lisp_")"
+
+    loadBootstrap():SEX ==
+      saveReadtable()
+      lispEval "(load _"bootstrap.lisp_")"
+
+    init():SEX ==
+      loadBootstrap()
+      restoreReadtable()
+      defRes0()
+
+    props(s:Symbol):SEX == slEval ("(prop '" string(s) ")") 
+
+
+
+
+-- init()
+-- you must not leave :BOOT for more than one command each
+-- )lisp (in-package :sl) 
+-- (pform (list (list 'equal 'y 'p)))   --> NIL
+-- (aeval (list 'exdegree 'y))          --> (*SQ ((((P . 1) . 1)) . 1) T)
+-- (aeval (list 'd 'y))                 --> (*SQ (((((D Y) . 1) . 1)) . 1) T)
+-- (aeval (list 'exdegree (list 'd 'y)))    (*SQ ((((P . 1) . 1) . 1) . 1) T)
+
+-- )lisp (cl::in-package :boot)
+-- fricas still ok ! 
+-- )lisp (in-package :sl)  again ...
+-- )lisp (aeval (list 'exdegree (list 'd (list 'd 'y)))) --> 0 !ok
+
+-- )lisp (cl:setf boot::result (aeval (list 'exdegree (list 'd (list 'd 'y)))))
+-- pkgSTDLISP()
+-- setRes0 "(aeval (list 'df (list 'sin 'x) 'x))"
+-- getRes0() --> (*SQ (((((COS X) . 1) . 1)) . 1) T)  ** Type: SExpression
+-- pkgBOOT()
+-- note: sl::*sl-readtable* / but boot::*readtable* = cl::*readtbale*
+
+-- setRes0 "(aeval (list 'times '(!:dn!: 124 . -1) '(!:dn!: 46 . -1)))"
+-- Value = (*SQ (1426 . 25) T)
+-- setRes0 "(reval (list 'times '(!:dn!: 124 . -1) '(!:dn!: 46 . -1)))"
+-- Value = (QUOTIENT 1426 25)
+-- but one must set sl-readtable if floating point is used !!!!!!
+-- >> System error:
+-- too many colons in "dn!"
+-- )lisp (cl::setf cl::*readtable* sl::*sl-readtable*)
+
+
+      

@@ -1,0 +1,7 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(MODULE (LIST 'CDIFF)) 
+(FLUID '(ALL_GRADED_DER)) 
+(SHARE (LIST 'ALL_GRADED_DER)) 
+(CREATE-PACKAGE '(CDIFF TOOLS21 INTEGRATOR SUPERVF CDIFFX) NIL) 
+(ENDMODULE) 

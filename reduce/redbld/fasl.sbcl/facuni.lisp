@@ -1,0 +1,472 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(MODULE (LIST 'FACUNI)) 
+(FLUID
+ '(*FORCE-PRIME *TRFAC ALPHALIST BAD-CASE BEST-FACTOR-COUNT BEST-KNOWN-FACTORS
+   BEST-MODULUS BEST-SET-POINTER CHOSEN-PRIME FACTOR-LEVEL FACTOR-TRACE-LIST
+   FORBIDDEN-PRIMES SMALLEST-PRIME HENSEL-GROWTH-SIZE INPUT-LEADING-COEFFICIENT
+   INPUT-POLYNOMIAL IRREDUCIBLE KNOWN-FACTORS M-IMAGE-VARIABLE MODULAR-INFO
+   NO-OF-BEST-PRIMES NO-OF-RANDOM-PRIMES NON-MONIC NULL-SPACE-BASIS
+   NUMBER-OF-FACTORS ONE-COMPLETE-DEG-ANALYSIS-DONE POLY-MOD-P
+   PREVIOUS-DEGREE-MAP REDUCTION-COUNT SPLIT-LIST TARGET-FACTOR-COUNT
+   UNIVARIATE-FACTORS UNIVARIATE-INPUT-POLY VALID-PRIMES)) 
+(PUT 'UNIVARIATE-FACTORIZE 'NUMBER-OF-ARGS 1) 
+(PUT 'UNIVARIATE-FACTORIZE 'DEFINED-ON-LINE '66) 
+(PUT 'UNIVARIATE-FACTORIZE 'DEFINED-IN-FILE 'FACTOR/FACUNI.RED) 
+(PUT 'UNIVARIATE-FACTORIZE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE UNIVARIATE-FACTORIZE (POLY)
+    (COND ((TESTX**N+1 POLY) (FACTORIZEX**N+1 M-IMAGE-VARIABLE (CDAAR POLY) 1))
+          ((TESTX**N-1 POLY) (FACTORIZEX**N-1 M-IMAGE-VARIABLE (CDAAR POLY) 1))
+          (T (UNIVARIATE-FACTORIZE1 POLY)))) 
+(PUT 'UNIVARIATE-FACTORIZE1 'NUMBER-OF-ARGS 1) 
+(PUT 'UNIVARIATE-FACTORIZE1 'DEFINED-ON-LINE '76) 
+(PUT 'UNIVARIATE-FACTORIZE1 'DEFINED-IN-FILE 'FACTOR/FACUNI.RED) 
+(PUT 'UNIVARIATE-FACTORIZE1 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE UNIVARIATE-FACTORIZE1 (POLY)
+    (PROG (VALID-PRIMES UNIVARIATE-INPUT-POLY BEST-SET-POINTER
+           NUMBER-OF-FACTORS IRREDUCIBLE FORBIDDEN-PRIMES SMALLEST-PRIME
+           NO-OF-BEST-PRIMES NO-OF-RANDOM-PRIMES BAD-CASE TARGET-FACTOR-COUNT
+           MODULAR-INFO UNIVARIATE-FACTORS HENSEL-GROWTH-SIZE ALPHALIST
+           PREVIOUS-DEGREE-MAP ONE-COMPLETE-DEG-ANALYSIS-DONE REDUCTION-COUNT
+           MULTIVARIATE-INPUT-POLY)
+      (PROG (STREAM)
+        (COND
+         ((OR *TRALLFAC (AND *TRFAC (EQUAL FACTOR-LEVEL 1)))
+          (SETQ STREAM (CONS NIL NIL)))
+         (T (SETQ STREAM (ASSOC FACTOR-LEVEL FACTOR-TRACE-LIST))))
+        (COND
+         (STREAM
+          (PROGN
+           (SETQ STREAM (WRS (CDR STREAM)))
+           (PROGN
+            (PRIN2* "Univariate polynomial=")
+            (PRINTSF POLY)
+            (PROGN
+             (PRIN2* "The polynomial is univariate, primitive and square-free")
+             (TERPRI* NIL))
+            (PROGN
+             (PRIN2* "so we can treat it slightly more specifically. We")
+             (TERPRI* NIL))
+            (PROGN
+             (PRIN2* "factorise mod several primes,then pick the best one")
+             (TERPRI* NIL))
+            (PROGN
+             (PRIN2* "to use in the Hensel construction.")
+             (TERPRI* NIL)))
+           (WRS STREAM)))))
+      (INITIALIZE-UNIVARIATE-FLUIDS POLY)
+      (SETQ SMALLEST-PRIME (CDAAR POLY))
+     TRYAGAIN
+      (GET-SOME-RANDOM-PRIMES)
+      (CHOOSE-THE-BEST-PRIME)
+      (COND
+       (IRREDUCIBLE
+        (PROGN
+         (SETQ UNIVARIATE-FACTORS (LIST UNIVARIATE-INPUT-POLY))
+         (GO EXIT)))
+       (BAD-CASE (PROGN (SETQ BAD-CASE NIL) (GO TRYAGAIN))))
+      (RECONSTRUCT-FACTORS-OVER-INTEGERS)
+      (COND
+       (IRREDUCIBLE
+        (PROGN
+         (SETQ UNIVARIATE-FACTORS (LIST UNIVARIATE-INPUT-POLY))
+         (GO EXIT))))
+     EXIT
+      (PROG (STREAM)
+        (COND
+         ((OR *TRALLFAC (AND *TRFAC (EQUAL FACTOR-LEVEL 1)))
+          (SETQ STREAM (CONS NIL NIL)))
+         (T (SETQ STREAM (ASSOC FACTOR-LEVEL FACTOR-TRACE-LIST))))
+        (COND
+         (STREAM
+          (PROGN
+           (SETQ STREAM (WRS (CDR STREAM)))
+           (PROGN
+            (PROGN (PRIN2* "The univariate factors are:") (TERPRI* NIL))
+            (PROG (FF)
+              (SETQ FF UNIVARIATE-FACTORS)
+             LAB
+              (COND ((NULL FF) (RETURN NIL)))
+              ((LAMBDA (FF) (PRINTSF FF)) (CAR FF))
+              (SETQ FF (CDR FF))
+              (GO LAB)))
+           (WRS STREAM)))))
+      (RETURN UNIVARIATE-FACTORS))) 
+(PUT 'INITIALIZE-UNIVARIATE-FLUIDS 'NUMBER-OF-ARGS 1) 
+(PUT 'INITIALIZE-UNIVARIATE-FLUIDS 'DEFINED-ON-LINE '124) 
+(PUT 'INITIALIZE-UNIVARIATE-FLUIDS 'DEFINED-IN-FILE 'FACTOR/FACUNI.RED) 
+(PUT 'INITIALIZE-UNIVARIATE-FLUIDS 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE INITIALIZE-UNIVARIATE-FLUIDS (U)
+    (PROG ()
+      (COND
+       (*FORCE-PRIME
+        (PROGN (SETQ NO-OF-RANDOM-PRIMES 1) (SETQ NO-OF-BEST-PRIMES 1)))
+       (T (PROGN (SETQ NO-OF-RANDOM-PRIMES 5) (SETQ NO-OF-BEST-PRIMES 3) NIL)))
+      (SETQ UNIVARIATE-INPUT-POLY U)
+      (SETQ TARGET-FACTOR-COUNT (CDAAR U)))) 
+(PUT 'GET-SOME-RANDOM-PRIMES 'NUMBER-OF-ARGS 0) 
+(PUT 'GET-SOME-RANDOM-PRIMES 'DEFINED-ON-LINE '147) 
+(PUT 'GET-SOME-RANDOM-PRIMES 'DEFINED-IN-FILE 'FACTOR/FACUNI.RED) 
+(PUT 'GET-SOME-RANDOM-PRIMES 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE GET-SOME-RANDOM-PRIMES NIL
+    (PROG (CHOSEN-PRIME POLY-MOD-P I)
+      (SETQ VALID-PRIMES (MKVECT NO-OF-RANDOM-PRIMES))
+      (SETQ I 0)
+      (PROG ()
+       WHILELABEL
+        (COND ((NOT (LESSP I NO-OF-RANDOM-PRIMES)) (RETURN NIL)))
+        (PROGN
+         (SETQ POLY-MOD-P
+                 (FIND-A-VALID-PRIME (CDAR UNIVARIATE-INPUT-POLY)
+                  UNIVARIATE-INPUT-POLY NIL))
+         (COND
+          ((NOT (EQUAL POLY-MOD-P 'NOT-SQUARE-FREE))
+           (PROGN
+            (SETQ I (IADD1 I))
+            (PUTV VALID-PRIMES I (CONS CHOSEN-PRIME POLY-MOD-P))
+            (SETQ FORBIDDEN-PRIMES (CONS CHOSEN-PRIME FORBIDDEN-PRIMES))))))
+        (GO WHILELABEL)))) 
+(PUT 'CHOOSE-THE-BEST-PRIME 'NUMBER-OF-ARGS 0) 
+(PUT 'CHOOSE-THE-BEST-PRIME 'DEFINED-ON-LINE '164) 
+(PUT 'CHOOSE-THE-BEST-PRIME 'DEFINED-IN-FILE 'FACTOR/FACUNI.RED) 
+(PUT 'CHOOSE-THE-BEST-PRIME 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE CHOOSE-THE-BEST-PRIME NIL
+    (PROG (SPLIT-LIST POLY-MOD-P NULL-SPACE-BASIS KNOWN-FACTORS W N)
+      (SETQ MODULAR-INFO (MKVECT NO-OF-RANDOM-PRIMES))
+      (PROG (I)
+        (SETQ I 1)
+       LAB
+        (COND ((MINUSP (DIFFERENCE NO-OF-RANDOM-PRIMES I)) (RETURN NIL)))
+        (PROGN
+         (SETQ W (GETV VALID-PRIMES I))
+         (GET-FACTOR-COUNT-MOD-P I (CDR W) (CAR W) NIL))
+        (SETQ I (PLUS2 I 1))
+        (GO LAB))
+      (SETQ SPLIT-LIST (SORT SPLIT-LIST (FUNCTION LESSPPAIR)))
+      (COND
+       ((EQUAL (CAAR SPLIT-LIST) 1) (PROGN (SETQ IRREDUCIBLE T) (RETURN NIL))))
+      (SETQ W SPLIT-LIST)
+      (PROG (I)
+        (SETQ I 1)
+       LAB
+        (COND ((MINUSP (DIFFERENCE NO-OF-BEST-PRIMES I)) (RETURN NIL)))
+        (PROGN
+         (SETQ N (CDAR W))
+         (GET-FACTORS-MOD-P N (CAR (GETV VALID-PRIMES N)))
+         (SETQ W (CDR W)))
+        (SETQ I (PLUS2 I 1))
+        (GO LAB))
+      (SETQ SPLIT-LIST (DELETE W SPLIT-LIST))
+      (CHECK-DEGREE-SETS NO-OF-BEST-PRIMES NIL)
+      (SETQ ONE-COMPLETE-DEG-ANALYSIS-DONE T)
+      (PROG (STREAM)
+        (COND
+         ((OR *TRALLFAC (AND *TRFAC (EQUAL FACTOR-LEVEL 1)))
+          (SETQ STREAM (CONS NIL NIL)))
+         (T (SETQ STREAM (ASSOC FACTOR-LEVEL FACTOR-TRACE-LIST))))
+        (COND
+         (STREAM
+          (PROGN
+           (SETQ STREAM (WRS (CDR STREAM)))
+           (PROGN
+            (SETQ W (GETV VALID-PRIMES BEST-SET-POINTER))
+            (PRIN2* "The chosen prime is ")
+            (PROGN (PRIN2* (CAR W)) (TERPRI* NIL))
+            (PRIN2* "The polynomial mod ")
+            (PRIN2* (CAR W))
+            (PROGN (PRIN2* ", made monic, is:") (TERPRI* NIL))
+            (PRINTSF (CDR W))
+            (PROGN
+             (PRIN2* "and the factors of this modular polynomial are:")
+             (TERPRI* NIL))
+            (PROG (X)
+              (SETQ X (GETV MODULAR-INFO BEST-SET-POINTER))
+             LAB
+              (COND ((NULL X) (RETURN NIL)))
+              ((LAMBDA (X) (PRINTSF X)) (CAR X))
+              (SETQ X (CDR X))
+              (GO LAB))
+            NIL)
+           (WRS STREAM))))))) 
+(PUT 'RECONSTRUCT-FACTORS-OVER-INTEGERS 'NUMBER-OF-ARGS 0) 
+(PUT 'RECONSTRUCT-FACTORS-OVER-INTEGERS 'DEFINED-ON-LINE '211) 
+(PUT 'RECONSTRUCT-FACTORS-OVER-INTEGERS 'DEFINED-IN-FILE 'FACTOR/FACUNI.RED) 
+(PUT 'RECONSTRUCT-FACTORS-OVER-INTEGERS 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE RECONSTRUCT-FACTORS-OVER-INTEGERS NIL
+    (PROG (BEST-MODULUS BEST-FACTOR-COUNT INPUT-POLYNOMIAL
+           INPUT-LEADING-COEFFICIENT BEST-KNOWN-FACTORS S)
+      (SETQ S (GETV VALID-PRIMES BEST-SET-POINTER))
+      (SETQ BEST-KNOWN-FACTORS (GETV MODULAR-INFO BEST-SET-POINTER))
+      (SETQ INPUT-LEADING-COEFFICIENT (CDAR UNIVARIATE-INPUT-POLY))
+      (SETQ BEST-MODULUS (CAR S))
+      (SETQ BEST-FACTOR-COUNT (LENGTH BEST-KNOWN-FACTORS))
+      (SETQ INPUT-POLYNOMIAL UNIVARIATE-INPUT-POLY)
+      (SETQ UNIVARIATE-FACTORS (RECONSTRUCT.OVER.INTEGERS))
+      (COND (IRREDUCIBLE (RETURN T)))
+      (SETQ NUMBER-OF-FACTORS (LENGTH UNIVARIATE-FACTORS))
+      (COND ((EQUAL NUMBER-OF-FACTORS 1) (RETURN (SETQ IRREDUCIBLE T)))))) 
+(PUT 'RECONSTRUCT.OVER.INTEGERS 'NUMBER-OF-ARGS 0) 
+(PUT 'RECONSTRUCT.OVER.INTEGERS 'DEFINED-ON-LINE '229) 
+(PUT 'RECONSTRUCT.OVER.INTEGERS 'DEFINED-IN-FILE 'FACTOR/FACUNI.RED) 
+(PUT 'RECONSTRUCT.OVER.INTEGERS 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE RECONSTRUCT.OVER.INTEGERS NIL
+    (PROG (W LCLIST NON-MONIC)
+      (SET-MODULUS BEST-MODULUS)
+      (PROG (I)
+        (SETQ I 1)
+       LAB
+        (COND ((MINUSP (DIFFERENCE BEST-FACTOR-COUNT I)) (RETURN NIL)))
+        (SETQ LCLIST (CONS INPUT-LEADING-COEFFICIENT LCLIST))
+        (SETQ I (PLUS2 I 1))
+        (GO LAB))
+      (COND
+       ((NOT (EQUAL INPUT-LEADING-COEFFICIENT 1))
+        (PROGN
+         (SETQ BEST-KNOWN-FACTORS
+                 (PROG (FF FORALL-RESULT FORALL-ENDPTR)
+                   (SETQ FF BEST-KNOWN-FACTORS)
+                   (COND ((NULL FF) (RETURN NIL)))
+                   (SETQ FORALL-RESULT
+                           (SETQ FORALL-ENDPTR
+                                   (CONS
+                                    ((LAMBDA (FF)
+                                       ((LAMBDA (G609)
+                                          (COND
+                                           (*PHYSOP-LOADED
+                                            (PHYSOP-MULTF G609 FF))
+                                           (T (POLY-MULTF G609 FF))))
+                                        INPUT-LEADING-COEFFICIENT))
+                                     (CAR FF))
+                                    NIL)))
+                  LOOPLABEL
+                   (SETQ FF (CDR FF))
+                   (COND ((NULL FF) (RETURN FORALL-RESULT)))
+                   (RPLACD FORALL-ENDPTR
+                           (CONS
+                            ((LAMBDA (FF)
+                               ((LAMBDA (G609)
+                                  (COND (*PHYSOP-LOADED (PHYSOP-MULTF G609 FF))
+                                        (T (POLY-MULTF G609 FF))))
+                                INPUT-LEADING-COEFFICIENT))
+                             (CAR FF))
+                            NIL))
+                   (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                   (GO LOOPLABEL)))
+         (SETQ NON-MONIC T)
+         (PROG (STREAM)
+           (COND
+            ((OR *TRALLFAC (AND *TRFAC (EQUAL FACTOR-LEVEL 1)))
+             (SETQ STREAM (CONS NIL NIL)))
+            (T (SETQ STREAM (ASSOC FACTOR-LEVEL FACTOR-TRACE-LIST))))
+           (COND
+            (STREAM
+             (PROGN
+              (SETQ STREAM (WRS (CDR STREAM)))
+              (PROGN
+               (PROGN
+                (PRIN2*
+                 "(a) Now the polynomial is not monic so we multiply each")
+                (TERPRI* NIL))
+               (PROGN
+                (PRIN2*
+                 "of the modular factors, f(i), by the absolute value of")
+                (TERPRI* NIL))
+               (PRIN2* "the leading coefficient: ")
+               (PRIN2* INPUT-LEADING-COEFFICIENT)
+               (PROGN (PRIN2* '|.|) (TERPRI* NIL))
+               (PROGN
+                (PRIN2* "To bring the polynomial into agreement with this, we")
+                (TERPRI* NIL))
+               (PRIN2* "multiply it by ")
+               (COND
+                ((GREATERP BEST-FACTOR-COUNT 2)
+                 (PROGN
+                  (PRIN2* INPUT-LEADING-COEFFICIENT)
+                  (PRIN2* "**")
+                  (PROGN (PRIN2* (ISUB1 BEST-FACTOR-COUNT)) (TERPRI* NIL))))
+                (T (PROGN (PRIN2* INPUT-LEADING-COEFFICIENT) (TERPRI* NIL)))))
+              (WRS STREAM))))))))
+      (SETQ W
+              (UHENSEL.EXTEND INPUT-POLYNOMIAL BEST-KNOWN-FACTORS LCLIST
+                              BEST-MODULUS))
+      (COND (IRREDUCIBLE (RETURN T)))
+      (COND ((EQUAL (CAR W) 'OK) (RETURN (CDR W))) (T (ERRORF W))))) 
+(PUT 'TESTX**N+1 'NUMBER-OF-ARGS 1) 
+(PUT 'TESTX**N+1 'DEFINED-ON-LINE '262) 
+(PUT 'TESTX**N+1 'DEFINED-IN-FILE 'FACTOR/FACUNI.RED) 
+(PUT 'TESTX**N+1 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE TESTX**N+1 (U)
+    (AND (NOT (OR (ATOM U) (ATOM (CAR U)))) (EQUAL (CDAR U) 1)
+         (EQUAL (CDR U) 1))) 
+(PUT 'TESTX**N-1 'NUMBER-OF-ARGS 1) 
+(PUT 'TESTX**N-1 'DEFINED-ON-LINE '268) 
+(PUT 'TESTX**N-1 'DEFINED-IN-FILE 'FACTOR/FACUNI.RED) 
+(PUT 'TESTX**N-1 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE TESTX**N-1 (U)
+    (AND (NOT (OR (ATOM U) (ATOM (CAR U)))) (EQUAL (CDAR U) 1)
+         (EQUAL (CDR U) (MINUS 1)))) 
+(PUT 'FACTORIZEX**N+1 'NUMBER-OF-ARGS 3) 
+(PUT 'FACTORIZEX**N+1 'DEFINED-ON-LINE '274) 
+(PUT 'FACTORIZEX**N+1 'DEFINED-IN-FILE 'FACTOR/FACUNI.RED) 
+(PUT 'FACTORIZEX**N+1 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE FACTORIZEX**N+1 (VAR DEGREE VORDER)
+    (COND
+     ((EVENP DEGREE)
+      (FACTORIZEX**N+1 VAR (QUOTIENT DEGREE 2) (TIMES 2 VORDER)))
+     (T
+      (PROG (W)
+        (SETQ W (FACTORIZEX**N-1 VAR DEGREE VORDER))
+        (SETQ W (CONS (NEGF (CAR W)) (CDR W)))
+        (RETURN
+         (PROG (P FORALL-RESULT FORALL-ENDPTR)
+           (SETQ P W)
+           (COND ((NULL P) (RETURN NIL)))
+           (SETQ FORALL-RESULT
+                   (SETQ FORALL-ENDPTR
+                           (CONS
+                            ((LAMBDA (P)
+                               (NEGATE-VARIABLE VAR (TIMES 2 VORDER) P))
+                             (CAR P))
+                            NIL)))
+          LOOPLABEL
+           (SETQ P (CDR P))
+           (COND ((NULL P) (RETURN FORALL-RESULT)))
+           (RPLACD FORALL-ENDPTR
+                   (CONS
+                    ((LAMBDA (P) (NEGATE-VARIABLE VAR (TIMES 2 VORDER) P))
+                     (CAR P))
+                    NIL))
+           (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+           (GO LOOPLABEL))))))) 
+(PUT 'NEGATE-VARIABLE 'NUMBER-OF-ARGS 3) 
+(PUT 'NEGATE-VARIABLE 'DEFINED-ON-LINE '285) 
+(PUT 'NEGATE-VARIABLE 'DEFINED-IN-FILE 'FACTOR/FACUNI.RED) 
+(PUT 'NEGATE-VARIABLE 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE NEGATE-VARIABLE (VAR VORDER P)
+    (COND ((OR (ATOM P) (ATOM (CAR P))) P)
+          ((EQUAL (CAAAR P) VAR)
+           (COND
+            ((EQUAL (REMAINDER (CDAAR P) VORDER) 0)
+             (CONS (CAR P) (NEGATE-VARIABLE VAR VORDER (CDR P))))
+            (T
+             (CONS (CONS (CAAR P) (NEGF (CDAR P)))
+                   (NEGATE-VARIABLE VAR VORDER (CDR P))))))
+          (T
+           (CONS (CONS (CAAR P) (NEGATE-VARIABLE VAR VORDER (CDAR P)))
+                 (NEGATE-VARIABLE VAR VORDER (CDR P)))))) 
+(PUT 'INTEGER-FACTORS 'NUMBER-OF-ARGS 1) 
+(PUT 'INTEGER-FACTORS 'DEFINED-ON-LINE '296) 
+(PUT 'INTEGER-FACTORS 'DEFINED-IN-FILE 'FACTOR/FACUNI.RED) 
+(PUT 'INTEGER-FACTORS 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE INTEGER-FACTORS (N)
+    (PROG (L Q M W)
+      (COND ((EQUAL N 1) (RETURN '((1 . 1)))))
+      (SETQ Q 2)
+      (SETQ M 0)
+     TOP
+      (SETQ W (DIVIDE N Q))
+      (PROG ()
+       WHILELABEL
+        (COND ((NOT (EQUAL (CDR W) 0)) (RETURN NIL)))
+        (PROGN (SETQ N (CAR W)) (SETQ W (DIVIDE N Q)) (SETQ M (PLUS M 1)))
+        (GO WHILELABEL))
+      (COND ((NOT (EQUAL M 0)) (SETQ L (CONS (CONS Q M) L))))
+      (COND
+       ((GREATERP Q (CAR W))
+        (PROGN
+         (COND ((NOT (EQUAL N 1)) (SETQ L (CONS (CONS N 1) L))))
+         (RETURN (REVERSIP L)))))
+      (SETQ Q (IADD1 Q))
+      (COND ((IGREATERP Q 3) (SETQ Q (IADD1 Q))))
+      (SETQ M 0)
+      (GO TOP))) 
+(PUT 'FACTORED-DIVISORS 'NUMBER-OF-ARGS 1) 
+(PUT 'FACTORED-DIVISORS 'DEFINED-ON-LINE '321) 
+(PUT 'FACTORED-DIVISORS 'DEFINED-IN-FILE 'FACTOR/FACUNI.RED) 
+(PUT 'FACTORED-DIVISORS 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE FACTORED-DIVISORS (FL)
+    (COND ((NULL FL) NIL)
+          (T
+           (PROG (L W)
+             (SETQ W (FACTORED-DIVISORS (CDR FL)))
+             (SETQ L W)
+             (PROG (I)
+               (SETQ I 1)
+              LAB
+               (COND ((MINUSP (DIFFERENCE (CDAR FL) I)) (RETURN NIL)))
+               (PROGN
+                (SETQ L (CONS (LIST (CONS (CAAR FL) I)) L))
+                (PROG (P)
+                  (SETQ P W)
+                 LAB
+                  (COND ((NULL P) (RETURN NIL)))
+                  ((LAMBDA (P) (SETQ L (CONS (CONS (CONS (CAAR FL) I) P) L)))
+                   (CAR P))
+                  (SETQ P (CDR P))
+                  (GO LAB)))
+               (SETQ I (PLUS2 I 1))
+               (GO LAB))
+             (RETURN L))))) 
+(PUT 'FACTORIZEX**N-1 'NUMBER-OF-ARGS 3) 
+(PUT 'FACTORIZEX**N-1 'DEFINED-ON-LINE '337) 
+(PUT 'FACTORIZEX**N-1 'DEFINED-IN-FILE 'FACTOR/FACUNI.RED) 
+(PUT 'FACTORIZEX**N-1 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE FACTORIZEX**N-1 (VAR DEGREE VORDER)
+    (COND
+     ((EVENP DEGREE)
+      (APPEND (FACTORIZEX**N+1 VAR (QUOTIENT DEGREE 2) VORDER)
+              (FACTORIZEX**N-1 VAR (QUOTIENT DEGREE 2) VORDER)))
+     ((EQUAL DEGREE 1)
+      (LIST (CONS (CONS (GETPOWER (FKERN VAR) VORDER) 1) (MINUS 1))))
+     (T
+      (PROG (FACDEG)
+        (SETQ FACDEG
+                (CONS '((1 . 1)) (FACTORED-DIVISORS (INTEGER-FACTORS DEGREE))))
+        (RETURN
+         (PROG (FL FORALL-RESULT FORALL-ENDPTR)
+           (SETQ FL FACDEG)
+           (COND ((NULL FL) (RETURN NIL)))
+           (SETQ FORALL-RESULT
+                   (SETQ FORALL-ENDPTR
+                           (CONS
+                            ((LAMBDA (FL)
+                               (CYCLOTOMIC-POLYNOMIAL VAR FL VORDER))
+                             (CAR FL))
+                            NIL)))
+          LOOPLABEL
+           (SETQ FL (CDR FL))
+           (COND ((NULL FL) (RETURN FORALL-RESULT)))
+           (RPLACD FORALL-ENDPTR
+                   (CONS
+                    ((LAMBDA (FL) (CYCLOTOMIC-POLYNOMIAL VAR FL VORDER))
+                     (CAR FL))
+                    NIL))
+           (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+           (GO LOOPLABEL))))))) 
+(PUT 'CYCLOTOMIC-POLYNOMIAL 'NUMBER-OF-ARGS 3) 
+(PUT 'CYCLOTOMIC-POLYNOMIAL 'DEFINED-ON-LINE '348) 
+(PUT 'CYCLOTOMIC-POLYNOMIAL 'DEFINED-IN-FILE 'FACTOR/FACUNI.RED) 
+(PUT 'CYCLOTOMIC-POLYNOMIAL 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE CYCLOTOMIC-POLYNOMIAL (VAR FL VORDER)
+    (COND
+     ((NOT (EQUAL (CDAR FL) 1))
+      (CYCLOTOMIC-POLYNOMIAL VAR
+       (CONS (CONS (CAAR FL) (SUB1 (CDAR FL))) (CDR FL))
+       (TIMES VORDER (CAAR FL))))
+     ((EQUAL (CDR FL) NIL)
+      (COND
+       ((EQUAL (CAAR FL) 1)
+        (CONS (CONS (GETPOWER (FKERN VAR) VORDER) 1) (MINUS 1)))
+       (T
+        (QUOTFAIL
+         (CONS (CONS (GETPOWER (FKERN VAR) (TIMES VORDER (CAAR FL))) 1)
+               (MINUS 1))
+         (CONS (CONS (GETPOWER (FKERN VAR) VORDER) 1) (MINUS 1))))))
+     (T
+      (QUOTFAIL (CYCLOTOMIC-POLYNOMIAL VAR (CDR FL) (TIMES VORDER (CAAR FL)))
+                (CYCLOTOMIC-POLYNOMIAL VAR (CDR FL) VORDER))))) 
+(ENDMODULE) 

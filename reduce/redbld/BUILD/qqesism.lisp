@@ -1,0 +1,5 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(FLUID '(QQE_SISM_RCSID* QQE_SISM_COPYRIGHT*)) 
+(SETQ QQE_SISM_RCSID* "$Id: qqesism.red 81 2009-02-06 18:22:31Z thomas-sturm $") 
+(SETQ QQE_SISM_COPYRIGHT* "Copyright (c) 2005-2009 A. Dolzmann and T. Sturm") 

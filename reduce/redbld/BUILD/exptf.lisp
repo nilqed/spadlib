@@ -1,0 +1,95 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(MODULE (LIST 'EXPTF)) 
+(FLUID '(*EXP)) 
+(PUT 'EXPTSQ 'NUMBER-OF-ARGS 2) 
+(PUT 'EXPTSQ 'DEFINED-ON-LINE '34) 
+(PUT 'EXPTSQ 'DEFINED-IN-FILE 'POLY/EXPTF.RED) 
+(PUT 'EXPTSQ 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE EXPTSQ (U N)
+    (PROG (X)
+      (COND ((EQUAL N 1) (RETURN U))
+            ((EQUAL N 0)
+             (RETURN
+              (COND ((NULL (CAR U)) (RERROR 'POLY 4 " 0**0 formed"))
+                    (T (CONS 1 1)))))
+            ((NULL (CAR U)) (RETURN U))
+            ((LESSP N 0)
+             (RETURN
+              ((LAMBDA (U)
+                 (COND (*QSUM-SIMPEXPT (QSUM-SIMPEXPT U))
+                       (T (BASIC-SIMPEXPT U))))
+               (LIST (MK*SQ U) N))))
+            ((NULL *EXP) (RETURN (CONS (MKSFPF (CAR U) N) (MKSFPF (CDR U) N))))
+            ((KERNP U) (RETURN (MKSQ (CAAAR (CAR U)) N)))
+            ((EQUAL (CDR U) 1) (RETURN (CONS (EXPTF (CAR U) N) 1)))
+            ((OR (ATOM (CAR U)) (ATOM (CAR (CAR U))))
+             (SETQ X
+                     (MULTSQ (CONS (|:EXPT| (CAR U) N) 1)
+                             (CONS 1 (EXPTF (CDR U) N)))))
+            (T
+             (PROGN
+              (SETQ X U)
+              (PROG ()
+               WHILELABEL
+                (COND
+                 ((NOT (GREATERP (SETQ N (DIFFERENCE N 1)) 0)) (RETURN NIL)))
+                (SETQ X
+                        (CONS
+                         (COND (*PHYSOP-LOADED (PHYSOP-MULTF (CAR U) (CAR X)))
+                               (T (POLY-MULTF (CAR U) (CAR X))))
+                         (COND (*PHYSOP-LOADED (PHYSOP-MULTF (CDR U) (CDR X)))
+                               (T (POLY-MULTF (CDR U) (CDR X))))))
+                (GO WHILELABEL))
+              (SETQ X (CANONSQ X)))))
+      (COND ((NULL (CDR X)) (RERROR 'POLY 101 "Zero divisor")))
+      (RETURN X))) 
+(PUT 'EXPTF 'NUMBER-OF-ARGS 2) 
+(PUT 'EXPTF 'DEFINED-ON-LINE '58) 
+(PUT 'EXPTF 'DEFINED-IN-FILE 'POLY/EXPTF.RED) 
+(PUT 'EXPTF 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE EXPTF (U N)
+    (COND ((LESSP N 0) (ERRACH (LIST "exptf" U N)))
+          ((OR (ATOM U) (ATOM (CAR U))) (|:EXPT| U N))
+          ((OR *EXP (KERNLP U)) (EXPTF1 U N)) (T (MKSFPF U N)))) 
+(PUT 'EXPTF1 'NUMBER-OF-ARGS 2) 
+(PUT 'EXPTF1 'DEFINED-ON-LINE '64) 
+(PUT 'EXPTF1 'DEFINED-IN-FILE 'POLY/EXPTF.RED) 
+(PUT 'EXPTF1 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE EXPTF1 (U N)
+    (COND ((EQUAL N 0) 1)
+          (T
+           (PROG (X)
+             (SETQ X U)
+             (PROG ()
+              WHILELABEL
+               (COND
+                ((NOT (GREATERP (SETQ N (DIFFERENCE N 1)) 0)) (RETURN NIL)))
+               (SETQ X
+                       (COND (*PHYSOP-LOADED (PHYSOP-MULTF U X))
+                             (T (POLY-MULTF U X))))
+               (GO WHILELABEL))
+             (RETURN X))))) 
+(PUT 'EXPTF2 'NUMBER-OF-ARGS 2) 
+(PUT 'EXPTF2 'DEFINED-ON-LINE '73) 
+(PUT 'EXPTF2 'DEFINED-IN-FILE 'POLY/EXPTF.RED) 
+(PUT 'EXPTF2 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE EXPTF2 (U N)
+    (COND ((EQUAL N 0) 1)
+          (T
+           (PROG (X M)
+             (SETQ M 0)
+             (SETQ X 1)
+            A
+             (SETQ M N)
+             (COND
+              ((NEQ (DIFFERENCE M (TIMES 2 (SETQ N (QUOTIENT N 2)))) 0)
+               (SETQ X
+                       (COND (*PHYSOP-LOADED (PHYSOP-MULTF U X))
+                             (T (POLY-MULTF U X))))))
+             (COND ((EQUAL N 0) (RETURN X)))
+             (SETQ U
+                     (COND (*PHYSOP-LOADED (PHYSOP-MULTF U U))
+                           (T (POLY-MULTF U U))))
+             (GO A))))) 
+(ENDMODULE) 

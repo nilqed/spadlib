@@ -1,0 +1,698 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(MODULE (LIST 'OFSFGS)) 
+(REVISION 'OFSFGS "$Id: ofsfgs.red 5958 2021-08-21 17:38:36Z thomas-sturm $") 
+(COPYRIGHT 'OFSFGS "(c) 1995-2009 A. Dolzmann") 
+(PUT 'OFSF_GSC 'NUMBER-OF-ARGS 2) 
+(PUT 'OFSF_GSC 'DEFINED-ON-LINE '42) 
+(PUT 'OFSF_GSC 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSC 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE OFSF_GSC (F ATL)
+    (PROG (W SVRLGSVB)
+      (SETQ SVRLGSVB *RLGSVB)
+      (COND ((AND *RLVERBOSE *RLGSVB) (ON1 'RLGSVB)) (T (OFF1 'RLGSVB)))
+      (SETQ W (OFSF_GSC1 F ATL))
+      (ONOFF 'RLGSVB SVRLGSVB)
+      (RETURN W))) 
+(PUT 'OFSF_GSC1 'NUMBER-OF-ARGS 2) 
+(PUT 'OFSF_GSC1 'DEFINED-ON-LINE '56) 
+(PUT 'OFSF_GSC1 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSC1 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE OFSF_GSC1 (F ATL)
+    (PROG (QL VARLL W)
+      (COND (*RLQEPNF (SETQ F (CL_PNF F))))
+      (PROG (G254 G255)
+        (SETQ G254 (CL_SPLIT F))
+        (SETQ G255 G254)
+        (SETQ QL (CAR G254))
+        (SETQ G254 (CDR G254))
+        (SETQ VARLL (CAR G254))
+        (SETQ G254 (CDR G254))
+        (SETQ F (CAR G254))
+        (SETQ G254 (CDR G254))
+        (RETURN G255))
+      (SETQ W (OFSF_GSC2 F ATL))
+      (RETURN (CL_UNSPLIT QL VARLL W)))) 
+(PUT 'OFSF_GSC2 'NUMBER-OF-ARGS 2) 
+(PUT 'OFSF_GSC2 'DEFINED-ON-LINE '66) 
+(PUT 'OFSF_GSC2 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSC2 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE OFSF_GSC2 (F ATL)
+    (PROG (PHI *RLSIEXPLA)
+      (COND
+       (*RLGSBNF
+        (PROGN
+         (COND (*RLGSVB (IOTO_PRIN2 "[CNF")))
+         (SETQ PHI (CL_SIMPL (CL_CNF (CL_NNF F)) ATL (MINUS 1)))
+         (COND (*RLGSVB (IOTO_PRIN2 "] ")))))
+       (T (SETQ PHI (CL_SIMPL F ATL (MINUS 1)))))
+      (COND ((EQ PHI 'INCTHEO) (RETURN 'INCTHEO)))
+      (COND ((OR (EQ PHI 'TRUE) (EQ PHI 'FALSE)) (RETURN PHI)))
+      (SETQ PHI (OFSF_GSSIMPLIFY0 PHI ATL))
+      (COND ((EQ PHI 'INCTHEO) (RETURN 'INCTHEO)))
+      (RETURN (CL_SIMPL PHI ATL (MINUS 1))))) 
+(PUT 'OFSF_GSD 'NUMBER-OF-ARGS 2) 
+(PUT 'OFSF_GSD 'DEFINED-ON-LINE '87) 
+(PUT 'OFSF_GSD 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSD 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE OFSF_GSD (F ATL)
+    (PROG (W SVRLGSVB)
+      (SETQ SVRLGSVB *RLGSVB)
+      (COND ((AND *RLVERBOSE *RLGSVB) (ON1 'RLGSVB)) (T (OFF1 'RLGSVB)))
+      (SETQ W (OFSF_GSD1 F ATL))
+      (ONOFF 'RLGSVB SVRLGSVB)
+      (RETURN W))) 
+(PUT 'OFSF_GSD1 'NUMBER-OF-ARGS 2) 
+(PUT 'OFSF_GSD1 'DEFINED-ON-LINE '101) 
+(PUT 'OFSF_GSD1 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSD1 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE OFSF_GSD1 (F ATL)
+    (PROG (QL VARLL W)
+      (COND (*RLQEPNF (SETQ F (CL_PNF F))))
+      (PROG (G256 G257)
+        (SETQ G256 (CL_SPLIT F))
+        (SETQ G257 G256)
+        (SETQ QL (CAR G256))
+        (SETQ G256 (CDR G256))
+        (SETQ VARLL (CAR G256))
+        (SETQ G256 (CDR G256))
+        (SETQ F (CAR G256))
+        (SETQ G256 (CDR G256))
+        (RETURN G257))
+      (SETQ W (CL_SIMPL (OFSF_GSD2 F ATL) ATL (MINUS 1)))
+      (RETURN (CL_UNSPLIT QL VARLL W)))) 
+(PUT 'OFSF_GSD2 'NUMBER-OF-ARGS 2) 
+(PUT 'OFSF_GSD2 'DEFINED-ON-LINE '111) 
+(PUT 'OFSF_GSD2 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSD2 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE OFSF_GSD2 (F ATL)
+    (PROG (PHI *RLPOS *RLSIEXPLA)
+      (COND
+       (*RLGSBNF
+        (PROGN
+         (COND (*RLGSVB (IOTO_PRIN2 "[DNF")))
+         (SETQ PHI (CL_SIMPL (CL_NNFNOT (CL_DNF F)) ATL (MINUS 1)))
+         (COND (*RLGSVB (IOTO_PRIN2 "] ")))
+         NIL))
+       (T (SETQ PHI (CL_SIMPL (CL_NNFNOT F) ATL (MINUS 1)))))
+      (COND ((EQ PHI 'INCTHEO) (RETURN 'INCTHEO)))
+      (COND ((OR (EQ PHI 'TRUE) (EQ PHI 'FALSE)) (RETURN (CL_NNFNOT PHI))))
+      (SETQ PHI (OFSF_GSSIMPLIFY0 PHI ATL))
+      (COND ((EQ PHI 'INCTHEO) (RETURN 'INCTHEO)))
+      (RETURN (CL_NNFNOT PHI)))) 
+(PUT 'OFSF_GSN 'NUMBER-OF-ARGS 3) 
+(DE OFSF_GSN (F ATL BNF)
+    (PROG (QL VARLL W)
+      (COND (*RLQEPNF (SETQ F (CL_PNF F))))
+      (PROG (G258 G259)
+        (SETQ G258 (CL_SPLIT F))
+        (SETQ G259 G258)
+        (SETQ QL (CAR G258))
+        (SETQ G258 (CDR G258))
+        (SETQ VARLL (CAR G258))
+        (SETQ G258 (CDR G258))
+        (SETQ F (CAR G258))
+        (SETQ G258 (CDR G258))
+        (RETURN G259))
+      (SETQ W (OFSF_GSN1 F ATL BNF))
+      (RETURN (CL_UNSPLIT QL VARLL W)))) 
+(PUT 'OFSF_GSN1 'NUMBER-OF-ARGS 3) 
+(DE OFSF_GSN1 (F ATL BNF)
+    (COND ((OR (EQ F 'TRUE) (EQ F 'FALSE)) F) ((EQ BNF 'DNF) (OFSF_GSD F ATL))
+          ((EQ BNF 'CNF) (OFSF_GSC F ATL))
+          ((CL_ATFLP (CDR F))
+           (COND ((EQ (COND ((ATOM F) F) (T (CAR F))) 'AND) (OFSF_GSD F ATL))
+                 (T (OFSF_GSC F ATL))))
+          ((EQ (COND ((ATOM F) F) (T (CAR F))) 'AND) (OFSF_GSC F ATL))
+          (T (OFSF_GSD F ATL)))) 
+(PUT 'OFSF_GSSIMPLIFY0 'NUMBER-OF-ARGS 2) 
+(PUT 'OFSF_GSSIMPLIFY0 'DEFINED-ON-LINE '164) 
+(PUT 'OFSF_GSSIMPLIFY0 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSSIMPLIFY0 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE OFSF_GSSIMPLIFY0 (F ATL)
+    (PROG (OFSF_GSTV* *CGBVERBOSE *GROEBOPT) (RETURN (OFSF_GSSIMPLIFY F ATL)))) 
+(PUT 'OFSF_GSSIMPLIFY 'NUMBER-OF-ARGS 2) 
+(PUT 'OFSF_GSSIMPLIFY 'DEFINED-ON-LINE '174) 
+(PUT 'OFSF_GSSIMPLIFY 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSSIMPLIFY 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE OFSF_GSSIMPLIFY (F ATL)
+    (PROG (AL GP IPART NPART W GPREM GPRODAL GATL)
+      (SETQ ATL (CL_SIMPLIFYTHEORY ATL))
+      (COND ((OR (EQ ATL 'INCTHEO) (OFSF_GSINCTHEOP ATL)) (RETURN 'INCTHEO)))
+      (COND
+       ((OR (CL_ATFP F) (EQ (COND ((ATOM F) F) (T (CAR F))) 'OR))
+        (SETQ AL (OFSF_GSSPLIT-CNF (LIST F))))
+       (T (SETQ AL (OFSF_GSSPLIT-CNF (CDR F)))))
+      (COND
+       ((SETQ W (LTO_CATSOC 'GPREM AL))
+        (PROGN
+         (SETQ GP (OFSF_GSEXTRACT-GP ATL))
+         (SETQ GPREM (OFSF_GSGPREM W GP))
+         (COND ((EQ GPREM 'FALSE) (RETURN 'FALSE)))
+         NIL)))
+      (SETQ GATL (APPEND ATL (LTO_CATSOC 'GPREM AL)))
+      (SETQ GP (OFSF_GSEXTRACT-GP GATL))
+      (SETCAR (CAR GP) (OFSF_GSGBF (CAAR GP)))
+      (SETQ IPART (LTO_CATSOC 'IMPL AL))
+      (SETQ NPART (LTO_CATSOC 'NONEQ AL))
+      (COND (IPART (SETQ IPART (OFSF_GSPART IPART GP))))
+      (COND ((AND NPART GATL) (SETQ NPART (OFSF_GSPART NPART GP))))
+      (COND
+       (GPREM
+        (PROGN
+         (COND
+          ((NULL *RLGSPROD)
+           (PROGN
+            (SETQ GPRODAL (LTO_CATSOC 'GPRODAL AL))
+            (SETQ GPREM (OFSF_GSSIMULATEPROD GPREM GPRODAL)))))
+         (RETURN
+          ((LAMBDA (G261)
+             (COND ((AND G261 (CDR G261)) (CONS 'AND G261))
+                   ((NULL G261) (COND ((EQ 'AND 'AND) 'TRUE) (T 'FALSE)))
+                   (T (CAR G261))))
+           (CONS GPREM (NCONC IPART NPART)))))))
+      (RETURN
+       ((LAMBDA (G263)
+          (COND ((AND G263 (CDR G263)) (CONS 'AND G263))
+                ((NULL G263) (COND ((EQ 'AND 'AND) 'TRUE) (T 'FALSE)))
+                (T (CAR G263))))
+        (NCONC IPART NPART))))) 
+(PUT 'OFSF_GSPREDUCEF 'NUMBER-OF-ARGS 2) 
+(PUT 'OFSF_GSPREDUCEF 'DEFINED-ON-LINE '212) 
+(PUT 'OFSF_GSPREDUCEF 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSPREDUCEF 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE OFSF_GSPREDUCEF (F GL)
+    (CAR (GB_REDUCEF F GL (OFSF_GSVL) (OFSF_GSSM) (OFSF_GSSX)))) 
+(PUT 'OFSF_GSGREDUCEF 'NUMBER-OF-ARGS 2) 
+(PUT 'OFSF_GSGREDUCEF 'DEFINED-ON-LINE '215) 
+(PUT 'OFSF_GSGREDUCEF 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSGREDUCEF 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE OFSF_GSGREDUCEF (F GL)
+    (OFSF_GSPREDUCEF F (GB_GBF GL (OFSF_GSVL) (OFSF_GSSM) (OFSF_GSSX)))) 
+(PUT 'OFSF_GSGBF 'NUMBER-OF-ARGS 1) 
+(PUT 'OFSF_GSGBF 'DEFINED-ON-LINE '218) 
+(PUT 'OFSF_GSGBF 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSGBF 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE OFSF_GSGBF (FL) (GB_GBF FL (OFSF_GSVL) (OFSF_GSSM) (OFSF_GSSX))) 
+(PUT 'OFSF_GSVL 'NUMBER-OF-ARGS 0) 
+(PUT 'OFSF_GSVL 'DEFINED-ON-LINE '221) 
+(PUT 'OFSF_GSVL 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSVL 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE OFSF_GSVL NIL
+    (COND (*RLGSUTORD (APPEND (TD_VARS) (LIST OFSF_GSTV*))) (T NIL))) 
+(PUT 'OFSF_GSSM 'NUMBER-OF-ARGS 0) 
+(PUT 'OFSF_GSSM 'DEFINED-ON-LINE '224) 
+(PUT 'OFSF_GSSM 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSSM 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE OFSF_GSSM NIL (COND (*RLGSUTORD (TD_SORTMODE)) (T 'REVGRADLEX))) 
+(PUT 'OFSF_GSSX 'NUMBER-OF-ARGS 0) 
+(PUT 'OFSF_GSSX 'DEFINED-ON-LINE '227) 
+(PUT 'OFSF_GSSX 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSSX 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE OFSF_GSSX NIL (COND (*RLGSUTORD (TD_SORTEXTENSION)) (T NIL))) 
+(PUT 'OFSF_GSINCTHEOP 'NUMBER-OF-ARGS 1) 
+(PUT 'OFSF_GSINCTHEOP 'DEFINED-ON-LINE '239) 
+(PUT 'OFSF_GSINCTHEOP 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSINCTHEOP 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE OFSF_GSINCTHEOP (ATL)
+    (PROG (W)
+      (COND ((NULL ATL) (RETURN NIL)))
+      (COND (*RLGSVB (IOTO_PRIN2 "Inctheop... ")))
+      (SETQ W
+              (CL_NNFNOT
+               (OFSF_GSIMPLICATION
+                (CL_NNFNOT
+                 (COND ((AND ATL (CDR ATL)) (CONS 'AND ATL))
+                       ((NULL ATL) (COND ((EQ 'AND 'AND) 'TRUE) (T 'FALSE)))
+                       (T (CAR ATL))))
+                '((NIL . 1)))))
+      (COND (*RLGSVB (IOTO_PRIN2T "done.")))
+      (RETURN (EQ W 'FALSE)))) 
+(PUT 'OFSF_GSSPLIT-CNF 'NUMBER-OF-ARGS 1) 
+(PUT 'OFSF_GSSPLIT-CNF 'DEFINED-ON-LINE '253) 
+(PUT 'OFSF_GSSPLIT-CNF 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSSPLIT-CNF 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE OFSF_GSSPLIT-CNF (F)
+    (PROG (NONEQ IMP PROD GPRODAL GPREM W X)
+      (PROG (PHI)
+        (SETQ PHI F)
+       LAB
+        (COND ((NULL PHI) (RETURN NIL)))
+        ((LAMBDA (PHI)
+           (COND
+            ((MEMQ (COND ((ATOM PHI) PHI) (T (CAR PHI))) '(AND OR))
+             (COND
+              ((EQ (SETQ W (OFSF_GSDIS-TYPE (CDR PHI))) 'IMPL)
+               (SETQ IMP (CONS PHI IMP)))
+              ((EQ W 'NONEQ) (SETQ NONEQ (CONS PHI NONEQ)))
+              (T
+               (PROGN
+                (SETQ PROD 1)
+                (PROG (ATF)
+                  (SETQ ATF (CDR PHI))
+                 LAB
+                  (COND ((NULL ATF) (RETURN NIL)))
+                  ((LAMBDA (ATF)
+                     (SETQ PROD
+                             (COND
+                              (*PHYSOP-LOADED (PHYSOP-MULTF PROD (CADR ATF)))
+                              (T (POLY-MULTF PROD (CADR ATF))))))
+                   (CAR ATF))
+                  (SETQ ATF (CDR ATF))
+                  (GO LAB))
+                (SETQ X (LIST 'EQUAL PROD NIL))
+                (SETQ GPREM (CONS X GPREM))
+                (SETQ GPRODAL (CONS (CONS X PHI) GPRODAL))))))
+            (T (SETQ GPREM (CONS PHI GPREM)))))
+         (CAR PHI))
+        (SETQ PHI (CDR PHI))
+        (GO LAB))
+      (COND
+       (*RLGSVB
+        (PROGN
+         (IOTO_TPRIN2T
+          (LIST "global: " (LENGTH GPREM) "; impl: " (LENGTH IMP) "; no neq: "
+                (LENGTH NONEQ) "; glob-prod-al: " (LENGTH GPRODAL) ".")))))
+      (RETURN
+       (LIST (CONS 'IMPL IMP) (CONS 'NONEQ NONEQ) (CONS 'GPREM GPREM)
+             (CONS 'GPRODAL GPRODAL))))) 
+(PUT 'OFSF_GSDIS-TYPE 'NUMBER-OF-ARGS 1) 
+(PUT 'OFSF_GSDIS-TYPE 'DEFINED-ON-LINE '290) 
+(PUT 'OFSF_GSDIS-TYPE 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSDIS-TYPE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE OFSF_GSDIS-TYPE (ATL)
+    (PROG (OP W)
+      (COND ((NULL ATL) (RETURN 'EQUAL)))
+      (SETQ OP (CAR (CAR ATL)))
+      (COND ((EQ OP 'NEQ) (RETURN 'IMPL)))
+      (SETQ W (OFSF_GSDIS-TYPE (CDR ATL)))
+      (COND ((EQ W 'IMPL) (RETURN 'IMPL)))
+      (COND ((AND (EQ OP 'EQUAL) (EQ W 'EQUAL)) (RETURN 'EQUAL)))
+      (RETURN 'NONEQ))) 
+(PUT 'OFSF_GSEXTRACT-GP 'NUMBER-OF-ARGS 1) 
+(PUT 'OFSF_GSEXTRACT-GP 'DEFINED-ON-LINE '307) 
+(PUT 'OFSF_GSEXTRACT-GP 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSEXTRACT-GP 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE OFSF_GSEXTRACT-GP (ATL)
+    (PROG (W)
+      (SETQ W
+              (OFSF_GSDIS2IMPL
+               (PROG (AT FORALL-RESULT FORALL-ENDPTR)
+                 (SETQ AT ATL)
+                 (COND ((NULL AT) (RETURN NIL)))
+                 (SETQ FORALL-RESULT
+                         (SETQ FORALL-ENDPTR
+                                 (CONS
+                                  ((LAMBDA (AT) (OFSF_NEGATEAT AT)) (CAR AT))
+                                  NIL)))
+                LOOPLABEL
+                 (SETQ AT (CDR AT))
+                 (COND ((NULL AT) (RETURN FORALL-RESULT)))
+                 (RPLACD FORALL-ENDPTR
+                         (CONS ((LAMBDA (AT) (OFSF_NEGATEAT AT)) (CAR AT))
+                               NIL))
+                 (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                 (GO LOOPLABEL))))
+      (RETURN
+       (CONS
+        (CONS (CAR W)
+              ((LAMBDA (G265)
+                 (COND (*PHYSOP-LOADED (PHYSOP-MULTF (CADR W) G265))
+                       (T (POLY-MULTF (CADR W) G265))))
+               (CADDR W)))
+        (CADDDR W))))) 
+(PUT 'OFSF_GSGPREM 'NUMBER-OF-ARGS 2) 
+(PUT 'OFSF_GSGPREM 'DEFINED-ON-LINE '315) 
+(PUT 'OFSF_GSGPREM 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSGPREM 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE OFSF_GSGPREM (ATL GP)
+    (PROG (W)
+      (COND (*RLGSVB (IOTO_PRIN2 "[GP")))
+      (SETQ W
+              (CL_NNFNOT
+               (OFSF_GSIMPLICATION
+                (CL_NNFNOT
+                 (COND ((AND ATL (CDR ATL)) (CONS 'AND ATL))
+                       ((NULL ATL) (COND ((EQ 'AND 'AND) 'TRUE) (T 'FALSE)))
+                       (T (CAR ATL))))
+                GP)))
+      (COND (*RLGSVB (IOTO_PRIN2 "] ")))
+      (RETURN W))) 
+(PUT 'OFSF_GSPART 'NUMBER-OF-ARGS 2) 
+(PUT 'OFSF_GSPART 'DEFINED-ON-LINE '326) 
+(PUT 'OFSF_GSPART 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSPART 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE OFSF_GSPART (PART GP)
+    (PROG (W CURLEN RES)
+      (COND (*RLGSVB (SETQ CURLEN (LENGTH PART))))
+      (SETQ RES
+              (PROG (PHI FORALL-RESULT FORALL-ENDPTR)
+                (SETQ PHI PART)
+                (COND ((NULL PHI) (RETURN NIL)))
+                (SETQ FORALL-RESULT
+                        (SETQ FORALL-ENDPTR
+                                (CONS
+                                 ((LAMBDA (PHI)
+                                    (PROGN
+                                     (COND
+                                      (*RLGSVB (IOTO_PRIN2 (LIST "[" CURLEN))))
+                                     (SETQ W (OFSF_GSIMPLICATION PHI GP))
+                                     (COND
+                                      (*RLGSVB
+                                       (PROGN
+                                        (SETQ CURLEN (DIFFERENCE CURLEN 1))
+                                        (IOTO_PRIN2 (LIST "] ")))))
+                                     W))
+                                  (CAR PHI))
+                                 NIL)))
+               LOOPLABEL
+                (SETQ PHI (CDR PHI))
+                (COND ((NULL PHI) (RETURN FORALL-RESULT)))
+                (RPLACD FORALL-ENDPTR
+                        (CONS
+                         ((LAMBDA (PHI)
+                            (PROGN
+                             (COND (*RLGSVB (IOTO_PRIN2 (LIST "[" CURLEN))))
+                             (SETQ W (OFSF_GSIMPLICATION PHI GP))
+                             (COND
+                              (*RLGSVB
+                               (PROGN
+                                (SETQ CURLEN (DIFFERENCE CURLEN 1))
+                                (IOTO_PRIN2 (LIST "] ")))))
+                             W))
+                          (CAR PHI))
+                         NIL))
+                (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                (GO LOOPLABEL)))
+      (COND (*RLGSVB (IOTO_CTERPRI)))
+      (RETURN RES))) 
+(PUT 'OFSF_GSIMPLICATION 'NUMBER-OF-ARGS 2) 
+(PUT 'OFSF_GSIMPLICATION 'DEFINED-ON-LINE '348) 
+(PUT 'OFSF_GSIMPLICATION 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSIMPLICATION 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE OFSF_GSIMPLICATION (F GP)
+    (PROG (PREM PROD1 PROD2 GPROD RPROD IPREM W Z ATL NATL)
+      (COND ((CL_CXFP F) (SETQ ATL (CDR F))) (T (SETQ ATL (LIST F))))
+      (SETQ W (OFSF_GSDIS2IMPL ATL))
+      (SETQ IPREM (CAR W))
+      (SETQ PROD1 (CADR W))
+      (SETQ PROD2 (CADDR W))
+      (SETQ GPROD (CDAR GP))
+      (SETQ PREM (APPEND IPREM (CAAR GP)))
+      (COND ((NULL PREM) (RETURN F)))
+      (SETQ PREM (OFSF_GSGBF PREM))
+      (SETQ Z (CAR (SIMP (OFSF_GSMKRADVAR))))
+      (SETQ RPROD (OFSF_GSEQPROD PROD1 PROD2 GPROD PREM Z))
+      (COND
+       ((EQ RPROD 'TRUE)
+        (PROGN (COND (*RLGSVB (IOTO_PRIN2 "!"))) (RETURN 'TRUE))))
+      (SETQ W (OFSF_GSUSEPREMISE (CDR GP) PREM Z))
+      (COND
+       ((EQ W 'TRUE) (PROGN (COND (*RLGSVB (IOTO_PRIN2 "!"))) (RETURN 'TRUE))))
+      (SETQ NATL (OFSF_GSREDATL ATL PREM Z RPROD))
+      (COND
+       ((EQ NATL 'TRUE)
+        (PROGN (COND (*RLGSVB (IOTO_PRIN2 "!"))) (RETURN 'TRUE))))
+      (COND ((AND RPROD (NEQ RPROD 'FALSE)) (SETQ NATL (CONS RPROD NATL))))
+      (SETQ NATL (NCONC NATL (OFSF_GSPREMISE IPREM (CAAR GP))))
+      (RETURN
+       (COND ((AND NATL (CDR NATL)) (CONS 'OR NATL))
+             ((NULL NATL) (COND ((EQ 'OR 'AND) 'TRUE) (T 'FALSE)))
+             (T (CAR NATL)))))) 
+(PUT 'OFSF_GSREDATL 'NUMBER-OF-ARGS 4) 
+(PUT 'OFSF_GSREDATL 'DEFINED-ON-LINE '386) 
+(PUT 'OFSF_GSREDATL 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSREDATL 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL GENERAL) GENERAL)) 
+(DE OFSF_GSREDATL (ATL PREM Z RPROD)
+    (PROG (A W NATL)
+      (PROG ()
+       WHILELABEL
+        (COND ((NOT ATL) (RETURN NIL)))
+        (PROGN
+         (SETQ A (CAR ATL))
+         (SETQ ATL (CDR ATL))
+         (SETQ W (OFSF_GSREDAT A PREM Z RPROD))
+         (COND ((EQ W 'TRUE) (SETQ ATL NIL))
+               ((AND W (NEQ W 'FALSE)) (SETQ NATL (CONS W NATL)))))
+        (GO WHILELABEL))
+      (COND ((EQ W 'TRUE) (RETURN 'TRUE)))
+      (RETURN NATL))) 
+(PUT 'OFSF_GSUSEPREMISE 'NUMBER-OF-ARGS 3) 
+(PUT 'OFSF_GSUSEPREMISE 'DEFINED-ON-LINE '404) 
+(PUT 'OFSF_GSUSEPREMISE 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSUSEPREMISE 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL) GENERAL)) 
+(DE OFSF_GSUSEPREMISE (ATL PREM Z)
+    (PROG (W)
+      (PROG ()
+       WHILELABEL
+        (COND ((NOT ATL) (RETURN NIL)))
+        (PROGN
+         (SETQ W (OFSF_GSREDAT (CAR ATL) PREM Z NIL))
+         (COND ((EQ W 'TRUE) (SETQ ATL NIL)) (T (SETQ ATL (CDR ATL))))
+         NIL)
+        (GO WHILELABEL))
+      (COND ((EQ W 'TRUE) (RETURN 'TRUE))))) 
+(PUT 'OFSF_GSEQPROD 'NUMBER-OF-ARGS 5) 
+(PUT 'OFSF_GSEQPROD 'DEFINED-ON-LINE '419) 
+(PUT 'OFSF_GSEQPROD 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSEQPROD 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL GENERAL GENERAL) GENERAL)) 
+(DE OFSF_GSEQPROD (IPROD1 IPROD2 GPROD PREM Z)
+    (PROG (P W)
+      (SETQ P
+              ((LAMBDA (G267)
+                 (COND (*PHYSOP-LOADED (PHYSOP-MULTF IPROD1 G267))
+                       (T (POLY-MULTF IPROD1 G267))))
+               (COND (*PHYSOP-LOADED (PHYSOP-MULTF IPROD2 GPROD))
+                     (T (POLY-MULTF IPROD2 GPROD)))))
+      (COND
+       ((AND *RLGSRAD
+             (NULL
+              (OFSF_GSGREDUCEF 1
+               (CONS
+                (ADDF 1
+                      (NEGF
+                       (COND (*PHYSOP-LOADED (PHYSOP-MULTF P Z))
+                             (T (POLY-MULTF P Z)))))
+                PREM))))
+        (RETURN 'TRUE)))
+      (SETQ W (OFSF_GSTRYEVAL 'EQUAL (OFSF_GSPREDUCEF P PREM)))
+      (COND ((OR (EQ W 'TRUE) (EQ W 'FALSE)) (RETURN W)))
+      (COND ((NULL *RLGSPROD) (RETURN NIL)))
+      (COND
+       (*RLGSRED (RETURN (LIST 'EQUAL (OFSF_GSPREDUCEF IPROD1 PREM) NIL))))
+      (RETURN (LIST 'EQUAL IPROD1 NIL)))) 
+(PUT 'OFSF_GSMKRADVAR 'NUMBER-OF-ARGS 0) 
+(PUT 'OFSF_GSMKRADVAR 'DEFINED-ON-LINE '439) 
+(PUT 'OFSF_GSMKRADVAR 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSMKRADVAR 'PROCEDURE_TYPE '(ARROW UNIT GENERAL)) 
+(DE OFSF_GSMKRADVAR NIL
+    (PROG (W N)
+      (SETQ N 0)
+      (SETQ W 'RLGSRADMEMV*)
+      (PROG ()
+       WHILELABEL
+        (COND ((NOT (GET W 'AVALUE)) (RETURN NIL)))
+        (SETQ W (MKID W (SETQ N (PLUS N 1))))
+        (GO WHILELABEL))
+      (COND (*RLGSUTORD (OFSF_GSUPDTORDER W)))
+      (RETURN W))) 
+(PUT 'OFSF_GSUPDTORDER 'NUMBER-OF-ARGS 1) 
+(PUT 'OFSF_GSUPDTORDER 'DEFINED-ON-LINE '452) 
+(PUT 'OFSF_GSUPDTORDER 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSUPDTORDER 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE OFSF_GSUPDTORDER (V)
+    (COND
+     ((AND (TD_VARS) (MEMQ V (TD_VARS)))
+      (COND
+       ((NOT
+         (MEMQ (TD_SORTMODE)
+               '(LEX GRADLEX REVGRADLEX GRADLEXGRADLEX GRADLEXREVGRADLEX
+                 LEXGRADLEX LEXREVGRADLEX WEIGHTED)))
+        (REDERR (LIST "term order" (TD_SORTMODE) "not supported")))
+       (T (SETQ OFSF_GSTV* V)))))) 
+(PUT 'OFSF_GSTRYEVAL 'NUMBER-OF-ARGS 2) 
+(PUT 'OFSF_GSTRYEVAL 'DEFINED-ON-LINE '468) 
+(PUT 'OFSF_GSTRYEVAL 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSTRYEVAL 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE OFSF_GSTRYEVAL (REL LHS)
+    (PROG (W *RLSIEXPLA)
+      (COND
+       (*RLGSERF
+        (PROGN
+         (SETQ W (CL_SIMPLAT (LIST REL LHS NIL) NIL))
+         (RETURN (COND ((OR (EQ W 'TRUE) (EQ W 'FALSE)) W)))
+         NIL)))
+      (COND
+       ((OR (ATOM LHS) (ATOM (CAR LHS)))
+        (RETURN (CL_SIMPLAT (LIST REL LHS NIL) NIL)))))) 
+(PUT 'OFSF_GSDIS2IMPL 'NUMBER-OF-ARGS 1) 
+(PUT 'OFSF_GSDIS2IMPL 'DEFINED-ON-LINE '483) 
+(PUT 'OFSF_GSDIS2IMPL 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSDIS2IMPL 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE OFSF_GSDIS2IMPL (ATL)
+    (PROG (PREM PROD1 PROD2 OTHER W A)
+      (SETQ PROD1 (SETQ PROD2 1))
+      (PROG (AT)
+        (SETQ AT ATL)
+       LAB
+        (COND ((NULL AT) (RETURN NIL)))
+        ((LAMBDA (AT)
+           (PROGN
+            (SETQ W (OFSF_GSATTYPE AT))
+            (COND
+             (W
+              (PROGN
+               (SETQ A (CAR W))
+               (COND
+                ((EQ A 'EQUAL)
+                 (SETQ PROD1
+                         (COND (*PHYSOP-LOADED (PHYSOP-MULTF (CDR W) PROD1))
+                               (T (POLY-MULTF (CDR W) PROD1)))))
+                ((EQ A 'CEQUAL)
+                 (SETQ PROD2
+                         (COND (*PHYSOP-LOADED (PHYSOP-MULTF (CDR W) PROD2))
+                               (T (POLY-MULTF (CDR W) PROD2)))))
+                ((EQ A 'NEQ) (SETQ PREM (CONS (CDR W) PREM)))
+                (T (REDERR (LIST "BUG IN OFSF_GSDIS2IMPL" (CAR W))))))))
+            (COND ((NOT (MEMQ W '(EQUAL NEQ))) (SETQ OTHER (CONS AT OTHER))))))
+         (CAR AT))
+        (SETQ AT (CDR AT))
+        (GO LAB))
+      (RETURN (LIST PREM PROD1 PROD2 OTHER)))) 
+(PUT 'OFSF_GSATTYPE 'NUMBER-OF-ARGS 1) 
+(PUT 'OFSF_GSATTYPE 'DEFINED-ON-LINE '509) 
+(PUT 'OFSF_GSATTYPE 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSATTYPE 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE OFSF_GSATTYPE (AT)
+    ((LAMBDA (W)
+       (COND ((EQ W 'EQUAL) (CONS 'EQUAL (CADR AT)))
+             ((MEMQ W '(GEQ LEQ)) (CONS 'CEQUAL (CADR AT)))
+             ((EQ W 'NEQ) (CONS 'NEQ (CADR AT)))))
+     (CAR AT))) 
+(PUT 'OFSF_GSREDAT 'NUMBER-OF-ARGS 4) 
+(PUT 'OFSF_GSREDAT 'DEFINED-ON-LINE '521) 
+(PUT 'OFSF_GSREDAT 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSREDAT 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL GENERAL GENERAL) GENERAL)) 
+(DE OFSF_GSREDAT (AT GB Z FLAG)
+    (PROG (W X OP ARG NAT)
+      (SETQ OP (CAR AT))
+      (COND ((OR (EQ OP 'NEQ) (AND FLAG (EQ OP 'EQUAL))) (RETURN NIL)))
+      (SETQ ARG (CADR AT))
+      (SETQ W (OFSF_GSPREDUCEF ARG GB))
+      (COND (*RLGSRED (SETQ NAT (CL_SIMPLAT (LIST OP W NIL) NIL)))
+            ((SETQ X (OFSF_GSTRYEVAL OP W)) (SETQ NAT X)) (T (SETQ NAT AT)))
+      (COND
+       ((OR (OR (EQ NAT 'TRUE) (EQ NAT 'FALSE)) (EQ OP 'EQUAL) (NULL *RLGSRAD))
+        (RETURN NAT)))
+      (COND
+       ((NULL
+         (OFSF_GSGREDUCEF 1
+          (CONS
+           (ADDF 1
+                 (NEGF
+                  (COND (*PHYSOP-LOADED (PHYSOP-MULTF W Z))
+                        (T (POLY-MULTF W Z)))))
+           GB)))
+        (RETURN (CL_SIMPLAT (LIST OP NIL NIL) NIL))))
+      (RETURN NAT))) 
+(PUT 'OFSF_GSPREMISE 'NUMBER-OF-ARGS 2) 
+(PUT 'OFSF_GSPREMISE 'DEFINED-ON-LINE '551) 
+(PUT 'OFSF_GSPREMISE 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSPREMISE 'PROCEDURE_TYPE '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE OFSF_GSPREMISE (TL GP)
+    (PROG (GB RTL W)
+      (COND
+       (*RLGSRED
+        (PROGN
+         (SETQ GB (OFSF_GSGBF GP))
+         (PROG (SF)
+           (SETQ SF TL)
+          LAB
+           (COND ((NULL SF) (RETURN NIL)))
+           ((LAMBDA (SF)
+              (COND
+               ((SETQ W (OFSF_GSPREDUCEF SF GB))
+                (SETQ RTL (LTO_INSERT W RTL)))))
+            (CAR SF))
+           (SETQ SF (CDR SF))
+           (GO LAB))
+         NIL))
+       (T (SETQ RTL TL)))
+      (COND
+       (*RLGSSUB
+        (RETURN
+         (PROG (SF FORALL-RESULT FORALL-ENDPTR)
+           (SETQ SF (OFSF_GSGBF RTL))
+           (COND ((NULL SF) (RETURN NIL)))
+           (SETQ FORALL-RESULT
+                   (SETQ FORALL-ENDPTR
+                           (CONS ((LAMBDA (SF) (LIST 'NEQ SF NIL)) (CAR SF))
+                                 NIL)))
+          LOOPLABEL
+           (SETQ SF (CDR SF))
+           (COND ((NULL SF) (RETURN FORALL-RESULT)))
+           (RPLACD FORALL-ENDPTR
+                   (CONS ((LAMBDA (SF) (LIST 'NEQ SF NIL)) (CAR SF)) NIL))
+           (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+           (GO LOOPLABEL)))))
+      (RETURN
+       (PROG (SF FORALL-RESULT FORALL-ENDPTR)
+         (SETQ SF RTL)
+         (COND ((NULL SF) (RETURN NIL)))
+         (SETQ FORALL-RESULT
+                 (SETQ FORALL-ENDPTR
+                         (CONS ((LAMBDA (SF) (LIST 'NEQ SF NIL)) (CAR SF))
+                               NIL)))
+        LOOPLABEL
+         (SETQ SF (CDR SF))
+         (COND ((NULL SF) (RETURN FORALL-RESULT)))
+         (RPLACD FORALL-ENDPTR
+                 (CONS ((LAMBDA (SF) (LIST 'NEQ SF NIL)) (CAR SF)) NIL))
+         (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+         (GO LOOPLABEL))))) 
+(PUT 'OFSF_GSSIMULATEPROD 'NUMBER-OF-ARGS 2) 
+(PUT 'OFSF_GSSIMULATEPROD 'DEFINED-ON-LINE '577) 
+(PUT 'OFSF_GSSIMULATEPROD 'DEFINED-IN-FILE 'REDLOG/OFSF/OFSFGS.RED) 
+(PUT 'OFSF_GSSIMULATEPROD 'PROCEDURE_TYPE
+     '(ARROW (TIMES GENERAL GENERAL) GENERAL)) 
+(DE OFSF_GSSIMULATEPROD (PREM PRODAL)
+    (PROG (W RES)
+      (COND ((OR (EQ PREM 'TRUE) (EQ PREM 'FALSE)) (RETURN PREM)))
+      (COND
+       ((AND (CL_ATFP PREM) (SETQ W (LTO_CASSOC PREM PRODAL))) (RETURN W)))
+      (SETQ RES
+              (PROG (F FORALL-RESULT FORALL-ENDPTR)
+                (SETQ F (CDR PREM))
+                (COND ((NULL F) (RETURN NIL)))
+                (SETQ FORALL-RESULT
+                        (SETQ FORALL-ENDPTR
+                                (CONS
+                                 ((LAMBDA (F)
+                                    (COND
+                                     ((AND (CL_ATFP F)
+                                           (SETQ W (LTO_CASSOC F PRODAL)))
+                                      W)
+                                     (T F)))
+                                  (CAR F))
+                                 NIL)))
+               LOOPLABEL
+                (SETQ F (CDR F))
+                (COND ((NULL F) (RETURN FORALL-RESULT)))
+                (RPLACD FORALL-ENDPTR
+                        (CONS
+                         ((LAMBDA (F)
+                            (COND
+                             ((AND (CL_ATFP F) (SETQ W (LTO_CASSOC F PRODAL)))
+                              W)
+                             (T F)))
+                          (CAR F))
+                         NIL))
+                (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+                (GO LOOPLABEL)))
+      (RETURN (CONS (COND ((ATOM PREM) PREM) (T (CAR PREM))) RES)))) 
+(ENDMODULE) 

@@ -1,0 +1,9 @@
+1. svn clone reduce-algebra trunk -> buld redsbcl as usual
+2. get all files from reduce-algebra/common-lisp 
+3. get folder reduce-algebra/package
+4. modify bootstrap.lisp (SBCL only) 
+5. sbcl --load bootstrap.lisp  --> should get bootsrp reduce
+6. check if sl::reduce-init-function works 
+7. TODO: save *readtable* before setting *sl-readtable* (fricas!)
+8. cp -r fasl.sbcl to here ...
+

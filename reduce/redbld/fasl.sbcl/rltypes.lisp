@@ -1,0 +1,315 @@
+(cl:declaim (cl:optimize cl:debug cl:safety))
+(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
+(MODULE (LIST 'RLTYPES)) 
+(REVISION 'RLTYPES "$Id: rltypes.red 6030 2021-09-16 14:01:45Z thomas-sturm $") 
+(COPYRIGHT 'RLTYPES "(c) 2016, 2017 T. Sturm") 
+(PUT 'ANY 'RL_SUPPORT 'RL_TYPE) 
+(PUT 'ANY 'RL_TYPE
+     '((DOC (DESCRIPTION . "object that is not formally specified"))
+       (S2A . RL_IDENTITY1) (A2S . RL_IDENTITY1))) 
+(PUT 'RL_IDENTITY1 'NUMBER-OF-ARGS 1) 
+(DE RL_IDENTITY1 (X) X) 
+(PUT 'VOID 'RL_SUPPORT 'RL_TYPE) 
+(PUT 'VOID 'RL_TYPE
+     '((DOC (DESCRIPTION . "indicates empty return value")) (S2A . RL_S2AVOID))) 
+(PUT 'RL_S2AVOID 'NUMBER-OF-ARGS 1) 
+(DE RL_S2AVOID (X) NIL) 
+(PUT 'DOMAIN 'RL_SUPPORT 'RL_TYPE) 
+(PUT 'DOMAIN 'RL_TYPE
+     '((DOC (DESCRIPTION . "Redlog domain name")
+        (EXAMPLE . "reals, r, integers, Z")))) 
+(PUT 'FORMULA 'RL_SUPPORT 'RL_TYPE) 
+(PUT 'FORMULA 'RL_TYPE
+     '((DOC (DESCRIPTION . "first-order formula in the current domain")
+        (EXAMPLE . "all(x, ex(y, x = y))"))
+       (EQUATIONAL . T) (S2A . RL_MK*FOF) (A2S . RL_SIMP))) 
+(PUT 'TRUTHVALUE 'RL_SUPPORT 'RL_TYPE) 
+(PUT 'TRUTHVALUE 'RL_TYPE
+     '((DOC (DESCRIPTION . "Boolean constant") (SYNTAX . "Enum(true, false)")
+        (EXAMPLE . "true"))
+       (INHERITS . FORMULA))) 
+(PUT 'ATOM 'RL_SUPPORT 'RL_TYPE) 
+(PUT 'ATOM 'RL_TYPE
+     '((DOC (DESCRIPTION . "atomic formula in the current domain")
+        (EXAMPLE . "x^4*y^2 + y^2*x^4 - 3*x^2*y^2 + 1 >= 0"))
+       (EQUATIONAL . T) (A2S . RL_A2SATOM) (INHERITS . FORMULA))) 
+(PUT 'RL_A2SATOM 'NUMBER-OF-ARGS 1) 
+(DE RL_A2SATOM (X)
+    (PROG (W)
+      (SETQ W (RL_SIMP X))
+      (COND
+       (((LAMBDA (X)
+           (OR (OR (EQ X 'TRUE) (EQ X 'FALSE))
+               (OR (OR (OR (EQ X 'OR) (EQ X 'AND)) (EQ X 'NOT))
+                   (OR (EQ X 'IMPL) (EQ X 'REPL) (EQ X 'EQUIV)))
+               (OR (EQ X 'EX) (EQ X 'ALL)) (OR (EQ X 'BEX) (EQ X 'BALL))))
+         (COND ((ATOM W) W) (T (CAR W))))
+        (TYPERR X "atomic formula")))
+      (RETURN W))) 
+(PUT 'TERM 'RL_SUPPORT 'RL_TYPE) 
+(PUT 'TERM 'RL_TYPE
+     '((DOC (DESCRIPTION . "term in the current domain")
+        (EXAMPLE . "x^4*y^2 + y^2*x^4 - 3*x^2*y^2 + 1"))
+       (S2A . RL_PREPTERM) (A2S . RL_SIMPTERM))) 
+(PUT 'VARIABLE 'RL_SUPPORT 'RL_TYPE) 
+(PUT 'VARIABLE 'RL_TYPE
+     '((DOC (DESCRIPTION . "REDUCE Variable") (SYNTAX . "Identifier"))
+       (S2A . RL_IDENTITY1) (A2S . RL_A2SVARIABLE))) 
+(PUT 'RL_A2SVARIABLE 'NUMBER-OF-ARGS 1) 
+(DE RL_A2SVARIABLE (X) (COND ((SFTO_KERNELP X) X) (T (TYPERR X "Variable")))) 
+(PUT 'FLAG 'RL_SUPPORT 'RL_TYPE) 
+(PUT 'FLAG 'RL_TYPE
+     '((DOC (DESCRIPTION . "Boolean argument")
+        (SYNTAX . "Enum(on, yes, true, off, no, false)"))
+       (A2S . RL_A2SFLAG))) 
+(PUT 'SWITCH 'RL_SUPPORT 'RL_TYPE) 
+(PUT 'SWITCH 'RL_TYPE
+     '((DOC
+        (DESCRIPTION . "flag used for temporarily rebinding Redlog switches")
+        (SYNTAX . "Enum(on, yes, true, off, no, false)"))
+       (A2S . RL_A2SFLAG))) 
+(PUT 'RL_A2SFLAG 'NUMBER-OF-ARGS 1) 
+(DE RL_A2SFLAG (U)
+    (PROGN
+     (COND ((FLUIDP U) (SETQ U (EVAL U))))
+     (COND ((MEMQ U '(ON YES TRUE T)) T) ((MEMQ U '(OFF NO FALSE NIL)) NIL)
+           (T
+            (REDERR
+             (LIST "bad value" U
+                   "for Switch; use one of on/yes/true or off/no/false")))))) 
+(PUT 'INTEGER 'RL_SUPPORT 'RL_TYPE) 
+(PUT 'INTEGER 'RL_TYPE
+     '((DOC (DESCRIPTION . "Standard Lisp integer number of arbitrary size"))
+       (S2A . RL_IDENTITY1) (A2S . RL_A2SINTEGER))) 
+(PUT 'RL_A2SINTEGER 'NUMBER-OF-ARGS 1) 
+(DE RL_A2SINTEGER (N)
+    (PROG ()
+      (SETQ N (REVAL1 N T))
+      (COND ((NOT (FIXP N)) (TYPERR N "Integer")))
+      (RETURN N))) 
+(PUT 'STRING 'RL_SUPPORT 'RL_TYPE) 
+(PUT 'STRING 'RL_TYPE
+     '((DOC (DESCRIPTION . "Standard Lisp string")) (S2A . RL_IDENTITY1)
+       (A2S . RL_A2SSTRING))) 
+(PUT 'RL_A2SSTRING 'NUMBER-OF-ARGS 1) 
+(DE RL_A2SSTRING (S)
+    (PROG ()
+      (SETQ S (REVAL1 S T))
+      (COND ((NOT (STRINGP S)) (TYPERR S "string")))
+      (RETURN S))) 
+(PUT 'RATIONAL 'RL_SUPPORT 'RL_TYPE) 
+(PUT 'RATIONAL 'RL_TYPE
+     '((DOC (DESCRIPTION . "rational number of arbitrary precision")
+        (EXAMPLE . "1, -1/2, 0.1"))
+       (A2S . RL_A2SRATIONAL))) 
+(PUT 'RL_A2SRATIONAL 'NUMBER-OF-ARGS 1) 
+(DE RL_A2SRATIONAL (X) (REVAL1 X T)) 
+(PUT 'LPOLYQ 'RL_SUPPORT 'RL_TYPE) 
+(PUT 'LPOLYQ 'RL_TYPE
+     '((DOC
+        (DESCRIPTION
+         . "linear multivariate polynomial with rational coefficients")
+        (EXAMPLE . "x+y, (1/2)*x1+x2+3*x3-2, (z-1)/2"))
+       (A2S . RL_A2SLPOLYQ))) 
+(PUT 'RL_A2SLPOLYQ 'NUMBER-OF-ARGS 1) 
+(DE RL_A2SLPOLYQ (X)
+    (PROG (W)
+      (SETQ W (SIMP X))
+      (COND
+       ((NOT (OR (ATOM (CDR W)) (ATOM (CAR (CDR W)))))
+        (REDERR
+         (LIST "variable in denominator of"
+               ((LAMBDA (*NAT) (IOTO_SMAPRIN X)) NIL)))))
+      (RETURN W))) 
+(PUT 'LIST 'RL_SUPPORT 'RL_TYPE) 
+(PUT 'LIST 'RL_TYPE
+     '((DOC (DESCRIPTION . "homogeneous List")
+        (EXAMPLE . "{2, 3, 5, 7}, {\"hello\", \"world\"}"))
+       (S2A . RL_S2ALIST) (A2S . RL_A2SLIST))) 
+(PUT 'RL_A2SLIST 'NUMBER-OF-ARGS 2) 
+(DE RL_A2SLIST (L A2SELEMENT)
+    (PROG (W *RLSIMPL)
+      (SETQ L (REVAL1 L T))
+      (COND ((NOT (EQCAR L 'LIST)) (TYPERR L "List")))
+      (RETURN
+       (PROG (X FORALL-RESULT FORALL-ENDPTR)
+         (SETQ X (CDR L))
+         (COND ((NULL X) (RETURN NIL)))
+         (SETQ FORALL-RESULT
+                 (SETQ FORALL-ENDPTR
+                         (CONS
+                          ((LAMBDA (X) (APPLY A2SELEMENT (LIST X))) (CAR X))
+                          NIL)))
+        LOOPLABEL
+         (SETQ X (CDR X))
+         (COND ((NULL X) (RETURN FORALL-RESULT)))
+         (RPLACD FORALL-ENDPTR
+                 (CONS ((LAMBDA (X) (APPLY A2SELEMENT (LIST X))) (CAR X)) NIL))
+         (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+         (GO LOOPLABEL))))) 
+(PUT 'RL_S2ALIST 'NUMBER-OF-ARGS 2) 
+(DE RL_S2ALIST (L S2AELEMENT)
+    (CONS 'LIST
+          (PROG (X FORALL-RESULT FORALL-ENDPTR)
+            (SETQ X L)
+            (COND ((NULL X) (RETURN NIL)))
+            (SETQ FORALL-RESULT
+                    (SETQ FORALL-ENDPTR
+                            (CONS
+                             ((LAMBDA (X) (APPLY S2AELEMENT (LIST X))) (CAR X))
+                             NIL)))
+           LOOPLABEL
+            (SETQ X (CDR X))
+            (COND ((NULL X) (RETURN FORALL-RESULT)))
+            (RPLACD FORALL-ENDPTR
+                    (CONS ((LAMBDA (X) (APPLY S2AELEMENT (LIST X))) (CAR X))
+                          NIL))
+            (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+            (GO LOOPLABEL)))) 
+(PUT 'PAIR 'RL_SUPPORT 'RL_TYPE) 
+(PUT 'PAIR 'RL_TYPE
+     '((DOC
+        (DESCRIPTION . "not necessarily homogeneous List with two elements")
+        (EXAMPLE . "{1, \"two\"}"))
+       (S2A . RL_S2APAIR) (A2S . RL_A2SPAIR))) 
+(PUT 'RL_A2SPAIR 'NUMBER-OF-ARGS 3) 
+(DE RL_A2SPAIR (X A2SELEM1 A2SELEM2)
+    (PROG (W *RLSIMPL)
+      (SETQ X (REVAL1 X T))
+      (COND ((NOT (EQCAR X 'LIST)) (TYPERR X "Pair")))
+      (SETQ X (CDR X))
+      (COND ((NOT (EQN (LENGTH X) 2)) (TYPERR X "Pair")))
+      (RETURN
+       (LIST (APPLY A2SELEM1 (LIST (CAR X)))
+             (APPLY A2SELEM2 (LIST (CADR X))))))) 
+(PUT 'RL_S2APAIR 'NUMBER-OF-ARGS 3) 
+(DE RL_S2APAIR (X A2SELEM1 A2SELEM2)
+    (CONS 'LIST
+          (LIST (APPLY A2SELEM1 (LIST (CAR X)))
+                (APPLY A2SELEM2 (LIST (CDR X)))))) 
+(PUT 'TRIPLET 'RL_SUPPORT 'RL_TYPE) 
+(PUT 'TRIPLET 'RL_TYPE
+     '((DOC
+        (DESCRIPTION . "not necessarily homogeneous List with three elements")
+        (EXAMPLE . "{1, \"two\", three^2}"))
+       (S2A . RL_S2ATRIPLET) (A2S . RL_A2STRIPLET))) 
+(PUT 'RL_A2STRIPLET 'NUMBER-OF-ARGS 4) 
+(DE RL_A2STRIPLET (X A2SELEM1 A2SELEM2 A2SELEM3)
+    (PROG (W *RLSIMPL)
+      (SETQ X (REVAL1 X T))
+      (COND ((NOT (EQCAR X 'LIST)) (TYPERR X "Triplet")))
+      (SETQ X (CDR X))
+      (COND ((NOT (EQN (LENGTH X) 3)) (TYPERR X "Triplet")))
+      (RETURN
+       (LIST (APPLY A2SELEM1 (LIST (CAR X))) (APPLY A2SELEM2 (LIST (CADR X)))
+             (APPLY A2SELEM3 (LIST (CADDR X))))))) 
+(PUT 'RL_S2ATRIPLET 'NUMBER-OF-ARGS 4) 
+(DE RL_S2ATRIPLET (X A2SELEM1 A2SELEM2 A2SELEM3)
+    (CONS 'LIST
+          (LIST (APPLY A2SELEM1 (LIST (CAR X)))
+                (APPLY A2SELEM2 (LIST (CADR X)))
+                (APPLY A2SELEM3 (LIST (CADDR X)))))) 
+(PUT 'LIST5 'RL_SUPPORT 'RL_TYPE) 
+(PUT 'LIST5 'RL_TYPE
+     '((DOC
+        (DESCRIPTION . "not necessarily homogeneous List with five elements")
+        (EXAMPLE . "{1, \"two\", three^2, 44, 5}"))
+       (S2A . RL_S2ALIST5) (A2S . RL_A2SLIST5))) 
+(PUT 'RL_A2SLIST5 'NUMBER-OF-ARGS 6) 
+(DE RL_A2SLIST5 (X A2SELEM1 A2SELEM2 A2SELEM3 A2SELEM4 A2SELEM5)
+    (PROG (W *RLSIMPL)
+      (SETQ X (REVAL1 X T))
+      (COND ((NOT (EQCAR X 'LIST)) (TYPERR X "List5")))
+      (SETQ X (CDR X))
+      (COND ((NOT (EQN (LENGTH X) 5)) (TYPERR X "List5")))
+      (RETURN
+       (LIST (APPLY A2SELEM1 (LIST (CAR X))) (APPLY A2SELEM2 (LIST (CADR X)))
+             (APPLY A2SELEM3 (LIST (CADDR X)))
+             (APPLY A2SELEM4 (LIST (CADDDR X)))
+             (APPLY A2SELEM5 (LIST (CADDDDR X))))))) 
+(PUT 'RL_S2ALIST5 'NUMBER-OF-ARGS 6) 
+(DE RL_S2ALIST5 (X A2SELEM1 A2SELEM2 A2SELEM3 A2SELEM4 A2SELEM5)
+    (CONS 'LIST
+          (LIST (APPLY A2SELEM1 (LIST (CAR X)))
+                (APPLY A2SELEM2 (LIST (CADR X)))
+                (APPLY A2SELEM3 (LIST (CADDR X)))
+                (APPLY A2SELEM4 (LIST (CADDDR X)))
+                (APPLY A2SELEM5 (LIST (CADDDDR X)))))) 
+(PUT 'MLIST 'RL_SUPPORT 'RL_TYPE) 
+(PUT 'MLIST 'RL_TYPE
+     '((DOC
+        (DESCRIPTION
+         . "homogeneous List of Pairs {x, n}, where n is an Integer")
+        (EXAMPLE . "{{a+b = 0, 4}, {a = c-d, 1}}"))
+       (S2A . RL_S2AMLIST))) 
+(PUT 'RL_S2AMLIST 'NUMBER-OF-ARGS 2) 
+(DE RL_S2AMLIST (L A2SELEMENT)
+    (CONS 'LIST
+          (PROG (PR FORALL-RESULT FORALL-ENDPTR)
+            (SETQ PR L)
+            (COND ((NULL PR) (RETURN NIL)))
+            (SETQ FORALL-RESULT
+                    (SETQ FORALL-ENDPTR
+                            (CONS
+                             ((LAMBDA (PR)
+                                (LIST 'LIST (APPLY A2SELEMENT (LIST (CAR PR)))
+                                      (CDR PR)))
+                              (CAR PR))
+                             NIL)))
+           LOOPLABEL
+            (SETQ PR (CDR PR))
+            (COND ((NULL PR) (RETURN FORALL-RESULT)))
+            (RPLACD FORALL-ENDPTR
+                    (CONS
+                     ((LAMBDA (PR)
+                        (LIST 'LIST (APPLY A2SELEMENT (LIST (CAR PR)))
+                              (CDR PR)))
+                      (CAR PR))
+                     NIL))
+            (SETQ FORALL-ENDPTR (CDR FORALL-ENDPTR))
+            (GO LOOPLABEL)))) 
+(PUT 'ASSIGNMENT 'RL_SUPPORT 'RL_TYPE) 
+(PUT 'ASSIGNMENT 'RL_TYPE
+     '((DOC (DESCRIPTION . "equation v = x, where v is a Variable")
+        (EXAMPLE . "v_1 = x^4*y^2 + y^2*x^4 - 3*x^2*y^2 + 1 >= 0"))
+       (EQUATIONAL . T) (S2A . RL_S2AASSIGNMENT) (A2S . RL_A2SASSIGNMENT))) 
+(PUT 'RL_A2SASSIGNMENT 'NUMBER-OF-ARGS 2) 
+(DE RL_A2SASSIGNMENT (X A2SLHS)
+    (PROG (W)
+      (SETQ W (REVAL1 X T))
+      (COND
+       ((AND (NOT (AND (LISTP W) (EQN (LENGTH W) 3) (EQCAR W 'EQUAL)))
+             (KERNELP (CADR W)))
+        (TYPERR X "Assignment")))
+      (RETURN (CONS (CADR W) (APPLY A2SLHS (LIST (CADDR W))))))) 
+(PUT 'RL_S2AASSIGNMENT 'NUMBER-OF-ARGS 2) 
+(DE RL_S2AASSIGNMENT (X S2ALHS)
+    (LIST 'EQUAL (CAR X) (APPLY S2ALHS (LIST (CDR X))))) 
+(PUT 'RL_A2S-ATL 'NUMBER-OF-ARGS 1) 
+(PUT 'RL_A2S-ATL 'DEFINED-ON-LINE '377) 
+(PUT 'RL_A2S-ATL 'DEFINED-IN-FILE 'REDLOG/RL/RLTYPES.RED) 
+(PUT 'RL_A2S-ATL 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE RL_A2S-ATL (X) (RL_A2SLIST X 'RL_A2SATOM)) 
+(PUT 'RL_A2S-SFLIST 'NUMBER-OF-ARGS 1) 
+(PUT 'RL_A2S-SFLIST 'DEFINED-ON-LINE '380) 
+(PUT 'RL_A2S-SFLIST 'DEFINED-IN-FILE 'REDLOG/RL/RLTYPES.RED) 
+(PUT 'RL_A2S-SFLIST 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE RL_A2S-SFLIST (X) (RL_A2SLIST X 'RL_SIMPTERM)) 
+(PUT 'RL_A2S-IDLIST 'NUMBER-OF-ARGS 1) 
+(PUT 'RL_A2S-IDLIST 'DEFINED-ON-LINE '383) 
+(PUT 'RL_A2S-IDLIST 'DEFINED-IN-FILE 'REDLOG/RL/RLTYPES.RED) 
+(PUT 'RL_A2S-IDLIST 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE RL_A2S-IDLIST (X) (RL_A2SLIST X 'RL_A2SVARIABLE)) 
+(COPYD 'RL_A2S-NUMBER 'RL_A2SINTEGER) 
+(PUT 'RL_S2A-FL 'NUMBER-OF-ARGS 1) 
+(PUT 'RL_S2A-FL 'DEFINED-ON-LINE '388) 
+(PUT 'RL_S2A-FL 'DEFINED-IN-FILE 'REDLOG/RL/RLTYPES.RED) 
+(PUT 'RL_S2A-FL 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE RL_S2A-FL (X) (RL_S2ALIST X 'RL_MK*FOF)) 
+(PUT 'RL_S2A-IDLIST 'NUMBER-OF-ARGS 1) 
+(PUT 'RL_S2A-IDLIST 'DEFINED-ON-LINE '391) 
+(PUT 'RL_S2A-IDLIST 'DEFINED-IN-FILE 'REDLOG/RL/RLTYPES.RED) 
+(PUT 'RL_S2A-IDLIST 'PROCEDURE_TYPE '(ARROW GENERAL GENERAL)) 
+(DE RL_S2A-IDLIST (X) (RL_S2ALIST X 'RL_IDENTITY1)) 
+(COPYD 'RL_S2A-ATL 'RL_S2A-FL) 
+(ENDMODULE) 
