@@ -18,7 +18,7 @@ in the same directory where `mma2spad.lisp` lives.
 
 ## Examples
 
-`mmaParse` parses a MMA string:
+### `mmaParse` parses a MMA string:
 
     (2) -> mmaParse "f[x_,y_]=x^2-y^2"
 
@@ -38,7 +38,58 @@ in the same directory where `mma2spad.lisp` lives.
 
 
 
+### `mmaOnce` parses once interactively. 
+The result is also stored in `mma_result$Lisp`:
 
+    (4) -> mmaParse "If[ x < 0, 0, If[ x > 1, 1, x] ]"
+
+    (4)  (If (Comparison x Less 0) 0 (If (Comparison x Greater 1) 1 x))
+                                                            Type: SExpression
+
+    (5) -> mma_result$Lisp
+
+    (5)  (Plus (Times (Sin X) (D (Cos X) X)) 1234567890)
+                                                            Type: SExpression
+
+    (6) -> r:=mmaOnce()
+     X=Y+2
+
+    (6)  (Set X (Plus Y 2))
+                                                            Type: SExpression
+
+### `mmaREPL()` is ... a REPL
+where the first line (===) returns an SExpression and the second output line a `unparsed` version of the former.
+
+
+    (7) -> mmaREPL()
+
+       *** Type 'quit' to stop.
+
+    f[x_,y_]=x^2-y^2
+    ===    (Set  (f (Pattern x (Blank)) (Pattern y (Blank))) (Plus (Power x 2) (Times - 1 (Power y 2))))
+    +++   Set(f(Pattern(x,Blank()),Pattern(y,Blank())),Plus(Power(x,2),Times(-1,Power(y,2))))
+
+    f[t_]={Cos[t], Sin[t], t} 
+    ===    (Set (f (Pattern t (Blank))) (List (Cos t) (Sin t) t))
+    +++    Set(f(Pattern(t,Blank())),List(Cos(t),Sin(t),t))
+
+    Sin[X]*D[Cos[X],X]+1234567890
+    ===    (Plus (Times (Sin X) (D (Cos X) X)) 1234567890)
+    +++    Plus(Times(Sin(X),D(Cos(X),X)),1234567890)
+
+    X=Y+2
+    ===    (Set X (Plus Y 2))
+    +++    Set(X,Plus(Y,2))
+
+    quit
+    ===    quit
+    +++    quit
+
+                                                                   Type: Void
+    (8) -> 
+
+
+                                                            
 
 
 
