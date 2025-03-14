@@ -1,0 +1,44 @@
+)lisp (load "mma2spad.lisp")
+)abbrev package MMA MmaParser
+++ spad-package.vm (jEdit tpl)
+MmaParser() : Exports == Implementation where
+  
+  Exports ==  with
+    
+    lisp : String -> SExpression
+    mmaParse : String -> SExpression
+    mmaREPL : () -> Void
+    mmaOnce : () -> SExpression
+	
+	
+  Implementation ==  add 
+    
+    lisp s == EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
+    
+    mmaParse(s) ==
+      q:String:=string FORMAT(NIL,"(mma::pstring _"~A_")",s)$Lisp
+      lisp q
+    
+    mmaREPL == 
+      lisp "(terpri)"
+      output("*** Type 'quit' to stop.")$OutputPackage
+      lisp "(terpri)"
+      p:SExpression:=convert(0)
+      while not (p=convert('quit)$SExpression) repeat
+        PRINC("=== ")$Lisp
+        --r:=lisp "(write-to-string (read))"
+        p:=lisp "(mma::p)"
+        output(p::OutputForm)
+        PRINC("+++ ")$Lisp
+        output(unparse(convert(p)$InputForm))$OutputPackage
+        lisp "(terpri)"
+      void()
+
+    mmaOnce == lisp "(setf boot::|mma_result| (mma::p))"    
+    -- get the result by calling:  mma_result$Lisp
+
+
+
+-- r:=lisp "(mma::p)"
+-- r:=lisp "(mma::pstring _"Sin[X]_")" 
+-- macro mma == lisp "(mma::p)"
