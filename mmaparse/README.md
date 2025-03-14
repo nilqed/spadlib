@@ -41,9 +41,10 @@ in the same directory where `mma2spad.lisp` lives.
 ### `mmaOnce` parses once interactively. 
 The result is also stored in `mma_result$Lisp`:
 
-    (4) -> mmaParse "If[ x < 0, 0, If[ x > 1, 1, x] ]"
+    (4) -> mmaOnce()
+     Sin[X]*D[Cos[X],X]+1234567890
 
-    (4)  (If (Comparison x Less 0) 0 (If (Comparison x Greater 1) 1 x))
+    (4)  (Plus (Times (Sin X) (D (Cos X) X)) 1234567890)
                                                             Type: SExpression
 
     (5) -> mma_result$Lisp
