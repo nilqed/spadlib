@@ -98,6 +98,10 @@ RealPointChain : Exports == Implementation where
     coeffMatrix : (List EQ %,List %) -> Union(Matrix R,"failed")
       ++ \spad{coeffMatrix([eq1,..],[v1,..]} calculates the matrix
       ++ that is used to solve the linear equation in the variables v.
+    coefficients : % -> List R
+      ++ \spad{coefficients} returns the coefficients of the chain x
+      ++ as a list, ordered by leadingCoefficient x then recursively
+      ++ (i.e that of reductum x and so on.
     solve : (List EQ %,List %) -> Union(List EQ %,"failed")
       ++ \spad{solve([eq1,..],[v1,..]} tries to solve the equations given
       ++ using the coeffMatrix if invertible.    
@@ -245,7 +249,12 @@ RealPointChain : Exports == Implementation where
       llc:=[[coefficient(lhs u,v) for v in members svar] for u in zeqs]
       C:Matrix R:=matrix llc
       --vars
-    
+
+    coefficients(x:%):List R ==
+      zero? x => []
+      append([leadingCoefficient x],coefficients reductum x)
+
+
     -- maybe normalize before !!?
     solve(eqs,vars) ==
       C:=coeffMatrix(eqs,vars)
