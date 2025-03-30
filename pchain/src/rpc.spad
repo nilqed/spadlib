@@ -355,10 +355,10 @@ RealPointChain : Exports == Implementation where
     -- TODO: there are better solutions
     crossRatio(A:%,B:%,C:%,D:%):Union(R,"failed") ==
       pts:List % := [A,B,C,D]
-      b:List Boolean:=[point? u for u in pts | point? u = true]
-      #b < 2 => "failed"
-      not (A*B*C=0$%) => "failed"
-      not (A*B*D=0$%) => "failed"
+      --b:List Boolean:=[point? u for u in pts | point? u = true]
+      --#b < 2 => "failed"
+      not (normalize(A*B*C)=0$%) => "failed"
+      not (normalize(A*B*D)=0$%) => "failed"
       r1:Union(R,"failed"):=ratio(A*C,B*C)
       r2:Union(R,"failed"):=ratio(A*D,B*D)
       if r1 case R and r2 case R then
