@@ -1,0 +1,18 @@
+quickLoad ltxpv
+
+pp := yap()
+
+framed(pp, "$$ \int_a^b f(x) dx  $$")
+
+verbatim(pp,"Good morning ....")
+verbatim(pp,"Good morning again ....")
+
+
+push(pp,"\begin{equation}\frac{x^n+sin x}{1-x^2}\end{equation}")
+push(pp,"\begin{equation}\frac{x^n+sin y}{1-x^p}\end{equation}")
+
+
+ty:=taylor(sin x,x=0,5)
+push(pp,tex(ty).1)
+
+

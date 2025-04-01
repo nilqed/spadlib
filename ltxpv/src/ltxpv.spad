@@ -13,6 +13,7 @@
 ++ Requirements: pipe.spad
 ++ using xdvi instead of yap (win)
 ++ readpipe replaces readNoHang
+++ more latex substitutions for FriCAS
 ++
 LatexPreview() : Exports == Implementation where
 
@@ -51,6 +52,10 @@ LatexPreview() : Exports == Implementation where
       writeLine!(incpt,"\def\({\left(}") 
       writeLine!(incpt,"\def\){\right)}")
       writeLine!(incpt,"\def\atan{\operatorname{atan}}")
+      writeLine!(incpt,"\def\sp{^}\def\sb{_}\def\leqno(#1){}")
+      writeLine!(incpt,"\def\erf{\mathrm{erf}}\def\sinh{\mathrm{sinh}}")
+      writeLine!(incpt,"\def\zag#1#2{{{\left.{#1}\right|}\over{\left|{#2}\right.}}}")
+      writeLine!(incpt,"\def\csch{\mathrm{csch}}")
       writeLine!(incpt,"\begin{document}")
       writeLine!(incpt,"\input{"  fninc  "}") 
       writeLine!(incpt,"\end{document}")
