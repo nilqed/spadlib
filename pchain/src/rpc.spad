@@ -24,6 +24,8 @@ RealPointChain : Exports == Implementation where
       ++ \spad{point S} constructs a single point, which is the basis to 
       ++ generate chains of any degree. \spad{S} may be any symbol,
       ++ however, uppercase letters are most adequate of course.
+    points : List Symbol -> List %
+      ++ \spad{points [A,B,C,...]} constructs a list of points.
     _* : (%,%) -> %
       ++ \spad{c1*c2} multiplication of chains.
     _* : (R,%) -> %
@@ -137,6 +139,8 @@ RealPointChain : Exports == Implementation where
     Rep := XDistributedPolynomial(Symbol,R)
     
     point(s) == s::XDP
+    
+    points(l) == [point s for s in l]
 
     dups?(l:List(Symbol)):Boolean == #l > #set(l)$Set(Symbol)
 
@@ -344,12 +348,19 @@ RealPointChain : Exports == Implementation where
         return leadingCoefficient nx / leadingCoefficient ny
       else
         return formalRatio(x,y)
-        
+     
+    -- not good. Really a point is homogeneous, degree 0, sum of coeffs = 1.
+    -- it's a true (defined) point if above + #monomials is 1.    
     point?(x:%):Boolean ==
       constant? x => false
-      not (numberOfMonomials x = 1) => false
-      not (leadingCoefficient x = 1$R) => false
-      not (#pointSymbols(x) = 1) => false
+      --not (numberOfMonomials x = 1) => false
+      --not (leadingCoefficient x = 1$R) => false
+      --not (#pointSymbols(x) = 1) => false
+      not homogeneous? x => false
+      not (degree x = 0) => false
+      cs:List R:=coefficients x
+      sc:R:=reduce(_+,cs)
+      not (sc = 1) => false
       true
 
     -- TODO: there are better solutions
@@ -359,6 +370,8 @@ RealPointChain : Exports == Implementation where
       --#b < 2 => "failed"
       not (normalize(A*B*C)=0$%) => "failed"
       not (normalize(A*B*D)=0$%) => "failed"
+      not (normalize(A*C*D)=0$%) => "failed"
+      not (normalize(B*C*D)=0$%) => "failed"
       r1:Union(R,"failed"):=ratio(A*C,B*C)
       r2:Union(R,"failed"):=ratio(A*D,B*D)
       if r1 case R and r2 case R then
