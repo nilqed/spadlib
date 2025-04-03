@@ -1,0 +1,57 @@
+Manual in progress ...
+
+
+(1) -> )sh RPC
+ RealPointChain is a domain constructor.
+ Abbreviation for RealPointChain is RPC
+ This constructor is exposed in this frame.
+ 45 Names for 64 Operations in this Domain.
+------------------------------- Operations --------------------------------
+
+ ?*? : (%, %) -> %                     ?*? : (Integer, %) -> %
+ ?*? : (PositiveInteger, %) -> %       ?+? : (%, %) -> %
+ -? : % -> %                           ?-? : (%, %) -> %
+ ?=? : (%, %) -> Boolean               D : (%, List(Symbol)) -> %
+ D : (%, Symbol) -> %                  1 : () -> %
+ 0 : () -> %                           bdry : % -> %
+ coerce : Expression(Integer) -> %     coerce : % -> OutputForm
+ constant? : % -> Boolean              degree : % -> Integer
+ eval : (%, Equation(%)) -> %          homogeneous? : % -> Boolean
+ latex : % -> String                   leadingMonom : % -> %
+ leadingMonomial : % -> %              leadingSupport : % -> List(%)
+ normalize : % -> %                    one? : % -> Boolean
+ opposite? : (%, %) -> Boolean         point : Symbol -> %
+ point? : % -> Boolean                 pointSymbols : % -> List(Symbol)
+ points : List(Symbol) -> List(%)      product : (%, %) -> %
+ reductum : % -> %                     sample : () -> %
+ smaller? : (%, %) -> Boolean          zero? : % -> Boolean
+ ?~=? : (%, %) -> Boolean
+ ?*? : (%, Expression(Integer)) -> %
+ ?*? : (Expression(Integer), %) -> %
+ ?*? : (NonNegativeInteger, %) -> %
+ ?*? : (%, Equation(%)) -> Equation(%)
+ ?*? : (Equation(%), %) -> Equation(%)
+ ?*? : (Equation(%), Equation(%)) -> Equation(%)
+ ?*? : (Expression(Integer), Equation(%)) -> Equation(%)
+ ?+? : (Equation(%), Equation(%)) -> Equation(%)
+ ?-? : (Equation(%), Equation(%)) -> Equation(%)
+ affineMap : ((Symbol -> Symbol), %) -> %
+ barycenter : % -> Union(%,"failed")
+ coeffMatrix : (List(Equation(%)), List(%)) -> Union(Matrix(Expression(Integer)),"failed")
+ coefficients : % -> List(Expression(Integer))
+ coerce : XDistributedPolynomial(Symbol,Expression(Integer)) -> %
+ crossRatio : (%, %, %, %) -> Union(Expression(Integer),"failed")
+ eval : (%, Equation(Expression(Integer))) -> %
+ eval : (Equation(%), Equation(%)) -> Equation(%)
+ eval : (Equation(%), Equation(Expression(Integer))) -> Equation(%)
+ leadingCoefficient : % -> Expression(Integer)
+ map : ((Expression(Integer) -> Expression(Integer)), %) -> %
+ numberOfMonomials : % -> NonNegativeInteger
+ ratio : (%, %) -> Union(Expression(Integer),"failed")
+ retract : % -> Expression(Integer)
+ retract : % -> XDistributedPolynomial(Symbol,Expression(Integer))
+ retractIfCan : % -> Union(Expression(Integer),"failed")
+ simp : Equation(%) -> Equation(%)
+ solve : (List(Equation(%)), List(%)) -> Union(List(Equation(%)),"failed")
+ spaceDim : (%, PositiveInteger) -> %
+ subtractIfCan : (%, %) -> Union(%,"failed")

@@ -1,4 +1,8 @@
-   RealPointChain is now explicitly exposed in frame initial
+quickLoad pchain
+-- or use (w/o quicklisp):  
+-- )compile rpc
+
+RealPointChain is now explicitly exposed in frame initial
    RealPointChain will be automatically loaded when needed from
       /home/kfp/quicklisp/local-projects/spadlib/pchain/lib/RPC.NRLIB/RPC
 
