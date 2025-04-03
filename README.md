@@ -9,7 +9,7 @@
 >  
 >  Optional: jfricas (Jupyter) https://pypi.org/project/jfricas/
   
-## Install  
+## Install[^1]
 
     $ cd ~/quicklisp/local-projects
     $ git clone https://github.com/nilqed/spadlib.git
@@ -178,3 +178,10 @@ These functions may be used to recompile/reload the package if necessary
 (e.g after FriCAS upgrades or package updates).   
 
 ---
+
+
+[^1]: Instead one may also symlink the folder or
+    `(push "~/your/local/package-folder/" ql:*local-project-directories*)`.
+    However, the latter holds only once, unless added to the rc-file, 
+    e.g. `~/.sbclrc`.
+
