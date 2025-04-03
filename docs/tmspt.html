@@ -128,6 +128,13 @@
  inlineImage(img) inserts an image 'img' after the current input
  field.
 </pre>
+<strong><code>inlineImage : (String, String, String, String, String) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ inlineImage(img) inserts an image 'img' after the current input
+ field, and sets width w, height h, and offset x,y position.
+ Example: inlineImage ("abc","200pt","100pt","20pt","10pt")
+ --> (make-inline-image (list "abc" "200pt" "100pt" "20pt" "10pt"))
+</pre>
 <strong><code>linkImage : String -> Void</code></strong>
 <pre style='color: darkgreen;'>
  linkImage(img) inserts a hyperlink to the image 'img' after the
@@ -326,6 +333,36 @@
 <pre style='color: darkgreen;'>
  mainMenu() inserts a "[FriCAS]" menu in the top header of
  TeXmacs-
+</pre>
+</pre>
+<strong><code>tmMath : String -> Any</code></strong>
+<pre style='color: darkgreen;'>
+ tmMath(s) processes the string coming from the TeXmacs serializer
+ "fricas-serialize" defined in the plugin /progs/init-fricas.scm
+ scheme file. Whether it is active can be controlled by the scheme
+ variable fricas-tm-math? (#t or #f). For debugging purposes a "?"
+ prefix show the TeXmacs math-input verbatim.
+</pre>
+<strong><code>tmMathOn : () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ tmMathOn() sets fricas-tm-math? to #t, i.e. setting tmMath active.
+</pre>
+<strong><code>tmMathOff : () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ tmMathOff() sets fricas-tm-math? to #f, i.e. setting tmMath inactive.
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
 </pre>
 </pre>
 </pre>

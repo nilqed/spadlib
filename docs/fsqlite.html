@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SPADLIB (spad2doc)</title>
+</head>
+<body>
+<h2 style='color: blue;'>SQLite</h2>
+</pre>
+</pre>
+<pre style='color: brown;'>
+ Revision Date: Mi 06 Nov 2024 22:25:11 CET
+ Reference: https://cl-sqlite.common-lisp.dev/
+ Short Description:
+   Assumes that "quicklisp" is installed/working at ~/quicklisp
+ Define new functions to avoid name conflicts when using "use-package"!
+ Usage: cdb := connect "path/to/file.db"  -- returns a handle
+        q1:=query cdb "sql commands ..."
+        q2:=queryToList "sql commands ..."
+ Return values are "SExpression" (string, destruct, ...)
+ TODO: add more functions
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<strong><code>connect : String -> SExpression</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{connect(s)} connects to the sqlite database at the given
+ database-path (database-path is a string or a pathname). If
+ database-path equal to ":memory:" is given, a new in-memory database
+ is created. Returns the sqlite-handle connected to the database.
+</pre>
+<strong><code>disconnect : SExpression -> SExpression</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{disconnect(handle)} sisconnects the given handle from the
+ database. All further operations on the handle and on prepared
+ statements (including freeing handle or statements) are invalid and
+ will lead to memory corruption.
+</pre>
+<strong><code>query : (SExpression,String) -> SExpression</code></strong>
+<pre style='color: darkgreen;'>
+  \spad{query(sql,db)} executes the query sql to the database db with
+ given parameters. Returns the first column of the first row as single
+ value. Parameters are alternating names and values.
+</pre>
+<strong><code>queryToList : (SExpression,String) -> SExpression</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{queryToList(sql,db)} executes the query sql to the database db
+ with given parameters. Returns the results as list of lists.
+</pre>
+<strong><code>lispEval : String -> SExpression</code></strong>
+<pre style='color: darkgreen;'>
+ The usual lispEval(cl-string).
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</body>
+</html>

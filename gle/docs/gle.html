@@ -9,20 +9,21 @@
 <pre style='color: brown;'>
  Author: Kurt Pagani
  Date Created: Mon Aug 06 18:17:40 CEST 2018
- Date Revices: Do 24 Okt 2024 19:54:57 CEST
+ Date Revised: Do 24 Okt 2024 19:54:57 CEST
  License: BSD
  References:
-   https://glx.sourceforge.io/index.html
-   https://glx.sourceforge.io/main/docs.html
-   https://glx.sourceforge.io/downloads/downloads.html
-   https://en.wikipedia.org/wiki/Graphics_Layout_Engine
+ * <a href="https://glx.sourceforge.io/index.html">GLE home</a>
+ * <a href="https://glx.sourceforge.io/main/docs.html">GLE docs</a>
+ * <a href="https://glx.sourceforge.io/downloads/downloads.html">get GLE</a>
+ * <a href="https://en.wikipedia.org/wiki/Graphics_Layout_Engine">GLE@WP</a>
    January 2022: GLE is now on GitHub and utilizing cmake to build
-     from source: https://github.com/vlabella/GLE
+     from source: <a href="https://github.com/vlabella/GLE">GLE@GitHub</a>
  Description:
    GLE - Graphics Layout Engine
    Debian: sudo apt install gle-graphics  (ghostscript,...)
  Builds on PLOT, PLOT3D domains besides other constructs.
- PlotSupport eliminated.
+ <strong>PlotSupport eliminated</strong>.
+
  A) By now there are two graphic objects GRAPH and SURFACE which
     are represented as records.
  B) Instances of these objects are created by graph() and surface()
@@ -53,6 +54,7 @@
    runGLE(g1.glefile,"eps","") --> produces a "GLE*.eps".
  One may combine of course, e.g. display plot l1 ...
 
+</pre>
 </pre>
 </pre>
 </pre>
@@ -190,7 +192,7 @@
 </pre>
 <strong><code>display : SURFACE -> Void</code></strong>
 <pre style='color: darkgreen;'>
- display(s) opens the interactive QGLE windows and displays the
+ display(s) opens the interactive QGLE window and displays the
  surface s. QGLE allows interactive changes to data as well as the
  GLE source file. For this, you have to set a default editor.
 </pre>
@@ -264,6 +266,58 @@
 <strong><code>catGLE : SURFACE -> Void</code></strong>
 <pre style='color: darkgreen;'>
  Show the .gle file if created
+</pre>
+<strong><code>tmQGLE : LLDF -> GRAPH</code></strong>
+<pre style='color: darkgreen;'>
+ QGLE(l) plots a list of list of double floats as a graph in
+ TeXmacs (when current frontend) and shows the result interactively
+ in the QGLE windows.
+</pre>
+<strong><code>tmGLE  : (LLDF, String, List String) -> String</code></strong>
+<pre style='color: darkgreen;'>
+ tmGLE(l) plots a list of list of double floats as a graph in
+ TeXmacs (when current frontend) and returns the path of a *.eps
+ file to include with inlineImage.
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
 </pre>
 </pre>
 </pre>
