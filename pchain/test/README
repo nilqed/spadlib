@@ -1,0 +1,126 @@
+   RealPointChain is now explicitly exposed in frame initial
+   RealPointChain will be automatically loaded when needed from
+      /home/kfp/quicklisp/local-projects/spadlib/pchain/lib/RPC.NRLIB/RPC
+
+
+Value = ("pchain")
+                                                                   Type: Void
+macro makePoints(plist) == plist:=map(point,plist)
+
+                                                                   Type: Void
+makePoints [A,B,C,D,S,Z]
+
+
+   (10)  [A, B, C, D, S, Z]
+                                                   Type: List(RealPointChain)
+
+
+-- A,B,C,D collinear
+C := A + p * (B-A)
+
+
+   (11)  (- p + 1)A + p B
+                                                         Type: RealPointChain
+D := A + q * (B-A)
+
+
+   (12)  (- q + 1)A + q B
+                                                         Type: RealPointChain
+
+
+A' := Z + a*(A-Z)
+
+
+   (13)  a A + (- a + 1)Z
+                                                         Type: RealPointChain
+B' := Z + b*(B-Z)
+
+
+   (14)  b B + (- b + 1)Z
+                                                         Type: RealPointChain
+C' := Z + c*(C-Z)
+
+
+   (15)  (- c p + c)A + c p B + (- c + 1)Z
+                                                         Type: RealPointChain
+D' := Z + d*(D-Z)
+
+
+   (16)  (- d q + d)A + d q B + (- d + 1)Z
+                                                         Type: RealPointChain
+
+C' := A' + r * (B'-A')
+
+
+   (17)  (- a r + a)A + b r B + ((- b + a)r - a + 1)Z
+                                                         Type: RealPointChain
+D' := A' + s * (B'-A')
+
+
+   (18)  (- a s + a)A + b s B + ((- b + a)s - a + 1)Z
+                                                         Type: RealPointChain
+
+
+eqc:=[s=0 for s in coefficients(normalize(C'-Z-c*(C-Z)))]
+
+
+   (19)  [(- b + a)r + c - a = 0, b r - c p = 0, - a r + c p - c + a = 0]
+                                    Type: List(Equation(Expression(Integer)))
+eqd:=[s=0 for s in coefficients(normalize(D'-Z-d*(D-Z)))]
+
+
+   (20)  [(- b + a)s + d - a = 0, b s - d q = 0, - a s + d q - d + a = 0]
+                                    Type: List(Equation(Expression(Integer)))
+cr:=first solve(eqc,[c,r])
+
+
+                     a b                 a p
+   (21)  [c = - ------------, r = - ------------]
+                (b - a)p - b        (b - a)p - b
+                                    Type: List(Equation(Expression(Integer)))
+ds:=first solve(eqd,[d,s])
+
+
+                     a b                 a q
+   (22)  [d = - ------------, s = - ------------]
+                (b - a)q - b        (b - a)q - b
+                                    Type: List(Equation(Expression(Integer)))
+
+C':=eval(C',cr.2)
+
+
+          a b p - a b         a b p        (b - a)p + (a - 1)b
+   (23)  ------------ A - ------------ B + ------------------- Z
+         (b - a)p - b     (b - a)p - b         (b - a)p - b
+                                                         Type: RealPointChain
+D':=eval(D',ds.2)
+
+
+          a b q - a b         a b q        (b - a)q + (a - 1)b
+   (24)  ------------ A - ------------ B + ------------------- Z
+         (b - a)q - b     (b - a)q - b         (b - a)q - b
+                                                         Type: RealPointChain
+
+-- (((b-a)*p-b)/p )*normalize(A'*C') - (((b-a)*q-b)/q )*normalize(A'*D')
+-- (((b-a)*p-b)/(1-p) )*normalize(B'*C') - (((b-a)*q-b)/(1-q) )*normalize(B'*D')
+
+CR := crossRatio(A,B,C,D)
+
+
+          p q - p
+   (25)  --------
+         (p - 1)q
+                                         Type: Union(Expression(Integer),...)
+CR' := crossRatio(A',B',C',D') -- ok now :)
+
+
+          p q - p
+   (26)  --------
+         (p - 1)q
+                                         Type: Union(Expression(Integer),...)
+
+if test(CR=CR') then output "*** Q.E.D ***"
+
+   *** Q.E.D ***
+                                                                   Type: Void
+(28) ->

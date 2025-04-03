@@ -340,22 +340,24 @@ RealPointChain : Exports == Implementation where
     ratio(x:%,y:%):Union(R,"failed") ==
       nx:=normalize x
       ny:=normalize y
-      not (numberOfMonomials nx = 1) => "failed"
-      not (numberOfMonomials ny = 1) => "failed"
+      not (homogeneous? nx) => "failed"
+      not (homogeneous? ny) => "failed"
       not (degree nx = degree ny) => "failed"
+      not (numberOfMonomials nx = numberOfMonomials ny) => "failed"
       degree nx < 1 => "failed"
-      if leadingMonom nx = leadingMonom ny then  
-        return leadingCoefficient nx / leadingCoefficient ny
+      if numberOfMonomials nx = 1 then
+        if leadingMonom nx = leadingMonom ny then  
+          return leadingCoefficient nx / leadingCoefficient ny
+        else
+          return formalRatio(x,y)
       else
-        return formalRatio(x,y)
-     
-    -- not good. Really a point is homogeneous, degree 0, sum of coeffs = 1.
-    -- it's a true (defined) point if above + #monomials is 1.    
+        r:R:=leadingCoefficient nx / leadingCoefficient ny
+        r*ny = nx => r
+        return formalRatio(x,y)        
+        
+       
     point?(x:%):Boolean ==
       constant? x => false
-      --not (numberOfMonomials x = 1) => false
-      --not (leadingCoefficient x = 1$R) => false
-      --not (#pointSymbols(x) = 1) => false
       not homogeneous? x => false
       not (degree x = 0) => false
       cs:List R:=coefficients x
@@ -363,11 +365,8 @@ RealPointChain : Exports == Implementation where
       not (sc = 1) => false
       true
 
-    -- TODO: there are better solutions
+    -- https://en.wikipedia.org/wiki/Cross-ratio
     crossRatio(A:%,B:%,C:%,D:%):Union(R,"failed") ==
-      pts:List % := [A,B,C,D]
-      --b:List Boolean:=[point? u for u in pts | point? u = true]
-      --#b < 2 => "failed"
       not (normalize(A*B*C)=0$%) => "failed"
       not (normalize(A*B*D)=0$%) => "failed"
       not (normalize(A*C*D)=0$%) => "failed"
@@ -377,7 +376,16 @@ RealPointChain : Exports == Implementation where
       if r1 case R and r2 case R then
         return(r1/r2)
       else
-        "failed"
+        r3:Union(R,"failed"):=ratio(A*C,A*D)
+        r4:Union(R,"failed"):=ratio(B*C,B*D)
+        if r3 case R and r4 case R then
+          return(r3/r4)
+        else
+          "failed"
+
+-------------------------------------
+-- macro defPoints(l) == l:=points(l)
+-------------------------------------
 
 -- [A,B,C,D]:=map(point, [A,B,C,D])
 -- P:=map(point,[P[i] for i in 1..100])
