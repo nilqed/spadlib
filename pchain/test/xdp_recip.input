@@ -1,0 +1,26 @@
+XDP:=XDPOLY(Symbol,Fraction Integer)
+--
+[x,y,z]:=[s::XDP for s in [x,y,z]@List Symbol]
+--
+p1:= 3*x*y*x*z -->  3 x y x z
+--
+lquo(p1,x*y) --> 3 x z
+rquo(p1,x*z) --> 3 x y
+-- however
+lquo(p1,3*x*y) --> 9 x z (expected: x z)
+rquo(p1,2*x*z) --> 6 x y (expected: (3/2) x y)
+--
+leftRecip(3)$XDP --> 1/3
+
+)clear all
+XDP:=XDPOLY(Symbol,Expression Integer)
+[x,y,z]:=[s::XDP for s in [x,y,z]@List Symbol]
+a:EXPR INT
+p1:=a*x*y*x*z --> a x y x z
+--
+lquo(p1,x*y) --> a x z
+rquo(p1,x*z) --> a x y
+lquo(p1,a*x*y) --> a^2 x z
+-- ...
+
+

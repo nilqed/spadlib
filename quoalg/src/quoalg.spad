@@ -1,0 +1,151 @@
+)abbrev domain QUOALG QuotientAlgebra
+++ References:
+++  https://en.wikipedia.org/wiki/Quotient_(universal_algebra)
+++  https://en.wikipedia.org/wiki/Tensor_algebra
+++ Description: 
+++  \spad{QuotientAlgebra(R,B,F,psym)} is here the tensor algebra over the
+++  \spad{R-Module} whose generators \spad{B:OrderedSet} must satisfy some
+++  relations given by the mapping \spad{F:TERM -> TERM}. The ring \spad{R}
+++  may be any ring. The other map \spad{psym} serves how to represent the
+++  output (like tensor()$OutputForm).
+QuotientAlgebra(R,B,F,psym) : Exports == Implementation where
+
+  R:Ring
+  B:OrderedSet
+  F:TERM -> TERM
+  psym: (OF,OF) -> OF
+
+  
+  OF     ==> OutputForm
+  NNI    ==> NonNegativeInteger
+  FMB    ==> FreeMonoid B
+  CTOF   ==> CoercibleTo OutputForm
+  FMCRB  ==> FreeModuleCategory(R,FMB)
+  XFABR  ==> XFreeAlgebra(B,R)
+  XDPBR  ==> XDistributedPolynomial(B,R)
+  TERM   ==> Record(k:FMB,c:R)  
+  
+  Exports == Join(FMCRB, XFABR) with
+    
+    _* : (%,%) -> %
+    coerce : B -> %
+    convert : FMB -> OutputForm
+    convert : XDPBR -> %
+    
+    getQuoMap : () -> (TERM -> TERM)
+    generators : () -> List %
+    dim : () -> NNI
+	
+  Implementation ==  XDPBR add 
+ 
+    Rep := XDPBR
+    
+    (x:% * y:%):% ==
+      r:XDPBR:=x@Rep * y@Rep
+      convert r
+
+    getQuoMap() == F
+    
+    if B has Finite then
+      generators() == [u::% for u in enumerate()$B]
+      dim() == size()$B
+
+    convert(x:XDPBR):% ==
+      lt:List TERM:=listOfTerms x
+      flt:List TERM :=[F(t) for t in lt | F(t).k~=1$FMB]
+      -- note that 1$FMB must map to 0$%
+      if FMB has COMPARABLE then
+        constructOrdered flt
+      else
+        construct flt      
+    
+    convert(x:FMB):OutputForm ==
+      x=1$FMB => empty()$OF 
+      length(x)$FMB = 1 => x::OF
+      length(x)$FMB = 2 => psym(first(x)::OF,rest(x)::OF)
+      psym(first(x)::OF, convert(rest x))
+      
+    coerce(x:%):OutputForm ==
+      zero? x => outputForm(0)$OF --empty()$OF
+      x=1$% => outputForm(1)$OF
+      c:R:=leadingCoefficient(x)
+      if c=1 then cof:=empty()$OF else cof:=c::OF 
+      kof:OF:=cof * convert(leadingSupport(x))
+      zero? reductum(x) => kof
+      kof + reductum(x)::OF
+      
+
+
+)abbrev package QALSPT QuotientAlgebraSupport
+QuotientAlgebraSupport(R,B): Exports == Implementation where
+  R:Ring
+  B:OrderedSet
+
+  OF     ==> OutputForm
+  NNI    ==> NonNegativeInteger
+  FMB    ==> FreeMonoid B
+  FAC    ==> Record(gen: B, exp: NNI)
+  TERM   ==> Record(k:FMB,c:R) 
+  BOOL   ==> Boolean
+
+  Exports == with
+    ident : -> (TERM -> TERM)
+    symm  : -> (TERM -> TERM)
+    symmOVAR : -> (TERM -> TERM)
+    asymOVAR : -> (TERM -> TERM)
+    flatFactors : FMB -> List B
+    duplicates? : FMB -> Boolean
+    sortAsSymbols : FMB -> List Symbol
+    signSorted : FMB -> Integer
+    sortFactors : FMB -> FMB
+    sortIfOVAR : FMB -> FMB
+    
+  Implementation == add
+    ident() == (x:TERM):TERM +-> x
+    
+    symm() == (x:TERM):TERM +-> [sortFactors(x.k),x.c]$TERM
+    symmOVAR() == (x:TERM):TERM +-> [sortIfOVAR(x.k),x.c]$TERM
+ 
+    if B has Finite then
+      asymOVAR() == (x:TERM):TERM +-> _
+      if duplicates? x.k or length x.k > size()$B _
+      then [1$FMB,0$R]$TERM else [sortIfOVAR(x.k),signSorted(x.k) * x.c]$TERM
+
+    flatFactors x ==
+      x=1$FMB => []
+      concat(first x,flatFactors rest x)
+
+    if B has Finite then
+      duplicates? x ==
+      -- any?((s:NNI):BOOL+->s>1,[u.exp for u in factors x])
+        y:List B:=flatFactors x
+        #y > #set(y)$Set(B)
+      
+      
+    
+    if B has ConvertibleTo Symbol then
+      sortAsSymbols x == 
+        y:=flatFactors x
+        ls:List Symbol:=[convert u for u in y]
+        ss:=sort ls
+
+      signSorted x ==
+        y:=flatFactors x
+        ls:List Symbol:=[convert u for u in y]
+        ss:=sort ls        
+        li:List Integer:=[position(u,ls) for u in ss]
+        p:=coerceImages(li)$Permutation(Integer)
+        sign(p)$Permutation(Integer)
+              
+    sortFactors x ==  -- reverse if OVAR??
+      y:List B:=flatFactors x
+      sy:List B:=sort y
+      z:=[u::FMB for u in sy]
+      r:FMB:=reduce(_*,z)
+ 
+    sortIfOVAR x == 
+      y:List B:=flatFactors x
+      sy:List B:=sort y
+      z:=reverse [u::FMB for u in sy]
+      r:FMB:=reduce(_*,z)
+   

@@ -27,3 +27,4 @@ spadlib/drawfe/drawfe.asd
 spadlib/maxima/maxima.asd
 spadlib/pchain/pchain.asd
 spadlib/fsqlite/fsqlite.asd
+spadlib/quoalg/quoalg.asd

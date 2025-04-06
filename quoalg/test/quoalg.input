@@ -1,0 +1,55 @@
+quickLoad "quoalg"
+
+R:=EXPR INT
+B:=OVAR [X,Y,Z]
+FMB:=FreeMonoid(B)
+M:=Record(k:FMB,c:R)
+
+F1(x:M):M == x
+
+F2(x:M):M == 
+  length x.k > 3 => [1$FMB,x.c]$M  -- caution: X*X*X*X*X has size 1 ! Use length instead.
+  x
+
+A1:=QUOALG(R,B,F2,tensor$OutputForm)
+G:=[g::A1 for g in enumerate()$B]
+
+t1:=123*G.1*G.2*G.3*G.1
+t2:=G.1*G.3-G.2*G.1+G.1
+
+
+A2:=QUOALG(R,B,F2,_*$OutputForm)  -- or _+,...
+H:=[h::A2 for h in enumerate()$B]
+t3:=H.1*H.3-H.2*H.1+H.1
+
+generators()$A1
+dim()$A1
+
+
+------
+
+QS:=QALSPT(R,B)
+A3:=QUOALG(R,B,ident()$QS,_+$OutputForm) 
+J:=[h::A3 for h in enumerate()$B]
+t4:=J.1*J.3-J.2*J.1+x*J.1+ J.1*J.1*J.1*J.1*J.1
+
+B5:=OVAR [e[i] for i in 1..5]
+QS2:=QALSPT(R,B5)
+A5:=QUOALG(R,B5,symmOVAR()$QS2 ,_tensor$OutputForm) 
+E:=generators()$A5
+E.3*E.2*E.4*E.1
+E.3*E.2*E.4*E.1*E.2
+--- ok. symm() does reverse symmOVAR is correct
+dim()$A5 -- 5
+
+
+----
+
+A6:=QUOALG(R,B5,asymOVAR()$QS2 ,_tensor$OutputForm) 
+K:=generators()$A6
+K.3*K.2*K.4*K.1
+K.3*K.2*K.4*K.1*K.2
+--- ok. symm() does reverse symmOVAR is correct
+dim()$A6 -- 5
+
+

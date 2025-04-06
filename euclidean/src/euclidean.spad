@@ -1,0 +1,46 @@
+)abbrev domain EUCL Euclidean
+++ 
+Euclidean(S:List Symbol) : Exports == Implementation where
+
+  B      ==> OrderedVariableList S
+  R      ==> Expression Integer
+  OF     ==> OutputForm
+  NNI    ==> NonNegativeInteger
+  FMB    ==> FreeMonoid B
+  CTOF   ==> CoercibleTo OutputForm
+  FMCRB  ==> FreeModuleCategory(R,FMB)
+  XFABR  ==> XFreeAlgebra(B,R)
+  XDPBR  ==> XDistributedPolynomial(B,R)
+  TERM   ==> Record(k:FMB,c:R)  
+  
+  Exports == Join(FMCRB, XFABR) with
+    
+    coerce : B -> %
+    convert : FMB -> OutputForm
+    basis : () -> List % 
+    dimension : () -> NNI
+	
+  Implementation ==  XDPBR add 
+ 
+    Rep := XDPBR
+    
+    basis () == [s::% for s in enumerate()$B]
+    dimension () == #enumerate()$B
+      
+    
+    convert(x:FMB):OutputForm ==
+      x=1$FMB => empty()$OF 
+      length(x)$FMB = 1 => x::OF
+      length(x)$FMB = 2 => tensor(first(x)::OF,rest(x)::OF)$OF
+      tensor(first(x)::OF, convert(rest x))
+      
+    coerce(x:%):OutputForm ==
+      zero? x => outputForm(0)$OF --empty()$OF
+      x=1$% => outputForm(1)$OF
+      c:R:=leadingCoefficient(x)
+      if c=1 then cof:=empty()$OF else cof:=c::OF 
+      kof:OF:=cof * convert(leadingSupport(x))
+      zero? reductum(x) => kof
+      kof + reductum(x)::OF
+      
+

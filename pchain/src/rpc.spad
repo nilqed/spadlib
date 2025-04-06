@@ -14,10 +14,6 @@ RealPointChain : Exports == Implementation where
   TERM ==> Record(k: FreeMonoid(Symbol),c: R)
   FACT ==> Record(gen: Symbol,exp: NonNegativeInteger)
   
-  -- not used
-  -- FMS  ==> FreeMonoid Symbol
-  -- XFA  ==> XFreeAlgebra(Symbol,R)
-  -- FMC  ==> FreeModuleCategory(R,FMS)
   
   Exports == Join(Comparable, Module R, GradedAlgebra(R,Integer)) with
     
@@ -131,9 +127,13 @@ RealPointChain : Exports == Implementation where
     ratio : (%,%) -> Union(R,"failed")
     point? : % -> Boolean
     crossRatio : (%,%,%,%) -> Union(R,"failed")
+    --formalRatio : (%,%) -> R
     coerce: XDP -> %
       ++ \spad{coerce p} coerces a \spad{XDistributedPolynomial p} to a chain, 
       ++ whereby all terms not conforming to a chain will be removed.
+    lquo : (%,%) -> %
+    rquo : (%,%) -> %
+    lfac : (%,%) -> Union(List %,"failed")
 	
   Implementation ==  XDP add 
     import from Equation(%)
@@ -322,7 +322,7 @@ RealPointChain : Exports == Implementation where
     eval(x:EQ %, eq:EQ %):EQ % == eval(lhs x,eq) = eval(rhs x,eq)
 
     formalRatio(x:%,y:%):R ==
-      op:BasicOperator:=operator('%ratio)
+      op:BasicOperator:=operator('%ratio)     --'
       OF:=OutputForm
       dm:List OF -> OF
       dm:=u+->over(u.1,u.2)
@@ -383,6 +383,29 @@ RealPointChain : Exports == Implementation where
           return(r3/r4)
         else
           "failed"
+
+
+    lquo(x:%,y:%):% ==
+      rx:XDP:=retract x
+      ry:XDP:=retract y
+      lq:XDP:=lquo(rx,ry)$XDP
+      return(lq::%)
+
+   
+    rquo(x:%,y:%):% ==
+      rx:XDP:=retract x
+      ry:XDP:=retract y
+      rq:XDP:=rquo(rx,ry)$XDP
+      return(rq::%)
+
+
+    lfac(x:%,y:%):Union(List %,"failed") ==
+      lq:%:=lquo(x,y)
+      if x = y * lq then
+        return [y,lq]
+      else 
+        "failed"
+
 
 -------------------------------------
 -- macro defPoints(l) == l:=points(l)
