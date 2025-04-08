@@ -1,3 +1,18 @@
+-- Cat XFreeAlgebra (xpoly.spad, L28)
+-- lquo  : (%, %) -> %
+-- ++ \spad{lquo(x, y)} returns the left simplification of \spad{x} by \spad{y}.
+--
+-- https://github.com/fricas/fricas/blob/master/src/algebra/xpoly.spad
+-- lines 400-404
+--
+--      lquo(p : %, q : %) : % ==
+--         +/ [t.c * r  for t in q | (r := lquo(p, t.k)) ~= 0]
+--
+--       rquo(p : %, q : %) : % ==
+--         +/ [r * t.c for t in q | (r := rquo(p, t.k)) ~= 0]
+
+
+
 XDP:=XDPOLY(Symbol,Fraction Integer)
 --
 [x,y,z]:=[s::XDP for s in [x,y,z]@List Symbol]
@@ -23,4 +38,10 @@ rquo(p1,x*z) --> a x y
 lquo(p1,a*x*y) --> a^2 x z
 -- ...
 
+p2 := x^4 + x^2*y + 4*x^2 + 4*x*y + 4*y + 4;
+p2f:=(x^2+2)^2+(x+2)^2*y
+
+factor (p2)$XPFACT(Symbol,EXPR INT)
+
+factor (3*x*y-3*x*z)$XPFACT(Symbol,EXPR INT)
 
