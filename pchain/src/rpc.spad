@@ -13,6 +13,8 @@ RealPointChain : Exports == Implementation where
   XDP  ==> XDistributedPolynomial(Symbol,R)
   TERM ==> Record(k: FreeMonoid(Symbol),c: R)
   FACT ==> Record(gen: Symbol,exp: NonNegativeInteger)
+  XPFS ==> XPolynomialFactor(Symbol, R)
+  RQRX ==> Record(quotient: XDP, remainder: XDP)
   
   
   Exports == Join(Comparable, Module R, GradedAlgebra(R,Integer)) with
@@ -400,9 +402,11 @@ RealPointChain : Exports == Implementation where
 
 
     lfac(x:%,y:%):Union(List %,"failed") ==
-      lq:%:=lquo(x,y)
-      if x = y * lq then
-        return [y,lq]
+      rx:XDP:=retract x
+      ry:XDP:=retract y
+      lq:RQRX:=ldivide(rx,ry)$XPFS
+      if rx = ry * lq.quotient then
+        return [ry::%,lq.quotient ::%]
       else 
         "failed"
 
