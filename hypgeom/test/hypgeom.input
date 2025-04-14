@@ -1,0 +1,79 @@
+)co hypgeom
+
+
+-- Example 3.3.1
+f1(n) == 2^n / factorial(n)^2
+ff1:=factoredForm(f1)$HYPGEOM
+pFq(f1) --> [ap = [], bq = [1], fac = 2] 
+
+
+-- Example 3.3.2
+f2(n) == 1/(2*n-1)/factorial(2*n+1)
+ff2:=factoredForm(f2)$HYPGEOM
+pFq(f2) -->
+--                  1         3  1         1
+--   (10)  [ap = [- -], bq = [-, -], fac = -]
+--                  2         2  2         4
+
+-- Example 3.3.3
+--s(x,d,n) == 
+  --n=0 => 1
+  --reduce(_*,[x-j*d for j in 0..n-1])
+
+  
+f3(k) == binomial(5,k)*s(x,d,k)*s(y,d,5-k)
+--ff3:=factoredForm(f3)$HYPGEOM
+
+-- Example 3.3.4. 
+f4(k) == binomial(n,k)*(-1)^k/factorial(k)
+ff4:=factoredForm(f4)$HYPGEOM
+pFq(f4) -->  [ap = [- n], bq = [1], fac = 1]
+
+
+--Example 3.3.5. the Bessel function
+f5(k) == (-1)^k*(x/2)^(2*k+p)/(factorial(k)*factorial(k+p))
+ff5:=factoredForm(f5)$HYPGEOM
+pFq(f5)
+--                                                2
+--   (21)  [ap = [], bq = [p + 1], fac = - (1/4) x ]
+--
+-- notice: f(0)=(x/2)^p / factorial(p)
+-- so multiply with above with f(0).
+
+
+-- Eq 3.4.2
+f6(k) == (-1)^k*binomial(r-s-k,k)*binomial(r-2*k,n-k)/(r-n-k+1)
+ff6:=factoredForm(f6)$HYPGEOM
+--   (26)
+--          1     1     1  1     1
+--   [ap = [- s - - r + -, - s - - r, - n, - r + n - 1],
+--          2     2     2  2     2
+--                   1     1    1
+--    bq = [s - r, - - r + -, - - r], fac = 1]
+--                   2     2    2
+-- multiply by f6(0) .... 
+--            r
+--            ( )
+--             n
+--   (27)  ---------
+--       
+--
+
+-- Example 3.6.1
+f7(k) == (-1)^k * binomial(2*n,k)^2
+ff7:=factoredForm(f7)$HYPGEOM
+pFq(f7) -->  [ap = [- 2 n, - 2 n], bq = [1], fac = - 1]
+
+
+-- Example 3.6.2
+f8(k) == (-1)^k * binomial(2*n,k)*binomial(2*k,k)*binomial(4*n-2*k,2*n-k)
+ff8:=factoredForm(f8)$HYPGEOM
+pFq(f8) -->
+--
+--                1                                  1
+--   (28)  [ap = [-, - 2 n, - 2 n], bq = [1, - 2 n + -], fac = 1]
+--                2                                  2
+-- f8(0)
+--          4 n
+--   (30)  (   )
+--          2 n
