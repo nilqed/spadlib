@@ -1,0 +1,22 @@
+quickLoad rete
+
+opsInit()
+wm()
+
+assert "Point 1 2 3"
+assert "Point 4 5 6"
+assert "Hello there"
+assert "|Hello| |there|"
+
+wm()
+removeFacts [2,3]
+wm()
+pm()
+
+resetOPS()
+wm()
+
+
+
+
+
