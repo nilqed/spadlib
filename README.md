@@ -72,7 +72,7 @@ below).
 
 In the `spadlib` folder do:
 
-    $ ./fripac.sh "packageName" 
+    $ ./fripac.sh packageName 
   
 Type 
 
@@ -150,6 +150,8 @@ The Lisp file `mypkg.lisp` has the general form (just the package name changes):
 
 ### NOTES 
 
+It is expected that besides the auto-generated `packageName.lisp` a file called `packageName.spad` is in the `src` directory of course.
+
 Before creating a new package, check if `packageName` is not  already in use.
 
 Either by  
@@ -158,8 +160,8 @@ Either by
     
  or  
       
-    quickLoad "quicklsp"
-    qlApropos "packageName".
+    quickLoad quicklsp
+    qlApropos packageName
 	  
 Also notice the name ``quicklsp``, because `quicklisp` has already been taken,
 of course. By the way, `qlApropos` will also search the QuickLisp online
