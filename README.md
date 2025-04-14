@@ -1,4 +1,4 @@
-# SPADLIB V0.4 :rocket:
+# SPADLIB V0.5 :rocket:
 
 
 ## Required
@@ -49,17 +49,18 @@ Add the following macros to your `~/.fricas.input` start file:
 
 Then
   
-    quickLoad "packageName"
+    quickLoad packageName
     
 should compile/load your package/domain/category.
 
+
   
 #### Note 
-If `quickLoad` is unknown after `FriCAS` start, you have to enter
+If `quickLoad` is unknown after `FriCAS` start, you also have to enter
 
         )frame next 
 
-under certain circumstances (depends on start parameters).
+when not using the `-nosman` start parameter.
         
 **BTW** nothing will be changed to your `FriCAS` installation,
 i.e. the packages are available at runtime only.    
