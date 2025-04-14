@@ -1,0 +1,58 @@
+\iffalse
+)lisp (defvar |$inclAssertions| nil)
+--------------------------------------
+)abbrev package RETE ReteOPS5
+--------------------------------------
+ReteOPS5(): Exports == Implementation where
+  
+  Exports == with
+  
+    lisp : String -> SExpression
+      ++ lisp(s) reads the string s and evaluates in Lisp.
+    opsInit : () -> SExpression
+      ++ opsInit() initializes the OPS5 system.
+    resetOPS : () -> SExpression
+      ++ resetOPS() resets the OPS5 system.
+    wm : () -> SExpression
+      ++ wm() shows the working memory.   
+    pm : () -> SExpression
+      ++ pm() shows the production memory.        
+    assert : String -> SExpression
+      ++ assert(s) puts the string s as a series of symbols into the working
+      ++ memory. Notice that || is required for case sensitivity, i.e.
+      ++ assert "Hello there" -> (HELLO    THERE), whereas 
+      ++ assert "|Hello| |there|" -> (Hello    there).
+    removeFacts : List Integer -> SExpression 
+      ++ remove [i,j,k,...] removes the facts numbered i,j,k,... as showed with
+      ++ wm(), from the working memory.
+
+  Implementation == add
+  
+    lisp(s) == EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
+    opsInit () == lisp "(ops::ops-init)"
+    resetOPS () == lisp "(ops::reset-ops)" 
+    wm () == lisp "(ops::wm)"
+    pm () == lisp "(ops::pm)"
+    assert(s:String):SExpression == lisp("(ops::make " s ")")
+    
+    removeFacts(f:List Integer):SExpression ==
+      s:String:=string FORMAT('NIL,"(ops::remove ~{ ~A ~})",f)$Lisp  --'
+      lisp s
+    
+    
+  
+)if false      
+\fi
+\documentclass[12pt,a4paper]{article}
+\begin{document}
+
+\begin{thebibliography}{1}
+%
+\bibitem{AEQB} Marko Petkovsek, Herbert Wilf, and Doron Zeilberger,
+  {\em A=B}, {Routledge \& CRC Press},
+  {URL:https://www2.math.upenn.edu/{\textasciitilde}wilf/AeqB.pdf}.
+\end{thebibliography}
+%      
+
+\end{document}
+)endif
