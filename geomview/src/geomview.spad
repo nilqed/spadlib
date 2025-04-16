@@ -1,0 +1,29 @@
+)abbrev package GEOMV Geomview
+Geomview() : Exports == Implementation where
+
+  MSC ==> MoreSystemCommands
+
+  Exports == with
+
+    lisp : String -> SExpression
+    ++ lisp(s) reads the string s and evaluates in Lisp.
+    makePipe : String -> String
+    quitPipe : String -> Void
+  
+  Implementation == add 
+  
+    lisp(s) == EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
+    
+    makePipe(s) == 
+      cmd:SExpression:=FORMAT('NIL,"system togeomview ~A </dev/null",s)$Lisp --'
+      systemCommand(string cmd)$MSC
+      string FORMAT('NIL,"/tmp/geomview/~a",s)$Lisp --'
+      
+    quitPipe(s) == 
+      tp:=string FORMAT('NIL,"/tmp/geomview/~a",s)$Lisp --'
+      cmd:SExpression:=FORMAT('NIL,"system echo '(quit)' > ~A",tp)$Lisp --'    
+      systemCommand(string cmd)$MSC
+      
+
+    
+    
