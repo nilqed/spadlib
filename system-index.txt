@@ -30,4 +30,5 @@ spadlib/fsqlite/fsqlite.asd
 spadlib/quoalg/quoalg.asd
 spadlib/hypgeom/hypgeom.asd
 spadlib/rete/rete.asd
+spadlib/atp/atp.asd
 
