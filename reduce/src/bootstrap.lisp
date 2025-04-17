@@ -116,7 +116,8 @@
 (load!-package!-sources 'arith 'arith)
 (load!-package!-sources 'entry 'support)
 (load!-package!-sources 'excalc 'excalc)  %% kfp/excalc
-(load!-package!-sources 'remake nil)
+(load!-package!-sources 'int 'int)  %% kfp/int
+%(load!-package!-sources 'remake nil)
 
 (setq !*comp nil)
 

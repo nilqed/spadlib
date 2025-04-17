@@ -1,0 +1,11 @@
+quickLoad reduce
+init()
+
+
+-- we use reval instead fo aeval 
+r1:=slEval "(reval (list 'df (list 'expt 'x 'n) 'n))"   -- D(x^n,n)
+r2:=slEval "(reval (list 'int (list 'sin 'x) 'x))"      -- integrate(sin x,x)
+
+s1:="(setk 'y (aeval (list 'plus (list 'difference (list 'expt 'x 5)" _
+ "(list 'times 3 (list 'expt 'x 2))) 2)))"
+   
