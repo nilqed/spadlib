@@ -12,4 +12,10 @@ rquo(A*B,B) --> A
 
 lfac(A*S,3*A) --> 
 
+eqb:=bdry(A*B)=bdry(C*D)
+
+eqA:=A*eqb
+eqB:=B*eqb
+eqC:=C*eqb
+eqD:=D*eqb
 

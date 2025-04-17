@@ -1,0 +1,45 @@
+
+
+(1) -> quickLoad reduce
+
+...
+------------------------------------------------------------------------
+   ReduceBootstrap is now explicitly exposed in frame initial
+   ReduceBootstrap will be automatically loaded when needed from
+      /home/kfp/quicklisp/local-projects/spadlib/reduce/lib/REDBOOT.NRLIB/REDBOOT
+
+
+Value = ("reduce")
+                                                                   Type: Void
+(2) -> init()
+
+-- does a full bootstrap (compiling original REDUCE packages)
+-- alternatively: )lisp (|load_bootstrap_reduce|)
+-- may take some time (up to 1 minute)
+
+
+...
+Time to build bootstrap REDUCE: 43.242 secs
+Heap left: 4149668992 bytes
+
+   (2)  RESULT00
+                                                            Type: SExpression
+
+
+
+(3) -> )sh REDBOOT
+ ReduceBootstrap is a domain constructor.
+ Abbreviation for ReduceBootstrap is REDBOOT
+ This constructor is exposed in this frame.
+ 16 Names for 16 Operations in this Domain.
+------------------------------- Operations --------------------------------
+
+ coerce : % -> OutputForm              getRes0 : () -> SExpression
+ init : () -> SExpression              lispEval : String -> SExpression
+ loadBootstrap : () -> SExpression     loadSLonCL : () -> SExpression
+ pkg? : () -> SExpression              pkgBOOT : () -> SExpression
+ pkgCLUSER : () -> SExpression         pkgSTDLISP : () -> SExpression
+ props : Symbol -> SExpression         saveReadtable : () -> SExpression
+ setRes0 : String -> SExpression       setSLreadtable : () -> SExpression
+ slEval : String -> SExpression
+ restoreReadtable : () -> SExpression

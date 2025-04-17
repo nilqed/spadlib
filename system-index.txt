@@ -32,6 +32,8 @@ spadlib/hypgeom/hypgeom.asd
 spadlib/rete/rete.asd
 spadlib/atp/atp.asd
 spadlib/geomview/geomview.asd
+spadlib/reduce/reduce.asd
+
 
 
 
