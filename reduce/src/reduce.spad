@@ -27,12 +27,13 @@
 ++  available (again?) on Common Lisp by using sl_on_cl.lisp, that means 
 ++  conversion of Standard Lisp (SL) to Common Lisp (CL).
 ++
-++  After loading this package by quicklisp (quickLoad) the process is as 
-++  follows:
+++  After loading this package by quicklisp (quickLoad reduce) the process is 
+++  as follows:
 ++    * you have to run init()$REDBOOT
 ++    * init() saves the readtable (saveReadtable)
 ++    * init() calls load_bootstrap_reduce()$Lisp from bootstrap.lisp
 ++    * init() restores the readtbale (restoreReadtable)
+++    * init() defines and sets: boot::*redboot-initialized* T
 ++    * some cleanup ... ready
 ++  After this procedure one may use SL and/or load other REDUCE packages.
 ++  Use packageMap() to see a list of available modules.
@@ -105,7 +106,12 @@ ReduceBootstrap : Exports == Implementation where
       ++ is unbound, then reduce.spad was not loaded appropriately by using
       ++ reduce.asd (quicklisp).   
     packageMap : () -> Void      
-    
+      ++ \spad{packageMap()} prints the package map from homePath/src/packages.
+    initialized? : () -> Boolean
+      ++ \spad{initialized?()} checks whether init()$REDBOOT has been run by
+      ++ inspecting the variable boot::*redboot-initialized*.
+
+
   Implementation == add
   
     lispEval(s:String):SEX ==
@@ -148,6 +154,7 @@ ReduceBootstrap : Exports == Implementation where
       loadBootstrap()
       restoreReadtable()
       defRes0()
+      lispEval "(cl::defvar boot::*redboot-initialized* T)"
       lispEval "(cl::in-package :boot)"
 
     props(s:Symbol):SEX == slEval ("(prop '" string(s) ")") 
@@ -157,15 +164,21 @@ ReduceBootstrap : Exports == Implementation where
       slEval sl
 
     homePath() ==
+      lispEval "(cl::in-package :boot)"
       string lispEval "(format nil _"~a_"  *reduce*)"      --"
       
     packageMap () ==
+      lispEval "(cl::in-package :boot)"
       p:String:= homePath() "src/packages/package.map"
       sys "system cat " p
       void()
 
-
-
+    initialized?() ==
+      lispEval "(cl::in-package :boot)"
+      b:=lispEval "(if (boundp 'boot::*redboot-initialized*) 1 0)"
+      r:=integer b
+      r=1 => true
+      false
 
 
 -- init()
