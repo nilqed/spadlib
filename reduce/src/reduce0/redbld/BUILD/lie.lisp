@@ -1,7 +1,0 @@
-(cl:declaim (cl:optimize cl:debug cl:safety))
-(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
-(MODULE (LIST 'LIE)) 
-(CREATE-PACKAGE '(LIE LIENDMC1 LIE1234) '(CONTRIB LIE)) 
-(SWITCH (LIST 'TR_LIE)) 
-(LOAD-PACKAGE 'MATRIX) 
-(ENDMODULE) 

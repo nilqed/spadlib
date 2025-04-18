@@ -1,6 +1,0 @@
-(cl:declaim (cl:optimize cl:debug cl:safety))
-(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
-(MODULE (LIST 'CONLAW)) 
-(CREATE-PACKAGE '(CONLAW CONLAW0 CONLAW1 CONLAW2 CONLAW3 CONLAW4) NIL) 
-(PACKAGES_TO_LOAD (LIST 'CRACK)) 
-(ENDMODULE) 

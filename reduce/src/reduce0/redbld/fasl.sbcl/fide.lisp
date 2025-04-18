@@ -1,7 +1,0 @@
-(cl:declaim (cl:optimize cl:debug cl:safety))
-(cl:declaim (sb-ext:muffle-conditions sb-ext:compiler-note cl:style-warning))
-(MODULE (LIST 'FIDE)) 
-(CREATE-PACKAGE '(FIDE DISCRET APPROX CHARPOL HURWP LINBAND) '(CONTRIB FIDE)) 
-(LOAD-PACKAGE 'MATRIX) 
-(LOAD-PACKAGE 'FIDE1) 
-(ENDMODULE) 

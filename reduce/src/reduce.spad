@@ -80,6 +80,15 @@ ReduceBootstrap : Exports == Implementation where
       ++ directly where one may substitute "aeval" by "reval". The first
       ++ one gives as *SQ, *SF (standard forms) while the latter provides a 
       ++ readable (i.e less obscure) SExpression.
+    loadPackageSources : (String,String) -> SEX
+      ++ \spad{loadPackageSources(redfile,package)} loads the REDUCE source
+      ++ file 'redfile.red' from package direcotry 'package'. For dependencies
+      ++ see package.map in *reduce*/src.
+    homePath : () -> String
+      ++ \spad{homePath()} returns the path from where 'redboot' is loaded.
+      ++ it is defined by the variable *reduce* in reduce.lisp. If the variable
+      ++ is unbound, then reduce.spad was not loaded appropriately by using
+      ++ reduce.asd (quicklisp).      
     
   Implementation == add
   
@@ -126,8 +135,12 @@ ReduceBootstrap : Exports == Implementation where
 
     props(s:Symbol):SEX == slEval ("(prop '" string(s) ")") 
 
+    loadPackageSources(r,p) == 
+      sl:String:=string FORMAT('NIL,"(load-package-sources '~A '~A)",r,p)$Lisp   
+      slEval sl
 
-
+    homePath() ==
+      string lispEval "(format nil _"~a_"  *reduce*)"
 
 -- init()
 -- you must not leave :BOOT for more than one command each

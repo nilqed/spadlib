@@ -1,3 +1,0 @@
-#!/bin/bash
-echo 'exec: nosman -eval ")r test_fricas.input"'
-nosman -eval ")r test_fricas.input"

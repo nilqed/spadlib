@@ -112,12 +112,46 @@
 (load!-package!-sources 'clrend nil)
 (load!-package!-sources 'poly 'poly)
 (load!-package!-sources 'alg 'alg)
-(load!-package!-sources 'rtools 'rtools)  % https://sourceforge.net/p/reduce-algebra/code/5845/
+(load!-package!-sources 'rtools 'rtools)  
 (load!-package!-sources 'arith 'arith)
 (load!-package!-sources 'entry 'support)
-(load!-package!-sources 'excalc 'excalc)  %% kfp/excalc
-(load!-package!-sources 'int 'int)  %% kfp/int
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% kfp ++++ more reduce packages below
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+(load!-package!-sources 'excalc 'excalc)  
+(load!-package!-sources 'int 'int)  
+(load!-package!-sources 'matrix 'matrix)  
+(load!-package!-sources 'solve 'solve)  
+(load!-package!-sources 'ineq 'solve)  
+(load!-package!-sources 'tps 'tps)  
+(load!-package!-sources 'limits 'limit)
+(load!-package!-sources 'sum 'sum)    
+(load!-package!-sources 'specfn  'specfn) 
+(load!-package!-sources 'specfn2 'specfn)
+(load!-package!-sources 'sfgamma 'specfn)
+(load!-package!-sources 'specbess 'specfn)
+(load!-package!-sources 'misc 'misc)
+(load!-package!-sources 'defint 'defint)  
+(load!-package!-sources 'rprint 'rprint)
+(load!-package!-sources 'ezgcd 'factor)
+(load!-package!-sources 'factor 'factor)  
+(load!-package!-sources 'dipoly 'dipoly) 
+(load!-package!-sources 'groebner 'groebner) 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %(load!-package!-sources 'remake nil)
+%
+%%% Notice: more packages must be placed before this !!!
+%%%kfp/build in .red as sl above
+%(load!-package!-sources 'build 'support)     
+% not necessary -- use e.g. slEval "(load-package-sources 'groebner 'groebner)"
+
+%% Package map, see 
+%% github.com/nilqed/spadlib/blob/master/reduce/src/packages/package.map
+%% https://sourceforge.net/p/reduce-algebra/code/5845/
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 
 (setq !*comp nil)
 

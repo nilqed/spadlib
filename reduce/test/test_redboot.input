@@ -6,6 +6,28 @@ init()
 r1:=slEval "(reval (list 'df (list 'expt 'x 'n) 'n))"   -- D(x^n,n)
 r2:=slEval "(reval (list 'int (list 'sin 'x) 'x))"      -- integrate(sin x,x)
 
-s1:="(setk 'y (aeval (list 'plus (list 'difference (list 'expt 'x 5)" _
+s1:="(setk 'y (reval (list 'plus (list 'difference (list 'expt 'x 5)" _
  "(list 'times 3 (list 'expt 'x 2))) 2)))"
    
+s2:=slEval "(reval 'y)"
+
+-- slEval "(factor (reval 'y))"
+
+s3:="(setk 'eq1 (reval (list 'equal (list 'plus 'x (list 'expt 'y 2))" _
+   "(list 'plus (list 'difference (list 'expt 'x 2) 'y) 3))))"
+   
+r3:=slEval s3
+
+
+
+r4:=slEval "(reval (list 'solve 'eq 'x))"
+
+--slEval "(load_package (list 'assist))"
+slEval "(load-package-sources 'groebner 'groebner)"
+
+ss:= lispEval "(format nil _"~a_"  *reduce*)"            --"
+
+
+homePath() -- ok
+loadPackageSources("assist","assist") -- ok
+
