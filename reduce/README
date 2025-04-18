@@ -15,31 +15,100 @@ Value = ("reduce")
 
 -- does a full bootstrap (compiling original REDUCE packages)
 -- alternatively: )lisp (|load_bootstrap_reduce|)
--- may take some time (up to 1 minute)
+-- may take some time, depending on the number of packages added in
+-- bootstrap.lisp (several minutes if all packages are pre-loaded).
 
-
+-- When absolute minimum will be loaded:
 ...
-Time to build bootstrap REDUCE: 43.242 secs
-Heap left: 4149668992 bytes
+Time to build bootstrap REDUCE: 38.366 secs
+Heap left: 4139475536 bytes
 
-   (2)  RESULT00
+(2)  #<PACKAGE "BOOT">
                                                             Type: SExpression
 
-
-
 (3) -> )sh REDBOOT
- ReduceBootstrap is a domain constructor.
+ReduceBootstrap is a domain constructor.
  Abbreviation for ReduceBootstrap is REDBOOT
  This constructor is exposed in this frame.
- 16 Names for 16 Operations in this Domain.
+ 19 Names for 19 Operations in this Domain.
 ------------------------------- Operations --------------------------------
 
  coerce : % -> OutputForm              getRes0 : () -> SExpression
- init : () -> SExpression              lispEval : String -> SExpression
- loadBootstrap : () -> SExpression     loadSLonCL : () -> SExpression
+ homePath : () -> String               init : () -> SExpression
+ lispEval : String -> SExpression      loadBootstrap : () -> SExpression
+ loadSLonCL : () -> SExpression        packageMap : () -> Void
  pkg? : () -> SExpression              pkgBOOT : () -> SExpression
  pkgCLUSER : () -> SExpression         pkgSTDLISP : () -> SExpression
  props : Symbol -> SExpression         saveReadtable : () -> SExpression
  setRes0 : String -> SExpression       setSLreadtable : () -> SExpression
  slEval : String -> SExpression
+ loadPackageSources : (String, String) -> SExpression
  restoreReadtable : () -> SExpression
+
+
+(4) -> homePath()
+
+   (4)  "/home/kfp/quicklisp/local-projects/spadlib/reduce/"
+                                                                 Type: String
+(5) -> packageMap()
+% "package.map"
+
+%**************************************************************************
+%* Copyright (C) 2020, the Reduce developers                              *
+%* ....
+
+------- a big list of packages
+
+ (cde           "cde"                              test      csl psl)
+ (sstools       "sstools"                          test      csl psl)
+ (coeff2        "misc"                                       csl psl)
+%  (heugcd      "heugcd"                           test      csl psl)
+ (grinder       "hephys"                                     csl psl)
+ (f5            "f5"                               test      csl psl)
+)
+
+% End of package.map
+                                                                   Type: Void
+                                                                   
+(6) -> loadPackageSources("excalc","excalc")
+
+
++++ Reading file: packages/excalc/excalc.red
+nil excalc nil (difference plus) nil nil nil nil
++++ Record new inline definition:
+(de ldpf (u) (caar u))
+ldpf
+....
+....
++++ Record new inline definition:
+(de multwedgesq (u v) (multsq u v))
+multwedgesq wedget2 wedgek2 wedgewedge wedgef 217 nil nil
+   (6)  ()
+                                                            Type: SExpression
+
+---------- Example excalc
+
+--  pform u=1;
+(13) -> slEval "(pform (list (list 'equal 'u 1)))"
+
+   (13)  ()
+                                                            Type: SExpression
+
+-- exdegree u;
+(14) -> slEval "(aeval (list 'exdegree 'u))"
+
+   (14)  1
+                                                            Type: SExpression
+--  d  u;
+(15) -> slEval "(aeval (list 'd 'u))"
+
+   (15)  (*SQ (((((D U) . 1) . 1)) . 1) T)
+                                                            Type: SExpression
+
+--  d  u;  same as above with reval:
+(16) -> slEval "(reval (list 'd 'u))"
+
+   (16)  (D U)
+                                                            Type: SExpression
+(17) ->
+

@@ -21,6 +21,21 @@
 ++   [7] Francis J. Wright: https://sites.google.com/site/fjwcentaur/
 ++
 ++ Description:
+++  This low-level package serves to bootstrap the venerable REDUCE algebra
+++  system from scratch (using the sources in 'packages'). Thanks to Francis 
+++  J. Wright (sites.google.com/site/fjwcentaur/) and al. REDUCE is now also
+++  available (again?) on Common Lisp by using sl_on_cl.lisp, that means 
+++  conversion of Standard Lisp (SL) to Common Lisp (CL).
+++
+++  After loading this package by quicklisp (quickLoad) the process is as 
+++  follows:
+++    * you have to run init()$REDBOOT
+++    * init() saves the readtable (saveReadtable)
+++    * init() calls load_bootstrap_reduce()$Lisp from bootstrap.lisp
+++    * init() restores the readtbale (restoreReadtable)
+++    * some cleanup ... ready
+++  After this procedure one may use SL and/or load other REDUCE packages.
+++  Use packageMap() to see a list of available modules.
 ++
 ReduceBootstrap : Exports == Implementation where
 
@@ -133,6 +148,7 @@ ReduceBootstrap : Exports == Implementation where
       loadBootstrap()
       restoreReadtable()
       defRes0()
+      lispEval "(cl::in-package :boot)"
 
     props(s:Symbol):SEX == slEval ("(prop '" string(s) ")") 
 
