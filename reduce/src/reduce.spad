@@ -211,4 +211,49 @@ ReduceBootstrap : Exports == Implementation where
 -- )lisp (cl::setf cl::*readtable* sl::*sl-readtable*)
 
 
+)abbrev domain PFORM PForm
+PForm:Exports == Implementation where
+  REDBOOT ==> ReduceBootstrap
+  NNI ==> NonNegativeInteger
+  SEX ==> SExpression
+  SYM ==> Symbol
+  Exports == SetCategory with
+    pform : (SYM,SYM) -> %
+    pform : (SYM,NNI) -> %
+    _* : (%,%) -> %
+    exdegree : % -> Integer
+    d : % -> %
+  Implementation == SExpression add
+    Rep:=SEX
+    pform(frm:SYM, deg:SYM):% ==
+      fmt1:="(pform (list (list 'equal '~A '~A)))"
+      fmt2:="(reval '~A)"
+      cmd1:=string FORMAT('NIL,fmt1,frm,deg)$Lisp 
+      cmd2:=string FORMAT('NIL,fmt2,frm)$Lisp
+      r1:SEX:=slEval(cmd1)$REDBOOT
+      r2:SEX:=slEval(cmd2)$REDBOOT
       
+    pform(frm:SYM, deg:NNI):% ==
+      fmt1:="(pform (list (list 'equal '~A ~A)))"
+      fmt2:="(reval '~A)"
+      cmd1:=string FORMAT('NIL,fmt1,frm,deg)$Lisp 
+      cmd2:=string FORMAT('NIL,fmt2,frm)$Lisp
+      r1:SEX:=slEval(cmd1)$REDBOOT
+      r2:SEX:=slEval(cmd2)$REDBOOT
+
+    (u:% * v:%):% ==
+      fmt:="(reval (list 'wedge '~A '~A))"
+      cmd:=string FORMAT('NIL,fmt,u,v)$Lisp
+      r:SEX:=slEval(cmd)$REDBOOT
+      
+    exdegree(u:%):Integer ==
+      fmt:="(reval (list 'exdegree '~A))"
+      cmd:=string FORMAT('NIL,fmt,u)$Lisp
+      r:SEX:=slEval(cmd)$REDBOOT  
+      integer r      
+      
+    d(u:%):% ==
+      fmt:="(reval (list 'd '~A))"
+      cmd:=string FORMAT('NIL,fmt,u)$Lisp
+      r:SEX:=slEval(cmd)$REDBOOT  
+

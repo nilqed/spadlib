@@ -8,7 +8,19 @@ r1:=slEval "(reval (list 'df (list 'expt 'x 'n) 'n))"   -- D(x^n,n)
 
 -- spad
 homePath() -- ok
+initialized?() -- ok
 --loadPackageSources("assist","assist") -- ok
---loadPackageSources("excalc","excalc") -- ok
---loadPackageSources("int","int")       -- ok
+--loadPackageSources("int","int")       -- ok but incomplete? simpint?
+
+loadPackageSources("excalc","excalc") 
+
+-- 14: pform u=p,v=q,w=3;
+-- (pform (list (list 'equal 'u 'p) (list 'equal 'v 'q) (list 'equal 'w 3)))
+
+u:=pform(u,p)
+v:=pform(v,q)
+w:=pform(w,2)
+
+props 'u
+
 
