@@ -221,7 +221,9 @@ PForm:Exports == Implementation where
     pform : (SYM,SYM) -> %
     pform : (SYM,NNI) -> %
     _* : (%,%) -> %
-    exdegree : % -> Integer
+    _+ : (%,%) -> %
+    _- : (%,%) -> %    
+    exdegree : % -> SEX
     d : % -> %
   Implementation == SExpression add
     Rep:=SEX
@@ -246,11 +248,21 @@ PForm:Exports == Implementation where
       cmd:=string FORMAT('NIL,fmt,u,v)$Lisp
       r:SEX:=slEval(cmd)$REDBOOT
       
-    exdegree(u:%):Integer ==
+    (u:% + v:%):% ==
+      fmt:="(reval (list 'plus '~A '~A))"
+      cmd:=string FORMAT('NIL,fmt,u,v)$Lisp
+      r:SEX:=slEval(cmd)$REDBOOT
+ 
+    (u:% - v:%):% ==
+      fmt:="(reval (list 'difference '~A '~A))"
+      cmd:=string FORMAT('NIL,fmt,u,v)$Lisp
+      r:SEX:=slEval(cmd)$REDBOOT
+
+    exdegree(u:%):SEX ==
       fmt:="(reval (list 'exdegree '~A))"
       cmd:=string FORMAT('NIL,fmt,u)$Lisp
       r:SEX:=slEval(cmd)$REDBOOT  
-      integer r      
+      
       
     d(u:%):% ==
       fmt:="(reval (list 'd '~A))"

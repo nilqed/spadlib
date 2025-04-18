@@ -23,4 +23,19 @@ w:=pform(w,2)
 
 props 'u
 
+exdegree u
+exdegree v
+exdegree w
+
+uv := u*v
+
+duv:= d uv
+
+d duv
+
+u+v
+u-v
+
+
+
 
