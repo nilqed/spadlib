@@ -88,7 +88,8 @@ ReduceBootstrap : Exports == Implementation where
       ++ \spad{homePath()} returns the path from where 'redboot' is loaded.
       ++ it is defined by the variable *reduce* in reduce.lisp. If the variable
       ++ is unbound, then reduce.spad was not loaded appropriately by using
-      ++ reduce.asd (quicklisp).      
+      ++ reduce.asd (quicklisp).   
+    packageMap : () -> Void      
     
   Implementation == add
   
@@ -140,7 +141,16 @@ ReduceBootstrap : Exports == Implementation where
       slEval sl
 
     homePath() ==
-      string lispEval "(format nil _"~a_"  *reduce*)"
+      string lispEval "(format nil _"~a_"  *reduce*)"      --"
+      
+    packageMap () ==
+      p:String:= homePath() "src/packages/package.map"
+      sys "system cat " p
+      void()
+
+
+
+
 
 -- init()
 -- you must not leave :BOOT for more than one command each

@@ -27,7 +27,7 @@ slEval "(load-package-sources 'groebner 'groebner)"
 
 ss:= lispEval "(format nil _"~a_"  *reduce*)"            --"
 
-
+-- spad
 homePath() -- ok
 loadPackageSources("assist","assist") -- ok
 
