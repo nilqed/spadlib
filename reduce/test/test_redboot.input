@@ -17,6 +17,7 @@ loadPackageSources("excalc","excalc")
 -- 14: pform u=p,v=q,w=3;
 -- (pform (list (list 'equal 'u 'p) (list 'equal 'v 'q) (list 'equal 'w 3)))
 
+---
 loadSPAD "stdlsp"
 loadSPAD "pform"
 
@@ -41,7 +42,16 @@ d duv
 u+v
 u-v
 
--- FORMAT('NIL,"~{~A  ~}", scripts(as).sub)$Lisp
+X:=tvector X
+exdegree X --> -1
+
+D(u,[u]) --> 1
+
+x:=pform(x,0)
+y:=pform(y,0)
+z:=pform(z,0)
+
+D(x*y*y*z,[x,y]) -->  (TIMES 2 Y Z)  // 0-forms are scalars!
 
 
 

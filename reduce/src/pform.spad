@@ -14,6 +14,8 @@ PForm:Exports == Implementation where
     d : % -> %
     spacedim : PositiveInteger -> SEX
     spacedim : SYM -> SEX
+    tvector : SYM -> %
+    D: (%,List %) -> %
     mkqsym : Symbol -> String
   Implementation == SExpression add
     Rep:=SEX
@@ -77,7 +79,17 @@ PForm:Exports == Implementation where
       fmt:="(spacedim (list '~A))"
       cmd:=string FORMAT('NIL,fmt,s)$Lisp
       r:SEX:=slEval(cmd)$REDBOOT  
-      
-      
 
+    tvector(vec:SYM):% ==
+      fmt1:="(tvector (list ~A))"
+      fmt2:="(reval ~A)"
+      cmd1:=string FORMAT('NIL,fmt1,mkqsym vec)$Lisp 
+      cmd2:=string FORMAT('NIL,fmt2,mkqsym vec)$Lisp
+      r1:SEX:=slEval(cmd1)$REDBOOT
+      r2:SEX:=slEval(cmd2)$REDBOOT
+      
+    D(u:%,v:List %):% ==
+      fmt:="(reval (list 'partdf '~A ~{'~A ~}))"
+      cmd:=string FORMAT('NIL,fmt,u,v)$Lisp
+      r:SEX:=slEval(cmd)$REDBOOT       
 
