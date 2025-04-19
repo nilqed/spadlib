@@ -116,3 +116,49 @@ PForm:Exports == Implementation where
       fmt:="(fdomain (list (list 'equal '~A (list '~A ~{'~A ~}))))"
       cmd:=string FORMAT('NIL,fmt,op,op,vars)$Lisp
       r:SEX:=slEval(cmd)$REDBOOT       
+
+
+)if LiterateDoc
+--
+http://www.reduce-algebra.com/manual/manualse146.html
+20.21.15 Summary of Operators and Commands
+
+Table 20.9 summarizes EXCALC commands and the page number they are defined on.
+------------------------------------------------------------------------------
+^ 	                Exterior Multiplication 	1803
+@ 	                Partial Differentiation 	1805
+@ 	                Tangent Vector 	1808
+# 	                Hodge-* Operator 	1820
+_| 	                Inner Product 	1815
+|_ 	                Lie Derivative 	1818
+coframe 	        Declaration of a coframe 	1830
+d 	                Exterior differentiation 	1809
+displayframe        Displays the frame 	1837
+eps 	            Levi-Civita tensor 	1837
+exdegree 	        Calculates the exterior degree of an expression 	1802
+fdomain 	        Declaration of implicit dependencies 	1806
+forder 	            Ordering command 	1840
+frame 	            Declares the frame dual to the coframe 	1834
+indexrange 	        Declaration of indices 	1825
+index_symmetries 	Declares arbitrary index symmetry properties 	1829
+keep 	            Structuring command 	1841
+killing_vector 	    Structuring command 	1839
+metric 	            Clause of COFRAME to specify a metric 	1830
+noether 	        Calculates the Noether current 	1823
+nosum 	            Inhibits summation convention 	1829
+noxpnd d 	        Inhibits the use of product rule for d 	1810
+noxpnd @ 	        Inhibits expansion into partial derivatives 	1814
+pform 	            Declaration of exterior forms 	1797
+remforder 	        Clears ordering 	1841
+renosum 	        Enables summation convention 	1829
+riemannconx 	    Calculation of a Riemannian Connection 	1837
+signature 	        Clause of coframe to specify a pseudo-Euclidean metric 1831 	
+spacedim 	        Command to set the dimension of a space 	1804
+tvector 	        Declaration of vectors 	1801
+vardf 	            Variational derivative 	1822
+xpnd d 	            Enables the use of product rule for d (default)	1812 	
+xpnd @ 	            Enables expansion into partial derivatives (default) 	1814
+	
+Table 20.9: EXCALC Command Summary
+--
+)endif

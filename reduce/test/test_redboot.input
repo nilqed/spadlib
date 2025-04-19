@@ -61,6 +61,17 @@ d u
 innerprod(vf,u)
 liedf(vf,u)
 
+)clear all
+u:=pform(u,p)
+v:=pform(v,q)
+w:=pform(w,r)
+fdomain(u,[v,w])
+innerprod(b,u)
+liedf(b,u)
+
+
+
+
 
  
 
