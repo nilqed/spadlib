@@ -42,8 +42,8 @@ d duv
 u+v
 u-v
 
-X:=tvector X
-exdegree X --> -1
+vf:=tvector vf
+exdegree vf --> -1
 
 D(u,[u]) --> 1
 
@@ -54,4 +54,13 @@ z:=pform(z,0)
 D(x*y*y*z,[x,y]) -->  (TIMES 2 Y Z)  // 0-forms are scalars!
 
 
+fdomain(u,[x,y])
+D(u,[x])
+d u
+
+innerprod(vf,u)
+liedf(vf,u)
+
+
+ 
 

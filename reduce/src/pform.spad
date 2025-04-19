@@ -16,6 +16,10 @@ PForm:Exports == Implementation where
     spacedim : SYM -> SEX
     tvector : SYM -> %
     D: (%,List %) -> %
+    innerprod : (%,%) -> %
+    liedf : (%,%) -> %
+    hodge : % -> %
+    fdomain : (%,List %) -> %
     mkqsym : Symbol -> String
   Implementation == SExpression add
     Rep:=SEX
@@ -93,3 +97,22 @@ PForm:Exports == Implementation where
       cmd:=string FORMAT('NIL,fmt,u,v)$Lisp
       r:SEX:=slEval(cmd)$REDBOOT       
 
+    innerprod(vec:%,frm:%):% ==
+      fmt:="(reval (list 'innerprod '~A '~A))"
+      cmd:=string FORMAT('NIL,fmt,vec,frm)$Lisp
+      r:SEX:=slEval(cmd)$REDBOOT
+      
+    liedf(vec:%,frm:%):% ==
+      fmt:="(reval (list 'liedf '~A '~A))"
+      cmd:=string FORMAT('NIL,fmt,vec,frm)$Lisp
+      r:SEX:=slEval(cmd)$REDBOOT
+      
+    hodge(u:%):% ==
+      fmt:="(reval (list 'hodge '~A))"
+      cmd:=string FORMAT('NIL,fmt,u)$Lisp
+      r:SEX:=slEval(cmd)$REDBOOT  
+
+    fdomain(op:%,vars:List %):% ==
+      fmt:="(fdomain (list (list 'equal '~A (list '~A ~{'~A ~}))))"
+      cmd:=string FORMAT('NIL,fmt,op,op,vars)$Lisp
+      r:SEX:=slEval(cmd)$REDBOOT       
