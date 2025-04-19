@@ -161,6 +161,7 @@ ReduceBootstrap : Exports == Implementation where
     props(s:Symbol):SEX == slEval ("(prop '" string(s) ")") 
 
     loadPackageSources(r,p) == 
+      sys(string FORMAT('NIL,"cd ~A", homePath() "src")$Lisp)
       sl:String:=string FORMAT('NIL,"(load-package-sources '~A '~A)",r,p)$Lisp   
       slEval sl
 

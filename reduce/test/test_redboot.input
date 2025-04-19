@@ -62,12 +62,23 @@ innerprod(vf,u)
 liedf(vf,u)
 
 )clear all
+b:=tvector b
 u:=pform(u,p)
 v:=pform(v,q)
 w:=pform(w,r)
 fdomain(u,[v,w])
 innerprod(b,u)
-liedf(b,u)
+qq:=liedf(b,u)
+
+-- pretty printing ....
+loadPackageSources("rprint","rprint")
+slEval(string  FORMAT('NIL,"(rprint '~A)",qq)$Lisp)
+
+qqq:=u*v*w
+slEval(string  FORMAT('NIL,"(rprint '~A)",qqq)$Lisp)
+slEval(string  FORMAT('NIL,"(rprint '~A)",d qqq)$Lisp)
+
+
 
 
 
