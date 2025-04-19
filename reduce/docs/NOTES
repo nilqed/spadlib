@@ -1,0 +1,28 @@
+-- init()
+-- you must not leave :BOOT for more than one command each
+-- )lisp (in-package :sl) 
+-- (pform (list (list 'equal 'y 'p)))   --> NIL
+-- (aeval (list 'exdegree 'y))          --> (*SQ ((((P . 1) . 1)) . 1) T)
+-- (aeval (list 'd 'y))                 --> (*SQ (((((D Y) . 1) . 1)) . 1) T)
+-- (aeval (list 'exdegree (list 'd 'y)))    (*SQ ((((P . 1) . 1) . 1) . 1) T)
+
+-- )lisp (cl::in-package :boot)
+-- fricas still ok ! 
+-- )lisp (in-package :sl)  again ...
+-- )lisp (aeval (list 'exdegree (list 'd (list 'd 'y)))) --> 0 !ok
+
+-- )lisp (cl:setf boot::result (aeval (list 'exdegree (list 'd (list 'd 'y)))))
+-- pkgSTDLISP()
+-- setRes0 "(aeval (list 'df (list 'sin 'x) 'x))"
+-- getRes0() --> (*SQ (((((COS X) . 1) . 1)) . 1) T)  ** Type: SExpression
+-- pkgBOOT()
+-- note: sl::*sl-readtable* / but boot::*readtable* = cl::*readtbale*
+
+-- setRes0 "(aeval (list 'times '(!:dn!: 124 . -1) '(!:dn!: 46 . -1)))"
+-- Value = (*SQ (1426 . 25) T)
+-- setRes0 "(reval (list 'times '(!:dn!: 124 . -1) '(!:dn!: 46 . -1)))"
+-- Value = (QUOTIENT 1426 25)
+-- but one must set sl-readtable if floating point is used !!!!!!
+-- >> System error:
+-- too many colons in "dn!"
+-- )lisp (cl::setf cl::*readtable* sl::*sl-readtable*)

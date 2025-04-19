@@ -1,0 +1,53 @@
+)abbrev package STDLSP StandardLispSupport
+StandardLispSupport : Exports == Implementation where
+  STR  ==> String 
+  LSTR ==> List String
+  Exports == with
+    mkfun : (STR,STR) -> STR
+    mkfun : (STR,LSTR) -> STR
+    quote : STR -> STR
+    list  : STR -> STR
+    reval : STR -> STR
+    aeval : STR -> STR
+
+    quote : LSTR -> LSTR
+
+    list  : LSTR -> STR
+    plus  : LSTR -> STR
+    times : LSTR -> STR
+    
+    difference : (STR,STR) -> STR
+    quotient   : (STR,STR) -> STR
+    expt       : (STR,STR) -> STR
+    
+    minus : STR -> STR
+    
+  Implementation == add
+  
+    mkfun(f:STR,arg:STR):STR == string FORMAT('NIL,"(~A ~A)",f,arg)$Lisp  
+    mkfun(f:STR,args:LSTR):STR == string FORMAT('NIL,"(~A ~{~A ~})",f,args)$Lisp
+    
+    quote(s:STR):STR == string FORMAT('NIL,"'~A",s)$Lisp 
+    list(s:STR):STR  == mkfun("list",s)
+    reval(s:STR):STR == mkfun("reval",s) 
+    aeval(s:STR):STR == mkfun("aeval",s)
+    
+    quote(ls:LSTR):LSTR == [quote(s) for s in ls]
+    list(ls:LSTR):STR == mkfun("list",ls)
+    
+    plus(ls:LSTR):STR == reval(list(concat([quote("plus")],ls))) 
+    times(ls:LSTR):STR == reval(list(concat([quote("times")],ls)))
+
+    difference(s:STR,t:STR):STR == 
+      reval(list(concat([quote("difference")],[s,t]))) 
+      
+    quotient(s:STR,t:STR):STR == 
+      reval(list(concat([quote("quotient")],[s,t])))
+      
+    expt(s:STR,t:STR):STR == 
+      reval(list(concat([quote("expt")],[s,t])))
+      
+    minus(s:STR):STR == reval(list(concat([quote("minus")],[s])))
+
+
+

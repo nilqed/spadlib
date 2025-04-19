@@ -110,7 +110,8 @@ ReduceBootstrap : Exports == Implementation where
     initialized? : () -> Boolean
       ++ \spad{initialized?()} checks whether init()$REDBOOT has been run by
       ++ inspecting the variable boot::*redboot-initialized*.
-
+    loadSPAD: String -> SEX
+      ++ \spad{loadSPAD s} compiles the file s.spad in the folder *reduce*/src.    
 
   Implementation == add
   
@@ -179,93 +180,13 @@ ReduceBootstrap : Exports == Implementation where
       r:=integer b
       r=1 => true
       false
-
-
--- init()
--- you must not leave :BOOT for more than one command each
--- )lisp (in-package :sl) 
--- (pform (list (list 'equal 'y 'p)))   --> NIL
--- (aeval (list 'exdegree 'y))          --> (*SQ ((((P . 1) . 1)) . 1) T)
--- (aeval (list 'd 'y))                 --> (*SQ (((((D Y) . 1) . 1)) . 1) T)
--- (aeval (list 'exdegree (list 'd 'y)))    (*SQ ((((P . 1) . 1) . 1) . 1) T)
-
--- )lisp (cl::in-package :boot)
--- fricas still ok ! 
--- )lisp (in-package :sl)  again ...
--- )lisp (aeval (list 'exdegree (list 'd (list 'd 'y)))) --> 0 !ok
-
--- )lisp (cl:setf boot::result (aeval (list 'exdegree (list 'd (list 'd 'y)))))
--- pkgSTDLISP()
--- setRes0 "(aeval (list 'df (list 'sin 'x) 'x))"
--- getRes0() --> (*SQ (((((COS X) . 1) . 1)) . 1) T)  ** Type: SExpression
--- pkgBOOT()
--- note: sl::*sl-readtable* / but boot::*readtable* = cl::*readtbale*
-
--- setRes0 "(aeval (list 'times '(!:dn!: 124 . -1) '(!:dn!: 46 . -1)))"
--- Value = (*SQ (1426 . 25) T)
--- setRes0 "(reval (list 'times '(!:dn!: 124 . -1) '(!:dn!: 46 . -1)))"
--- Value = (QUOTIENT 1426 25)
--- but one must set sl-readtable if floating point is used !!!!!!
--- >> System error:
--- too many colons in "dn!"
--- )lisp (cl::setf cl::*readtable* sl::*sl-readtable*)
-
-
-)abbrev domain PFORM PForm
-PForm:Exports == Implementation where
-  REDBOOT ==> ReduceBootstrap
-  NNI ==> NonNegativeInteger
-  SEX ==> SExpression
-  SYM ==> Symbol
-  Exports == SetCategory with
-    pform : (SYM,SYM) -> %
-    pform : (SYM,NNI) -> %
-    _* : (%,%) -> %
-    _+ : (%,%) -> %
-    _- : (%,%) -> %    
-    exdegree : % -> SEX
-    d : % -> %
-  Implementation == SExpression add
-    Rep:=SEX
-    pform(frm:SYM, deg:SYM):% ==
-      fmt1:="(pform (list (list 'equal '~A '~A)))"
-      fmt2:="(reval '~A)"
-      cmd1:=string FORMAT('NIL,fmt1,frm,deg)$Lisp 
-      cmd2:=string FORMAT('NIL,fmt2,frm)$Lisp
-      r1:SEX:=slEval(cmd1)$REDBOOT
-      r2:SEX:=slEval(cmd2)$REDBOOT
       
-    pform(frm:SYM, deg:NNI):% ==
-      fmt1:="(pform (list (list 'equal '~A ~A)))"
-      fmt2:="(reval '~A)"
-      cmd1:=string FORMAT('NIL,fmt1,frm,deg)$Lisp 
-      cmd2:=string FORMAT('NIL,fmt2,frm)$Lisp
-      r1:SEX:=slEval(cmd1)$REDBOOT
-      r2:SEX:=slEval(cmd2)$REDBOOT
+    loadSPAD(s:String):SEX ==
+      compile_spad_in_src_folder(s)$Lisp
 
-    (u:% * v:%):% ==
-      fmt:="(reval (list 'wedge '~A '~A))"
-      cmd:=string FORMAT('NIL,fmt,u,v)$Lisp
-      r:SEX:=slEval(cmd)$REDBOOT
-      
-    (u:% + v:%):% ==
-      fmt:="(reval (list 'plus '~A '~A))"
-      cmd:=string FORMAT('NIL,fmt,u,v)$Lisp
-      r:SEX:=slEval(cmd)$REDBOOT
- 
-    (u:% - v:%):% ==
-      fmt:="(reval (list 'difference '~A '~A))"
-      cmd:=string FORMAT('NIL,fmt,u,v)$Lisp
-      r:SEX:=slEval(cmd)$REDBOOT
 
-    exdegree(u:%):SEX ==
-      fmt:="(reval (list 'exdegree '~A))"
-      cmd:=string FORMAT('NIL,fmt,u)$Lisp
-      r:SEX:=slEval(cmd)$REDBOOT  
-      
-      
-    d(u:%):% ==
-      fmt:="(reval (list 'd '~A))"
-      cmd:=string FORMAT('NIL,fmt,u)$Lisp
-      r:SEX:=slEval(cmd)$REDBOOT  
+
+
+--)include stdlsp.spad
+--)include pform.spad
 

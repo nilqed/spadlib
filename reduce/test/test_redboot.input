@@ -17,6 +17,11 @@ loadPackageSources("excalc","excalc")
 -- 14: pform u=p,v=q,w=3;
 -- (pform (list (list 'equal 'u 'p) (list 'equal 'v 'q) (list 'equal 'w 3)))
 
+loadSPAD "stdlsp"
+loadSPAD "pform"
+
+---
+
 u:=pform(u,p)
 v:=pform(v,q)
 w:=pform(w,2)
@@ -36,6 +41,7 @@ d duv
 u+v
 u-v
 
+-- FORMAT('NIL,"~{~A  ~}", scripts(as).sub)$Lisp
 
 
 

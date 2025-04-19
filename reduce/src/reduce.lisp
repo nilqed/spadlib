@@ -31,5 +31,11 @@
   (load "sl_on_cl.lisp")))
 
 
+(defun |compile_spad_in_src_folder| (s)
+  (progn
+  (|doSystemCommand| (format nil "cd ~Alib" *reduce*))
+  (|doSystemCommand| (format nil "compile ../src/~A.spad )quiet" s))))
+
+
 (catch 'spad_reader (|load_reduce|))
 
