@@ -24,7 +24,7 @@
 ++  This low-level package serves to bootstrap the venerable REDUCE algebra
 ++  system from scratch (using the sources in 'packages'). Thanks to Francis 
 ++  J. Wright (sites.google.com/site/fjwcentaur/) and al. REDUCE is now also
-++  available (again?) on Common Lisp by using sl_on_cl.lisp, that means 
+++  available (again?) on Common Lisp by using sl_on_cl.lisp, this means 
 ++  conversion of Standard Lisp (SL) to Common Lisp (CL).
 ++
 ++  After loading this package by quicklisp (quickLoad reduce) the process is 
@@ -111,7 +111,11 @@ ReduceBootstrap : Exports == Implementation where
       ++ \spad{initialized?()} checks whether init()$REDBOOT has been run by
       ++ inspecting the variable boot::*redboot-initialized*.
     loadSPAD: String -> SEX
-      ++ \spad{loadSPAD s} compiles the file s.spad in the folder *reduce*/src.    
+      ++ \spad{loadSPAD s} compiles the file s.spad in the folder *reduce*/src.
+    loadPFORM : () -> SEX
+      ++ \spad{loadPFORM()} initializes the environment for using pform.spad
+      ++ by loading the REDUCE 'excalc' package sources, compiling pform.spad
+      ++ and other dependencies if necessary.
 
   Implementation == add
   
@@ -185,6 +189,10 @@ ReduceBootstrap : Exports == Implementation where
     loadSPAD(s:String):SEX ==
       compile_spad_in_src_folder(s)$Lisp
 
+    loadPFORM():SEX ==
+      not initialized?() => error "REDBOOT not initialized. Run init()."
+      loadPackageSources("excalc","excalc") 
+      loadSPAD "pform"
 
 
 
