@@ -1,0 +1,20 @@
+quickLoad geomview
+
+p:=makePipe "test"
+
+writePipe(p,"(load tetra)")  -- load tetraeder
+writePipe(p,"(load dodec)")  -- load dodecaeder
+
+writePipe(p,"(zoom Camera 2)")
+
+writePipe(p,"(hsphere-draw Camera yes)")
+
+writePipe(p,"(echo (geomview-version))")
+writePipe(p,"(echo (all camera))")
+writePipe(p,"(echo (all geometry))")
+
+
+-- writePipe(p,"(new-reset)")
+-- quitPipe p
+
+

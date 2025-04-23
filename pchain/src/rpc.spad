@@ -134,8 +134,15 @@ RealPointChain : Exports == Implementation where
       ++ \spad{coerce p} coerces a \spad{XDistributedPolynomial p} to a chain, 
       ++ whereby all terms not conforming to a chain will be removed.
     lquo : (%,%) -> %
+      ++ not used
     rquo : (%,%) -> %
+      ++ not used
     lfac : (%,%) -> Union(List %,"failed")
+      ++ \spad{lfac(x,y)} returns [y,z] such that y*z=x if possible, "failed"
+      ++ otherwise.
+    rfac : (%,%) -> Union(List %,"failed")
+      ++ \spad{rfac(x,y)} returns [z,y] such that z*y=x if possible, "failed"
+      ++ otherwise.
 	
   Implementation ==  XDP add 
     import from Equation(%)
@@ -409,6 +416,16 @@ RealPointChain : Exports == Implementation where
         return [ry::%,lq.quotient ::%]
       else 
         "failed"
+        
+    rfac(x:%,y:%):Union(List %,"failed") ==
+      rx:XDP:=retract x
+      ry:XDP:=retract y
+      rq:RQRX:=rdivide(rx,ry)$XPFS
+      if rx = rq.quotient * ry then
+        return [rq.quotient ::%,ry::%]
+      else 
+        "failed"
+
 
 
 -------------------------------------

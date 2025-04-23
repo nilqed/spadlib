@@ -9,21 +9,29 @@ Geomview() : Exports == Implementation where
     ++ lisp(s) reads the string s and evaluates in Lisp.
     makePipe : String -> String
     quitPipe : String -> Void
+    writePipe : (String,String) -> Void
   
   Implementation == add 
   
     lisp(s) == EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
     
     makePipe(s) == 
-      cmd:SExpression:=FORMAT('NIL,"system togeomview ~A </dev/null",s)$Lisp --'
+      cmd:SExpression:=FORMAT('NIL,"system togeomview ~A </dev/null",s)$Lisp 
       systemCommand(string cmd)$MSC
-      string FORMAT('NIL,"/tmp/geomview/~a",s)$Lisp --'
+      if null? PROBE_-FILE("/tmp/geomview/" s)$Lisp then
+        error string FORMAT('NIL,"Could not create pipe ~A",s)$Lisp
+      else
+        FORMAT('T,"Pipe /tmp/geomview/~a created. ~%",s)$Lisp
+        return s
       
     quitPipe(s) == 
-      tp:=string FORMAT('NIL,"/tmp/geomview/~a",s)$Lisp --'
-      cmd:SExpression:=FORMAT('NIL,"system echo '(quit)' > ~A",tp)$Lisp --'    
+      tp:=string FORMAT('NIL,"/tmp/geomview/~a",s)$Lisp 
+      cmd:SExpression:=FORMAT('NIL,"system echo '(quit)' > ~A",tp)$Lisp     
       systemCommand(string cmd)$MSC
       
-
+    writePipe(p,c):Void ==
+      tp:=string FORMAT('NIL,"/tmp/geomview/~a",p)$Lisp 
+      cmd:SExpression:=FORMAT('NIL,"system printf '~A' > ~A",c,tp)$Lisp
+      systemCommand(string cmd)$MSC
     
     
