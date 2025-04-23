@@ -2,6 +2,14 @@
 Geomview() : Exports == Implementation where
 
   MSC ==> MoreSystemCommands
+  STR ==> String
+  INT ==> Integer
+  LLI ==> List List Integer
+  LLS ==> List List String
+  LLF ==> List List Float
+  LI  ==> List Integer
+  LS  ==> List String
+  LF  ==> List Float
 
   Exports == with
 
@@ -10,6 +18,7 @@ Geomview() : Exports == Implementation where
     makePipe : String -> String
     quitPipe : String -> Void
     writePipe : (String,String) -> Void
+    mkPtsFmt: (STR,INT,LLS,LLI) -> STR
   
   Implementation == add 
   
@@ -34,4 +43,20 @@ Geomview() : Exports == Implementation where
       cmd:SExpression:=FORMAT('NIL,"system printf '~A' > ~A",c,tp)$Lisp
       systemCommand(string cmd)$MSC
     
+
+    fmtPtsHead:="(progn (new-geometry _"[~A]_" appearance {linewidth ~A}"
+    fmtPts:="~A ~% VECT ~A ~A ~A~%~{~A ~}~%~{~A ~}~%~{~A ~}~% ~{~A ~})~%~A)"
+    fmtPtsTail:="(normalization _"World_" none)"
     
+    
+    mkPtsFmt(name:STR,diam:INT,p:LLS,c:LLI):STR ==
+      nL:INT:=#p
+      nV:=nL
+      nC:=#c
+      lv:=[1 for i in 1..nL]
+      lc:=[1 for i in 1..nC]
+      pf:LS:=concat p
+      cf:LI:=concat c
+      --ps:List STR:=[convert(x)$Float for x in pf]
+      f1:=string FORMAT('NIL,fmtPtsHead,name,diam)$Lisp
+      f2:=string FORMAT('NIL,fmtPts,f1,nL,nV,nC,lv,lc,pf,cf,fmtPtsTail)$Lisp

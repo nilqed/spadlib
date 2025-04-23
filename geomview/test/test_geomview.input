@@ -13,8 +13,39 @@ writePipe(p,"(echo (geomview-version))")
 writePipe(p,"(echo (all camera))")
 writePipe(p,"(echo (all geometry))")
 
+writePipe(p,"(morehelp zoom)")
+
+writePipe(p,"(delete tetra)")
+
+writePipe(p,"(space hyperbolic)")
+writePipe(p,"(space euclidean)")
+
 
 -- writePipe(p,"(new-reset)")
 -- quitPipe p
 
+cmd1:="(progn (new-geometry _"[Point]_" appearance {linewidth 10}"
+cmd2:="VECT 1 1 1  1 1 0 0 0 1 0 0 1) (normalization _"World_" none))"
+pt:= cmd1 cmd2
+
+writePipe(p,"(delete dodec)")
+writePipe(p,pt)
+
+-- arg1=name arg2=point diameter (e.g. 10)
+fmtHeaderPts:="(progn (new-geometry _"[~A]_" appearance {linewidth ~A}"
+fmtPoints:="~A ~% VECT ~A ~A ~A~%~{~A ~}~%~{~A ~}~%~{~A ~}~% ~{~A ~})~%~A)"
+fmtTailPts:="(normalization _"World_" none)"
+
+p6:=[0,0,0.3,0,0.3,0,0.3,0,0,0,0,-0.3,0,-0.3,0,-0.3,0,0]
+c6:=[1,0,0,1,0,1,0,1,0,0,1,1,1,1,0,1,1,1,0,1,0,1,1,1]
+
+makeFmtPoints(name,diam,nL,nV,nC,pts,cols) ==
+  lv:=[1 for i in 1..nL]
+  lc:=lv
+  ptss:=[x::String for x in pts]
+  f1:=string FORMAT('NIL,fmtHeaderPts,name,diam)$Lisp
+  f2:=string FORMAT('NIL,fmtPoints,f1,nL,nV,nC,lv,lc,ptss,cols,fmtTailPts)$Lisp
+
+cmd123:=makeFmtPoints("SIX",10,6,6,6,p6,c6)
+writePipe(p,cmd123)
 
