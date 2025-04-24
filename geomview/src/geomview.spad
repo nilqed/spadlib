@@ -30,7 +30,12 @@ Geomview() : Exports == Implementation where
       ++ as strings, and lc a list of lists of floats as strings, representing 
       ++ the color of each point as r,g,b and transparency.[low-level].
     drawPoint: (STR,STR,POINT) -> Void 
-  
+      ++ drawPoint(p,n,pt) draws the point 'pt' named 'n' to the pipe 'p'.
+    drawPolyLine: (STR,STR,PLINE,Boolean) -> Void 
+      ++ drawPolyLine(p,n,pl,closed?) draws the polyline 'pl' named 'n' to the 
+      ++ pipe 'p'. The parameter closed? is true if the polyline shall be 
+      ++ closed.
+     
   Implementation == add 
   
     lisp(s) == EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
@@ -81,4 +86,21 @@ Geomview() : Exports == Implementation where
       mp:=mkPtsFmt(name,data.diam,lv,lc)
       writePipe(pipe,mp)
       
-      
+    drawPolyLine(pipe:STR,name:STR,data:PLINE,closed:Boolean):Void ==
+      v:List POINT:=data.vertices
+      c:COLOR:=data.color
+      cl:List Float:=[c.red,c.green,c.blue,c.transparency]
+      lf:LF:=concat [[s.X,s.Y,s.Z] for s in v]
+      llv:LLS:=[[toString(s) for s in lf]]
+      llc:LLS:=[[toString(s) for s in cl]]
+      nL:INT:=1
+      nV:INT:=#v
+      nC:INT:=1
+      lv:LI
+      if closed then lv:=[-nV] else lv:=[nV]
+      lc:LI:=[1]
+      f1:=string FORMAT('NIL,fmtPtsHead,name,data.diam)$Lisp
+      f2:=string FORMAT('NIL,fmtPts,f1,nL,nV,nC,lv,lc,llv,llc,fmtPtsTail)$Lisp
+      --output(f2)$OutputPackage
+      writePipe(pipe,f2)
+

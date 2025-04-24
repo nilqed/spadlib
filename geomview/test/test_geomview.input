@@ -49,3 +49,4 @@ makeFmtPoints(name,diam,nL,nV,nC,pts,cols) ==
 cmd123:=makeFmtPoints("SIX",10,6,6,6,p6,c6)
 writePipe(p,cmd123)
 
+

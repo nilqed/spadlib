@@ -6,6 +6,7 @@ FL  ==> Float
 
 COLOR ==> Record(red:FL,green:FL,blue:FL,transparency:FL)
 POINT ==> Record(X:FL,Y:FL,Z:FL,color:COLOR,diam:INT)
+PLINE ==> Record(vertices:List POINT,color:COLOR,diam:INT)
 
 red:COLOR:=[1.0,0.0,0.0,1.0]@COLOR
 green:COLOR:=[0.0,1.0,0.0,1.0]@COLOR
@@ -26,6 +27,12 @@ drawPoint(p,"P2",P2)
 drawPoint(p,"P3",P3)
 drawPoint(p,"P4",P4)
 drawPoint(p,"P5",P5)
+
+L1:PLINE:=[[P1,P2,P3,P4,P5],blue,5]@PLINE
+L2:PLINE:=[[P2,P5,P3,P4],green,2]@PLINE
+
+drawPolyLine(p,"L1",L1,true)
+drawPolyLine(p,"L2",L2,true)
 
 
 
