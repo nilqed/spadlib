@@ -10,6 +10,11 @@ Geomview() : Exports == Implementation where
   LI  ==> List Integer
   LS  ==> List String
   LF  ==> List Float
+  FL  ==> Float
+  
+  COLOR ==> Record(red:FL,green:FL,blue:FL,transparency:FL)
+  POINT ==> Record(X:FL,Y:FL,Z:FL,color:COLOR,diam:INT)
+  PLINE ==> Record(vertices:List POINT,color:COLOR,diam:INT)
 
   Exports == with
 
@@ -18,7 +23,13 @@ Geomview() : Exports == Implementation where
     makePipe : String -> String
     quitPipe : String -> Void
     writePipe : (String,String) -> Void
-    mkPtsFmt: (STR,INT,LLS,LLI) -> STR
+    mkPtsFmt: (STR,INT,LLS,LLS) -> STR
+      ++ mkPtsFmt(name,diam,lp,lc) creates a OOGL VECT object comprising
+      ++ points only. The parameters are: name (arbitrary identifier), diam
+      ++ the diameter of the points (e.g. 10), lp a list of lists of floats
+      ++ as strings, and lc a list of lists of floats as strings, representing 
+      ++ the color of each point as r,g,b and transparency.[low-level].
+    drawPoint: (STR,STR,POINT) -> Void 
   
   Implementation == add 
   
@@ -45,18 +56,29 @@ Geomview() : Exports == Implementation where
     
 
     fmtPtsHead:="(progn (new-geometry _"[~A]_" appearance {linewidth ~A}"
-    fmtPts:="~A ~% VECT ~A ~A ~A~%~{~A ~}~%~{~A ~}~%~{~A ~}~% ~{~A ~})~%~A)"
+    fmtPtsA:="~A ~% VECT ~A ~A ~A~%~{~A ~}~%~{~A ~}~%"  -- intro 
+    fmtPtsB:="~{~{~A ~}~%~}~%~{~{~A ~}~%~})~%~A)"       -- data
+    fmtPts:=concat(fmtPtsA,fmtPtsB)$String
     fmtPtsTail:="(normalization _"World_" none)"
     
     
-    mkPtsFmt(name:STR,diam:INT,p:LLS,c:LLI):STR ==
+    mkPtsFmt(name:STR,diam:INT,p:LLS,c:LLS):STR ==
       nL:INT:=#p
       nV:=nL
       nC:=#c
       lv:=[1 for i in 1..nL]
       lc:=[1 for i in 1..nC]
-      pf:LS:=concat p
-      cf:LI:=concat c
-      --ps:List STR:=[convert(x)$Float for x in pf]
       f1:=string FORMAT('NIL,fmtPtsHead,name,diam)$Lisp
-      f2:=string FORMAT('NIL,fmtPts,f1,nL,nV,nC,lv,lc,pf,cf,fmtPtsTail)$Lisp
+      f2:=string FORMAT('NIL,fmtPts,f1,nL,nV,nC,lv,lc,p,c,fmtPtsTail)$Lisp
+
+
+    drawPoint(pipe:STR,name:STR,data:POINT):Void ==
+      p:List Float:=[data.X,data.Y,data.Z]
+      c:COLOR:=data.color
+      cl:List Float:=[c.red,c.green,c.blue,c.transparency]
+      lv:LLS:=[[toString(s) for s in p]]
+      lc:LLS:=[[toString(s) for s in cl]]
+      mp:=mkPtsFmt(name,data.diam,lv,lc)
+      writePipe(pipe,mp)
+      
+      

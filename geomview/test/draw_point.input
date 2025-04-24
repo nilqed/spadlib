@@ -1,0 +1,32 @@
+quickLoad geomview
+p:=makePipe "test"
+
+INT ==> Integer
+FL  ==> Float
+
+COLOR ==> Record(red:FL,green:FL,blue:FL,transparency:FL)
+POINT ==> Record(X:FL,Y:FL,Z:FL,color:COLOR,diam:INT)
+
+red:COLOR:=[1.0,0.0,0.0,1.0]@COLOR
+green:COLOR:=[0.0,1.0,0.0,1.0]@COLOR
+blue:COLOR:=[0.0,0.0,1.0,1.0]@COLOR
+white:COLOR:=[1.0,1.0,1.0,1.0]@COLOR
+black:COLOR:=[0.0,0.0,0.0,1.0]@COLOR
+
+P1:POINT:=[1.0,0.0,0.0,red,10]
+P2:POINT:=[0.0,1.0,0.0,blue,10]
+P3:POINT:=[0.0,0.0,-1.0,green,10]
+
+P4:POINT:=[0.5,0.4,-0.3,black,20]
+P5:POINT:=[0.8,0.1,0.2,white,5]
+
+
+drawPoint(p,"P1",P1)
+drawPoint(p,"P2",P2)
+drawPoint(p,"P3",P3)
+drawPoint(p,"P4",P4)
+drawPoint(p,"P5",P5)
+
+
+
+
