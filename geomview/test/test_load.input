@@ -1,0 +1,18 @@
+quickLoad geomview
+p:=makePipe "test"
+
+load(p,"dodec")
+load(p,"unit.sphere")
+
+load(p,"triangle","geometry")
+
+loadPath(p) -- only display
+setLoadPath(p,["/home/kfp/tmp","+"])
+loadPath(p)
+
+help(p,"load")
+
+
+scale(p,"unit.sphere",1.3)
+scale(p,"unit.sphere",1.0,1.4,0.8)
+

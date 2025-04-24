@@ -33,8 +33,40 @@ Geomview() : Exports == Implementation where
       ++ drawPoint(p,n,pt) draws the point 'pt' named 'n' to the pipe 'p'.
     drawPolyLine: (STR,STR,PLINE,Boolean) -> Void 
       ++ drawPolyLine(p,n,pl,closed?) draws the polyline 'pl' named 'n' to the 
-      ++ pipe 'p'. The parameter closed? is true if the polyline shall be 
+      ++ pipe 'p'. Set the parameter closed?=true if the polyline shall be 
       ++ closed.
+    load: (STR,STR) -> Void
+      ++ load(pipe,file) loads the given file into geomview (pipe). 
+    load: (STR,STR,STR) -> Void  
+      ++ Loads the given file into geomview (pipe). The third argument 
+      ++ specifies the type of data it contains, which may be 'command' 
+      ++ (geomview commands), 'geometry' (OOGL geometric data), or 'camera' 
+      ++ (OOGL camera definition). If omitted, attempts to guess about the 
+      ++ file's contents. Loading geometric data creates a new visible object; 
+      ++ loading a camera opens a new window; loading a command file executes 
+      ++ those commands.
+    loadPath : STR -> Void
+      ++ loadPath(pipe) returns the current search path for command, geometry, 
+      ++ etc. files. 
+    setLoadPath: (STR,LS) -> Void
+      ++ setLoadPath(pipe,[path1,...,pathN]) Sets search path for command, 
+      ++ geometry, etc. files. The PATHi are strings giving the pathnames of 
+      ++ directories to be searched. The special directory name + is replaced 
+      ++ by the existing path, so e.g. setLoadPath(p,["mydir","+"]) prepends 
+      ++ mydir to the path.
+    help: (STR,STR) -> Void
+      ++ help(pipe,cmd) prints info about cmd. Command may include * wildcards.
+      ++ For instance, help(pipe,"*") prints all commands.
+    scale : (STR,STR,Float) -> Void
+      ++ scale(pipe,GEOM-ID,factor) scales GEOM-ID, multiplying its size by 
+      ++ factor.
+    scale : (STR,STR,Float,Float,Float) -> Void
+      ++ scale(pipe,GEOM-ID,fx,fy,fz) scales GEOM-ID, multiplying its size by 
+      ++ fx,fy,fz. Scaling only really makes sense in Euclidean space!
+      
+
+      
+    
      
   Implementation == add 
   
@@ -104,3 +136,34 @@ Geomview() : Exports == Implementation where
       --output(f2)$OutputPackage
       writePipe(pipe,f2)
 
+    load(p:STR,f:STR):Void ==
+      cmd:=string FORMAT('NIL,"(load ~A)",f)$Lisp
+      writePipe(p,cmd)
+      
+    load(p:STR,f:STR,opt:STR):Void ==
+      o:List String:=["command","geometry","camera"]
+      not member?(opt,o) => error "options are: [command|geometry|camera])"
+      cmd:=string FORMAT('NIL,"(load ~A ~A)",f,opt)$Lisp
+      writePipe(p,cmd)
+      
+    loadPath(p:STR):Void ==
+      cmd:="(echo (load-path))"
+      writePipe(p,cmd)
+      
+    setLoadPath(p:STR,paths:LS) ==
+      cmd:=string FORMAT('NIL,"(set-load-path ~A)",paths)$Lisp
+      writePipe(p,cmd)
+
+    help(p:STR,c:STR):Void ==
+      cmd:=string FORMAT('NIL,"(morehelp ~A)",c)$Lisp
+      writePipe(p,cmd)
+      
+    scale(p:STR,g:STR,f:Float):Void ==
+      fs:STR:=toString(f)
+      cmd:=string FORMAT('NIL,"(scale ~A ~A)",g,fs)$Lisp
+      writePipe(p,cmd)
+      
+    scale(p:STR,g:STR,fx:Float,fy:Float,fz:Float):Void ==
+      sx:STR:=toString(fx); sy:STR:=toString(fy); sz:STR:=toString(fz);  
+      cmd:=string FORMAT('NIL,"(scale ~A ~A ~A ~A)",g,sx,sy,sz)$Lisp
+      writePipe(p,cmd)
