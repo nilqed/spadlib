@@ -63,10 +63,46 @@ Geomview() : Exports == Implementation where
     scale : (STR,STR,Float,Float,Float) -> Void
       ++ scale(pipe,GEOM-ID,fx,fy,fz) scales GEOM-ID, multiplying its size by 
       ++ fx,fy,fz. Scaling only really makes sense in Euclidean space!
-      
-
-      
-    
+    geometryObjects : STR -> Void
+      ++ geometryObjects(pipe) returns a list of names of all geometry objects. 
+    cameras : STR -> Void
+      ++ cameras(pipe) returns a list of names of all cameras.     
+    setBackColor : (STR,STR,FL,FL,FL) -> Void
+      ++ setBackColor(pipe,cam-id,r,g,b) sets the background color of CAM-ID; 
+      ++ R G B are numbers between 0 and 1.
+    setBackgroundImage : (STR,STR,STR) -> Void
+      ++ setBackgroundImage(pipe,cam,filename) uses the given image as the 
+      ++ background of camera CAM-ID (which must be a real camera, not default 
+      ++ or allcams). Centers the image on the window area. Works only with 
+      ++ GL and OpenGL graphics. Use "" for filename to remove background. 
+      ++ With no filename argument, returns name of that window's current 
+      ++ background image, or "". Any file type acceptable as a texture is 
+      ++ allowed, e.g. .ppm.gz, .sgi, etc.      
+    setBBoxColor : (STR,STR,FL,FL,FL) -> Void
+      ++ setBBoxColor(pipe,geom-id,r,g,b) Set the bounding-box color of 
+      ++ GEOM-ID; R G B are numbers between 0 and 1.
+    drawBBox : (STR,STR,Boolean) -> Void
+      ++ drawBBox(pipe,true or false) whether GEOM-ID's bounding-box should be 
+      ++ drawn.
+    resetCamera: (STR,STR) -> Void
+      ++ resetCamera(pipe,cam-id) resets CAM-ID to its default value.     
+    cmdFile : (STR,STR,STR) -> Void 
+      ++ cmdFile(pipe,infile,outfile) reads commands from INFILE; sends 
+      ++ corresponding responses (e.g. anything written to filename -) to 
+      ++ OUTFILE, stdout by default (use outfile=""). 
+    copyObject : (STR,STR,STR) -> Void
+      ++ copyObject(pipe,id,name) copies an object or camera to a new object
+      ++ with 'name'=name.
+    deleteObject : (STR,STR) -> Void
+      ++ deleteObject(pipe,id) delete object or camera ID.      
+    dither : (STR,STR,STR) -> Void
+      ++ dither(pipe,cam,opt) turns dithering on or off in that camera. 
+      ++ opt: {"on"|"off"|"toggle"}.
+    drawView : (STR,STR) -> Void
+      ++ drawView(pipe,cam) draws the view in CAM-ID, if it needs redrawing. 
+    geomviewVersion: STR -> Void
+      ++ geomviewVersion prints a string representing the version of geomview 
+      ++ that is running.     
      
   Implementation == add 
   
@@ -147,7 +183,7 @@ Geomview() : Exports == Implementation where
       writePipe(p,cmd)
       
     loadPath(p:STR):Void ==
-      cmd:="(echo (load-path))"
+      cmd:="(echo)(echo (load-path))(echo)"
       writePipe(p,cmd)
       
     setLoadPath(p:STR,paths:LS) ==
@@ -167,3 +203,60 @@ Geomview() : Exports == Implementation where
       sx:STR:=toString(fx); sy:STR:=toString(fy); sz:STR:=toString(fz);  
       cmd:=string FORMAT('NIL,"(scale ~A ~A ~A ~A)",g,sx,sy,sz)$Lisp
       writePipe(p,cmd)
+    
+    geometryObjects(p:STR) ==
+      cmd:="(echo)(echo (all geometry))(echo)"
+      writePipe(p,cmd)      
+      
+    cameras(p:STR) ==
+      cmd:="(echo)(echo (all cameras))(echo)"
+      writePipe(p,cmd) 
+
+    setBackColor(p:STR,cam:STR,r:FL,g:FL,b:FL):Void ==
+      sr:STR:=toString(r); sg:STR:=toString(g); sb:STR:=toString(b); 
+      cmd:=string FORMAT('NIL,"(backcolor ~A ~A ~A ~A)",cam,sr,sg,sb)$Lisp
+      writePipe(p,cmd) 
+
+    setBackgroundImage(p:STR,cam:STR,img:STR):Void ==
+      cmd:=string FORMAT('NIL,"(background-image ~A ~A)",cam,img)$Lisp
+      writePipe(p,cmd) 
+      
+    setBBoxColor(p:STR,geom:STR,r:FL,g:FL,b:FL):Void ==
+      sr:STR:=toString(r); sg:STR:=toString(g); sb:STR:=toString(b); 
+      cmd:=string FORMAT('NIL,"(bbox-color ~A ~A ~A ~A)",geom,sr,sg,sb)$Lisp
+      writePipe(p,cmd)              
+       
+    drawBBox(p:STR,geom:STR,b:Boolean):Void ==
+      yn:STR 
+      if b then yn:="yes" else yn:="no"
+      cmd:=string FORMAT('NIL,"(bbox-draw ~A ~A)",geom,yn)$Lisp
+      writePipe(p,cmd) 
+     
+    resetCamera(p:STR,cam:STR):Void ==
+      cmd:=string FORMAT('NIL,"(camera-reset ~A)",cam)$Lisp
+      writePipe(p,cmd)           
+ 
+    cmdFile(p:STR,infile:STR,outfile:STR):Void ==
+      if outfile="" then outfile:="stdout"
+      cmd:=string FORMAT('NIL,"(command ~A ~A)",infile,outfile)$Lisp
+      writePipe(p,cmd)   
+
+    copyObject(p:STR,id:STR,name:STR):Void ==
+      cmd:=string FORMAT('NIL,"(copy ~A ~A)",id,name)$Lisp
+      writePipe(p,cmd) 
+
+    deleteObject(p:STR,id:STR):Void ==
+      cmd:=string FORMAT('NIL,"(delete ~A)",id)$Lisp
+      writePipe(p,cmd) 
+      
+    dither(p:STR,cam:STR,opt:STR):Void ==
+      cmd:=string FORMAT('NIL,"(dither ~A ~A)",cam,opt)$Lisp
+      writePipe(p,cmd)       
+
+    drawView(p:STR,cam:STR):Void ==
+      cmd:=string FORMAT('NIL,"(draw ~A)",cam)$Lisp
+      writePipe(p,cmd)        
+      
+    geomviewVersion(p:STR):Void == 
+      writePipe(p,"(echo)(echo (geomview-version))(echo)")  
+
