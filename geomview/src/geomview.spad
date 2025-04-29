@@ -103,11 +103,26 @@ Geomview() : Exports == Implementation where
     geomviewVersion: STR -> Void
       ++ geomviewVersion prints a string representing the version of geomview 
       ++ that is running.     
+    setModel:(STR,STR,STR) -> Void
+      ++ setModel(pipe,cam,mod) set the model used to display geometry in this 
+      ++ camera, where mod={"virtual"|"projective"|"conformal"}.
+    drawHSphere : (STR,STR,Boolean) -> Void
+      ++ drawHSphere(pipe,cam,true/false) whether to draw a unit sphere: the 
+      ++ sphere at infinity in hyperbolic space, and a reference sphere in 
+      ++ Euclidean and spherical spaces. 
+    drawLinesCloser : (STR,STR,Float) -> Void
+      ++ drawLinesCloser(pipe,cam,dist) draws lines (including edges) closer to
+      ++ the camera than polygons by DIST / 10^5 of the Z-buffer range. 
+      ++ DIST = 3.0 by default. If DIST is too small, a line lying on a surface
+      ++ may be dotted or invisible, depending on the viewpoint. If DIST is 
+      ++ too large, lines may appear in front of surfaces that they actually 
+      ++ lie behind. Good values for DIST vary with the scene, viewpoint, and 
+      ++ distance between near and far clipping planes. This feature is a 
+      ++ kludge, but can be helpful.      
      
   Implementation == add 
   
-    lisp(s) == EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
-    
+     
     makePipe(s) == 
       cmd:SExpression:=FORMAT('NIL,"system togeomview ~A </dev/null",s)$Lisp 
       systemCommand(string cmd)$MSC
@@ -258,5 +273,21 @@ Geomview() : Exports == Implementation where
       writePipe(p,cmd)        
       
     geomviewVersion(p:STR):Void == 
-      writePipe(p,"(echo)(echo (geomview-version))(echo)")  
+      writePipe(p,"(echo)(echo (geomview-version))(echo)")
 
+
+    setModel(p:STR,cam:STR,opt:STR):Void ==
+      cmd:=string FORMAT('NIL,"(hmodel ~A ~A)",cam,opt)$Lisp
+      writePipe(p,cmd)          
+
+    drawHSphere(p:STR,cam:STR,b:Boolean):Void ==
+      yn:STR
+      if b then yn:="yes" else yn:="no"
+      cmd:=string FORMAT('NIL,"(hsphere-draw ~A ~A)",cam,yn)$Lisp
+      writePipe(p,cmd)  
+      
+    drawLinesCloser(p:STR,cam:STR,dist:Float):Void ==
+      d:STR:=toString(dist)
+      cmd:=string FORMAT('NIL,"(lines-closer ~A ~A)",cam,d)$Lisp
+      writePipe(p,cmd)
+      

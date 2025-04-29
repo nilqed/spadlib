@@ -37,4 +37,7 @@ drawView(p,"Camera")
 
 geomviewVersion(p)
 
+drawHSphere(p,"Camera2",true)
+setModel(p,"Camera","conformal")
+
 
