@@ -144,7 +144,14 @@ Geomview() : Exports == Implementation where
       ++ the object moves by just that amount during approximately dt seconds, 
       ++ then stops. If present and followed by the smooth keyword, the motion 
       ++ is animated with a 3t^2-2t^3 function, so as to start and stop 
-      ++ smoothly. If absent, the motion is applied immediately.  
+      ++ smoothly. If absent, the motion is applied immediately. 
+    reset : STR -> Void
+      ++ reset(pipe) is equivalent to (progn (new-center ALLGEOMS)(new-center 
+      ++ ALLCAMS)), i.e. a full reset of the pipe.  
+    newCamera : (STR,STR) -> Void
+      ++ newCamera(pipe,cam-id) creates a new camera with the given name 
+      ++ (a string). If a camera with that name already exists, the new object 
+      ++ is given a unique name.      
      
   Implementation == add 
   
@@ -330,3 +337,10 @@ Geomview() : Exports == Implementation where
       else
         cmd:=string FORMAT('NIL,fmt,o,c,f,a,sx,sy,sz,"","")$Lisp  
       writePipe(p,cmd)        
+      
+    reset(p:STR):Void == writePipe(p,"(new-reset)") 
+      
+    newCamera(p:STR,cam:STR):Void ==
+      cmd:=string FORMAT('NIL,"(new-camera ~A)",cam)$Lisp 
+      writePipe(p,cmd)  
+      
