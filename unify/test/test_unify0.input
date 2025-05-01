@@ -1,0 +1,60 @@
+)co ../docs/unify.spad
+
+IF:=InputForm
+X:=EXPR INT
+UX:=Unify(X)
+
+t1:=(a+b)::IF
+t2:=(c+d-e)::IF
+
+unify(t1,t2)$Unify(X)
+
+p:=operator 'p
+f:=operator 'f
+g:=operator 'g
+h:=operator 'h
+
+foo:=operator 'foo -- foo <-> (+)
+bar:=operator 'bar -- bar <-> (*)
+
+--uni(q) ==>  unify(sexpr(lhs(q.1)),sexpr(rhs(q.1)))$UX
+
+U:=convert([])$IF
+--uni(L) ==> unify1(cdr(map(lhs,L)::IF), cdr(map(rhs,L)::IF),U)$UX
+uni(L) ==> unify(map(lhs,L)::IF, map(rhs,L)::IF)$UX
+
+P1:=uni [f(g(x),x) = f(y,a)]
+P2:=uni [f(x,h(x),y) = f(g(z), u, z)] 
+P3:=uni [p(a,x,f(y)) = p(u,v,w),p(a,x,f(y))= p(a, s,f(c)),p(u,v,w) = p(a,s,f(c))] 
+P4:=uni [f(x, b, g(z)) = f(f(y), y, g(u))] 
+P5:=uni [p(a,x,h(g(z))) = p(z,h(y),h(y))] 
+P6:=uni [p(f(a),g(x)) = p(y,y)]  --should fail => 0
+P7:=uni [p(x,x) = p(y,f(y))]     -- should fail => 0
+
+P8:=uni [sin(x+y) = sin(u^2+v^2)] 
+
+P9:=uni [c+b=a+c,a+b=b+c] 
+P10:=uni [c+b=a+c,a+b=b+c,a*b=c*d]
+
+P11:= uni [g(x,f(x,b))=g(f(a,b),f(y,z))]
+
+
+E3:= uni [f(x1,x2,x3)=f(g(x0,x0),g(x1,x1),g(x2,x2))]
+
+--(37) -> uni E3
+--
+--   (37)
+--   (((g (g (g x0 x0) (g x0 x0)) (g (g x0 x0) (g x0 x0))) x3)
+--    ((g (g x0 x0) (g x0 x0)) x2)  ((g x0 x0) x1))
+--                                                              Type: InputForm
+--   (47)
+--   [x1 = g(x0,x0), x2 = g(g(x0,x0),g(x0,x0)),
+--    x3 = g(g(g(x0,x0),g(x0,x0)),g(g(x0,x0),g(x0,x0)))]
+--                         Type: Union(List(Equation(Expression(Integer))),...)
+
+
+
+DE3:=destruct(E3)
+IDE3:=[interpret(car cdr k) =interpret(car k) for k in DE3 ]
+eq31:=lhs(IDE3.1)::X=rhs(IDE3.1)::X
+ 

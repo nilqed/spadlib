@@ -1,0 +1,56 @@
+)co ../docs/unify2024.spad
+
+p:=operator 'p
+f:=operator 'f
+g:=operator 'g
+h:=operator 'h
+
+foo:=operator 'foo -- foo <-> (+)
+bar:=operator 'bar -- bar <-> (*)
+
+
+P1:=[f(g(x),x) = f(y,a)]
+P2:=[f(x,h(x),y) = f(g(z), u, z)] 
+P3:=[p(a,x,f(y)) = p(u,v,w),p(a,x,f(y))= p(a, s,f(c)),p(u,v,w) = p(a,s,f(c))] 
+
+P4:=[f(x, b, g(z)) = f(f(y), y, g(u))] 
+P5:=[p(a,x,h(g(z))) = p(z,h(y),h(y))] 
+P6:=[p(f(a),g(x)) = p(y,y)]  --should fail => 0
+P7:=[p(x,x) = p(y,f(y))]     -- should fail => 0
+
+P8:=[sin(x+y) = sin(u^2+v^2)] 
+
+P9:=[foo(c,b)=foo(a,c),foo(a,b)=foo(b,c)] 
+P10:=[foo(c,b)=foo(a,c),foo(a,b)=foo(b,c),bar(a,b)=bar(c,d)]
+
+P11:=[g(x,f(x,b))=g(f(a,b),f(y,z))]
+
+U1:=unify(P1,[])   -- [y= g(a),x= a]
+U2:=unify(P2,[])   -- [x= g(z),u= h(g(z)),y= z]
+U3:=unify(P3,[])   -- [a= u,x= s,w= f(c),v= s,y= c]
+U4:=unify(P4,[])   -- [x= f(y),b= y,z= u]
+U5:=unify(P5,[])   -- [a= z,x= h(g(z)),y= g(z)]
+U6:=unify(P6,[])   -- failed
+U7:=unify(P7,[])   -- failed
+U8:=unify(P8,[])   -- [y+x = v^2 + u^2]
+U9:=unify(P9,[])   -- left hand side must be a single kernel // foo, bar ok 
+U10:=unify(P10,[]) -- left hand side must be a single kernel // foo, bar ok
+U11:=unify(P11,[]) -- [x= f(a,z),y= f(a,z),b= z]
+
+R11:=reduceWith(P11,U11)
+test(R11.1)
+
+P12:=[p(a,x,h(g(z)))=p(z,h(y),h(y))]
+unify(P12,[]) -- ok
+
+P13:=[p(f(a),g(x))=p(y,y)]
+unify(P13,[]) -- should fail
+    
+E1:=[f(x1)=f(g(x0,x0))]
+E2:=[f(x1,x2)=f(g(x0,x0),g(x1,x1))]
+E3:=[f(x1,x2,x3)=f(g(x0,x0),g(x1,x1),g(x2,x2))]
+
+unify(E1,[])  --
+unify(E2,[])  -- E1+...
+unify(E3,[])  -- E1+E2+...  may be exponential
+

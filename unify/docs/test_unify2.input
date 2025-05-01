@@ -1,0 +1,55 @@
+)co unify
+
+)set break resume
+)set output algebra on
+)set output tex off
+
+X ==> Expression Integer
+IF ==> InputForm
+UFX ==> Unify(X)
+
+REC ==> Record(inp:X,res:X)
+
+r1:=[sum((-1)^(k?+1)/k?,k?=1..oo),log(2)]$REC
+r2:=[sum((-1)^(k?+1)/(2*k?-1),k?=1..oo),%pi/4]$REC
+
+r3:=[sum(1/k?^p?,k?=1..oo),riemannZeta(p?)]$REC
+r4:=[sum((-1)^(k?+1)/k?^p?,k?=1..oo),(1-2^(1-p?))*riemannZeta(p?)]$REC
+
+r5:=[sum(1/k?^2,k?=1..oo),%pi^2/6]$REC
+
+
+
+match(a,b) ==
+  r:=unify(a,b)$UFX
+  r='failure::IF => []
+  dr:=destruct r
+  ddr:=[destruct s for s in dr]
+  eq:=[symbol(s.1)::X=symbol(s.2)::X for s in ddr]
+
+
+lookup(e,r) ==
+  test(e=r.inp) => r.res
+  ei:=e::IF  
+  test(ei=(r.inp)::IF) => r.res
+  m:=match(ei,(r.inp)::IF)
+  subst(r.res,m)
+  
+i1:=sum((-1)^(n+1)/n,n=1..oo)
+i2:=sum((-1)^(m+1)/m,m=1..N)
+i3:=sum((-1)^(m^2+1)/m,m=1..N)
+lookup(i2,r1)
+ii3:=i3::IF
+unify(ii3,(r1.inp)::IF)$UFX
+
+i4:=sum((-1)^(s+1)/(2*s-1),s=1..oo)
+lookup(i4,r2) --> %pi/4
+
+i5:=sum(1/n^z,n=1..oo)
+lookup(i5,r3) --> riemannZeta(z) 
+
+i6:=sum((-1)^(t+1)/t^s,t=1..oo)
+lookup(i6,r4) -->
+
+i7:=sum(1/m^2,m=1..oo)
+lookup(i7,r5) --> %pi^2/6
