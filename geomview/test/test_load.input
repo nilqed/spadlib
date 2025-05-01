@@ -40,4 +40,7 @@ geomviewVersion(p)
 drawHSphere(p,"Camera2",true)
 setModel(p,"Camera","conformal")
 
+-- look,look-encompass,look-encompass-size,look-recenter, look-toward
+-- merge, merge-ap,  merge-base-ap
+-- name-object
 

@@ -11,6 +11,7 @@ Geomview() : Exports == Implementation where
   LS  ==> List String
   LF  ==> List Float
   FL  ==> Float
+  BO  ==> Boolean
   
   COLOR ==> Record(red:FL,green:FL,blue:FL,transparency:FL)
   POINT ==> Record(X:FL,Y:FL,Z:FL,color:COLOR,diam:INT)
@@ -118,7 +119,32 @@ Geomview() : Exports == Implementation where
       ++ too large, lines may appear in front of surfaces that they actually 
       ++ lie behind. Good values for DIST vary with the scene, viewpoint, and 
       ++ distance between near and far clipping planes. This feature is a 
-      ++ kludge, but can be helpful.      
+      ++ kludge, but can be helpful.   
+    transform : (STR,STR,STR,STR,STR,FL,FL,FL,FL,Boolean) -> Void
+      ++ transform(pipe,objectID,centerID,frameID,action,x,y,z,dt?,smooth?) 
+      ++ where action in [rotate|translate|translate-scaled|scale], applies a 
+      ++ motion (rotation, translation, scaling) to object objectID; that is, 
+      ++ construct and concatenate a transformation matrix with objectID's 
+      ++ transform. The 3 IDs involved are the object that moves, the center of 
+      ++ motion, and the frame of reference in which to apply the motion. The 
+      ++ center is easiest understood for rotations: if centerID is the same as 
+      ++ objectID then it will spin around its own axes; otherwise the moving 
+      ++ object will orbit the center object. There is the special keyword 
+      ++ bbox-center which may be used for centerID. As a result the motion 
+      ++ will be relative to the center of the bounding box of objectID. 
+      ++ Normally frameID, in whose coordinate system the (mouse) motions are 
+      ++ interpreted, is focus, the current camera. Translations can be scaled 
+      ++ proportional to the distance between the target and the center. 
+      ++ Support for spherical and hyperbolic as well as Euclidean space is 
+      ++ built-in: use the space command to change spaces. With type rotate 
+      ++ x, y, and z are floats specifying angles in RADIANS. For types 
+      ++ translate and translate-scaled x, y, and z are floats specifying 
+      ++ distances in the coordinate system of the center object.
+      ++ The optional dt field allows a simple form of animation; if present, 
+      ++ the object moves by just that amount during approximately dt seconds, 
+      ++ then stops. If present and followed by the smooth keyword, the motion 
+      ++ is animated with a 3t^2-2t^3 function, so as to start and stop 
+      ++ smoothly. If absent, the motion is applied immediately.  
      
   Implementation == add 
   
@@ -291,3 +317,16 @@ Geomview() : Exports == Implementation where
       cmd:=string FORMAT('NIL,"(lines-closer ~A ~A)",cam,d)$Lisp
       writePipe(p,cmd)
       
+    transform(p:STR,o:STR,c:STR,f:STR,a:STR,x:FL,y:FL,z:FL,dt:FL,s?:BO):Void ==
+      sx:STR:=toString(x); sy:STR:=toString(y); sz:STR:=toString(z);
+      fmt:="(transform ~A ~A ~A ~A ~A ~A ~A ~A ~A)"
+      cmd:STR
+      if not zero? dt then
+        sdt:STR:=toString(dt)
+        if s? then
+          cmd:=string FORMAT('NIL,fmt,o,c,f,a,sx,sy,sz,sdt,"smooth")$Lisp
+        else
+          cmd:=string FORMAT('NIL,fmt,o,c,f,a,sx,sy,sz,sdt,"")$Lisp
+      else
+        cmd:=string FORMAT('NIL,fmt,o,c,f,a,sx,sy,sz,"","")$Lisp  
+      writePipe(p,cmd)        

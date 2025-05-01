@@ -1,0 +1,17 @@
+quickLoad geomview
+p:=makePipe "test"
+
+load(p,"dodec")
+
+transform(p,"dodec","dodec","focus","rotate",0.0,0.0,0.5,0.0,false)
+
+transform(p,"dodec","dodec","focus","rotate",0.4,0.0,0.5,10.0,false)
+ 
+transform(p,"dodec","dodec","focus","rotate",0.4,0.8,0.5,10.0,true) 
+
+-- translate
+transform(p,"dodec","dodec","focus","translate",0.4,0.8,0.5,10.0,true)
+ 
+-- scale
+transform(p,"dodec","dodec","focus","scale",0.4,0.8,0.5,10.0,true)
+
