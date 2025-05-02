@@ -1,4 +1,4 @@
-)co ../docs/unify2024.spad
+)co ../src/unify.spad
 
 p:=operator 'p
 f:=operator 'f
@@ -54,6 +54,9 @@ unify(E1,[])  --
 unify(E2,[])  -- E1+...
 unify(E3,[])  -- E1+E2+...  may be exponential
 
-P12:=[c+b=a+c,a+b=b+c] 
-P13:=[c+b=a+c,a+b=b+c,a*b=c*d]
+P12:=[c+b=a+c,a+b=b+c::EXPR INT] 
+P13:=[c+b=a+c,a+b=b+c,a*b=c*d::EXPR INT]
+
+unify(preProc P12,[])
+unify(preProc P13,[])
 
