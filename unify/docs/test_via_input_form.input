@@ -1,0 +1,12 @@
+
+X:=EXPR INT
+IF:=InputForm
+
+a:X;b:X;c:X
+s:=a+b
+
+x1:=(s^s) :: IF
+
+f:=operator 'f
+
+x2:=f(s^s,c) :: IF
