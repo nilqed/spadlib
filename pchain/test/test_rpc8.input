@@ -1,0 +1,34 @@
+quickLoad pchain
+macro makePoints(plist) == plist:=map(point,plist)
+makePoints [A,B,C,D,S,Z]
+
+
+-- A,B,C,D collinear
+C := A + p * (B-A)
+D := A + q * (B-A)
+
+
+A' := Z + a*(A-Z)
+B' := Z + b*(B-Z)
+C' := Z + c*(C-Z)
+D' := Z + d*(D-Z)
+
+C' := A' + r * (B'-A')
+D' := A' + s * (B'-A')
+
+
+eqc:=[s=0 for s in coefficients(normalize(C'-Z-c*(C-Z)))]
+eqd:=[s=0 for s in coefficients(normalize(D'-Z-d*(D-Z)))]
+cr:=first solve(eqc,[c,r])
+ds:=first solve(eqd,[d,s])
+
+C':=eval(C',cr.2)
+D':=eval(D',ds.2)
+
+-- (((b-a)*p-b)/p )*normalize(A'*C') - (((b-a)*q-b)/q )*normalize(A'*D')
+-- (((b-a)*p-b)/(1-p) )*normalize(B'*C') - (((b-a)*q-b)/(1-q) )*normalize(B'*D')
+
+CR := crossRatio(A,B,C,D) 
+CR' := crossRatio(A',B',C',D') -- ok now :)
+
+if test(CR=CR') then output "*** Q.E.D ***" 

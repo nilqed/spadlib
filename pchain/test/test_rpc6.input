@@ -1,0 +1,52 @@
+quickLoad pchain
+macro makePoints(plist) == plist:=map(point,plist)
+makePoints [A,B,C,D,S,Z]
+
+
+-- A,B,C,D collinear
+C := A + p * (B-A)
+D := A + q * (B-A)
+
+
+A' := Z + a*(A-Z)
+B' := Z + b*(B-Z)
+C' := Z + c*(C-Z)
+D' := Z + d*(D-Z)
+
+C' := A' + r * (B'-A')
+D' := A' + s * (B'-A')
+
+-- case 1: S finite
+
+eqS:= S = A'+v*(B'-A')
+
+
+eqZ:=first solve([eqS],[Z])
+
+A':=eval(A',eqZ)
+B':=eval(B',eqZ)
+C':=eval(C',eqZ)
+D':=eval(D',eqZ)
+
+A'C':=normalize(A'*C')
+B'D':=normalize(B'*D')
+B'C':=normalize(B'*C')
+A'D':=normalize(A'*D')
+
+
+c1:=coefficients(A'C')
+c2:=coefficients(A'D')
+c3:=coefficients(B'C')
+c4:=coefficients(B'D')
+
+test(c1.1/c2.1 = r/s)
+test(c1.2/c2.2 = r/s)
+
+test(c3.1/c4.1 = (r-1)/(s-1))
+test(c3.2/c4.2 = (r-1)/(s-1))
+
+CR := crossRatio(A,B,C,D) 
+
+
+
+

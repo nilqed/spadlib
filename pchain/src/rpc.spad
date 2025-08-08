@@ -1,10 +1,10 @@
 )abbrev domain RPC RealPointChain
 ++ Author: Kurt Pagani
 ++ Date Created: Fri Sep 27 13:05:21 CEST 2024
-++ Date Revised: Thu Apr 03 14:04:11 CEST 2025
+++ Date Revised: Fri Aug 08 17:02:12 CEST 2025
 ++ License: BSD
 ++ References:
-++ Description: barycenter
+++ Description: real point chains, barycentric calculus (Moebius)
 ++
 RealPointChain : Exports == Implementation where
   
@@ -85,6 +85,14 @@ RealPointChain : Exports == Implementation where
       ++ \spad{spaceDim(c,n)} removes all terms having degree greater
       ++ than \spad{n}, which serves as space dimension of an affine
       ++ space.
+    dualSupport: (List %,List %) -> %
+      ++ \spad{dualSupport(leadingSupport x,E)} computes the dual chain in
+      ++ dimension n=#E with respect to the basis points E=[E1,..,En] of the
+      ++ monomial given in leadingSupport x such that the product of the 
+      ++ former with the dual one is E1 E2 ... En.
+    dual: (%,List %) -> %
+      ++ \spad{dual(x,E)} computes the dual chain x' of x recursively such 
+      ++ that x x' is the sum of the squared coefficients times E1 E2 ... En.
     barycenter : % -> Union(%,"failed")
       ++ \spad{barycenter x} returns the barycenter of a \spad{0-chain},
       ++ in case there is one.  
@@ -111,6 +119,7 @@ RealPointChain : Exports == Implementation where
     eval : (%, EQ R) -> %
       ++ \spad{eval(x,a=b} evaluates x while substituting b for a in x.
     eval : (%, EQ %) -> %  
+    eval : (%, List EQ R) -> % 
     affineMap : ((Symbol -> Symbol),%) -> %
       ++ \spad{affineMap(F,x)} maps points P to new points F(P) in x,
       ++ whereby F:Symbol -> Symbol. 
@@ -227,7 +236,27 @@ RealPointChain : Exports == Implementation where
       fx:List %:=[u::% for u in mrx | degree(u)$XDP<=n+1]
       empty? fx => 0@%
       reduce(_+,fx)
+
+    dualSupport(x:List %,b:List %):% ==
+      empty? x => reduce(_*,b)
+      x=b => 1$%
+      sb:Set % := set b
+      sx:Set % := set x
+      intersect(sb,sx) ~= sx => error "incompatible basis points!?"
+      sd:Set % := difference(sb,sx)
+      empty? sd => reduce(_*,b)
+      dc:List %:=members sd
+      pc:%:=reduce(_*,dc)
+      px:%:=reduce(_*,x)
+      pb:%:=reduce(_*,b)
+      pp:%:=normalize(px*pc)
+      if pp = pb then pc else (-1)*pc
       
+
+    dual(x:%,b:List %):% ==
+      zero? x => x
+      leadingCoefficient x * dualSupport(leadingSupport x,b) + dual(reductum x,b)
+
     barycenter(x:%):Union(%,"failed") ==
       not homogeneous? x => "failed"
       not (degree x = 0) => "failed"
@@ -326,7 +355,13 @@ RealPointChain : Exports == Implementation where
       ss:List % := [subst(u,eq) for u in ls]
       nm:%:=reduce(_*,ss)
       lc * nm + eval(reductum x, eq)
-      
+
+    eval(x:%, leq:List EQ R):% ==
+      --empty? leq => x
+      --return eval(eval(x,first leq),rest leq)
+      for u in leq repeat x:=eval(x,u)
+      return x
+
     eval(x:EQ %, eq:EQ R):EQ % == eval(lhs x,eq) = eval(rhs x,eq)
     eval(x:EQ %, eq:EQ %):EQ % == eval(lhs x,eq) = eval(rhs x,eq)
 

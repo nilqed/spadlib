@@ -1,0 +1,53 @@
+
+)co rpc
+
+Z:=point Z
+[A,B,C,D] := map(point,[A,B,C,D])
+[A',B',C',D'] := map(point,[A',B',C',D'])
+
+eqC:= C=A + c*(B-A)
+eqD:= D=A + d*(B-A)
+
+eqAC:= A * eqC
+eqAD:= A * eqD
+eqBC:= B * eqC
+eqBD:= B * eqD
+
+eqA' := A' = Z + x*(Z-A)
+eqB' := B' = Z + x*(Z-B)
+eqC' := C' = Z + x*(Z-C)
+eqD' := D' = Z + x*(Z-D)
+
+eqvC':= eval(eqC',eqC)
+eqvD':= eval(eqD',eqD)
+
+eqA'C':= A' * eqvC'
+eqA'D':= A' * eqvD'
+eqB'C':= B' * eqvC'
+eqB'D':= B' * eqvD'
+
+eqvA'C':= A'*C'=normalize eval(rhs eqA'C',eqA')
+eqvA'D':= A'*D'=normalize eval(rhs eqA'D',eqA')
+eqvB'C':= B'*C'=normalize eval(rhs eqB'C',eqB')
+eqvB'D':= B'*D'=normalize eval(rhs eqB'D',eqB')
+
+eqA'C'D':=(1/c)*eqvA'C' - (1/d)*eqvA'D'
+eqB'C'D':=(1/(c-1))*eqvB'C' - (1/(d-1))*eqvB'D'
+
+-- this proves d A'C' = c A'D', (d-1) B'C' = (c-1) B'D'
+-- since we have d AC = c AD and (d-1) BC = (c-1) BD ==>
+-- independence of x,Z. 
+
+
+eq1:=B=C+2*D
+eq2:=A*eq1
+map(bdry,eq2)
+eq3:=A+%
+eq4:=eq3-eq1
+map(bdry,%) --> LOL, where is the error?
+-- clearly: 
+map(barycenter,eq1) 
+-- B must be a point, so B=C+2D is wrong, however, barycenter is ok!
+
+
+

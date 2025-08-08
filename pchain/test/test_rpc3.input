@@ -1,0 +1,61 @@
+quickLoad pchain
+
+-- plist, e.g. makePoints [A,B,C,D] creates the points A,B,C,D.
+-- One can use them afterwards, e.g. C=a*A+b*B - 
+macro makePoints(plist) == plist:=map(point,plist)
+
+makePoints [A,B,C,D,Z]
+
+-- A,B,C,D collinear
+C := A + ca * (B-A)
+D := A + da * (B-A)
+
+
+
+A' := Z + a*(A-Z)
+B' := Z + b*(B-Z)
+C' := Z + c*(C-Z)
+D' := Z + d*(D-Z)
+
+
+-- check A*B*C=A*B*D=A*C*D=B*C*D=0
+-- [A*B*C,A*B*D,A*C*D,B*C*D]
+
+-- A',B',C',D' shall be collinear as well
+l1:=[A'*B'*C',A'*B'*D',A'*C'*D',B'*C'*D']
+eq1:=[normalize s=0$RPC for s in l1]
+
+cm1:=coeffMatrix(eq1,[A*B*Z for i in 1..4])
+
+leq1:=[row(cm1,i).1=0 for i in 1..#cm1]
+
+s1:=solve(leq1,[c,d])
+-- thus, c and d are determined by a,b,ca,cb,da and db.
+
+C':=normalize eval(C', s1.1.1)
+D':=normalize eval(D', s1.1.2)
+
+ 
+ -- for s in eq1 repeat  output s
+
+r:=[A'*B'*Z, A'*C'*Z, A'*D'*Z, B'*C'*Z, B'*D'*Z,C'*D'*Z]
+nr:=[normalize s for s in r]
+
+-- A B C D -> AB+BC=AC , AC+CD=AD , BC+CD=BD, AB+BD=AD 
+
+eq1:= nr.1 + nr.4 = nr.2
+eq2:= nr.2 + nr.6 = nr.3
+eq3:= nr.4 + nr.6 = nr.5
+eq4:= nr.1 + nr.5 = nr.3
+
+--cm2:=coeffMatrix([eq1,eq2,eq3,eq4],[A*B*Z for i in 1..4])
+--leq2:=[row(cm2,i).1=0 for i in 1..#cm2]
+--s2:=solve(leq2,[a,b])
+
+
+
+
+
+
+
+

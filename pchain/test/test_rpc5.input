@@ -1,0 +1,51 @@
+quickLoad pchain
+macro makePoints(plist) == plist:=map(point,plist)
+makePoints [A,B,C,D,Z]
+
+
+-- A,B,C,D collinear
+C := A + p * (B-A)
+D := A + q * (B-A)
+
+
+A' := Z + a*(A-Z)
+B' := Z + b*(B-Z)
+C' := Z + c*(C-Z)
+D' := Z + d*(D-Z)
+
+C' := A' + r * (B'-A')
+D' := A' + s * (B'-A')
+
+-- case 1: S finite
+
+eqS:= A+u*(B-A) = A'+v*(B'-A')
+
+eqZ:=first solve([eqS],[Z])
+
+A':=eval(A',eqZ)
+B':=eval(B',eqZ)
+C':=eval(C',eqZ)
+D':=eval(D',eqZ)
+
+A'C':=leadingCoefficient normalize(A'*C')
+B'D':=leadingCoefficient normalize(B'*D')
+B'C':=leadingCoefficient normalize(B'*C')
+A'D':=leadingCoefficient normalize(A'*D')
+
+CR':= crossRatio(A',B',C',D') -- A'C' * B'D' / (B'C' * A'D')
+
+CR := crossRatio(A,B,C,D)    
+
+
+cc:=(coefficients (lhs eqS - rhs eqS))
+eqcc:=[s=0 for s in cc]
+uv := solve(eqcc,[u,v])
+
+
+eq1:= [leadingCoefficient normalize(A*A'*Z)=0, _
+       leadingCoefficient normalize(B*B'*Z)=0, _
+       leadingCoefficient normalize(C*C'*Z)=0, _
+       leadingCoefficient normalize(D*D'*Z)=0]
+
+
+rs:=solve([eq1.3,eq1.4],[r,s]).1

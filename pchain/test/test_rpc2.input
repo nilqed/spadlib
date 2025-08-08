@@ -1,0 +1,40 @@
+)co rpc
+
+Z:=point Z
+[A,B,C,D] := map(point,[A,B,C,D])
+[A',B',C',D'] := map(point,[A',B',C',D'])
+
+
+-- since A,B,C,D are collinear
+
+A' := Z + xa*(A-Z)
+B' := Z + xb*(B-Z)
+
+C' := Z + xc*((A+ca*(B-A))-Z)
+D' := Z + xd*((A+cd*(B-A))-Z)
+
+
+
+r1:=normalize(A'*B'*C')
+r2:=normalize(A'*B'*D')
+r3:=normalize(A'*C'*D')
+r4:=normalize(B'*C'*D')
+
+rr:=map(leadingCoefficient,[r1,r2,r3,r4])
+eqr := [s=0 for s in rr]
+
+s1:=solve(eqr.1,xc)
+
+eq31:=eval(eqr.3,s1.1)
+eq41:=eval(eqr.4,s1.1)
+
+
+s2:=solve(eq31,xd)
+
+                        xa xb
+   (22)  [xc = - ------------------]
+                 (ca - 1)xb - ca xa
+
+                        xa xb
+   (28)  [xd = - ------------------]
+                 (cd - 1)xb - cd xa

@@ -1,0 +1,48 @@
+--quickLoad pchain
+)co rpc
+
+RPC ==> RealPointChain
+
+n:=4
+E:=points [E[i] for i in 1..n]
+
+
+
+P:=a*E.1*E.3
+
+dual(P,E) --> -a E2 E4 
+dual(E.2,E) --> - E1 E3 E4
+dual(P*P,E) --> 0
+-- dual(point X,E) --> error, because X is not in basis form
+
+normalize(E.2*dual(E.2,E)) --> E1 E2 E3 E4 
+normalize(P*dual(P,E)) --> a^2 * E1 E2 E3 E4 
+
+)clear all
+
+n:=3
+E:=points [E[i] for i in 1..n]
+
+P:=reduce(_+,[p[i]*E.i for i in 1..n])
+Q:=reduce(_+,[q[i]*E.i for i in 1..n])
+PQ:=P*Q
+
+PQ%:=dual(PQ,E)
+c1:=coefficients PQ%
+sc1:=reduce(_+,c1)
+esc1:=eval(sc1,[q[3]=1-q[1]-q[2],p[3]=1-p[1]-p[2]])
+
+leq:=[q[3]::EXPR INT=1-q[1]-q[2],p[3]=1-p[1]-p[2]]
+
+
+P*dual(P,E)
+normalize %
+
+
+
+
+
+
+
+
+
