@@ -6,6 +6,7 @@
 (defun |compile_tmspt| ()
   (progn
   (|doSystemCommand| (format nil "cd ~Alib" *tmspt*))
+  (|doSystemCommand| (format nil "compile ../src/texmacs.spad )quiet"))
   (|doSystemCommand| (format nil "compile ../src/tmspt.spad )quiet"))))
 
 (defun |load_tmspt| ()
