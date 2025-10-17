@@ -1,0 +1,1458 @@
+)if false
+TexmacsFormat is a package to produce output as the
+special scheme code for TeXmacs.
+
+About this module
+The most of this code were copy-n-pasted from MathML format package. Although I
+am going to make stand alone fully-functional TeXmacs package I've left many
+comments about the code untouched in order to understand the code quicker. They
+will be removed as soon as they won't be needed.
+
+The testing is made using {\tt of.input} test file.
+
+)endif
+
+)abbrev domain TMFORM TexmacsFormat
+++ Author: Alexander D. Solovets
+++ Date: October 2010
+++ This package is based on the MathMLFormat domain by Arthur C. Ralfs
+++ without which I wouldn't have known where to start.
+++ Basic Operations: coerce, coerceL, display
+++ Description:
+++    \spadtype{TexmacsFormat} provides a coercion from \spadtype{OutputForm}
+++    to TeXmacs format.
+
+TexmacsFormat() : public == private where
+  E      ==> OutputForm
+  I      ==> Integer
+  SI     ==> SingleInteger
+  L      ==> List
+  S      ==> String
+  SY     ==> Symbol
+  US     ==> UniversalSegment(Integer)
+
+  public == SetCategory with
+    coerce :    E -> S
+      ++ coerce(o) changes o in the standard output format to Texmacs
+      ++ format.
+    coerceL :   E -> S
+      ++ coerceL(o) changes o in the standard output format to Texmacs
+      ++ format and displays result as one long string.
+    display :   S -> Void
+      ++ prints the string returned by coerce, adding <math ...> tags.
+
+  private == add
+    import from OutputForm
+    import from Character
+    import from Integer
+    import from List OutputForm
+    import from List String
+    import from OutputFormTools
+
+    -- local variable declarations and definitions
+
+    -- the key is unicode, and the entry is corkcode
+    CorkFunc : HashTable(SI, String, "EQ") == construct([_
+      [60::SI,"<less>"], _
+      [62::SI,"<gtr>"], _
+      [160::SI,"<varspace>"], _
+      [162::SI,"<cent>"], _
+      [163::SI,"<sterling>"], _
+      [164::SI,"<currency>"], _
+      [165::SI,"<yen>"], _
+      [166::SI,"<brokenvert>"], _
+      [169::SI,"<copyright>"], _
+      [170::SI,"<ordfeminine>"], _
+      [171::SI,"<guillemotleft>"], _
+      [172::SI,"<neg>"], _
+      [173::SI,"<hyphen>"], _
+      [174::SI,"<circledR>"], _
+      [176::SI,"<degree>"], _
+      [177::SI,"<pm>"], _
+      [178::SI,"<twosuperior>"], _
+      [179::SI,"<threesuperior>"], _
+      [181::SI,"<mu>"], _
+      [182::SI,"<paragraph>"], _
+      [183::SI,"<centerdot>"], _
+      [185::SI,"<onesuperior>"], _
+      [186::SI,"<masculine>"], _
+      [188::SI,"<onequarter>"], _
+      [189::SI,"<onehalf>"], _
+      [190::SI,"<threequarters>"], _
+      [215::SI,"<times>"], _
+      [247::SI,"<div>"], _
+      [8209::SI,"<nbhyph>"], _
+      [8214::SI,"<||>"], _
+      [8224::SI,"<dagger>"], _
+      [8225::SI,"<ddagger>"], _
+      [8226::SI,"<bullet>"], _
+      [8230::SI,"..."], _
+      [8242::SI,"<prime>"], _
+      [8245::SI,"<backprime>"], _
+      [8450::SI,"<bbb-C>"], _
+      [8458::SI,"<cal-g>"], _
+      [8459::SI,"<cal-H>"], _
+      [8460::SI,"<frak-H>"], _
+      [8461::SI,"<bbb-H>"], _
+      [8463::SI,"<hslash>"], _
+      [8464::SI,"<cal-I>"], _
+      [8465::SI,"<frak-I>"], _
+      [8466::SI,"<cal-L>"], _
+      [8467::SI,"<ell>"], _
+      [8469::SI,"<bbb-N>"], _
+      [8472::SI,"<wp>"], _
+      [8473::SI,"<bbb-P>"], _
+      [8474::SI,"<bbb-Q>"], _
+      [8475::SI,"<cal-R>"], _
+      [8476::SI,"<frak-R>"], _
+      [8477::SI,"<bbb-R>"], _
+      [8482::SI,"<trademark>"], _
+      [8484::SI,"<bbb-Z>"], _
+      [8487::SI,"<Mho>"], _
+      [8488::SI,"<frak-Z>"], _
+      [8492::SI,"<cal-B>"], _
+      [8493::SI,"<frak-C>"], _
+      [8495::SI,"<cal-e>"], _
+      [8496::SI,"<cal-E>"], _
+      [8497::SI,"<cal-F>"], _
+      [8499::SI,"<cal-M>"], _
+      [8500::SI,"<cal-o>"], _
+      [8501::SI,"<aleph>"], _
+      [8502::SI,"<beth>"], _
+      [8503::SI,"<gimel>"], _
+      [8504::SI,"<daleth>"], _
+      [8592::SI,"<leftarrow>"], _
+      [8593::SI,"<uparrow>"], _
+      [8594::SI,"<rightarrow>"], _
+      [8595::SI,"<downarrow>"], _
+      [8596::SI,"<leftrightarrow>"], _
+      [8597::SI,"<updownarrow>"], _
+      [8598::SI,"<nwarrow>"], _
+      [8599::SI,"<nearrow>"], _
+      [8600::SI,"<searrow>"], _
+      [8601::SI,"<swarrow>"], _
+      [8602::SI,"<nleftarrow>"], _
+      [8603::SI,"<nrightarrow>"], _
+      [8604::SI,"<leftsquigarrow>"], _
+      [8605::SI,"<rightsquigarrow>"], _
+      [8606::SI,"<twoheadleftarrow>"], _
+      [8608::SI,"<twoheadrightarrow>"], _
+      [8610::SI,"<leftarrowtail>"], _
+      [8611::SI,"<rightarrowtail>"], _
+      [8612::SI,"<mapsfrom>"], _
+      [8614::SI,"<mapsto>"], _
+      [8617::SI,"<hookleftarrow>"], _
+      [8618::SI,"<hookrightarrow>"], _
+      [8619::SI,"<looparrowleft>"], _
+      [8620::SI,"<looparrowright>"], _
+      [8621::SI,"<leftrightsquigarrow>"], _
+      [8622::SI,"<nleftrightarrow>"], _
+      [8623::SI,"<lightning>"], _
+      [8624::SI,"<Lsh>"], _
+      [8625::SI,"<Rsh>"], _
+      [8630::SI,"<curvearrowleft>"], _
+      [8631::SI,"<curvearrowright>"], _
+      [8634::SI,"<circlearrowleft>"], _
+      [8635::SI,"<circlearrowright>"], _
+      [8636::SI,"<leftharpoonup>"], _
+      [8637::SI,"<leftharpoondown>"], _
+      [8638::SI,"<upharpoonright>"], _
+      [8639::SI,"<upharpoonleft>"], _
+      [8640::SI,"<rightharpoonup>"], _
+      [8641::SI,"<rightharpoondown>"], _
+      [8642::SI,"<downharpoonright>"], _
+      [8643::SI,"<downharpoonleft>"], _
+      [8644::SI,"<rightleftarrows>"], _
+      [8646::SI,"<leftrightarrows>"], _
+      [8647::SI,"<leftleftarrows>"], _
+      [8648::SI,"<upuparrows>"], _
+      [8649::SI,"<rightrightarrows>"], _
+      [8650::SI,"<downdownarrows>"], _
+      [8651::SI,"<leftrightharpoons>"], _
+      [8652::SI,"<rightleftharpoons>"], _
+      [8653::SI,"<nLeftarrow>"], _
+      [8654::SI,"<nLeftrightarrow>"], _
+      [8655::SI,"<nRightarrow>"], _
+      [8656::SI,"<Leftarrow>"], _
+      [8657::SI,"<Uparrow>"], _
+      [8658::SI,"<Rightarrow>"], _
+      [8659::SI,"<Downarrow>"], _
+      [8660::SI,"<Leftrightarrow>"], _
+      [8661::SI,"<Updownarrow>"], _
+      [8666::SI,"<Lleftarrow>"], _
+      [8667::SI,"<Rrightarrow>"], _
+      [8704::SI,"<forall>"], _
+      [8705::SI,"<complement>"], _
+      [8706::SI,"<partial>"], _
+      [8707::SI,"<exists>"], _
+      [8708::SI,"<nexists>"], _
+      [8709::SI,"<emptyset>"], _
+      [8711::SI,"<nabla>"], _
+      [8712::SI,"<in>"], _
+      [8713::SI,"<nin>"], _
+      [8715::SI,"<ni>"], _
+      [8716::SI,"<nni>"], _
+      [8719::SI,"<big-prod>"], _
+      [8720::SI,"<big-amalg>"], _
+      [8721::SI,"<big-sum>"], _
+      [8722::SI,"<minus>"], _
+      [8723::SI,"<mp>"], _
+      [8724::SI,"<dotplus>"], _
+      [8726::SI,"<setminus>"], _
+      [8727::SI,"<ast>"], _
+      [8728::SI,"<circ>"], _
+      [8730::SI,"<sqrt>"], _
+      [8733::SI,"<propto>"], _
+      [8734::SI,"<infty>"], _
+      [8736::SI,"<angle>"], _
+      [8737::SI,"<measuredangle>"], _
+      [8738::SI,"<sphericalangle>"], _
+      [8739::SI,"<mid>"], _
+      [8740::SI,"<nmid>"], _
+      [8741::SI,"<parallel>"], _
+      [8742::SI,"<nparallel>"], _
+      [8743::SI,"<wedge>"], _
+      [8744::SI,"<vee>"], _
+      [8745::SI,"<cap>"], _
+      [8746::SI,"<cup>"], _
+      [8747::SI,"<big-int>"], _
+      [8750::SI,"<big-oint>"], _
+      [8756::SI,"<therefore>"], _
+      [8757::SI,"<because>"], _
+      [8764::SI,"<sim>"], _
+      [8765::SI,"<backsim>"], _
+      [8768::SI,"<wr>"], _
+      [8769::SI,"<nsim>"], _
+      [8770::SI,"<eqsim>"], _
+      [8771::SI,"<simeq>"], _
+      [8772::SI,"<nsimeq>"], _
+      [8773::SI,"<cong>"], _
+      [8775::SI,"<ncong>"], _
+      [8776::SI,"<approx>"], _
+      [8777::SI,"<napprox>"], _
+      [8778::SI,"<approxeq>"], _
+      [8781::SI,"<asymp>"], _
+      [8782::SI,"<Bumpeq>"], _
+      [8783::SI,"<bumpeq>"], _
+      [8784::SI,"<doteq>"], _
+      [8785::SI,"<doteqdot>"], _
+      [8786::SI,"<fallingdoteq>"], _
+      [8787::SI,"<risingdoteq>"], _
+      [8788::SI,"<assign>"], _
+      [8790::SI,"<eqcirc>"], _
+      [8791::SI,"<circeq>"], _
+      [8796::SI,"<triangleq>"], _
+      [8800::SI,"<neq>"], _
+      [8801::SI,"<equiv>"], _
+      [8802::SI,"<nequiv>"], _
+      [8804::SI,"<leq>"], _
+      [8805::SI,"<geq>"], _
+      [8806::SI,"<leqq>"], _
+      [8807::SI,"<geqq>"], _
+      [8808::SI,"<lneqq>"], _
+      [8809::SI,"<gneqq>"], _
+      [8810::SI,"<ll>"], _
+      [8811::SI,"<gg>"], _
+      [8812::SI,"<between>"], _
+      [8813::SI,"<nasymp>"], _
+      [8814::SI,"<nless>"], _
+      [8815::SI,"<ngtr>"], _
+      [8816::SI,"<nleq>"], _
+      [8817::SI,"<ngeq>"], _
+      [8818::SI,"<lesssim>"], _
+      [8819::SI,"<gtrsim>"], _
+      [8822::SI,"<lessgtr>"], _
+      [8823::SI,"<gtrless>"], _
+      [8826::SI,"<prec>"], _
+      [8827::SI,"<succ>"], _
+      [8828::SI,"<preccurlyeq>"], _
+      [8829::SI,"<succcurlyeq>"], _
+      [8830::SI,"<precsim>"], _
+      [8831::SI,"<succsim>"], _
+      [8832::SI,"<nprec>"], _
+      [8833::SI,"<nsucc>"], _
+      [8834::SI,"<subset>"], _
+      [8835::SI,"<supset>"], _
+      [8836::SI,"<nsubset>"], _
+      [8837::SI,"<nsupset>"], _
+      [8838::SI,"<subseteq>"], _
+      [8839::SI,"<supseteq>"], _
+      [8840::SI,"<nsubseteq>"], _
+      [8841::SI,"<nsupseteq>"], _
+      [8842::SI,"<subsetneq>"], _
+      [8843::SI,"<supsetneq>"], _
+      [8846::SI,"<uplus>"], _
+      [8847::SI,"<sqsubset>"], _
+      [8848::SI,"<sqsupset>"], _
+      [8849::SI,"<sqsubseteq>"], _
+      [8850::SI,"<sqsupseteq>"], _
+      [8851::SI,"<sqcap>"], _
+      [8852::SI,"<sqcup>"], _
+      [8853::SI,"<varoplus>"], _
+      [8854::SI,"<varominus>"], _
+      [8855::SI,"<varotimes>"], _
+      [8856::SI,"<varoslash>"], _
+      [8857::SI,"<varodot>"], _
+      [8858::SI,"<varocircle>"], _
+      [8859::SI,"<varoast>"], _
+      [8861::SI,"<circleddash>"], _
+      [8862::SI,"<boxplus>"], _
+      [8863::SI,"<boxminus>"], _
+      [8864::SI,"<boxtimes>"], _
+      [8865::SI,"<boxdot>"], _
+      [8866::SI,"<vdash>"], _
+      [8867::SI,"<dashv>"], _
+      [8868::SI,"<top>"], _
+      [8869::SI,"<bot>"], _
+      [8871::SI,"<models>"], _
+      [8872::SI,"<vDash>"], _
+      [8873::SI,"<Vdash>"], _
+      [8874::SI,"<Vvdash>"], _
+      [8876::SI,"<nvdash>"], _
+      [8877::SI,"<nvDash>"], _
+      [8878::SI,"<nVdash>"], _
+      [8879::SI,"<nVDash>"], _
+      [8882::SI,"<vartriangleleft>"], _
+      [8883::SI,"<vartriangleright>"], _
+      [8884::SI,"<trianglelefteq>"], _
+      [8885::SI,"<trianglerighteq>"], _
+      [8888::SI,"<multimap>"], _
+      [8890::SI,"<intercal>"], _
+      [8891::SI,"<veebar>"], _
+      [8896::SI,"<big-wedge>"], _
+      [8897::SI,"<big-vee>"], _
+      [8898::SI,"<big-cap>"], _
+      [8899::SI,"<big-cup>"], _
+      [8900::SI,"<diamond>"], _
+      [8901::SI,"<cdot>"], _
+      [8902::SI,"<star>"], _
+      [8903::SI,"<divideontimes>"], _
+      [8904::SI,"<join>"], _
+      [8905::SI,"<ltimes>"], _
+      [8906::SI,"<rtimes>"], _
+      [8907::SI,"<leftthreetimes>"], _
+      [8908::SI,"<rightthreetimes>"], _
+      [8909::SI,"<backsimeq>"], _
+      [8910::SI,"<curlyvee>"], _
+      [8911::SI,"<curlywedge>"], _
+      [8912::SI,"<Subset>"], _
+      [8913::SI,"<Supset>"], _
+      [8914::SI,"<Cap>"], _
+      [8915::SI,"<Cup>"], _
+      [8916::SI,"<pitchfork>"], _
+      [8918::SI,"<lessdot>"], _
+      [8919::SI,"<gtrdot>"], _
+      [8920::SI,"<lll>"], _
+      [8921::SI,"<ggg>"], _
+      [8922::SI,"<lesseqgtr>"], _
+      [8923::SI,"<gtreqless>"], _
+      [8926::SI,"<curlyeqprec>"], _
+      [8927::SI,"<curlyeqsucc>"], _
+      [8928::SI,"<npreccurlyeq>"], _
+      [8929::SI,"<nsucccurlyeq>"], _
+      [8930::SI,"<nsqsubseteq>"], _
+      [8931::SI,"<nsqsupseteq>"], _
+      [8934::SI,"<lnsim>"], _
+      [8935::SI,"<gnsim>"], _
+      [8936::SI,"<precnsim>"], _
+      [8937::SI,"<succnsim>"], _
+      [8938::SI,"<ntriangleleft>"], _
+      [8939::SI,"<ntriangleright>"], _
+      [8940::SI,"<ntrianglelefteq>"], _
+      [8941::SI,"<ntrianglerighteq>"], _
+      [8942::SI,"<vdots>"], _
+      [8943::SI,"<cdots>"], _
+      [8944::SI,"<udots>"], _
+      [8945::SI,"<ddots>"], _
+      [8960::SI,"<diameter>"], _
+      [8965::SI,"<barwedge>"], _
+      [8966::SI,"<doublebarwedge>"], _
+      [8968::SI,"<lceil>"], _
+      [8969::SI,"<rceil>"], _
+      [8970::SI,"<lfloor>"], _
+      [8971::SI,"<rfloor>"], _
+      [8976::SI,"<invneg>"], _
+      [8981::SI,"<recorder>"], _
+      [8988::SI,"<ulcorner>"], _
+      [8989::SI,"<urcorner>"], _
+      [8990::SI,"<llcorner>"], _
+      [8991::SI,"<lrcorner>"], _
+      [8994::SI,"<frown>"], _
+      [8995::SI,"<smile>"], _
+      [9016::SI,"<talloblong>"], _
+      [9031::SI,"<APLleftarrowbox>"], _
+      [9032::SI,"<APLrightarrowbox>"], _
+      [9040::SI,"<APLuparrowbox>"], _
+      [9047::SI,"<APLdownarrowbox>"], _
+      [9054::SI,"<APLinput>"], _
+      [9109::SI,"<APLbox>"], _
+      [9416::SI,"<circledS>"], _
+      [9632::SI,"<blacksquare>"], _
+      [9633::SI,"<Square>"], _
+      [9647::SI,"<oblong>"], _
+      [9651::SI,"<bigtriangleup>"], _
+      [9652::SI,"<blacktriangle>"], _
+      [9653::SI,"<vartriangle>"], _
+      [9656::SI,"<blacktriangleright>"], _
+      [9657::SI,"<triangleright>"], _
+      [9661::SI,"<bigtriangledown>"], _
+      [9662::SI,"<blacktriangledown>"], _
+      [9663::SI,"<triangledown>"], _
+      [9666::SI,"<blacktriangleleft>"], _
+      [9667::SI,"<triangleleft>"], _
+      [9671::SI,"<wasyDiamond>"], _
+      [9674::SI,"<lozenge>"], _
+      [9675::SI,"<Circle>"], _
+      [9679::SI,"<CIRCLE>"], _
+      [9680::SI,"<LEFTcircle>"], _
+      [9681::SI,"<RIGHTcircle>"], _
+      [9686::SI,"<LEFTCIRCLE>"], _
+      [9687::SI,"<RIGHTCIRCLE>"], _
+      [9711::SI,"<varbigcirc>"], _
+      [9725::SI,"<square>"], _
+      [9733::SI,"<bigstar>"], _
+      [9737::SI,"<astrosun>"], _
+      [9738::SI,"<ascnode>"], _
+      [9739::SI,"<descnode>"], _
+      [9740::SI,"<conjunction>"], _
+      [9741::SI,"<opposition>"], _
+      [9742::SI,"<phone>"], _
+      [9745::SI,"<XBox>"], _
+      [9746::SI,"<CheckedBox>"], _
+      [9785::SI,"<frownie>"], _
+      [9786::SI,"<smiley>"], _
+      [9787::SI,"<blacksmiley>"], _
+      [9788::SI,"<sun>"], _
+      [9789::SI,"<rightmoon>"], _
+      [9790::SI,"<leftmoon>"], _
+      [9791::SI,"<mercury>"], _
+      [9792::SI,"<female>"], _
+      [9793::SI,"<earth>"], _
+      [9794::SI,"<male>"], _
+      [9795::SI,"<jupiter>"], _
+      [9796::SI,"<saturn>"], _
+      [9797::SI,"<uranus>"], _
+      [9798::SI,"<neptune>"], _
+      [9799::SI,"<pluto>"], _
+      [9800::SI,"<aries>"], _
+      [9801::SI,"<taurus>"], _
+      [9802::SI,"<gemini>"], _
+      [9803::SI,"<cancer>"], _
+      [9804::SI,"<leo>"], _
+      [9805::SI,"<virgo>"], _
+      [9806::SI,"<libra>"], _
+      [9807::SI,"<scorpio>"], _
+      [9808::SI,"<sagittarius>"], _
+      [9809::SI,"<capricornus>"], _
+      [9810::SI,"<aquarius>"], _
+      [9811::SI,"<pisces>"], _
+      [9824::SI,"<spadesuit>"], _
+      [9827::SI,"<clubsuit>"], _
+      [9829::SI,"<heartsuit>"], _
+      [9830::SI,"<diamondsuit>"], _
+      [9833::SI,"<quarternote>"], _
+      [9834::SI,"<eighthnote>"], _
+      [9835::SI,"<twonotes>"], _
+      [9837::SI,"<flat>"], _
+      [9838::SI,"<natural>"], _
+      [9839::SI,"<sharp>"], _
+      [10003::SI,"<checkmark>"], _
+      [913::SI,"<Alpha>"], _
+      [914::SI,"<Beta>"], _
+      [915::SI,"<Gamma>"], _
+      [916::SI,"<Delta>"], _
+      [917::SI,"<Epsilon>"], _
+      [918::SI,"<Zeta>"], _
+      [919::SI,"<Eta>"], _
+      [920::SI,"<Theta>"], _
+      [921::SI,"<Iota>"], _
+      [922::SI,"<Kappa>"], _
+      [923::SI,"<Lambda>"], _
+      [924::SI,"<Mu>"], _
+      [925::SI,"<Nu>"], _
+      [926::SI,"<Xi>"], _
+      [927::SI,"<Omicron>"], _
+      [928::SI,"<Pi>"], _
+      [929::SI,"<Rho>"], _
+      [931::SI,"<Sigma>"], _
+      [932::SI,"<Tau>"], _
+      [933::SI,"<Upsilon>"], _
+      [934::SI,"<Phi>"], _
+      [935::SI,"<Chi>"], _
+      [936::SI,"<Psi>"], _
+      [937::SI,"<Omega>"], _
+      [945::SI,"<alpha>"], _
+      [946::SI,"<beta>"], _
+      [947::SI,"<gamma>"], _
+      [948::SI,"<delta>"], _
+      [949::SI,"<varepsilon>"], _
+      [950::SI,"<zeta>"], _
+      [951::SI,"<eta>"], _
+      [952::SI,"<theta>"], _
+      [953::SI,"<iota>"], _
+      [954::SI,"<kappa>"], _
+      [955::SI,"<lambda>"], _
+      [956::SI,"<mu>"], _
+      [957::SI,"<nu>"], _
+      [958::SI,"<xi>"], _
+      [959::SI,"<omicron>"], _
+      [960::SI,"<pi>"], _
+      [961::SI,"<rho>"], _
+      [962::SI,"<varsigma>"], _
+      [963::SI,"<sigma>"], _
+      [964::SI,"<tau>"], _
+      [965::SI,"<upsilon>"], _
+      [966::SI,"<varphi>"], _
+      [967::SI,"<chi>"], _
+      [968::SI,"<psi>"], _
+      [969::SI,"<omega>"], _
+      [977::SI,"<vartheta>"], _
+      [981::SI,"<phi>"], _
+      [982::SI,"<varpi>"], _
+      [989::SI,"<digamma>"], _
+      [1008::SI,"<varkappa>"], _
+      [1009::SI,"<varrho>"], _
+      [1013::SI,"<epsilon>"], _
+      [65309::SI,"<longequal>"], _
+      [119808::SI,"<b-up-A>"], _
+      [119809::SI,"<b-up-B>"], _
+      [119810::SI,"<b-up-C>"], _
+      [119811::SI,"<b-up-D>"], _
+      [119812::SI,"<b-up-E>"], _
+      [119813::SI,"<b-up-F>"], _
+      [119814::SI,"<b-up-G>"], _
+      [119815::SI,"<b-up-H>"], _
+      [119816::SI,"<b-up-I>"], _
+      [119817::SI,"<b-up-J>"], _
+      [119818::SI,"<b-up-K>"], _
+      [119819::SI,"<b-up-L>"], _
+      [119820::SI,"<b-up-M>"], _
+      [119821::SI,"<b-up-N>"], _
+      [119822::SI,"<b-up-O>"], _
+      [119823::SI,"<b-up-P>"], _
+      [119824::SI,"<b-up-Q>"], _
+      [119825::SI,"<b-up-R>"], _
+      [119826::SI,"<b-up-S>"], _
+      [119827::SI,"<b-up-T>"], _
+      [119828::SI,"<b-up-U>"], _
+      [119829::SI,"<b-up-V>"], _
+      [119830::SI,"<b-up-W>"], _
+      [119831::SI,"<b-up-X>"], _
+      [119832::SI,"<b-up-Y>"], _
+      [119833::SI,"<b-up-Z>"], _
+      [119834::SI,"<b-up-a>"], _
+      [119835::SI,"<b-up-b>"], _
+      [119836::SI,"<b-up-c>"], _
+      [119837::SI,"<b-up-d>"], _
+      [119838::SI,"<b-up-e>"], _
+      [119839::SI,"<b-up-f>"], _
+      [119840::SI,"<b-up-g>"], _
+      [119841::SI,"<b-up-h>"], _
+      [119842::SI,"<b-up-i>"], _
+      [119843::SI,"<b-up-j>"], _
+      [119844::SI,"<b-up-k>"], _
+      [119845::SI,"<b-up-l>"], _
+      [119846::SI,"<b-up-m>"], _
+      [119847::SI,"<b-up-n>"], _
+      [119848::SI,"<b-up-o>"], _
+      [119849::SI,"<b-up-p>"], _
+      [119850::SI,"<b-up-q>"], _
+      [119851::SI,"<b-up-r>"], _
+      [119852::SI,"<b-up-s>"], _
+      [119853::SI,"<b-up-t>"], _
+      [119854::SI,"<b-up-u>"], _
+      [119855::SI,"<b-up-v>"], _
+      [119856::SI,"<b-up-w>"], _
+      [119857::SI,"<b-up-x>"], _
+      [119858::SI,"<b-up-y>"], _
+      [119859::SI,"<b-up-z>"], _
+      [119912::SI,"<b-A>"], _
+      [119913::SI,"<b-B>"], _
+      [119914::SI,"<b-C>"], _
+      [119915::SI,"<b-D>"], _
+      [119916::SI,"<b-E>"], _
+      [119917::SI,"<b-F>"], _
+      [119918::SI,"<b-G>"], _
+      [119919::SI,"<b-H>"], _
+      [119920::SI,"<b-I>"], _
+      [119921::SI,"<b-J>"], _
+      [119922::SI,"<b-K>"], _
+      [119923::SI,"<b-L>"], _
+      [119924::SI,"<b-M>"], _
+      [119925::SI,"<b-N>"], _
+      [119926::SI,"<b-O>"], _
+      [119927::SI,"<b-P>"], _
+      [119928::SI,"<b-Q>"], _
+      [119929::SI,"<b-R>"], _
+      [119930::SI,"<b-S>"], _
+      [119931::SI,"<b-T>"], _
+      [119932::SI,"<b-U>"], _
+      [119933::SI,"<b-V>"], _
+      [119934::SI,"<b-W>"], _
+      [119935::SI,"<b-X>"], _
+      [119936::SI,"<b-Y>"], _
+      [119937::SI,"<b-Z>"], _
+      [119938::SI,"<b-a>"], _
+      [119939::SI,"<b-b>"], _
+      [119940::SI,"<b-c>"], _
+      [119941::SI,"<b-d>"], _
+      [119942::SI,"<b-e>"], _
+      [119943::SI,"<b-f>"], _
+      [119944::SI,"<b-g>"], _
+      [119945::SI,"<b-h>"], _
+      [119946::SI,"<b-i>"], _
+      [119947::SI,"<b-j>"], _
+      [119948::SI,"<b-k>"], _
+      [119949::SI,"<b-l>"], _
+      [119950::SI,"<b-m>"], _
+      [119951::SI,"<b-n>"], _
+      [119952::SI,"<b-o>"], _
+      [119953::SI,"<b-p>"], _
+      [119954::SI,"<b-q>"], _
+      [119955::SI,"<b-r>"], _
+      [119956::SI,"<b-s>"], _
+      [119957::SI,"<b-t>"], _
+      [119958::SI,"<b-u>"], _
+      [119959::SI,"<b-v>"], _
+      [119960::SI,"<b-w>"], _
+      [119961::SI,"<b-x>"], _
+      [119962::SI,"<b-y>"], _
+      [119963::SI,"<b-z>"], _
+      [119964::SI,"<cal-A>"], _
+      [119966::SI,"<cal-C>"], _
+      [119967::SI,"<cal-D>"], _
+      [119970::SI,"<cal-G>"], _
+      [119973::SI,"<cal-J>"], _
+      [119974::SI,"<cal-K>"], _
+      [119977::SI,"<cal-N>"], _
+      [119978::SI,"<cal-O>"], _
+      [119979::SI,"<cal-P>"], _
+      [119980::SI,"<cal-Q>"], _
+      [119982::SI,"<cal-S>"], _
+      [119983::SI,"<cal-T>"], _
+      [119984::SI,"<cal-U>"], _
+      [119985::SI,"<cal-V>"], _
+      [119986::SI,"<cal-W>"], _
+      [119987::SI,"<cal-X>"], _
+      [119988::SI,"<cal-Y>"], _
+      [119989::SI,"<cal-Z>"], _
+      [119990::SI,"<cal-a>"], _
+      [119991::SI,"<cal-b>"], _
+      [119992::SI,"<cal-c>"], _
+      [119993::SI,"<cal-d>"], _
+      [119995::SI,"<cal-f>"], _
+      [119997::SI,"<cal-h>"], _
+      [119998::SI,"<cal-i>"], _
+      [119999::SI,"<cal-j>"], _
+      [120000::SI,"<cal-k>"], _
+      [120001::SI,"<cal-l>"], _
+      [120002::SI,"<cal-m>"], _
+      [120003::SI,"<cal-n>"], _
+      [120005::SI,"<cal-p>"], _
+      [120006::SI,"<cal-q>"], _
+      [120007::SI,"<cal-r>"], _
+      [120008::SI,"<cal-s>"], _
+      [120009::SI,"<cal-t>"], _
+      [120010::SI,"<cal-u>"], _
+      [120011::SI,"<cal-v>"], _
+      [120012::SI,"<cal-w>"], _
+      [120013::SI,"<cal-x>"], _
+      [120014::SI,"<cal-y>"], _
+      [120015::SI,"<cal-z>"], _
+      [120068::SI,"<frak-A>"], _
+      [120069::SI,"<frak-B>"], _
+      [120071::SI,"<frak-D>"], _
+      [120072::SI,"<frak-E>"], _
+      [120073::SI,"<frak-F>"], _
+      [120074::SI,"<frak-G>"], _
+      [120077::SI,"<frak-J>"], _
+      [120078::SI,"<frak-K>"], _
+      [120079::SI,"<frak-L>"], _
+      [120080::SI,"<frak-M>"], _
+      [120081::SI,"<frak-N>"], _
+      [120082::SI,"<frak-O>"], _
+      [120083::SI,"<frak-P>"], _
+      [120084::SI,"<frak-Q>"], _
+      [120086::SI,"<frak-S>"], _
+      [120087::SI,"<frak-T>"], _
+      [120088::SI,"<frak-U>"], _
+      [120089::SI,"<frak-V>"], _
+      [120090::SI,"<frak-W>"], _
+      [120091::SI,"<frak-X>"], _
+      [120092::SI,"<frak-Y>"], _
+      [120094::SI,"<frak-a>"], _
+      [120095::SI,"<frak-b>"], _
+      [120096::SI,"<frak-c>"], _
+      [120097::SI,"<frak-d>"], _
+      [120098::SI,"<frak-e>"], _
+      [120099::SI,"<frak-f>"], _
+      [120100::SI,"<frak-g>"], _
+      [120101::SI,"<frak-h>"], _
+      [120102::SI,"<frak-i>"], _
+      [120103::SI,"<frak-j>"], _
+      [120104::SI,"<frak-k>"], _
+      [120105::SI,"<frak-l>"], _
+      [120106::SI,"<frak-m>"], _
+      [120107::SI,"<frak-n>"], _
+      [120108::SI,"<frak-o>"], _
+      [120109::SI,"<frak-p>"], _
+      [120110::SI,"<frak-q>"], _
+      [120111::SI,"<frak-r>"], _
+      [120112::SI,"<frak-s>"], _
+      [120113::SI,"<frak-t>"], _
+      [120114::SI,"<frak-u>"], _
+      [120115::SI,"<frak-v>"], _
+      [120116::SI,"<frak-w>"], _
+      [120117::SI,"<frak-x>"], _
+      [120118::SI,"<frak-y>"], _
+      [120119::SI,"<frak-z>"], _
+      [120120::SI,"<bbb-A>"], _
+      [120121::SI,"<bbb-B>"], _
+      [120123::SI,"<bbb-D>"], _
+      [120124::SI,"<bbb-E>"], _
+      [120125::SI,"<bbb-F>"], _
+      [120126::SI,"<bbb-G>"], _
+      [120128::SI,"<bbb-I>"], _
+      [120129::SI,"<bbb-J>"], _
+      [120130::SI,"<bbb-K>"], _
+      [120131::SI,"<bbb-L>"], _
+      [120132::SI,"<bbb-M>"], _
+      [120134::SI,"<bbb-O>"], _
+      [120138::SI,"<bbb-S>"], _
+      [120139::SI,"<bbb-T>"], _
+      [120140::SI,"<bbb-U>"], _
+      [120141::SI,"<bbb-V>"], _
+      [120142::SI,"<bbb-W>"], _
+      [120143::SI,"<bbb-X>"], _
+      [120144::SI,"<bbb-Y>"], _
+      [120146::SI,"<bbb-a>"], _
+      [120147::SI,"<bbb-b>"], _
+      [120148::SI,"<bbb-c>"], _
+      [120149::SI,"<bbb-d>"], _
+      [120150::SI,"<bbb-e>"], _
+      [120151::SI,"<bbb-f>"], _
+      [120152::SI,"<bbb-g>"], _
+      [120153::SI,"<bbb-h>"], _
+      [120154::SI,"<bbb-i>"], _
+      [120155::SI,"<bbb-j>"], _
+      [120156::SI,"<bbb-k>"], _
+      [120157::SI,"<bbb-l>"], _
+      [120158::SI,"<bbb-m>"], _
+      [120159::SI,"<bbb-n>"], _
+      [120160::SI,"<bbb-o>"], _
+      [120161::SI,"<bbb-p>"], _
+      [120162::SI,"<bbb-q>"], _
+      [120163::SI,"<bbb-r>"], _
+      [120164::SI,"<bbb-s>"], _
+      [120165::SI,"<bbb-t>"], _
+      [120166::SI,"<bbb-u>"], _
+      [120167::SI,"<bbb-v>"], _
+      [120168::SI,"<bbb-w>"], _
+      [120169::SI,"<bbb-x>"], _
+      [120170::SI,"<bbb-y>"], _
+      [120171::SI,"<bbb-z>"], _
+      [120488::SI,"<b-Alpha>"], _
+      [120489::SI,"<b-Beta>"], _
+      [120490::SI,"<b-Gamma>"], _
+      [120491::SI,"<b-Delta>"], _
+      [120492::SI,"<b-Epsilon>"], _
+      [120493::SI,"<b-Zeta>"], _
+      [120494::SI,"<b-Eta>"], _
+      [120495::SI,"<b-Theta>"], _
+      [120496::SI,"<b-Iota>"], _
+      [120497::SI,"<b-Kappa>"], _
+      [120498::SI,"<b-Lambda>"], _
+      [120499::SI,"<b-Mu>"], _
+      [120500::SI,"<b-Nu>"], _
+      [120501::SI,"<b-Xi>"], _
+      [120502::SI,"<b-Omicron>"], _
+      [120503::SI,"<b-Pi>"], _
+      [120504::SI,"<b-Rho>"], _
+      [120506::SI,"<b-Sigma>"], _
+      [120507::SI,"<b-Tau>"], _
+      [120508::SI,"<b-Upsilon>"], _
+      [120509::SI,"<b-Phi>"], _
+      [120510::SI,"<b-Chi>"], _
+      [120511::SI,"<b-Psi>"], _
+      [120512::SI,"<b-Omega>"], _
+      [120514::SI,"<b-up-alpha>"], _
+      [120515::SI,"<b-up-beta>"], _
+      [120516::SI,"<b-up-gamma>"], _
+      [120517::SI,"<b-up-delta>"], _
+      [120518::SI,"<b-up-varepsilon>"], _
+      [120519::SI,"<b-up-zeta>"], _
+      [120520::SI,"<b-up-eta>"], _
+      [120521::SI,"<b-up-theta>"], _
+      [120522::SI,"<b-up-iota>"], _
+      [120523::SI,"<b-up-kappa>"], _
+      [120524::SI,"<b-up-lambda>"], _
+      [120525::SI,"<b-up-mu>"], _
+      [120526::SI,"<b-up-nu>"], _
+      [120527::SI,"<b-up-xi>"], _
+      [120528::SI,"<b-up-omicron>"], _
+      [120529::SI,"<b-up-pi>"], _
+      [120530::SI,"<b-up-rho>"], _
+      [120531::SI,"<b-up-varsigma>"], _
+      [120532::SI,"<b-up-sigma>"], _
+      [120533::SI,"<b-up-tau>"], _
+      [120534::SI,"<b-up-upsilon>"], _
+      [120535::SI,"<b-up-varphi>"], _
+      [120536::SI,"<b-up-chi>"], _
+      [120537::SI,"<b-up-psi>"], _
+      [120538::SI,"<b-up-omega>"], _
+      [120540::SI,"<b-up-epsilon>"], _
+      [120541::SI,"<b-up-vartheta>"], _
+      [120542::SI,"<b-up-varkappa>"], _
+      [120543::SI,"<b-up-phi>"], _
+      [120544::SI,"<b-up-varrho>"], _
+      [120545::SI,"<b-up-varpi>"], _
+      [120630::SI,"<b-alpha>"], _
+      [120631::SI,"<b-beta>"], _
+      [120632::SI,"<b-gamma>"], _
+      [120633::SI,"<b-delta>"], _
+      [120634::SI,"<b-varepsilon>"], _
+      [120635::SI,"<b-zeta>"], _
+      [120636::SI,"<b-eta>"], _
+      [120637::SI,"<b-theta>"], _
+      [120638::SI,"<b-iota>"], _
+      [120639::SI,"<b-kappa>"], _
+      [120640::SI,"<b-lambda>"], _
+      [120641::SI,"<b-mu>"], _
+      [120642::SI,"<b-nu>"], _
+      [120643::SI,"<b-xi>"], _
+      [120644::SI,"<b-omicron>"], _
+      [120645::SI,"<b-pi>"], _
+      [120646::SI,"<b-rho>"], _
+      [120647::SI,"<b-varsigma>"], _
+      [120648::SI,"<b-sigma>"], _
+      [120649::SI,"<b-tau>"], _
+      [120650::SI,"<b-upsilon>"], _
+      [120651::SI,"<b-varphi>"], _
+      [120652::SI,"<b-chi>"], _
+      [120653::SI,"<b-psi>"], _
+      [120654::SI,"<b-omega>"], _
+      [120656::SI,"<b-epsilon>"], _
+      [120657::SI,"<b-vartheta>"], _
+      [120658::SI,"<b-varkappa>"], _
+      [120659::SI,"<b-phi>"], _
+      [120660::SI,"<b-varrho>"], _
+      [120661::SI,"<b-varpi>"], _
+      [120782::SI,"<b-0>"], _
+      [120783::SI,"<b-1>"], _
+      [120784::SI,"<b-2>"], _
+      [120785::SI,"<b-3>"], _
+      [120786::SI,"<b-4>"], _
+      [120787::SI,"<b-5>"], _
+      [120788::SI,"<b-6>"], _
+      [120789::SI,"<b-7>"], _
+      [120790::SI,"<b-8>"], _
+      [120791::SI,"<b-9>"]]::List Record(key:SI, entry:String))
+    Cork : HashTable(SI, String, "EQ") := CorkFunc()
+
+    expr : E
+    prec, opPrec : I
+    str :  S
+    blank         : S := " \  "
+
+    maxPrec       : I   := 1000000
+    minPrec       : I   := 0
+
+    unaryOps     : L(SY) := ["-"::SY]
+    unaryPrecs    : L I := [710]$(L I)
+
+    -- the precedence of / in the following is relatively low because
+    -- the bar obviates the need for parentheses.
+    binaryOps   : L(SY) := ["+->"::SY, "|"::SY, "^"::SY, "/"::SY, "="::SY,
+                             "~="::SY, "<"::SY, "<="::SY, ">"::SY, ">="::SY,
+                               'OVER, 'LET, "->"::SY]
+    binaryPrecs   : L I := [0, 0, 900, 700, 400,
+                            400, 400, 400, 400, 400,
+                              700, 125, 1001]$(L I)
+
+    naryOps     : L(SY) := ["-"::SY, "+"::SY, "*"::SY, ","::SY, ";"::SY,
+                             'ROW, 'STRSEP, 'TENSOR]
+    naryPrecs     : L I := [700, 700, 800, 110, 110,
+                            0, 0, 850]$(L I)
+    naryNGOps   : L(SY) := ['ROW]
+
+    plexOps     : L(SY) := ['SIGMA, 'SIGMA2, 'PI, 'PI2, 'INTSIGN]
+    plexPrecs     : L I := [ 750, 750, 750, 750, 700]$(L I)
+
+    specialOps  : L(SY) := ['MATRIX, 'BRACKET, 'BRACE, 'CONCATB, 'VCONCAT,  _
+                             'AGGLST, 'CONCAT, 'OVERBAR, 'ROOT, 'SUB, _
+                             "~>"::SY, _
+                             'SUPERSUB, 'ZAG, 'AGGSET, 'SC, 'PAREN, _
+                             'SEGMENT, 'QUOTE, 'theMap, 'SLASH, 'PRIME, _
+                             'BOX, 'EQUATNUM, 'BINOMIAL, 'NOTHING]
+
+    -- the next two lists provide translations for some strings for
+    -- which MML provides special macros.
+
+    specialStrings : L(SY) :=
+      ['cos, 'cot, 'csc, 'log, 'sec, 'sin, 'tan,
+        'cosh, 'coth, 'csch, 'sech, 'sinh, 'tanh,
+          'acos, 'asin, 'atan, 'erf, "..."::SY, "$"::SY, 'infinity,
+            'Gamma]
+    specialStringsInMML : L S :=
+      ["_"cos_"","_"cot_"","_"csc_"","_"log_"","_"sec_"","_"sin_"","_"tan_"",
+        "_"cosh_"","_"coth_"","_"csch_"","_"sech_"","_"sinh_"","_"tanh_"",
+          "_"arccos_"","_"arcsin_"","_"arctan_"","_"erf_"","_"<cdots>_"","_"$_"","_"<infty>_"","_"<Gamma>_""]
+
+    -- local function signatures
+
+    addBraces :      S -> S
+    addBrackets :    S -> S
+    group :          S -> S
+    cork :           SI -> S
+    utf2cork :       S -> S
+    formatBinary :   (SY, L(E), I) -> S
+    formatFunction : (E, L E, I) -> S
+    formatIntBody :  (E, I) -> S
+    formatMatrix :   L E -> S
+    formatNary :     (SY, S, I, L(E), I) -> S
+    formatNaryNoGroup : (SY, S, I, L(E), I) -> S
+    formatNullary :  SY -> S
+    formatPlex :     (SY, L(E), I) -> S
+    formatSpecial :  (SY, L(E), I) -> S
+    formatUnary :    (SY, E, I) -> S
+    formatExpr :      (E, I) -> S
+
+    formatZag :      L E -> S
+    formatZag1 :     L E -> S
+    newWithNum :     I -> %
+    parenthesize :   S -> S
+    postcondition :  S -> S
+    ungroup :        S -> S
+
+    -- public function definitions
+
+    coerce(expr : E) : S ==
+      s : S := postcondition formatExpr(precondition expr, minPrec)
+      s
+
+    sayExpr(s : S) : Void ==
+        sayTexmacs$Lisp s
+
+    coerceL(expr : E) : S ==
+        s : S := postcondition formatExpr(precondition expr, minPrec)
+        sayExpr "scheme: (with _"mode_" _"math_""
+        sayExpr s
+        sayExpr ")"
+        s
+
+    display(texmacs : S) : Void ==
+        sayExpr "scheme: (with _"mode_" _"math_""
+        sayExpr texmacs
+        sayExpr ")"
+        void()$Void
+
+    ungroup(str : S) : S ==
+        -- not really correct, but should not matter
+        str
+
+    postcondition(str : S) : S ==
+--      str := ungroup str
+      len : I := #str
+      plusminus : S := "_"+_" (concat _"-_""
+      pos : I := position(plusminus, str, 1)
+      if pos > 0 then
+        ustart : US := segment(1, pos-1)$US
+        uend : US := segment(pos+15, len)$US
+        str := concat [str(ustart), "(concat _"-_"", str(uend)]
+        if pos < len-13 then
+          str := postcondition(str)
+      str
+
+
+
+    optionalWrap(s : S, expr : E, prec : I) : S ==
+        tmp : S := formatExpr(expr, prec)
+        tmp = "" or tmp = " " => ""
+        concat ["(", s, " ", tmp, ")"]
+
+    group str ==
+      concat ["(concat ",str,")"]
+
+    import from NumberFormats
+    cork(x) ==
+      res := search(x, Cork)
+      res case "failed" =>
+         if (x > 1000) then  -- the range of Unicode that TeXmacs can't handle
+             s := FormatRadix(x, 16)
+             concat ["\<#", s, "\>"]
+         else
+             ucodeToString(x::Integer)
+      res
+
+    utf2cork str ==
+      concat [cork i for i in uentries str]
+
+    addBraces str ==
+      concat [" _"{_" ",str," _"}_" "]
+
+    addBrackets str ==
+      concat [" _"[_" ",str," _"]_" "]
+
+    parenthesize str ==
+      concat [" _"(_" ",str," _")_" "]
+
+    formatSpecial(op : SY, args : L(E), prec : I) : S ==
+        arg : E
+        op = 'theMap => "(concat _"theMap(...)_")"
+        op = 'AGGLST =>
+            formatNary(","::SY, "", 0, args, prec)
+        op = 'AGGSET =>
+            formatNary(";"::SY, "", 0, args, prec)
+        op = "~>"::SY =>
+            -- FIXME: Check for correctness
+            group concat [formatExpr(first args, prec),
+                          " _"<rightsquigarrow>_" ",
+                            formatExpr(second args, prec)]
+                         --right squiggy arrow
+        op = 'SLASH =>
+            group concat [formatExpr(first args, prec),
+                          " _"/_" ", formatExpr(second args, prec)]
+)if false
+        op = 'VCONCAT =>
+            group concat("<mtable><mtr>",
+                     concat(concat([concat("<mtd>",concat(formatExpr(u, minPrec),"</mtd>"))
+                                    for u in args]::L S),
+                            "</mtr></mtable>"))
+)endif
+        op = 'CONCATB =>
+            formatNary('STRSEP, "(space _"1spc_")", 0, args, prec)
+            --formatNary('STRSEP, " ", 0, args, prec)
+        op = 'CONCAT =>
+            formatNary('STRSEP, "", 0, args, minPrec)
+        op = 'QUOTE =>
+            group concat("'", formatExpr(first args, minPrec))
+        op = 'BRACKET =>
+            group addBrackets ungroup formatExpr(first args, minPrec)
+        op = 'BRACE =>
+            group addBraces ungroup formatExpr(first args, minPrec)
+        op = 'PAREN =>
+            group parenthesize ungroup formatExpr(first args, minPrec)
+        op = 'PRIME =>
+            formatSpecial('SUPERSUB, [first args, empty()$E,
+                                      second(args)], prec)
+        op = 'OVERBAR =>
+            empty?(args) => ""
+            concat ["(wide ", formatExpr(first args, minPrec), " _"<bar>_")"]
+            --OverBar
+        op = 'ROOT =>
+            empty?(args) => ""
+            tmp : S := group formatExpr(first args, minPrec)
+            empty?(rest(args)) => concat ["(sqrt ", tmp, ")"]
+            concat ["(sqrt ", tmp, " ", formatExpr(first rest args, minPrec),
+                    ")"]
+        op = 'SEGMENT =>
+            tmp : S := concat [formatExpr(first args, minPrec), " _".._" "]
+            group
+                empty?(rest(args)) =>  tmp
+                concat [tmp, formatExpr(first rest args, minPrec)]
+        op = 'SUB =>
+            group concat ["(concat ", formatExpr(first args, minPrec),
+                 "(rsub ", formatSpecial('AGGLST, rest args, minPrec), "))"]
+        op = 'SUPERSUB =>
+            base : S := formatExpr(first args, minPrec)
+            args := rest args
+            #args > 4 => error "multiscript object has more than 4 scripts"
+            if not(empty?(args)) then
+                base := concat [base, " ",
+                                optionalWrap("rsub", args(1), minPrec)]
+                args := rest args
+            if not(empty?(args)) then
+                base := concat [base, " ",
+                                optionalWrap("rsup", args(1), minPrec)]
+                args := rest args
+            if not(empty?(args)) then
+                base := concat [optionalWrap("lsup", args(1), minPrec),
+                                " ", base]
+                args := rest args
+            if not(empty?(args)) then
+                base := concat [optionalWrap("lsub", args(1), minPrec),
+                                " ", base]
+            concat ["(concat ", base, ")"]
+        op = 'SC =>
+            empty?(args) => ""
+            tmp := formatNaryNoGroup('STRSEP, ")) (row (cell ",
+                                     0, args, minPrec)
+            concat ["(tabular (tformat (twith _"table-valign_" _"t_") (table (row (cell ", tmp, ")))))"]
+        op = 'MATRIX => formatMatrix rest args
+)if false
+        op = 'BOX =>
+            empty?(args) => ""
+            tmp := formatNaryNoGroup("",args,minPrec)
+            group concat ["<mtable frame=_"solid_"><mtr><mtd>",tmp,"</mtd></mtr></mtable>"]
+        op = 'EQUATNUM =>
+            concat ["<mtable><mtr><mtd>",formatExpr(args.1,minPrec),"</mtd><mtd style=_"padding-left: 50px;_">",formatExpr(args.2,minPrec),"</mtd></mtr></mtable>"]
+)endif
+        op = 'BINOMIAL =>
+            -- binomial('f: OutputForm, 'z: OutputForm) produces
+            -- {{BINOMIAL}{f}{z}}
+            concat ["(binom ", formatExpr(args.1,minPrec), " ", formatExpr(args.2,minPrec), ")"]
+        op = 'NOTHING => "_"_""
+)if false
+        -- this is the output from continuedFraction(314159/100000)
+        -- {{+}{3}{{ZAG}{1}{7}}{{ZAG}{1}{15}}{{ZAG}{1}{1}}{{ZAG}{1}{25}}{{ZAG}{1}{1}}{{ZAG}{1}{7}}{{ZAG}{1}{4}}}
+        -- to format continued fraction traditionally need to intercept it at the
+        -- formatNary of the "+"
+        --  concat [" \zag{",formatExpr(first args, minPrec),"}{",
+        --    formatExpr(first rest args,minPrec),"}"]
+        op = 'ZAG =>
+            concat ["<mtable><mtr><mtd style=_"border-right: solid 1px black;
+              border-bottom: solid 1px black; padding-right: 2px; padding-left: 2px;_">",formatExpr(first args, minPrec),
+                "</mtd></mtr><mtr><mtd style=_"border-left: solid 1px black; padding-left: 2px; padding-right: 2px;_">",
+                   formatExpr(first rest args,minPrec),"</mtd></mtr></mtable>"]
+)endif
+        concat ["(concat _"not done yet for: ", string(op),"_")"]
+
+)if false
+    formatSuperSub(expr : E, args : L E, opPrec : I) : S ==
+      s : S := "(concat _""funcS"_" (rprime _""
+      while j < i repeat
+        s := s"'"
+        j := j + 1
+      s := s"_") _"(_" "formatExpr(first args,minPrec)" _")_")"
+)endif
+
+    formatPlex(op : SY, args : L(E), prec : I) : S ==
+        p : I := position(op, plexOps)
+        p < 1 => error "unknown plex op"
+        opPrec := plexPrecs.p
+        n : I := #args
+        (n ~= 2) and (n ~= 3) => error "wrong number of arguments for plex"
+        ops : S :=
+            op = 'SIGMA =>
+                -- sum(a::OutputForm, b::OutputForm) produces
+                -- (SIGMA b a)
+                n = 2 => "<sum>"
+                error "wrong number of arguments for plex"
+            op = 'SIGMA2 =>
+                -- sum(a::OutputForm, b::OutputForm, c::OutputForm) produces
+                -- (SIGMA2 b c a)
+                n = 3 => "<sum>"
+                error "wrong number of arguments for plex"
+            op = 'PI =>
+                -- prod(a::OutputForm, b::OutputForm) produces
+                -- (PI b a)
+                n = 2 =>  "<prod>"
+                error "wrong number of arguments for plex"
+            op = 'PI2 =>
+                -- prod(a::OutputForm, b::OutputForm, c::OutputForm) produces
+                -- (PI2 b c a)
+                n = 3 => "<prod>"
+                error "wrong number of arguments for plex"
+            op = 'INTSIGN =>
+                -- int(a::OutputForm) produces
+                -- (INTSIGN NOTHING NOTHING a)
+                -- int(a::OutputForm, b::OutputForm) produces
+                -- (INTSIGN b NOTHING a)
+                -- int(a::OutputForm, b::OutputForm, c::OutputForm) produces
+                -- (INTSIGN b c a)
+                n = 3 => "<int>"
+                error "wrong number of arguments for plex"
+            error "Unexpected plex op:" string(op)
+        body :=
+            op = 'INTSIGN =>
+                concat(formatIntBody(args(3), minPrec), " (big _"._")")
+            formatExpr(args(n), opPrec)
+        t2 : S :=
+            n = 3 => concat [" (rsup ", formatExpr(args.2,minPrec),")"]
+            ""
+        t1 := formatExpr(args(1), minPrec)
+        s := concat ["(big-around _"", ops, "_" (concat (rsub ", t1,
+                     ")", t2, " ", body, "))"]
+        if opPrec < prec then s := parenthesize s
+        s
+
+
+    formatIntBody(body : E, opPrec : I) : S ==
+        -- the original OutputForm expression looks something like this:
+        -- {{INTSIGN}{NOTHING or lower limit?}
+        -- {bvar or upper limit?}{{*}{integrand}{{CONCAT}{d}{fricas var}}}}
+        -- the args list passed here consists of the rest of this list, i.e.
+        -- starting at the NOTHING or ...
+        if has_op?(body, "*"::SY) then
+            bodyL := arguments(body)
+            if #bodyL = 2 and has_op?(bvar := bodyL(2), 'CONCAT) then
+                bvarL := arguments(bvar)
+                if #bvarL = 2 and is_symbol?(bvarL(1), 'd)
+                        and symbol?(bvarL(2)) then
+                    bvarS : S := string(symbol(bvarL(2)))
+                    return concat ["(concat ", formatExpr(bodyL(1), opPrec),
+                                   " _"*<mathd>", bvarS, "_")"]
+        formatExpr(body, opPrec)
+
+    formatMatrix(args : L E) : S ==
+        -- format for args is [[ROW ...], [ROW ...], [ROW ...]]
+        -- generate string for formatting columns (centered)
+        group concat
+            ["(matrix (tformat (table (row (cell ",
+              formatNaryNoGroup('STRSEP, ")) (row (cell ", 0, args, minPrec),
+                ")))))"]
+
+    formatFunction(op : E, args : L E, prec : I) : S ==
+        ops := formatExpr(op, minPrec)
+        group concat [ops, " ", parenthesize
+                      formatNary(","::SY, "", 0, args, minPrec)]
+
+    formatNullary(op : SY) ==
+        op = 'NOTHING => "_"_""
+        group concat ["_"", string(op), "()_""]
+
+    formatUnary(op : SY, arg : E, prec : I) ==
+        p : I := position(op, unaryOps)
+        p < 1 => error "unknown unary op"
+        opPrec := unaryPrecs.p
+        s : S := concat ["(concat _"", string(op), "_" ",
+                         formatExpr(arg, opPrec), ")"]
+        opPrec < prec => group parenthesize s
+        op = "-"::SY => s
+        group s
+
+    formatBinary(op : SY, args : L(E), prec : I) : S ==
+        p : I := position(op, binaryOps)
+        p < 1 => error "unknown binary op"
+        opPrec := binaryPrecs.p
+        s1 := formatExpr(first args, opPrec)
+        s2 := formatExpr(first rest args, opPrec)
+        s : S :=
+            op = "^"::SY    => concat(["(concat " s1 "(rsup " s2 "))"])
+            op = "/"::SY    => concat(["(frac ",s1," ",s2,")"])
+            op = 'OVER  => concat ["(frac ",s1," ",s2,")"]
+            ops : S :=
+                op = "~="::SY => "<ne>"
+                op = "<"::SY => "<less>"
+                op = "<="::SY => "<leq>"
+                op = ">"::SY => "<gtr>"
+                op = ">="::SY => "<geq>"
+                op = "+->"::SY => "<mapsto>"
+                op = "->"::SY => "<rightarrow>"
+                -- FIXME how to do this properly ???
+                op = 'LET   => ":="
+                string(op)
+            concat ["(concat ", s1, " _"", ops, "_" ", s2, ")"]
+        group
+            op = "/"::SY or op = 'OVER => s
+            opPrec < prec => parenthesize s
+            s
+
+    formatNary(op : SY, sep : S, opprec : I, args : L(E), prec : I) : S ==
+        group formatNaryNoGroup(op, sep, opprec, args, prec)
+
+    formatNaryNoGroup(op : SY, sep : S, opprec : I, args : L(E), prec : I
+                     ) : S ==
+        empty?(args) => ""
+        p : I := position(op, naryOps)
+        p < 1 => error "unknown nary op"
+        -- need to test for "ZAG" case and divert it here
+        -- ex 1. continuedFraction(314159/100000)
+        -- {{+}{3}{{ZAG}{1}{7}}{{ZAG}{1}{15}}{{ZAG}{1}{1}}{{ZAG}{1}{25}}
+        -- {{ZAG}{1}{1}}{{ZAG}{1}{7}}{{ZAG}{1}{4}}}
+        -- this is the preconditioned output form
+        -- including "op", the args list would be the rest of this
+        -- i.e op = '+' and args = {{3}{{ZAG}{1}{7}}{{ZAG}{1}{15}}
+        -- {{ZAG}{1}{1}}{{ZAG}{1}{25}}{{ZAG}{1}{1}}{{ZAG}{1}{7}}{{ZAG}{1}{4}}}
+        -- ex 2. continuedFraction(14159/100000)
+        -- this one doesn't have the leading integer
+        -- {{+}{{ZAG}{1}{7}}{{ZAG}{1}{15}}{{ZAG}{1}{1}}{{ZAG}{1}{25}}
+        -- {{ZAG}{1}{1}}{{ZAG}{1}{7}}{{ZAG}{1}{4}}}
+        --
+        -- ex 3. continuedFraction(3, repeating [1], repeating [3, 6])
+        -- {{+}{3}{{ZAG}{1}{3}}{{ZAG}{1}{6}}{{ZAG}{1}{3}}{{ZAG}{1}{6}}
+        -- {{ZAG}{1}{3}}{{ZAG}{1}{6}}{{ZAG}{1}{3}}{{ZAG}{1}{6}}
+        -- {{ZAG}{1}{3}}{{ZAG}{1}{6}}{...}}
+        -- In each of these examples the args list consists of the terms
+        -- following the '+' op
+        -- so the first arg could be a "ZAG" or something
+        -- else, but the second arg looks like it has to be "ZAG", so maybe
+        -- test for #args > 1 and args.2 contains "ZAG".
+        -- Note that since the resulting MathML <mfrac>s are nested we need
+        -- to handle the whole continued fraction at once, i.e. we can't
+        -- just look for, e.g., {{ZAG}{1}{6}}
+        (#args > 1) and has_op?(args(2), 'ZAG) =>
+            op ~= "+"::SY => error "ZAG in unexpected place"
+            has_op?(args(1), 'ZAG) => formatZag(args)
+            concat [formatExpr(first args, minPrec), " _"+_" ",
+                    formatZag(rest args)]
+        ops : S :=
+            op = 'STRSEP => sep
+            op = 'ROW   => ") (cell "
+            op = 'TENSOR => " _"<otimes>_" "
+            concat [" _"", string(op), "_" "]
+        l : L S := []
+        opPrec :=
+            op = 'STRSEP => opprec
+            naryPrecs.p
+        for a in args repeat
+            l := concat(ops, concat(formatExpr(a, opPrec), l)$L(S))$L(S)
+        s : S := concat reverse rest l
+        opPrec < prec => parenthesize s
+        s
+
+    formatZag(args : L E) : S ==
+      -- args will be a list of things like this {{ZAG}{1}{7}}, the ZAG
+      -- must be there, the '1' and '7' could conceivably be more complex
+      -- expressions
+      is_symbol?(first(args), "..."::SY) => "<ldots>"
+      not(has_op?(first args, 'ZAG)) =>
+          error "formatZag: Last argument in ZAG construct "
+                 "has unknown operator"
+      tmpZag : L E := arguments(first args)
+      #args > 1 => "(frac " formatExpr(first tmpZag, minPrec) "(concat "
+                    formatExpr(first rest tmpZag, minPrec) " _"+_" "
+                        formatZag(rest args) "))"
+      "(frac " formatExpr(first tmpZag, minPrec)
+          formatExpr(first rest tmpZag, minPrec) ")"
+
+
+    formatExpr(expr : E, prec : I) : S ==
+      i, len : Integer
+      intSplitLen : Integer := 20
+      atom?(expr) =>
+        -- this bit deals with integers
+        integer?(expr) =>
+          i := integer(expr)
+          str := string(i)
+          if i < 0 or i > 9 then
+              group
+                 nstr : String := ""
+                 -- insert some blanks into the string, if too long
+                 while ((len := #str) > intSplitLen) repeat
+                   nstr := concat [nstr, " ",
+                     elt(str, segment(1, intSplitLen)$US)]
+                   str := elt(str, segment(intSplitLen + 1)$US)
+                 empty? nstr => concat [" _"", str, "_" "]
+                 nstr :=
+                   empty? str => nstr
+                   concat [nstr, " ", str]
+                 concat [elt(nstr, segment(2)$US)]
+          else
+              concat [" _"", str, "_" "]
+
+        if symbol?(expr) then
+            es := symbol(expr)
+            es = "%pi"::SY => return "<mathpi>"
+            es = "%e"::SY => return "<mathe>"
+            es = "%i"::SY  => return "<mathi>"
+            es = 'infinity => return "<infty>"
+            -- https://en.wikipedia.org/wiki/Greek_alphabet
+            -- Traditional Latin transliteration
+            es = "a%"::SY => return "<alpha>"
+            es = "b%"::SY => return "<beta>"
+            es = "g%"::SY => return "<gamma>"
+            es = "d%"::SY => return "<delta>"
+            es = "e%"::SY => return "<epsilon>"
+            es = "z%"::SY => return "<zeta>"
+            es = "ee%"::SY => return "<eta>"
+            es = "th%"::SY => return "<theta>"
+            es = "i%"::SY => return "<iota>"
+            es = "k%"::SY => return "<kappa>"
+            es = "l%"::SY => return "<lambda>"
+            es = "m%"::SY => return "<mu>"
+            es = "n%"::SY => return "<nu>"
+            es = "x%"::SY => return "<xi>"
+            es = "o%"::SY => return "<omicron>"
+            es = "p%"::SY => return "<pi>"
+            es = "r%"::SY => return "<rho>"
+            es = "s%"::SY => return "<sigma>"
+            es = "t%"::SY => return "<tau>"
+            es = "y%"::SY => return "<upsilon>"
+            es = "ph%"::SY => return "<phi>"
+            es = "ch%"::SY => return "<chi>"
+            es = "ps%"::SY => return "<psi>"
+            es = "oo%"::SY => return "<omega>"
+            es = "G%"::SY => return "<Gamma>"
+            es = "D%"::SY => return "<Delta>"
+            es = "Th%"::SY => return "<Theta>"
+            es = "L%"::SY => return "<Lambda>"
+            es = "X%"::SY => return "<Xi>"
+            es = "P%"::SY => return "<Pi>"
+            es = "S%"::SY => return "<Sigma>"
+            es = "Ph%"::SY => return "<Phi>"
+            es = "Ch%"::SY => return "<Chi>"
+            es = "Ps%"::SY => return "<Psi>"
+            es = "OO%"::SY => return "<Omega>"
+            es = "hbar%"::SY => return "<hbar>"
+            
+            str := string(es)
+        else if string?(expr) then
+            str := string(expr)
+        else
+            error "Unrecognized atom in OutputForm"
+        len := #str
+
+        len > 0 and str(1) = char("%") => concat [" _"", str, "_" "]
+        -- presumably this is a literal string
+        -- WSP: preserve "..." and encode <less> symbols
+        len > 0 and str(1) = char("_"") =>
+          --concat ["(concat ", str, ")"]
+          concat ["(text (concat ", "_"_\_"_" ",concat ["(math ",utf2cork str, ")"], " _"_\_"_") )"]
+        len = 1 and str(1) = char(" ") => " "
+        if symbol?(expr) then
+            op := symbol(expr)
+            (i := position(op, specialStrings)) > 0 =>
+                specialStringsInMML.i
+        (i := position(char " ", str)) > 0 =>
+          -- We want to preserve spacing, so use a roman font.
+          concat [" _"", str, "_" "]
+        -- if we get to here does that mean it's a variable?
+        group utf2cork concat [" _"", str, "_" "]
+      opf : E := operator(expr)
+      args : L E := arguments(expr)
+      nargs : I := #args
+
+      symbol?(opf) =>
+          op := symbol(opf)
+          -- special cases
+          member?(op, specialOps) => formatSpecial(op, args, prec)
+          member?(op, plexOps)    => formatPlex(op, args, prec)
+
+          -- nullary case
+          0 = nargs => formatNullary op
+
+          -- unary case
+          (1 = nargs) and member?(op, unaryOps) =>
+            formatUnary(op, first args, prec)
+
+          -- binary case
+          (2 = nargs) and member?(op, binaryOps) =>
+            formatBinary(op, args, prec)
+
+          -- nary case
+          member?(op, naryNGOps) => formatNaryNoGroup(op, "", 0, args, prec)
+          member?(op, naryOps) => formatNary(op, "", 0, args, prec)
+          formatFunction(opf, args, prec)
+      formatFunction(opf, args, prec)
+
+--Copyright (c) 1991-2002, The Numerical ALgorithms Group Ltd.
+--All rights reserved.
+--
+--Redistribution and use in source and binary forms, with or without
+--modification, are permitted provided that the following conditions are
+--met:
+--
+--    - Redistributions of source code must retain the above copyright
+--      notice, this list of conditions and the following disclaimer.
+--
+--    - Redistributions in binary form must reproduce the above copyright
+--      notice, this list of conditions and the following disclaimer in
+--      the documentation and/or other materials provided with the
+--      distribution.
+--
+--    - Neither the name of The Numerical ALgorithms Group Ltd. nor the
+--      names of its contributors may be used to endorse or promote products
+--      derived from this software without specific prior written permission.
+--
+--THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+--IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+--TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+--PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
+--OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+--EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+--PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+--PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+--LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+--NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+--SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
