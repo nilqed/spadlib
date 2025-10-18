@@ -1334,48 +1334,55 @@ TexmacsFormat() : public == private where
         if symbol?(expr) then
             es := symbol(expr)
             es = "%pi"::SY => return "<mathpi>"
-            es = "%e"::SY => return "<mathe>"
+            es = "%e"::SY => return  "<mathe>"
             es = "%i"::SY  => return "<mathi>"
             es = 'infinity => return "<infty>"
             -- https://en.wikipedia.org/wiki/Greek_alphabet
             -- Traditional Latin transliteration
-            es = "a%"::SY => return "<alpha>"
-            es = "b%"::SY => return "<beta>"
-            es = "g%"::SY => return "<gamma>"
-            es = "d%"::SY => return "<delta>"
-            es = "e%"::SY => return "<epsilon>"
-            es = "z%"::SY => return "<zeta>"
+            es = "a%"::SY =>  return "<alpha>"
+            es = "b%"::SY =>  return "<beta>"
+            es = "g%"::SY =>  return "<gamma>"
+            es = "d%"::SY =>  return "<delta>"
+            es = "e%"::SY =>  return "<epsilon>"
+            es = "z%"::SY =>  return "<zeta>"
             es = "ee%"::SY => return "<eta>"
             es = "th%"::SY => return "<theta>"
-            es = "i%"::SY => return "<iota>"
-            es = "k%"::SY => return "<kappa>"
-            es = "l%"::SY => return "<lambda>"
-            es = "m%"::SY => return "<mu>"
-            es = "n%"::SY => return "<nu>"
-            es = "x%"::SY => return "<xi>"
-            es = "o%"::SY => return "<omicron>"
-            es = "p%"::SY => return "<pi>"
-            es = "r%"::SY => return "<rho>"
-            es = "s%"::SY => return "<sigma>"
-            es = "t%"::SY => return "<tau>"
-            es = "y%"::SY => return "<upsilon>"
+            es = "i%"::SY =>  return "<iota>"
+            es = "k%"::SY =>  return "<kappa>"
+            es = "l%"::SY =>  return "<lambda>"
+            es = "m%"::SY =>  return "<mu>"
+            es = "n%"::SY =>  return "<nu>"
+            es = "x%"::SY =>  return "<xi>"
+            es = "o%"::SY =>  return "<omicron>"
+            es = "p%"::SY =>  return "<pi>"
+            es = "r%"::SY =>  return "<rho>"
+            es = "s%"::SY =>  return "<sigma>"
+            es = "t%"::SY =>  return "<tau>"
+            es = "y%"::SY =>  return "<upsilon>"
             es = "ph%"::SY => return "<phi>"
             es = "ch%"::SY => return "<chi>"
             es = "ps%"::SY => return "<psi>"
             es = "oo%"::SY => return "<omega>"
-            es = "G%"::SY => return "<Gamma>"
-            es = "D%"::SY => return "<Delta>"
+            es = "G%"::SY =>  return "<Gamma>"
+            es = "D%"::SY =>  return "<Delta>"
             es = "Th%"::SY => return "<Theta>"
-            es = "L%"::SY => return "<Lambda>"
-            es = "X%"::SY => return "<Xi>"
-            es = "P%"::SY => return "<Pi>"
-            es = "S%"::SY => return "<Sigma>"
+            es = "L%"::SY =>  return "<Lambda>"
+            es = "X%"::SY =>  return "<Xi>"
+            es = "P%"::SY =>  return "<Pi>"
+            es = "S%"::SY =>  return "<Sigma>"
             es = "Ph%"::SY => return "<Phi>"
             es = "Ch%"::SY => return "<Chi>"
             es = "Ps%"::SY => return "<Psi>"
             es = "OO%"::SY => return "<Omega>"
             es = "hbar%"::SY => return "<hbar>"
-            
+            ---
+            ---> prefix TM%xyz ==> return "<xyz>"
+            s:=string es
+            if #s >= 4 and s.(1..3) = "TM%"
+            then 
+                r:List String:=["<",s.(4..#s),">"]
+                return concat(r)
+            ---
             str := string(es)
         else if string?(expr) then
             str := string(expr)
@@ -1456,3 +1463,4 @@ TexmacsFormat() : public == private where
 --LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 --NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 --SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
