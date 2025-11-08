@@ -1,7 +1,7 @@
 )abbrev domain RPC RealPointChain
 ++ Author: Kurt Pagani
 ++ Date Created: Fri Sep 27 13:05:21 CEST 2024
-++ Date Revised: Fri Aug 08 17:02:12 CEST 2025
+++ Date Revised: Fri Nov 08 17:32:13 CEST 2025
 ++ License: BSD
 ++ References:
 ++ Description: real point chains, barycentric calculus (Moebius)
@@ -255,6 +255,7 @@ RealPointChain : Exports == Implementation where
 
     dual(x:%,b:List %):% ==
       zero? x => x
+      x:=normalize x
       leadingCoefficient x * dualSupport(leadingSupport x,b) + dual(reductum x,b)
 
     barycenter(x:%):Union(%,"failed") ==
