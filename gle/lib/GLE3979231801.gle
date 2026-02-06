@@ -1,0 +1,10 @@
+! pre      
+size 12 8      
+begin graph      
+  xtitle "x"      
+  ytitle "y"      
+  title "Title"      
+  data "GLE3979231801.dat"      
+  dn line color black
+  d1 line color red      
+end graph

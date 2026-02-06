@@ -1,36 +1,3 @@
-)abbrev package LSPSPT LispSupport
-LispSupport : Exports == Implementation where
-  Exports == with
-  
-    lisp : String -> SExpression
-      ++ lisp(s) reads the string s and evaluates in Lisp.
-    runProgram : String -> String
-      ++ runProgram use UIOP:RUN-PROGRAM to execute the program.
-    runProgramMVB : String -> List SExpression
-      ++ runProgramMVB is like runProgram but uses multi-value bind
-      ++ to return stdout, stderr and the exit code as a list of SExpression
-      ++ in this order.
-      
-  Implementation == add
-  
-    lisp s == EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp    
-    
-    runProgram(s) ==
-      fmt1:="(uiop:run-program _"~A_" :output :string :error-output "
-      fmt2:=":string :ignore-error-status t)"
-      cmd:=string FORMAT('NIL,fmt1 fmt2,s)$Lisp
-      string lisp(cmd)
-
-    runProgramMVB(s) ==
-      fmt1:="(multiple-value-bind (output error-output exit-code)"
-      fmt2:="(uiop:run-program _"~A_" :output :string :error-output "
-      fmt3:=":string :ignore-error-status t)"
-      fmt4:="(list output error-output exit-code))"
-      cmd:=string FORMAT('NIL,fmt1 fmt2 fmt3 fmt4,s)$Lisp
-      destruct lisp cmd
-
-
-
 )abbrev package GEOMV Geomview
 Geomview() : Exports == Implementation where
 
@@ -52,6 +19,8 @@ Geomview() : Exports == Implementation where
 
   Exports == with
 
+    lisp : String -> SExpression
+    ++ lisp(s) reads the string s and evaluates in Lisp.
     makePipe : String -> String
     quitPipe : String -> Void
     writePipe : (String,String) -> Void
@@ -186,6 +155,7 @@ Geomview() : Exports == Implementation where
      
   Implementation == add 
   
+     
     makePipe(s) == 
       cmd:SExpression:=FORMAT('NIL,"system togeomview ~A </dev/null",s)$Lisp 
       systemCommand(string cmd)$MSC
@@ -199,7 +169,6 @@ Geomview() : Exports == Implementation where
       tp:=string FORMAT('NIL,"/tmp/geomview/~a",s)$Lisp 
       cmd:SExpression:=FORMAT('NIL,"system echo '(quit)' > ~A",tp)$Lisp     
       systemCommand(string cmd)$MSC
-      systemCommand("system rm /tmp/geomview/" s) -- rm pipe
       
     writePipe(p,c):Void ==
       tp:=string FORMAT('NIL,"/tmp/geomview/~a",p)$Lisp 
@@ -375,151 +344,3 @@ Geomview() : Exports == Implementation where
       cmd:=string FORMAT('NIL,"(new-camera ~A)",cam)$Lisp 
       writePipe(p,cmd)  
       
-
-
-)abbrev package GVDRAW GeomviewDraw
-++ Author: $author
-++ Date Created: $defaultdate
-++ License: BSD
-++ References:
-++ Description:
-++
-GeomviewDraw : Exports == Implementation where
-
-  ANY1 ==> AnyFunctions1
-  B    ==> Boolean
-  F    ==> Float
-  L    ==> List
-  SEG  ==> Segment Float
-  SF   ==> DoubleFloat
-  DROP ==> DrawOption
-  PLOT ==> Plot
-  PPC  ==> ParametricPlaneCurve(SF -> SF)
-  PSC  ==> ParametricSpaceCurve(SF -> SF)
-  PSF  ==> ParametricSurface((SF, SF) -> SF)
-  LST  ==> List String
-  Pt   ==> Point SF
-  PSFUN ==> (SF, SF) -> Pt
-  PCFUN ==> SF -> Pt
-  SPACE3 ==> ThreeSpace(SF)
-  VIEW2 ==> TwoDimensionalViewport
-  VIEW3 ==> ThreeDimensionalViewport
-  PIPE  ==> String
-  NNI ==> NonNegativeInteger
-  GVCOLOR ==> Record(red:SF,green:SF,blue:SF,alpha:SF)
-  GVOPTS ==> Record(ptsize:NNI, ptcolor:GVCOLOR, drawID:String)
-  DRAWCFUN ==> TopLevelDrawFunctionsForCompiledFunctions
-  
-  Exports == with
-    gvColor : (SF,SF,SF,SF) -> GVCOLOR
-      ++ gvColor(r,g,b,a) provides a 4-component floating-point color, each 
-      ++ component in  ++ range 0..1. 
-      ++ The a (alpha) component represents opacity: 0 transparent, 1 opaque.
-    gvOpts : (NNI,GVCOLOR,String) -> GVOPTS
-
-    draw : (PIPE, PSC, SEG, NNI, LST) -> Void
-      ++ draw(p,curve(f, g, h), a..b, l) draws the graph of the parametric
-      ++ curve \spad{x = f(t), y = g(t), z = h(t)} as t ranges from
-      ++ \spad{min(a, b)} to \spad{max(a, b)}.
-
-    draw : (PIPE, (SF, SF) -> SF, SEG, SEG, NNI, LST) -> Void
-      ++ draw(p,f, a..b, c..d) draws the graph of \spad{z = f(x, y)}
-      ++ as x ranges from \spad{min(a, b)} to \spad{max(a, b)} and y ranges from
-      ++ \spad{min(c, d)} to \spad{max(c, d)}.
-
-    draw : (PIPE, PSF, SEG, SEG, NNI, LST) -> Void
-      ++ draw(p,surface(f, g, h), a..b, c..d) draws the
-      ++ graph of the parametric surface \spad{x = f(u, v)}, \spad{y = g(u, v)},
-      ++ \spad{z = h(u, v)} as u ranges from \spad{min(a, b)} to \spad{max(a, b)}
-      ++ and v ranges from \spad{min(c, d)} to \spad{max(c, d)};
-    
-    pipeExists? : PIPE -> Boolean
-    pipeAlive?  : PIPE -> Boolean
-    
-  Implementation == add
-    import from TopLevelDrawFunctionsForCompiledFunctions
-    import from ThreeSpace
-    import from GeomView
-    
-    pipeExists?(s:PIPE):B == 
-      not null?(PROBE_-FILE("/tmp/geomview/" s)$Lisp)$SExpression
-      
-    pipeAlive?(s:PIPE):B ==
-      bs:String:=runProgram("fuser /tmp/geomview/" s)$LispSupport
-      bs="" => false
-      true
-      
-    gvColor(r,g,b,a) == 
-      I01:=interval(0,1)$Interval(SF)
-      lsf:List SF:=[r,g,b,a]  
-      chk:SF->B:=(x:SF):B+->contains?(I01,x)
-      not every?(chk,lsf) => error "All args must be in [0,1]."
-      R:=[0,0,0,0]$GVCOLOR
-      R.red:=r
-      R.green:=g
-      R.blue:=b
-      R.alpha:=a
-      return R      
-    
-    err1:String:="Pipe exists but is not in use! Geomview cannot reopen "_
-      "existing pipes. Delete it manually or use another name."
-    
-    draw(p:PIPE, psc:PSC, seg:SEG, size:NNI, colour:LST) ==
-      sp := makeObject(psc, seg)$DRAWCFUN
-      not curve? sp => error "not a curve"  
-      l:L Pt:=curve(sp)
-      if not pipeExists? p then p:=makePipe(p)$Geomview
-      else if not pipeAlive? p then error err1
-      -- send the points ...
-      pts:=[[toString(r) for r in  entries(q)(1..3)] for q in l]
-      if empty? colour then
-        c0:=["1","0","0","1"] 
-      else
-        c0:=colour
-      cl:=[c0 for j in 1..#l]
-      f1:=mkPtsFmt("CURVE",size,pts,cl)
-      writePipe(p,f1)
-
-    draw(p:PIPE, f:(SF,SF)->SF, segx:SEG, segy:SEG, size:NNI,colour:LST) ==
-      sp := makeObject(f, segx, segy)$DRAWCFUN
-      not mesh? sp => error "not a mesh" 
-      l:L Pt:=concat mesh(sp)
-      if not pipeExists? p then p:=makePipe(p)$Geomview
-      else if not pipeAlive? p then error err1
-      -- send the points ...
-      pts:=[[toString(r) for r in  entries(q)(1..3)] for q in l]
-      if empty? colour then
-        c0:=["1","0","0","1"] 
-      else
-        c0:=colour
-      cl:=[c0 for j in 1..#l]
-      f1:=mkPtsFmt("FGRAPH",size,pts,cl)
-      writePipe(p,f1)      
-
-    draw(p:PIPE, sf:PSF, segx:SEG, segy:SEG, size:NNI,colour:LST) ==
-      sp := makeObject(sf, segx, segy)$DRAWCFUN
-      not mesh? sp => error "not a mesh" 
-      l:L Pt:=concat mesh(sp)
-      if not pipeExists? p then p:=makePipe(p)$Geomview
-      else if not pipeAlive? p then error err1
-      -- send the points ...
-      pts:=[[toString(r) for r in  entries(q)(1..3)] for q in l]
-      if empty? colour then
-        c0:=["1","0","0","1"] 
-      else
-        c0:=colour
-      cl:=[c0 for j in 1..#l]
-      f1:=mkPtsFmt("PSURF",size,pts,cl)
-      writePipe(p,f1)      
-
---  DF ==> DoubleFloat      
---  f(t:DF):DF==cos(t);g(t:DF):DF==sin(t);h(t:DF):DF==t
---  cc:=curve(f,g,h)
---  draw("draw1",cc,0::Float..2*%pi,[])$GVDRAW(DF)
-
--- todo: instead of List DropOption we'll use: size,color ...
---   mkColor(r,g,b,a) -> ["r","g","b","a"] (maybe range, indiv pt color?)
-
-
-
-

@@ -1,0 +1,64 @@
+)co geomview
+
+DF ==> DoubleFloat
+
+-- space curve 1
+f(t:DF):DF==cos(t);g(t:DF):DF==sin(t);h(t:DF):DF==t
+
+cc:=curve(f,g,h)
+
+-- debug ---------------------------------------------------
+--pts:=[[toString(r) for r in  entries(q)(1..3)] for q in l]
+--cl:=[["1","0","0","1"] for j in 1..#l]
+--f1:=mkPtsFmt("DRAW",4,pts,cl)
+--writePipe("draw1",f1)
+------------------------------------------------------------
+
+
+draw("draw3",cc,0::Float..4*%pi,8,["0","1","0","1"])$GVDRAW
+
+-- scpace curve 2
+f2(t:DF):DF==cosh(t);g2(t:DF):DF==sinh(t);h2(t:DF):DF==t*exp(-t)
+cc2:=curve(f2,g2,h2)
+
+draw("draw3",cc2,0::Float..2*%pi,7,["0","0","1","1"])$GVDRAW
+
+-------------------------------------------------------------
+-- Test 3d function plot
+f3:=(x:DF,y:DF):DF +-> x^2-y^2 
+segx:=segment(-1,1::Float)
+segy:=segment(0,2::Float)
+
+sp := makeObject(f3, segx, segy)$DRAWCFUN -->  3-Space with 1 component
+
+draw("draw3",f3,segx,segy,4,["1","0","0","1"])
+
+--------------------------------------------------------------
+-- Test 3d parametric surfaces
+
+x1:(DF,DF)->DF
+x2:(DF,DF)->DF
+x3:(DF,DF)->DF
+
+x1(u,v)==cos(u)*sin(v)
+x2(u,v)==sin(u)*sin(v)
+x3(u,v)==cos(v)
+
+sf:=surface(x1,x2,x3)
+
+-- makeObject : (PSF, SEG, SEG) -> SPACE3
+sph:=makeObject(sf,0..2*%pi , 0..%pi) -->  3-Space with 1 component
+mesh? sph --> true
+
+msph:=mesh sph
+
+draw("draw3",sf,0..2*%pi,0..%pi,6,["0","1","0","0.8"])
+
+
+-- PlotManager ?
+
+
+-------------------
+-- quitPipe "draw3"
+-------------------
+

@@ -1,0 +1,45 @@
+)abbrev package LSPSPT LispSupport
+LispSupport : Exports == Implementation where
+  Exports == with
+
+    lisp : String -> SExpression
+      ++ lisp(s) reads the string s and evaluates in Lisp.
+    runProgram : String -> String
+      ++ runProgram use UIOP:RUN-PROGRAM to execute the program.
+    runProgramMVB : String -> List SExpression
+      ++ runProgramMVB is like runProgram but uses multi-value bind
+      ++ to return stdout, stderr and the exit code as a list of SExpression
+      ++ in this order.
+
+  Implementation == add
+
+    lisp s == EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
+
+    runProgram(s) ==
+      fmt1:="(uiop:run-program _"~A_" :output :string :error-output "
+      fmt2:=":string :ignore-error-status t)"
+      cmd:=string FORMAT('NIL,fmt1 fmt2,s)$Lisp
+      string lisp(cmd)
+
+    runProgramMVB(s) ==
+      fmt1:="(multiple-value-bind (output error-output exit-code)"
+      fmt2:="(uiop:run-program _"~A_" :output :string :error-output "
+      fmt3:=":string :ignore-error-status t)"
+      fmt4:="(list output error-output exit-code))"
+      cmd:=string FORMAT('NIL,fmt1 fmt2 fmt3 fmt4,s)$Lisp
+      destruct lisp cmd
+
+
+)abbrev package DIALOG Dialog
+Dialog : Exports == Implementation where
+  STR ==> String
+  PIN ==> PositiveInteger
+  Exports == with
+    msgbox: (STR,PIN,PIN) -> STR
+  Implementation == add
+    msgbox(text,height,width) == 
+      fmt:="mlterm -e dialog --msgbox ~A ~A ~A"
+      cmd:=string FORMAT('NIL,fmt,text,height,width)$Lisp
+      runProgram(cmd)$LispSupport
+
+
