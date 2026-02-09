@@ -1,0 +1,123 @@
+)abbrev package REGIS RegisGraphics
+++ Author: $author
+++ Date Created: $defaultdate
+++ License: BSD
+++ References:
+++ Description:
+++
+RegisGraphics : Exports == Implementation where
+  
+  STR ==> String
+  INT ==> Integer
+  
+  Exports == with
+    
+    test : () -> String
+    test2: () -> Void
+    lisp : String -> SExpression
+    
+    begin : () -> STR
+    end   : () -> STR
+    setpos : (INT,INT) -> STR
+    setposr: (INT,INT) -> STR
+    circle : INT -> STR 
+    circlef : INT -> STR
+    clear : () -> STR
+    pixela : (INT,INT) -> STR
+    pixelr : () -> STR
+    mover : (INT,INT) ->STR
+    text : (STR,INT) -> STR
+    arc : (INT,INT) -> STR
+    box : (INT,INT) -> STR
+    boxf : (INT,INT) -> STR
+    regis : STR -> STR
+    color : STR -> STR
+    lineato : (INT,INT) -> STR
+    linerto : (INT,INT) -> STR
+    wstyle : STR -> STR
+    mroffd : (INT,INT) -> STR
+    pat : STR -> STR
+	
+  Implementation == add 
+    
+    REGIS_BEGIN:String := concat [coerce(char 27)$String, "P1p"]
+    REGIS_END:String := concat[coerce(char 27)$String, coerce(char 92)$String]
+
+    EX1:String := concat ["S(E)W(I(M))P[600,200]V[][-200,+200]V[]", _
+    "[400,100]W(I(G))P[700,100]", _
+    "V(B)[+050,][,+050][-050,](E)V(W(S1))(B)[-100,]", _
+    "[,-050][+100,](E)V(W(S1,E))", _
+    "(B)[-050,][,-025][+050,](E)W(I(C))P[200,100]", _
+    "C(A-180)[+100]C(A+180)[+050]", _
+    "W(I(B))P[200,300]C(W(S1))[+100]C(W(S1,E))", _
+    "[+050]W(I(W))T(S02)_"FriCAS_""]
+
+
+    lisp(s) == EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
+    
+    test () == 
+      data:String:=concat [REGIS_BEGIN, EX1, REGIS_END] 
+      --output(EX1)$OutputPackage
+      --FORMAT('T,"~A",data)$Lisp
+      --output(data)$OutputPackage
+      data
+      
+    test2() ==
+      data:String:=concat [REGIS_BEGIN, EX1, REGIS_END] 
+      output(data)$OutputPackage
+      
+    begin() == REGIS_BEGIN
+    end() == REGIS_END    
+    setpos(x,y) == string FORMAT('NIL,"P[~A,~A]", x, y)$Lisp
+    circle(r) == string FORMAT('NIL,"C[+~A]", r)$Lisp
+    circlef(r) == string FORMAT('NIL,"C(W(S1))[+~A]", r)$Lisp
+    clear() == "S(E)" 
+    pixela(x,y) == string FORMAT('NIL,"P[~A,~A]V[]", x, y)$Lisp
+    pixelr() == "V[]"
+    mover(dx,dy) == string FORMAT('NIL,"P[+~A,+~A]", dx, dy)$Lisp
+    text(txt,size) ==string FORMAT('NIL,"T(S~A)_"~A_"", size, txt)$Lisp
+    arc(deg,r) == string FORMAT('NIL,"C(A+~A)[+~A]", deg, r)$Lisp
+    box(w,h) == string FORMAT('NIL,"V(B)[+~A,][,+~A][+~A,](E)", w, h, -w)$Lisp
+    boxf(w,h) == string FORMAT('NIL,"V(W(S1))(B)[+~A,][,+~A][+~A,](E)",w, h, -w)$Lisp
+    regis(cmd) == cmd
+    color(c) == 
+      cs:=first(c,1)
+      not member?(cs,["D","B","R","M","G","C","Y","W"]) => error "unknown color code"
+      string FORMAT('NIL,"W(I(~A))",cs)$Lisp
+    lineato(x,y) == string FORMAT('NIL,"V[][~A,~A]", x, y)$Lisp
+    linerto(dx,dy) == string FORMAT('NIL,"V[][~A,~A]", dx, dy)$Lisp
+    wstyle(s) ==
+      ss:=first(s,1)
+      not member?(s,["R","E","V","C"]) => error "unknown write style"
+      string FORMAT('NIL,"W(I(~A))",ss)$Lisp
+    mroffd(d,offset) == string FORMAT('NIL,"P(W(M~A))~A",d, offset)$Lisp
+    setposr(dx,dy) == string FORMAT('NIL,"P[~@A,~@A]", dx, dy)$Lisp
+    pat(p) == 
+      pp:=first(p,2)
+      not member?(pp,["P" string(i) for i in 0..9]) => error "unknown pattern code"
+      string FORMAT('NIL,"W(~A)",pp)$Lisp
+      
+    -- this works in interpreter (concat by juxtaposition)
+    -- begin() clear() setpos(500,250) circle(100) circlef(70) end()
+    -- begin() clear() pixela(400,400) end()
+    -- begin() clear() setpos(500,250) text("FriCAS :)",2) end()
+    --
+    -- Draw an arc (circle) in anticlockwise degrees (0 - 360), centred on 
+    -- current position
+    -- begin() clear() setpos(500,250) arc(45,100) end()
+    
+    -- arc and box
+    -- begin() clear() setpos(500,250) arc(45,100) box(30,40) end()
+    
+    -- arc and boxf (filled box)
+    -- begin() clear() setpos(500,250) arc(45,100) boxf(30,40) end()
+    -- begin() clear() setpos(500,250) color("Y") boxf(30,40) end()
+    
+    -- lines
+    -- begin() clear() setpos(500,250) lineato(400,300) linerto(-40,50) end()
+    
+    -- note: values without +/- are absolute otherwise relative!!!!
+    -- /home/kfp/Desktop/work/regis/regis.spad
+    
+    --  b==> begin()
+    --  b clear() box(799,479) regis("S[0,360]") circle(150)  end()

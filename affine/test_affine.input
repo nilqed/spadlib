@@ -1,0 +1,85 @@
+)co affine
+
+R ==> Expression Integer
+
+AFP ==> AffinePoint
+AFS ==> AffineSimplex
+AFC ==> AffineChain
+
+--
+-- creation of affine points ....
+--
+A:=A::AFP
+B:=point B
+C:=point C
+P:=P::AFP
+Q:=point Q
+
+pts:=[point X[i] for i in 1..4] 
+
+---
+--- creation of affine simplices
+---
+s1:=[A]::AFS
+s2:=[A,B]::AFS
+s3:=[C,A,B]::AFS
+s4:=simplex [P,A,Q,C,B]
+s5:=simplex []
+s6:=simplex [A,B,A]
+
+empty? s5
+empty? s6
+empty? s1
+
+s7:=C*s2
+s8:=s2*C
+s9:=A*B
+s10:=simplex [A,B] * simplex [P,Q,C]
+
+
+---
+--- creation of affine chains
+---
+
+c1:=A::AFC
+c2:=coerce(Q)$AFC
+
+c3:=s1::AFC
+c4:=convert s4
+
+c5:=z^2 * A
+c6:=3*B + 6/7*u*s4
+
+c7:=100 * s5 --> 0
+c8:=x::R*y::R*z::R*s6 --> 0 (?? without ::R)
+
+ 
+---
+--- test boundary operator
+---
+
+-- bdry simplex
+c:=simplex [A,B,C]
+bdry c
+
+c0:=bdry simplex []
+5*c0
+
+c1:=bdry simplex [A]
+5*c1
+
+bdry  leadingSupport  c1 = bdry simplex  [A]
+test %
+
+
+-- bdry chain
+bdry (1*A*B*C)
+
+
+
+--
+-- normalize
+--
+
+ctn:= 1*B*A + 2*A*B
+normalize ctn

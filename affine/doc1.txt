@@ -1,0 +1,27 @@
+AffinePoint
+
+An affine point is a point in an affine space, which is a geometric structure 
+that generalizes some properties of Euclidean spaces without relying on 
+concepts of distance or angles, focusing instead on parallelism and ratios of 
+lengths. In this context, points can be translated using vectors, but there is 
+no fixed origin.
+
+REP: Record(Symbol, String,...)
+comparable. name, latex repr, ....
+bdry --> 1
+
+AffineSimplex
+
+An affine simplex is a generalization of a geometric simplex to any dimension, 
+defined as the convex hull of a set of affinely independent points. It retains 
+the properties of simplices, such as having faces that are also simplices of 
+lower dimensions.
+
+REP: List AffinePoint
+
+AffineChain
+
+An affine chain refers to a collection of oriented affine simplexes in a given 
+space, which can be used in mathematical contexts such as integration and 
+topology. It involves the concept of affine transformations that preserve 
+certain geometric properties

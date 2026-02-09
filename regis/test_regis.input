@@ -1,0 +1,32 @@
+    -- this works in interpreter (concat by juxtaposition)
+    -- begin() clear() setpos(500,250) circle(100) circlef(70) end()
+    -- begin() clear() pixela(400,400) end()
+    -- begin() clear() setpos(500,250) text("FriCAS :)",2) end()
+    --
+    -- Draw an arc (circle) in anticlockwise degrees (0 - 360), centred on 
+    -- current position
+    -- begin() clear() setpos(500,250) arc(45,100) end()
+    
+    -- arc and box
+    -- begin() clear() setpos(500,250) arc(45,100) box(30,40) end()
+    
+    -- arc and boxf (filled box)
+    -- begin() clear() setpos(500,250) arc(45,100) boxf(30,40) end()
+    -- begin() clear() setpos(500,250) color("Y") boxf(30,40) end()
+    
+    -- lines
+    -- begin() clear() setpos(500,250) lineato(400,300) linerto(-40,50) end()
+    
+)co regis
+
+test(i) ==
+  i=1 => begin() clear() setpos(500,250) circle(100) circlef(70) end()
+  i=2 => begin() clear() pixela(400,400) end()
+  i=3 => begin() clear() setpos(500,250) text("FriCAS :)",2) end()
+  i=4 => begin() clear() setpos(500,250) arc(45,100) end()
+  i=5 => begin() clear() setpos(500,250) arc(45,100) box(30,40) end()
+  i=6 => begin() clear() setpos(500,250) arc(45,100) boxf(30,40) end()
+  i=7 => begin() clear() setpos(500,250) color("Y") boxf(30,40) end()
+  i=8 => begin() clear() setpos(500,250) lineato(400,300) linerto(-40,50) end()
+  "end of spectacle ..."
+  

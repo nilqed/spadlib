@@ -1,0 +1,81 @@
+)abbrev domain APOINT AffinePoint
+++ Description:
+++
+AffinePoint : Exports == Implementation where  
+  Exports == SetCategory with
+    
+    coerce  : Symbol -> %
+    retract : % -> Symbol
+    point   : Symbol -> %
+		
+  Implementation == Symbol add 
+
+    Rep := Symbol
+    
+    coerce(s:Symbol):% == 
+      ss:String:=string name s
+      not(#ss=1 and upperCase?(ss.1)) => error "[A-Z]+indices"
+      s@Rep
+
+    retract p == p@Rep
+    point s == coerce(s)
+    
+
+)abbrev domain ASMPLX AffineSimplex
+++ Description:
+++
+AffineSimplex : Exports == Implementation where  
+  Exports == SetCategory with
+    
+    coerce  : List AffinePoint -> %
+    retract : % -> List AffinePoint
+    simplex : List AffinePoint -> %
+    lexsort : % -> %
+    empty?  : % -> Boolean
+    sign : (%,%) -> Integer
+    dim : % -> Integer
+
+		
+  Implementation == List Symbol add 
+
+    Rep := List AffinePoint
+    
+    coerce(s:List AffinePoint):% == 
+      #removeDuplicates(s) ~= #s => []
+      s@Rep
+      
+    simplex l == coerce(l)
+    retract s == s@Rep   
+    coerce(s:%):OutputForm == hconcat [p::OutputForm for p in retract s]
+    
+    lexsort s == 
+      ls:=sort [retract p for p in retract s]
+      [coerce(p) for p in ls]
+
+    empty? s == test(s=[])
+
+    sign(s,t) ==
+      set(retract s)$Set(AffinePoint) ~= set(retract t) => 0
+      ls:=[retract p for p in retract s]
+      lt:=[retract p for p in retract t]
+      sign coercePreimagesImages([ls,lt])$Permutation(Symbol)
+      
+    dim s == #retract(s)-1
+
+
+)abbrev domain ACHAIN AffineChain
+++ Description:
+++
+AffineChain : Exports == Implementation where  
+  R ==> Expression Integer
+  Exports == FreeModuleCategory(R, AffineSimplex) with
+    coerce: AffinePoint -> %
+    convert: AffineSimplex -> %
+  Implementation == FreeModule(R, AffineSimplex) add 
+    Rep := FreeModule(R, AffineSimplex) 
+    
+    coerce(p:AffinePoint):% == coerce([p])$AffineSimplex :: %
+    convert(s:AffineSimplex):% == s :: %
+    
+
+    

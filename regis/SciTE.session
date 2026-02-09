@@ -1,0 +1,18 @@
+# SciTE session file
+
+buffer.1.path=/home/kfp/Desktop/work/regis/regis.spad
+buffer.1.position=3456
+buffer.1.scroll=92
+buffer.1.current=1
+
+buffer.2.path=/home/kfp/Desktop/work/regis/regis_example.lisp
+buffer.2.position=666
+buffer.2.scroll=0
+
+buffer.3.path=/home/kfp/Desktop/work/regis/cl-regis.lisp
+buffer.3.position=105
+buffer.3.scroll=0
+
+buffer.4.path=/home/kfp/Desktop/work/regis/test_regis.input
+buffer.4.position=1356
+buffer.4.scroll=2

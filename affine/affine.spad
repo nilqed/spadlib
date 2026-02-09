@@ -1,0 +1,142 @@
+)abbrev domain APOINT AffinePoint
+++ Description:
+++
+AffinePoint : Exports == Implementation where  
+  Exports == SetCategory with
+    
+    coerce  : Symbol -> %
+    retract : % -> Symbol
+    point   : Symbol -> %
+		
+  Implementation == Symbol add 
+
+    Rep := Symbol
+    
+    coerce(s:Symbol):% == 
+      ss:String:=string name s
+      not(#ss=1 and upperCase?(ss.1)) => error "[A-Z]+indices"
+      s@Rep
+
+    retract p == p@Rep
+    point s == coerce(s)
+    
+
+)abbrev domain ASMPLX AffineSimplex
+++ Description:
+++ Comparable <-- (smaller?)
+AffineSimplex : Exports == Implementation where  
+  Exports == Comparable with
+    
+    coerce  : List AffinePoint -> %
+    retract : % -> List AffinePoint
+    simplex : List AffinePoint -> %
+    lexsort : % -> %
+    empty?  : % -> Boolean
+    sign : (%,%) -> Integer
+    dim : % -> Integer
+
+    _* : (AffinePoint,AffinePoint) -> %
+    _* : (AffinePoint,%) -> %
+    _* : (%,AffinePoint) -> %
+    _* : (%,%) -> %
+		
+  Implementation == List Symbol add 
+
+    Rep := List AffinePoint
+    
+    coerce(s:List AffinePoint):% == 
+      #removeDuplicates(s) ~= #s => []
+      s@Rep
+      
+    simplex l == coerce(l)
+    retract s == s@Rep   
+    coerce(s:%):OutputForm == 
+      empty? s => bracket(empty())
+      hconcat cons(hspace 1, [p::OutputForm for p in retract s])
+    
+    lexsort s == 
+      ls:=sort [retract p for p in retract s]
+      [coerce(p) for p in ls]
+
+    empty? s == test(s=[])
+
+    sign(s,t) ==
+      set(retract s)$Set(AffinePoint) ~= set(retract t) => 0
+      ls:=[retract p for p in retract s]
+      lt:=[retract p for p in retract t]
+      sign coercePreimagesImages([ls,lt])$Permutation(Symbol)
+      
+    dim s == #retract(s)-1
+    
+    p:AffinePoint * q:AffinePoint == simplex [p,q]
+    p:AffinePoint * s:%  == simplex cons(p,retract s)
+    s:% * p:AffinePoint  == simplex concat(retract s,p)
+    s:% * t:% == simplex concat(retract s,retract t)
+    
+    
+)abbrev domain ACHAIN AffineChain
+++ Description:
+++
+AffineChain : Exports == Implementation where  
+  R ==> Expression Integer
+  Exports == FreeModuleCategory(R, AffineSimplex) with
+    coerce: AffinePoint -> %
+    convert: AffineSimplex -> %
+    _* : (R,AffinePoint) -> %
+    _* : (R,AffineSimplex) -> %
+    _* : (%,%) -> %
+    bdry : AffineSimplex -> %
+    bdry : % -> %
+    normalize : % -> % 
+    degrees : % -> List Integer
+  Implementation == FreeModule(R, AffineSimplex) add 
+    Rep := FreeModule(R, AffineSimplex) 
+    
+    coerce(p:AffinePoint):% == coerce([p])$AffineSimplex :: %
+    convert(s:AffineSimplex):% ==
+      empty? s => 0$%    
+      s :: %
+    
+    x:R * p:AffinePoint == x * coerce(p)
+    x:R * s:AffineSimplex ==
+      empty? s => 0$%    
+      x * convert(s)    
+    
+    mprod(a:%,b:%):% ==
+      sa:=support a
+      sb:=support b
+      empty? sa or empty? sb => 0$%
+      fsa:=first sa
+      fsb:=first sb
+      ca:=coefficient(a,fsa)
+      cb:=coefficient(b,fsb)
+      fsab:=fsa*fsb
+      empty? fsab => 0$%
+      monomial(ca*cb,fsab)
+
+    c1:% * c2:% ==
+      mc1:=monomials c1
+      mc2:=monomials c2
+      mc12:=concat [[mprod(x,y) for y in mc2] for x in mc1]
+      empty? mc12 => 0$%
+      reduce(_+,mc12)
+      
+    bdry(s:AffineSimplex):% ==
+      empty? s => 0$%
+      rs:=retract s
+      #rs=1 => 1$R * simplex([])::%
+      sr:=simplex(rest rs)
+      sr::% - first(rs)::% * bdry sr
+
+    bdry(c:%):% ==
+      c=0$% => c
+      leadingCoefficient c * bdry leadingSupport c + bdry reductum c
+  
+    normalize c ==
+      c=0$% => c
+      cs:=lexsort leadingSupport c
+      sgn:=sign(cs,leadingSupport c)
+      sgn * leadingCoefficient c * cs  + normalize reductum c
+      
+    degrees c == [dim s for s in support c]
+  
