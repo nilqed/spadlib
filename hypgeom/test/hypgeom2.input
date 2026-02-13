@@ -1,0 +1,70 @@
+X ==> EXPR INT
+
+-- Given an expression in X, variable k, n=const.
+k:X
+n:X
+S:X:=(-1)^k * binomial(2*n,k)*binomial(2*k,k)*binomial(4*n-2*k,2*n-k)
+
+-- create a new symbol
+ns:=new()$Symbol
+
+-- we assume
+freeOf?(S,ns)
+-- is true
+
+-- build the quotient S(ns+1)/S(ns)
+q:=eval(S,k=ns+1)/eval(S,k=ns)
+
+-- normalize it 
+nq:=normalize q
+
+-- Variant I (numer/denom)
+--> SparseMultivariatePolynomial(Integer,Kernel(Expression(Integer)))
+nnq:=numer nq
+dnq:=denom nq
+
+-- we may try to factor both of them
+--> Factored(SparseMultivariatePolynomial(Integer,Kernel(Expression(Integer))))
+fnnq:= factor nnq
+fdnq:= factor dnq
+
+-- or we could build nq2:=nnq/dnq
+-->  Fraction(SparseMultivariatePolynomial(Integer,Kernel(Expression(Integer))))
+nq2:=nnq/dnq
+
+-- and use factorFraction
+-->  Fraction(Factored(SparseMultivariatePolynomial(Integer,Kernel(Expression(Integer)))))
+factorFraction nq2
+
+-- it doesn't matter when we use again numer/denom the result is the same ...
+
+-- now we'll use factors or factorList 
+-- favourably the latter to check if prime/squareFree/irred!
+
+lfnnq:=factorList fnnq
+lfdnq:=factorList fdnq
+-- units are catched by 'unit' !
+-- unit(u) extracts the unit part of the factorization.
+ufnnq:=unit fnnq
+ufdnq:=unit fdnq
+
+------------------ univariate
+-- let's make it univariate
+
+--unnq:=univariate(numer nq, ns)
+--udnq:=univariate(denom nq, ns)
+
+--funnq:= factor unnq
+--fudnq:= factor udnq
+
+--lfunnq:=factorList funnq
+--lfudnq:=factorList fudnq
+
+--ufunnq:=unit funnq
+--ufudnq:=unit fudnq
+
+
+
+
+
+

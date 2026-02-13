@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SPADLIB (spad2doc)</title>
+</head>
+<body>
+<h2 style='color: blue;'>LispSupport</h2>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<strong><code>lisp : String -> SExpression</code></strong>
+<pre style='color: darkgreen;'>
+ lisp(s) reads the string s and evaluates in Lisp.
+</pre>
+<strong><code>runProgram : String -> String</code></strong>
+<pre style='color: darkgreen;'>
+ runProgram use UIOP:RUN-PROGRAM to execute the program.
+</pre>
+<strong><code>runProgramMVB : String -> List SExpression</code></strong>
+<pre style='color: darkgreen;'>
+ runProgramMVB is like runProgram but uses multi-value bind
+ to return stdout, stderr and the exit code as a list of SExpression
+ in this order.
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<h2 style='color: blue;'>Geomview</h2>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<strong><code>mkPtsFmt: (STR,INT,LLS,LLS) -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ mkPtsFmt(name,diam,lp,lc) creates a OOGL VECT object comprising
+ points only. The parameters are: name (arbitrary identifier), diam
+ the diameter of the points (e.g. 10), lp a list of lists of floats
+ as strings, and lc a list of lists of floats as strings, representing
+ the color of each point as r,g,b and transparency.[low-level].
+</pre>
+<strong><code>drawPoint: (STR,STR,POINT) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ drawPoint(p,n,pt) draws the point 'pt' named 'n' to the pipe 'p'.
+</pre>
+<strong><code>drawPolyLine: (STR,STR,PLINE,Boolean) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ drawPolyLine(p,n,pl,closed?) draws the polyline 'pl' named 'n' to the
+ pipe 'p'. Set the parameter closed?=true if the polyline shall be
+ closed.
+</pre>
+<strong><code>load: (STR,STR) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ load(pipe,file) loads the given file into geomview (pipe).
+</pre>
+<strong><code>load: (STR,STR,STR) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ Loads the given file into geomview (pipe). The third argument
+ specifies the type of data it contains, which may be 'command'
+ (geomview commands), 'geometry' (OOGL geometric data), or 'camera'
+ (OOGL camera definition). If omitted, attempts to guess about the
+ file's contents. Loading geometric data creates a new visible object;
+ loading a camera opens a new window; loading a command file executes
+ those commands.
+</pre>
+<strong><code>loadPath : STR -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ loadPath(pipe) returns the current search path for command, geometry,
+ etc. files.
+</pre>
+<strong><code>setLoadPath: (STR,LS) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ setLoadPath(pipe,[path1,...,pathN]) Sets search path for command,
+ geometry, etc. files. The PATHi are strings giving the pathnames of
+ directories to be searched. The special directory name + is replaced
+ by the existing path, so e.g. setLoadPath(p,["mydir","+"]) prepends
+ mydir to the path.
+</pre>
+<strong><code>help: (STR,STR) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ help(pipe,cmd) prints info about cmd. Command may include * wildcards.
+ For instance, help(pipe,"*") prints all commands.
+</pre>
+<strong><code>scale : (STR,STR,Float) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ scale(pipe,GEOM-ID,factor) scales GEOM-ID, multiplying its size by
+ factor.
+</pre>
+<strong><code>scale : (STR,STR,Float,Float,Float) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ scale(pipe,GEOM-ID,fx,fy,fz) scales GEOM-ID, multiplying its size by
+ fx,fy,fz. Scaling only really makes sense in Euclidean space!
+</pre>
+<strong><code>geometryObjects : STR -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ geometryObjects(pipe) returns a list of names of all geometry objects.
+</pre>
+<strong><code>cameras : STR -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ cameras(pipe) returns a list of names of all cameras.
+</pre>
+<strong><code>setBackColor : (STR,STR,FL,FL,FL) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ setBackColor(pipe,cam-id,r,g,b) sets the background color of CAM-ID;
+ R G B are numbers between 0 and 1.
+</pre>
+<strong><code>setBackgroundImage : (STR,STR,STR) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ setBackgroundImage(pipe,cam,filename) uses the given image as the
+ background of camera CAM-ID (which must be a real camera, not default
+ or allcams). Centers the image on the window area. Works only with
+ GL and OpenGL graphics. Use "" for filename to remove background.
+ With no filename argument, returns name of that window's current
+ background image, or "". Any file type acceptable as a texture is
+ allowed, e.g. .ppm.gz, .sgi, etc.
+</pre>
+<strong><code>setBBoxColor : (STR,STR,FL,FL,FL) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ setBBoxColor(pipe,geom-id,r,g,b) Set the bounding-box color of
+ GEOM-ID; R G B are numbers between 0 and 1.
+</pre>
+<strong><code>drawBBox : (STR,STR,Boolean) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ drawBBox(pipe,true or false) whether GEOM-ID's bounding-box should be
+ drawn.
+</pre>
+<strong><code>resetCamera: (STR,STR) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ resetCamera(pipe,cam-id) resets CAM-ID to its default value.
+</pre>
+<strong><code>cmdFile : (STR,STR,STR) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ cmdFile(pipe,infile,outfile) reads commands from INFILE; sends
+ corresponding responses (e.g. anything written to filename -) to
+ OUTFILE, stdout by default (use outfile="").
+</pre>
+<strong><code>copyObject : (STR,STR,STR) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ copyObject(pipe,id,name) copies an object or camera to a new object
+ with 'name'=name.
+</pre>
+<strong><code>deleteObject : (STR,STR) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ deleteObject(pipe,id) delete object or camera ID.
+</pre>
+<strong><code>dither : (STR,STR,STR) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ dither(pipe,cam,opt) turns dithering on or off in that camera.
+ opt: {"on"|"off"|"toggle"}.
+</pre>
+<strong><code>drawView : (STR,STR) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ drawView(pipe,cam) draws the view in CAM-ID, if it needs redrawing.
+</pre>
+<strong><code>geomviewVersion: STR -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ geomviewVersion prints a string representing the version of geomview
+ that is running.
+</pre>
+<strong><code>setModel:(STR,STR,STR) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ setModel(pipe,cam,mod) set the model used to display geometry in this
+ camera, where mod={"virtual"|"projective"|"conformal"}.
+</pre>
+<strong><code>drawHSphere : (STR,STR,Boolean) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ drawHSphere(pipe,cam,true/false) whether to draw a unit sphere: the
+ sphere at infinity in hyperbolic space, and a reference sphere in
+ Euclidean and spherical spaces.
+</pre>
+<strong><code>drawLinesCloser : (STR,STR,Float) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ drawLinesCloser(pipe,cam,dist) draws lines (including edges) closer to
+ the camera than polygons by DIST / 10^5 of the Z-buffer range.
+ DIST = 3.0 by default. If DIST is too small, a line lying on a surface
+ may be dotted or invisible, depending on the viewpoint. If DIST is
+ too large, lines may appear in front of surfaces that they actually
+ lie behind. Good values for DIST vary with the scene, viewpoint, and
+ distance between near and far clipping planes. This feature is a
+ kludge, but can be helpful.
+</pre>
+<strong><code>transform : (STR,STR,STR,STR,STR,FL,FL,FL,FL,Boolean) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ transform(pipe,objectID,centerID,frameID,action,x,y,z,dt?,smooth?)
+ where action in [rotate|translate|translate-scaled|scale], applies a
+ motion (rotation, translation, scaling) to object objectID; that is,
+ construct and concatenate a transformation matrix with objectID's
+ transform. The 3 IDs involved are the object that moves, the center of
+ motion, and the frame of reference in which to apply the motion. The
+ center is easiest understood for rotations: if centerID is the same as
+ objectID then it will spin around its own axes; otherwise the moving
+ object will orbit the center object. There is the special keyword
+ bbox-center which may be used for centerID. As a result the motion
+ will be relative to the center of the bounding box of objectID.
+ Normally frameID, in whose coordinate system the (mouse) motions are
+ interpreted, is focus, the current camera. Translations can be scaled
+ proportional to the distance between the target and the center.
+ Support for spherical and hyperbolic as well as Euclidean space is
+ built-in: use the space command to change spaces. With type rotate
+ x, y, and z are floats specifying angles in RADIANS. For types
+ translate and translate-scaled x, y, and z are floats specifying
+ distances in the coordinate system of the center object.
+ The optional dt field allows a simple form of animation; if present,
+ the object moves by just that amount during approximately dt seconds,
+ then stops. If present and followed by the smooth keyword, the motion
+ is animated with a 3t^2-2t^3 function, so as to start and stop
+ smoothly. If absent, the motion is applied immediately.
+</pre>
+<strong><code>reset : STR -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ reset(pipe) is equivalent to (progn (new-center ALLGEOMS)(new-center
+ ALLCAMS)), i.e. a full reset of the pipe.
+</pre>
+<strong><code>newCamera : (STR,STR) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ newCamera(pipe,cam-id) creates a new camera with the given name
+ (a string). If a camera with that name already exists, the new object
+ is given a unique name.
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<h2 style='color: blue;'>GeomviewDraw</h2>
+</pre>
+<pre style='color: brown;'>
+ Author: $author
+ Date Created: $defaultdate
+ License: BSD
+ References:
+ Description:
+
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<strong><code>gvColor : (SF,SF,SF,SF) -> GVCOLOR</code></strong>
+<pre style='color: darkgreen;'>
+ gvColor(r,g,b,a) provides a 4-component floating-point color, each
+ component in  ++ range 0..1.
+ The a (alpha) component represents opacity: 0 transparent, 1 opaque.
+</pre>
+</pre>
+</pre>
+<strong><code>draw : (PIPE, PSC, SEG, NNI, LST) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ draw(p,curve(f, g, h), a..b, l) draws the graph of the parametric
+ curve \spad{x = f(t), y = g(t), z = h(t)} as t ranges from
+ \spad{min(a, b)} to \spad{max(a, b)}.
+</pre>
+</pre>
+<strong><code>draw : (PIPE, (SF, SF) -> SF, SEG, SEG, NNI, LST) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ draw(p,f, a..b, c..d) draws the graph of \spad{z = f(x, y)}
+ as x ranges from \spad{min(a, b)} to \spad{max(a, b)} and y ranges from
+ \spad{min(c, d)} to \spad{max(c, d)}.
+</pre>
+</pre>
+<strong><code>draw : (PIPE, PSF, SEG, SEG, NNI, LST) -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ draw(p,surface(f, g, h), a..b, c..d) draws the
+ graph of the parametric surface \spad{x = f(u, v)}, \spad{y = g(u, v)},
+ \spad{z = h(u, v)} as u ranges from \spad{min(a, b)} to \spad{max(a, b)}
+ and v ranges from \spad{min(c, d)} to \spad{max(c, d)};
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</body>
+</html>

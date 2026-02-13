@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SPADLIB (spad2doc)</title>
+</head>
+<body>
+<h2 style='color: blue;'>HyperGeometric</h2>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<strong><code>polynomial? : (X,X) -> Boolean</code></strong>
+<pre style='color: darkgreen;'>
+ polynomial?(p,x) returns true if p has the structure of a
+ univariate polynomial in the variable x. Notice that constants
+ are not considered as polynomials here. (a hack ;)
+</pre>
+<strong><code>rational? : (X,X) -> Boolean</code></strong>
+<pre style='color: darkgreen;'>
+ rational?(r,x) returns true if r is of the form p/q where
+ polynomial?(p,x) and polynomial?(q,x) are true.
+</pre>
+<strong><code>factoredForm : (X->X) -> Fraction(FACSUP)</code></strong>
+<pre style='color: darkgreen;'>
+ factoredForm(f) returns the fraction f(?+1)/f(?) in the variable "?",
+ where numerator and denominator are factored, provided that this
+ fraction is a rational function; otherwise an error message is
+ produced.
+</pre>
+<strong><code>getParameters : FACSUP -> PARAM</code></strong>
+<pre style='color: darkgreen;'>
+ getParameters(p) gives the parameters of sparse univariate polynomial
+ p, that is the list of zeroes and possibly a constant factor when
+ different from 1.
+</pre>
+<strong><code>convert : SUP -> X</code></strong>
+<pre style='color: darkgreen;'>
+ convert(p) converts the SparseUnivariatePolynomial p to Expression
+ Integer.
+</pre>
+<strong><code>pFq : (X->X) -> HYPER</code></strong>
+<pre style='color: darkgreen;'>
+ pFq(f) provides the hypergeometric parameters as a record of the
+ form Record(ap:List X, bq:List X, fac:X), where X=EXPR(INT).
+</pre>
+<strong><code>construct: (HYPER,Symbol) -> X</code></strong>
+<pre style='color: darkgreen;'>
+ construct(pfq,x) constructs the hypergeometric expression with
+ the output of pFq in the symbol x.
+</pre>
+<strong><code>display : HYPER -> OutputForm</code></strong>
+<pre style='color: darkgreen;'>
+ Fancy display the output of pFq.
+</pre>
+<strong><code>hyperLookup : HYPER -> X</code></strong>
+<pre style='color: darkgreen;'>
+ Lookup the output of pFq in a table.
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</body>
+</html>

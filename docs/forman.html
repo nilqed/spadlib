@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SPADLIB (spad2doc)</title>
+</head>
+<body>
+<h2 style='color: blue;'>FormalManipulations</h2>
+</pre>
+<pre style='color: brown;'>
+ Author: Kurt Pagani
+ Date Created: Tue Jun 19 19:09:16 CEST 2018
+ License: BSD
+ References:
+ Description:
+   Interactive Computer Manipulation of Formal Sums
+   (Thesis format: Monograph) by Nivedita Patil
+   Graduate Program in Computer Science
+     A thesis submitted in partial fulfillment of the requirements for the
+     degree of Master of Science
+     The School of Graduate and Postdoctoral Studies
+     The University of Western Ontario
+     London, Ontario, Canada, (C) Nivedita Patil 2010
+     Supervisor: Dr. Stephen Watt from the Department of
+     Computer Science at University of Western Ontario
+   http://www.csd.uwo.ca/~watt/home/students/theses/NPatil2010-msc.pdf
+
+ Abstract:
+ The goal of the thesis is to explore how computer algebra systems can
+ be augmented to allow user-guided transformation and simplification of
+ expressions involving symbolic summation. Mathematical expressions
+ represented as trees are one of the data objects of computer algebra
+ systems. By accessing and manipulating these data objects we can simplify
+ and transform expressions involving symbolic summation. To choose what
+ transformations to be performed is under the discretion of the user. We
+ present a conceptual framework to perform transformations on expressions
+ involving symbolic summation. This is done by creating a set of library
+ functions for interactive manipulation of formal sums. We base our design
+ on the properties of summation. This idea is also extended to other
+ associative operators such as product and definite integral.
+
+ Keywords:
+   Formal Sums, Computer Algebra System, Associative Operators.
+
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<strong><code>splitOp : (X,X) -> X</code></strong>
+<pre style='color: darkgreen;'>
+ The splitOp function splits the summation and product at a term
+ and definite integral at an interval. This implements property IV
+ of summation, property IV of definite integral and property II of
+ product. Calling Sequence: splitOp(expr, c), Parameters: expr -
+ summation, product or definite integral, c - value at which expr
+ should be split.
+</pre>
+<strong><code>multiplyOp : (X,X) -> X</code></strong>
+<pre style='color: darkgreen;'>
+ The multiplyOp function exponentiates the base operator, "+" to
+ "*", "*" to "^". The multiplicand can contain the iterating variable
+ or index of summation, product or definite integral.
+ Calling Sequence: multiplyOp(expr, c), Parameters: expr - summation,
+ product or definite integral c - value to be multiplied.
+</pre>
+<strong><code>splitFunctions : X -> X</code></strong>
+<pre style='color: darkgreen;'>
+ The splitFunctions function splits summation and definite integral
+ based on the additive term and product based on the multiplicative
+ term in the inner expression. This implements property II of
+ summation, property II of definite integral and property III of
+ product. Calling Sequence splitFunctions(expr), Parameters:
+ expr - summation, product or definite integral.
+</pre>
+<strong><code>takeNTermsHigh : (X,X) -> X</code></strong>
+<pre style='color: darkgreen;'>
+ The takeNTermsHigh function gets the higher terms of summation,
+ product and definite integral.
+ Calling Sequence: takeNTermsHigh(expr, n), Parameters: expr -
+ summation, product or definite integral, n - number of terms to
+ be fetched if expr is summation or product else the limit if expr
+ is a definite integral.
+</pre>
+<strong><code>takeNTermsLow : (X,X) -> X</code></strong>
+<pre style='color: darkgreen;'>
+ The takeNTermsLow function gets the lower terms of summation,
+ product and definite integral. Calling Sequence:
+ takeNTermsLow(expr, n), Parameters expr - summation, product or
+ definite integral, n - number of terms to be fetched if expr is
+ summation or product else the limit if expr is a definite integral.
+</pre>
+<strong><code>shiftNTerms : (X,X) -> X</code></strong>
+<pre style='color: darkgreen;'>
+ The shiftNTerms function shifts or rearranges summation, product
+ and definite integral. This implements property V of summation,
+ property VII of definite integral and property I of product.
+ Calling Sequence: shiftNTerms(expr, n), Parameters: expr -
+ summation, product or definite integral, n - value by which expr
+ should be shifted
+</pre>
+<strong><code>splitTermsEvenOdd : X -> X</code></strong>
+<pre style='color: darkgreen;'>
+ The splitTermsEvenOdd function splits summation and product into
+ even and odd terms. Calling Sequence: splitTermsEvenOdd(expr),
+ Parameters: expr - summation or product.
+</pre>
+<strong><code>reverseOrder : X -> X</code></strong>
+<pre style='color: darkgreen;'>
+ The reverseOrder function reverses the order of terms for summation
+ and product and intervals for definite integral. This implements
+ property VI of summation, property V of definite integral and
+ property IV of product.
+ Calling Sequence: reverseOrder(expr), Parameters: expr - summation,
+ product or definite integral.
+</pre>
+<strong><code>getCoefficient : (X,X,X) -> X</code></strong>
+<pre style='color: darkgreen;'>
+ The getCoefficient function gets the coefficient of a term in a
+ univariate polynomial which is represented as a summation.
+ Calling Sequence: getCoefficient(expr,k,invar), Parameters: expr
+ - summation, k - coefficient for kth term, invar - variable for
+ which coefficient needs to be fetched.
+</pre>
+<strong><code>takeTermsValue : (X,X,X) -> X</code></strong>
+<pre style='color: darkgreen;'>
+ The takeTermsValue function gets the terms of summation and product
+ and value of the definite integral. If the input is a summation
+ then it returns the closed form of summation if it can be evaluated
+ else it returns the summation unevaluated.
+ Calling Sequence: takeTermsValue(expr,start,end), Parameters:
+ expr - summation, product or definite integral, start - lower limit
+ of expr starting from which the terms or value need to be fetched,
+ end - upper limit of expr until which the terms or value need to
+ be fetched
+</pre>
+<strong><code>combineSplitFunctions : X -> X</code></strong>
+<pre style='color: darkgreen;'>
+ The combineSplitFunctions function combines the summations and
+ definite integrals split on additive terms and products split on
+ multiplicative terms. This performs reverse operation as in case
+ of SplitFunctions function.
+ Calling Sequence: combineSplitFunctions(expr), Parameters:
+ expr - expression.
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</body>
+</html>

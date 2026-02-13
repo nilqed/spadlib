@@ -1,0 +1,46 @@
+)abbrev package TMUX TmuxSupport
+++ Author: Kurt Pagani
+++ Date Created: 09-FEB-2026
+++ License: BSD
+++ References:
+++ Description: TMUX support.
+++
+TmuxSupport : Exports == Implementation where
+  
+  MSC ==> MoreSystemCommands
+  
+  Exports == with
+    
+    tmux : String -> Void
+      ++ tmux(cmd) executes a tmux command 'cmd' as if it were entered in the
+      ++ shell as 'tmux ...".
+    list_panes: () -> Void
+      ++ list_panes() lists all panes (tmux lsp).
+    cmd_prompt: () -> Void
+	  ++ cmd_prompt() opens the tmux command prompt on the status line.
+      ++ (CTRL-B :)
+    display_msg : String -> Void
+      ++ display_msg(msg) shows the message 'msg' in the status bar.
+    indicator : () -> Void 
+      ++ indicator() show the pane ids as a glimpse of big numbers.
+    find : String -> Void
+      ++ find(s) ....
+    kill_session : () -> Void
+      ++ kill_session() kills all sessions but the current.
+    send : (Integer,String) -> Void
+	  ++ send(id,cmd) sends 'cmd' to the pane 'id'.
+  Implementation == add 
+    
+    tmux s == systemCommand("system tmux " s)$MoreSystemCommands
+    list_panes () == tmux("lsp")
+    cmd_prompt () == tmux("command-prompt")
+    display_msg (msg) == tmux("display " msg) 
+    indicator () == tmux("displayp -b")
+    find(p) == tmux("findw " p)
+    kill_session () == tmux "kill-ses -a"
+    send(id,cmd) == tmux string FORMAT('NIL,"send -t ~D _"~A_" Enter",id,cmd)$Lisp
+    
+    
+
+    
+

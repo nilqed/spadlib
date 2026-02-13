@@ -9,13 +9,11 @@
 <pre style='color: brown;'>
  Author: Kurt Pagani
  Date Created: Fri Sep 27 13:05:21 CEST 2024
- Date Revised: Thu Apr 03 14:04:11 CEST 2025
+ Date Revised: Fri Nov 08 17:32:13 CEST 2025
  License: BSD
  References:
- Description: barycenter
+ Description: real point chains, barycentric calculus (Moebius)
 
-</pre>
-</pre>
 </pre>
 </pre>
 </pre>
@@ -147,6 +145,18 @@
  than \spad{n}, which serves as space dimension of an affine
  space.
 </pre>
+<strong><code>dualSupport: (List %,List %) -> %</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{dualSupport(leadingSupport x,E)} computes the dual chain in
+ dimension n=#E with respect to the basis points E=[E1,..,En] of the
+ monomial given in leadingSupport x such that the product of the
+ former with the dual one is E1 E2 ... En.
+</pre>
+<strong><code>dual: (%,List %) -> %</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{dual(x,E)} computes the dual chain x' of x recursively such
+ that x x' is the sum of the squared coefficients times E1 E2 ... En.
+</pre>
 <strong><code>barycenter : % -> Union(%,"failed")</code></strong>
 <pre style='color: darkgreen;'>
  \spad{barycenter x} returns the barycenter of a \spad{0-chain},
@@ -191,6 +201,7 @@
  \spad{eval(x,a=b} evaluates x while substituting b for a in x.
 </pre>
 </pre>
+</pre>
 <strong><code>affineMap : ((Symbol -> Symbol),%) -> %</code></strong>
 <pre style='color: darkgreen;'>
  \spad{affineMap(F,x)} maps points P to new points F(P) in x,
@@ -213,10 +224,91 @@
 </pre>
 </pre>
 </pre>
+</pre>
 <strong><code>coerce: XDP -> %</code></strong>
 <pre style='color: darkgreen;'>
  \spad{coerce p} coerces a \spad{XDistributedPolynomial p} to a chain,
  whereby all terms not conforming to a chain will be removed.
+</pre>
+<strong><code>lquo : (%,%) -> %</code></strong>
+<pre style='color: darkgreen;'>
+ not used
+</pre>
+<strong><code>rquo : (%,%) -> %</code></strong>
+<pre style='color: darkgreen;'>
+ not used
+</pre>
+<strong><code>lfac : (%,%) -> Union(List %,"failed")</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{lfac(x,y)} returns [y,z] such that y*z=x if possible, "failed"
+ otherwise.
+</pre>
+<strong><code>rfac : (%,%) -> Union(List %,"failed")</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{rfac(x,y)} returns [z,y] such that z*y=x if possible, "failed"
+ otherwise.
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
 </pre>
 </pre>
 </pre>

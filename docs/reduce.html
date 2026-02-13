@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SPADLIB (spad2doc)</title>
+</head>
+<body>
+<h2 style='color: blue;'>ReduceBootstrap</h2>
+</pre>
+<pre style='color: brown;'>
+ Author: Kurt Pagani
+ Date Created: Sun Oct 13 13:15:47 CEST 2024
+ License: BSD
+ References:
+   URL: https://reduce-algebra.sourceforge.io/documentation.php
+
+   [1] REDUCE User's Manual [ HTML | PDF ] – a comprehensive guide to
+       the REDUCE language and the supported packages.
+   [2] Inside Reduce – how to build REDUCE, the structure of the REDUCE
+       source code, and some low-level programming features;
+   [3] Symbolic Mode Primer [ HTML | PDF ] – an introduction to
+       programming in the REDUCE implementation language, RLISP, which
+       is Standard Lisp with REDUCE (essentially ALGOL 60) syntax;
+   [4] Standard Lisp Report [ HTML | PDF ] – defines Standard Lisp, the
+       dialect of Lisp assumed by REDUCE;
+   [5] PSL Users Manual [ HTML | PDF ] – documents Portable Standard Lisp,
+       the original implementation of Standard Lisp;
+   [6] https://github.com/reduce-algebra/reduce-algebra/tree/master
+       folder: /common-lisp/README.md
+   [7] Francis J. Wright: https://sites.google.com/site/fjwcentaur/
+
+ Description:
+  This low-level package serves to bootstrap the venerable REDUCE algebra
+  system from scratch (using the sources in 'packages'). Thanks to Francis
+  J. Wright (sites.google.com/site/fjwcentaur/) and al. REDUCE is now also
+  available (again?) on Common Lisp by using sl_on_cl.lisp, this means
+  conversion of Standard Lisp (SL) to Common Lisp (CL).
+
+  After loading this package by quicklisp (quickLoad reduce) the process is
+  as follows:
+    * you have to run init()$REDBOOT
+    * init() saves the readtable (saveReadtable)
+    * init() calls load_bootstrap_reduce()$Lisp from bootstrap.lisp
+    * init() restores the readtbale (restoreReadtable)
+    * init() defines and sets: boot::*redboot-initialized* T
+    * some cleanup ... ready
+  After this procedure one may use SL and/or load other REDUCE packages.
+  Use packageMap() to see a list of available modules.
+
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<strong><code>init : () -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{init()} initializes bootstraping process of REDUCE.
+ This function has to be called in the first place.
+</pre>
+<strong><code>coerce : % -> OutputForm</code></strong>
+<pre style='color: darkgreen;'>
+ n/a
+</pre>
+<strong><code>loadSLonCL : () -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{loadSLonCL()} loads STANDARD-LISP on COMMON-LISP.
+</pre>
+<strong><code>loadBootstrap : () -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{loadBootstrap()} loads the CL file bootstrap.lisp.
+</pre>
+<strong><code>getRes0 : () -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{getRes0()} reads the content of BOOT:RESULT00 and returns
+ its value as a SExpression.
+</pre>
+<strong><code>setRes0 : String -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{setRes0(s)} evaluates the standard-lisp command s (a string),
+ in the STANDARD-LISP environment and stores the result in the
+ variable BOOT:RESULT00.
+</pre>
+<strong><code>pkgBOOT : () -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{pkgBOOT} changes to the package :BOOT.
+</pre>
+<strong><code>pkgSTDLISP : () -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{pkgSTDLISP} changes to the package :STANDARD-LISP.
+</pre>
+<strong><code>pkgCLUSER : () -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{pkgCLUSER} changes to the package :CL-USER.
+</pre>
+<strong><code>pkg? : () -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{pkg?()} shows the current package (i.e. CL:*PACKAGE*).
+</pre>
+<strong><code>saveReadtable : () -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{saveReadtable()} saves the current cl::*readtable* into the
+ variable BOOT:SAVED_READTABLE.
+</pre>
+<strong><code>restoreReadtable : () -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{restoreReadtable()} restores the BOOT:SAVED_READTABLE
+ as CL::*READTABLE* (same as BOOT:*READTABLE*).
+</pre>
+<strong><code>setSLreadtable : () -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{setSLreadtable()} sets the current cl::*readtable* to
+ STANDARD-LISP:*SL-READTABLE*. This is necessary when dealing
+ with floating point arithmetic.
+</pre>
+<strong><code>props : Symbol -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{props(s)} gives the properties of a REDUCE symbol as
+ described in [2].
+</pre>
+<strong><code>lispEval :String -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{lispEval(s)} reads from string s and evaluates in lisp.
+ Actually: (eval (read-from-string s)).
+</pre>
+<strong><code>slEval :String -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{slEval(s)} reads from string s and evaluates in package
+ standard lisp and returns to boot package afterwards.
+ Examples: slEval "(setk 'x 12)", slEval "(setk 'y 23)",
+ slEval "(reval '(plus x y))", slEval "(explode 'abc)"
+ Note: Use the switch "on defn" in REDUCE to see the SL code
+ translation of the input. That code can be evaluated with slEval
+ directly where one may substitute "aeval" by "reval". The first
+ one gives as *SQ, *SF (standard forms) while the latter provides a
+ readable (i.e less obscure) SExpression.
+</pre>
+<strong><code>loadPackageSources : (String,String) -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{loadPackageSources(redfile,package)} loads the REDUCE source
+ file 'redfile.red' from package direcotry 'package'. For dependencies
+ see package.map in *reduce*/src.
+</pre>
+<strong><code>homePath : () -> String</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{homePath()} returns the path from where 'redboot' is loaded.
+ it is defined by the variable *reduce* in reduce.lisp. If the variable
+ is unbound, then reduce.spad was not loaded appropriately by using
+ reduce.asd (quicklisp).
+</pre>
+<strong><code>packageMap : () -> Void</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{packageMap()} prints the package map from homePath/src/packages.
+</pre>
+<strong><code>initialized? : () -> Boolean</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{initialized?()} checks whether init()$REDBOOT has been run by
+ inspecting the variable boot::*redboot-initialized*.
+</pre>
+<strong><code>loadSPAD: String -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{loadSPAD s} compiles the file s.spad in the folder *reduce*/src.
+</pre>
+<strong><code>loadPFORM : () -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ \spad{loadPFORM()} initializes the environment for using pform.spad
+ by loading the REDUCE 'excalc' package sources, compiling pform.spad
+ and other dependencies if necessary.
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</body>
+</html>

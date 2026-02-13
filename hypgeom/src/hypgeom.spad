@@ -1,5 +1,3 @@
-\iffalse
-)lisp (defvar |$inclAssertions| nil)
 --------------------------------------
 )abbrev package HYPGEOM HyperGeometric
 --------------------------------------
@@ -21,23 +19,43 @@ HyperGeometric(): Exports == Implementation where
     polynomial? : (X,X) -> Boolean
       ++ polynomial?(p,x) returns true if p has the structure of a
       ++ univariate polynomial in the variable x. Notice that constants
-      ++ are not considered as polynomials here.
+      ++ are not considered as polynomials here. (a hack ;)
     rational? : (X,X) -> Boolean
+      ++ rational?(r,x) returns true if r is of the form p/q where 
+      ++ polynomial?(p,x) and polynomial?(q,x) are true.
     factoredForm : (X->X) -> Fraction(FACSUP)
+      ++ factoredForm(f) returns the fraction f(?+1)/f(?) in the variable "?", 
+      ++ where numerator and denominator are factored, provided that this 
+      ++ fraction is a rational function; otherwise an error message is
+      ++ produced.      
     getParameters : FACSUP -> PARAM
+      ++ getParameters(p) gives the parameters of sparse univariate polynomial
+      ++ p, that is the list of zeroes and possibly a constant factor when
+      ++ different from 1.
     convert : SUP -> X
+      ++ convert(p) converts the SparseUnivariatePolynomial p to Expression
+      ++ Integer.
     pFq : (X->X) -> HYPER
+      ++ pFq(f) provides the hypergeometric parameters as a record of the
+      ++ form Record(ap:List X, bq:List X, fac:X), where X=EXPR(INT).
     construct: (HYPER,Symbol) -> X
+      ++ construct(pfq,x) constructs the hypergeometric expression with 
+      ++ the output of pFq in the symbol x.
     display : HYPER -> OutputForm
+      ++ Fancy display the output of pFq.
     hyperLookup : HYPER -> X
+      ++ Lookup the output of pFq in a table.
 
   Implementation == add
 
     polynomial?(p:X,x:X):Boolean ==
-      xs:=retract(x)@Symbol -- first variables x, ifCan
+      xs:=retract(x)@Symbol -- first variables x, ifCan / 1/x excluded***
       not member?(xs, variables p) => false
       up:=univariate(p, kernel xs)
       nup:=numer up
+      dup:=denom up
+      degree nup = 0  => false
+      degree dup >=1  => false
       cnup:=coefficients nup 
       lb:=[freeOf?(s,x) for s in cnup]
       reduce(_and,lb)
@@ -150,118 +168,3 @@ HyperGeometric(): Exports == Implementation where
           return (1-c)^(-a.1)
       0$X
 
-
-)if false      
-\fi
-\documentclass[12pt,a4paper]{article}
-\usepackage{amsmath}
-\usepackage{fancyvrb}
-%\def\({\left(}
-%\def\){\right)}
-%\def\atan{\operatorname{atan}}
-\def\sp{^}\def\sb{_}\def\leqno(#1){}
-%\def\erf{\mathrm{erf}}\def\sinh{\mathrm{sinh}}
-\def\zag#1#2{{{\left.{#1}\right|}\over{\left|{#2}\right.}}}
-%\def\csch{\mathrm{csch}}
-\begin{document}
-A series $\sum_{k\geq 0} s_k$ is called \textit{hypergeometric} when $s_0=1$
-and the ratio $\frac{s_{k+1}}{s_k}$ is a rational function of $k$, that is
-\begin{equation}
-    \frac{s_{k+1}}{s_{k}} = \frac{P(k)}{Q(k)},
-\end{equation}
-for some polynomials $P$ and $Q$ in $k$. In this case the terms $s_k$ are 
-called \textit{hypergeometric terms}. 
-
-\begin{quote}From \cite{AEQB}:
-It is important to recognize when a given series is hypergeometric, if it is, 
-because the general theory of hypergeometric functions is very powerful, and 
-we may gain a lot of insight into a function that concerns us by first 
-recognizing that it is hyper-geometric, then identifying precisely which 
-hyper-geometric function it is, and finally by using known results about such 
-functions.
-\end{quote}
-
-Suppose that the polynomials $P$ and $Q$ have been completely factored, in the 
-form
-\begin{equation}
-  \frac{s_{k+1}}{s_{k}} = \frac{P(k)}{Q(k)}=
-    \frac{(a_1+k)\cdots(a_p+k)}{(b_1+k)\cdots(b_q+k)(1+k)}\,x
-\end{equation}
-where x is a constant, and normalized such that $s_0=1$, then the 
-hyper-geometric series $\sum_{k\geq 0} s_k\,x^k$ is denoted by the
-symbolic form
-%
-\begin{equation}
- \,{}_pF_q \left[\begin{matrix} a_1 & a_2 & \cdots & a_{p} \\ 
-    b_1 & b_2 & \cdots & b_q \end{matrix};x\right].
-\end{equation}
-%
-The factor $(1 + k)$ is for historical reasons and there is no loss of 
-generality if it is artificially inserted in case of absence as long as
-it cancels out.
-
-\paragraph{The hypergeometric series lookup algorithm.} The algortithm
-is described in \cite{AEQB}, and is essentially based on factoring the
-polynomials in order ot read off the symbol $\,{}pF_q$.
-
-\paragraph{Exported functions from package \texttt{HYPGEOM}.}
-
-\begin{Verbatim}[fontsize=\tiny]
--- Example 3.6.2
-f8(k) == (-1)^k * binomial(2*n,k)*binomial(2*k,k)*binomial(4*n-2*k,2*n-k)
-
-                                                                   Type: Void
-ff8:=factoredForm(f8)$HYPGEOM
-
-   Compiling function f8 with type Expression(Fraction(Integer)) ->
-      Expression(Fraction(Integer))
-
-                    2     1
-           (? - 2 n) (? + -)
-                          2
-   (27)  ---------------------
-                    1        2
-         (? - 2 n + -)(? + 1)
-                    2
-Type: Fraction(Factored(SparseUnivariatePolynomial
-(SparseMultivariatePolynomial(Fraction(Integer),
-Kernel(Expression(Fraction(Integer)))))))
-
-pFq(f8) -->
-
-
-                1                                  1
-   (28)  [ap = [-, - 2 n, - 2 n], bq = [1, - 2 n + -], fac = 1]
-                2                                  2
-Type: Record(ap: List(Expression(Fraction(Integer))),
-
-bq: List(Expression(Fraction(Integer))),fac: Expression(Fraction(Integer)))
-(29) -> display %
-
-              +1                  +
-              |-    - 2 n    - 2 n|
-              |2                  |
-   (29)   F   |                   | [1]
-         3  2 |           1       |
-              |1  - 2 n + -    *  |
-              +           2       +
-                                                             Type: OutputForm
-(30) -> latex %
-\end{Verbatim}
-%
- \[ {{{} \sb {3} \sp {{\ }}F \sb {{\ }} \sp {{\ }}} \sb {2}} \ {\left[ 
- \begin{array}{ccc} {\frac{1}{2}} & -{2 \  n} & -{2 \  n} \\ 1 & {-{2 \  n}+
- {\frac{1}{2}}} & * \end{array}  \right]} \ {\left[ 1 \right]} \]
-
-
-\begin{thebibliography}{1}
-%
-\bibitem{AEQB} Marko Petkovsek, Herbert Wilf, and Doron Zeilberger,
-  {\em A=B}, {Routledge \& CRC Press},
-  {URL:https://www2.math.upenn.edu/{\textasciitilde}wilf/AeqB.pdf}.
-\end{thebibliography}
-%      
-
-\end{document}
-)endif
-      

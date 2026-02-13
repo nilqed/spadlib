@@ -33,9 +33,6 @@ spadlib/rete/rete.asd
 spadlib/atp/atp.asd
 spadlib/geomview/geomview.asd
 spadlib/reduce/reduce.asd
-spadlib/regis/regis.asd
-spadlib/affine/affine.asd
-spadlib/tmux/tmux.asd
 
 
 

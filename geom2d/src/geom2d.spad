@@ -1,0 +1,201 @@
+)abbrev package GEOM2D PlaneGeometry
+++ Description: formulary
+++
+PlaneGeometry(R) : Exports == Implementation where
+
+  R:Join(Comparable,IntegralDomain,RTZZ,LEZZ,POFE,CHAZ)
+
+  ZZ   ==> Integer
+  RTZZ ==> RetractableTo ZZ
+  LEZZ ==> LinearlyExplicitOver ZZ
+  POFE ==> PolynomialFactorizationExplicit
+  CHAZ ==> CharacteristicZero
+  
+  EFSP ==> ElementaryFunctionStructurePackage(R,X)
+  
+  X     ==> Expression R
+  EQX   ==> Equation X
+  PLANE ==> DirectProduct(2,X)
+  POINT ==> PLANE  -- synonymous
+  LINE  ==> Record(%A:POINT,%B:POINT)
+  TRIANGLE ==> Record(%A:POINT,%B:POINT,%C:POINT)
+  CIRCLE ==> Record(%M:POINT,%r:X)
+  VECTOR ==> Vector X
+  
+  Exports ==  with
+   
+    point : (X,X) -> POINT
+    vector : (POINT,POINT) -> VECTOR
+    line  : (POINT,POINT) -> LINE
+    standardForm : LINE -> Equation X
+    standardForm : CIRCLE -> Equation X
+    normalForm : LINE -> Equation X
+    normalVector : LINE -> Union(VECTOR,"failed")
+    parametricForm : LINE -> (X->PLANE)
+    parametricForm : CIRCLE -> (X->PLANE)
+    dist : (POINT,LINE) -> X
+    distance : (POINT,POINT) -> X
+    triangle : (POINT,POINT,POINT) -> TRIANGLE
+    circle : (POINT,X) -> CIRCLE
+    parametricCurve : (X,POINT) -> (X->PLANE)
+    parametricCurve : (X,X,X) -> (X->PLANE) 
+    intersect : (LINE,LINE) -> Union(POINT,"parallel")
+    intersect : (LINE,CIRCLE) -> Union(List POINT,"failed")
+    intersect : (CIRCLE,LINE) -> Union(List POINT,"failed")
+    intersect : (CIRCLE,CIRCLE) -> Union(List POINT,"failed")
+    
+    member? : (POINT,LINE) -> Boolean
+    member? : (POINT,CIRCLE) -> Boolean
+    
+    translate : (POINT,X,X)  -> POINT
+    translate : (LINE,X,X)   -> LINE
+    translate : (CIRCLE,X,X) -> CIRCLE
+    
+    rotate : (POINT,POINT,X)  -> POINT
+    rotate : (LINE,POINT,X)   -> LINE
+    rotate : (CIRCLE,POINT,X) -> CIRCLE
+    
+    
+  Implementation == PLANE add
+
+    point(x,y) == directProduct [x,y]
+    
+    vector(A,B) == [B.1-A.1,B.2-A.2]::VECTOR
+    
+    line(A,B) == [A,B]$LINE
+    
+    standardForm(l:LINE):EQX ==
+      x1:=l.%A.1 ; y1:=l.%A.2
+      x2:=l.%B.1 ; y2:=l.%B.2
+      x:X:='%X::X;y:X:='%Y::X
+      (y - y1)*(x2 - x1) - (y2 - y1)*(x - x1) = 0
+      
+    standardForm(c:CIRCLE):EQX ==
+      q:=('%X::X - c.%M.1)^2 + ('%Y::X - c.%M.2)^2 - (c.%r)^2=0
+      
+    normalForm(l:LINE):EQX  ==
+      sf:=standardForm l
+      a:=D(lhs sf,'%X)
+      b:=D(lhs sf,'%Y)
+      c:=sqrt(a^2+b^2)
+      if c ~= 0 then
+        (1/c) * lhs sf = rhs sf
+      else
+        sf
+
+    normalVector(l:LINE):Union(VECTOR,"failed") ==
+      sf:=standardForm l
+      a:=D(lhs sf,'%X)
+      b:=D(lhs sf,'%Y)
+      c:=sqrt(a^2+b^2)
+      c=0 => "failed"
+      [a/c,b/c]::VECTOR
+  
+
+    dist(p:POINT,l:LINE):X ==
+      nf:=normalForm l
+      nfp:=subst(lhs nf,['%X::X=p.1,'%Y::X=p.2])
+      abs(nfp)
+      
+ 
+    distance(p1:POINT,p2:POINT):X == sqrt((p2.1-p1.1)^2+(p2.2-p1.2)^2)
+    
+    triangle(A:POINT,B:POINT,C:POINT):TRIANGLE == [A,B,C]$TRIANGLE
+    
+    circle(M:POINT,r:X):CIRCLE == [M,r]$CIRCLE
+
+    parametricCurve(t:X,x:X,y:X):X->PLANE ==
+      ns:=new()$Symbol::X
+      c:X->PLANE:=ns+->directProduct [eval(x,t=ns),eval(y,t=ns)]
+
+    parametricCurve(t:X,p:POINT):X->PLANE == parametricCurve(t,p.1,p.2)
+    
+    parametricForm(l:LINE):X->PLANE ==
+      ns:=new()$Symbol::X
+      nv:=new()$Symbol::X
+      O:=point(0,0)
+      r:VECTOR:=vector(O,l.%A)+nv*vector(l.%A,l.%B)
+      v:=entries r
+      c:X->PLANE:=ns+->directProduct [eval(v.1,nv=ns),eval(v.2,nv=ns)]
+
+    parametricForm(c:CIRCLE):X->PLANE ==
+      ns:=new()$Symbol::X
+      parametricCurve(ns,c.%r*cos ns,c.%r*sin ns) 
+    
+    member?(x:POINT,l:LINE):Boolean ==
+      q:X:=lhs standardForm l
+      qx:=eval(q,['%X::X=x.1,'%Y::X=x.2])
+      normalize(qx)$EFSP=0 => true
+      false
+
+    member?(x:POINT,c:CIRCLE):Boolean ==
+      q:=(x.1 - c.%M.1)^2 + (x.2 - c.%M.2)^2 - (c.%r)^2
+      q=0 => true
+      false
+  
+    intersect(l1:LINE,l2:LINE):Union(POINT,"parallel") ==
+      s1:EQX:=standardForm l1
+      s2:EQX:=standardForm l2
+      sol:=solve([s1,s2],['%X::X,'%Y::X])$TransSolvePackage(R)
+      fs:List EQX:=first sol
+      point(rhs fs.1,rhs fs.2)
+      
+    intersect(l:LINE,c:CIRCLE):Union(List POINT,"failed") ==
+      s1:EQX:=standardForm l
+      s2:EQX:=standardForm c
+      sol:=solve([s1,s2],['%X::X,'%Y::X])$TransSolvePackage(R)
+      if #sol=1 then
+        fs:List EQX:=first sol
+        return [point(rhs fs.1,rhs fs.2)]
+      else
+        f1:List EQX:=first sol
+        f2:List EQX:=second sol
+        return [point(rhs f1.1,rhs f1.2),point(rhs f2.1,rhs f2.2)]
+      return "failed"
+        
+    intersect(c:CIRCLE,l:LINE):Union(List POINT,"failed") ==
+      intersect(l,c)
+
+    intersect(c1:CIRCLE,c2:CIRCLE):Union(List POINT,"failed") ==
+      s1:EQX:=standardForm c1
+      s2:EQX:=standardForm c2
+      sol:=solve([s1,s2],['%X::X,'%Y::X])$TransSolvePackage(R)
+      if #sol=1 then
+        fs:List EQX:=first sol
+        return [point(rhs fs.1,rhs fs.2)]
+      else
+        f1:List EQX:=first sol
+        f2:List EQX:=second sol
+        return [point(rhs f1.1,rhs f1.2),point(rhs f2.1,rhs f2.2)]
+      return "failed"
+
+    translate(x:POINT,dx:X,dy:X):POINT ==
+      point(x.1+dx,x.2+dy)
+      
+    translate(x:LINE,dx:X,dy:X):LINE ==
+      A:=translate(x.%A,dx,dy)
+      B:=translate(x.%B,dx,dy)
+      line(A,B)
+      
+    translate(x:CIRCLE,dx:X,dy:X):CIRCLE ==
+      M:=translate(x.%M,dx,dy)
+      circle(M,x.%r)
+      
+    rotate(p:POINT,r:POINT,phi:X):POINT ==
+      dx:=p.1-r.1 ; dy:=p.2-r.2
+      rdx:=dx*cos(phi) - dy*sin(phi)
+      rdy:=dx*sin(phi) + dy*cos(phi)
+      point(r.1 + rdx, r.2 + rdy)
+      
+    rotate(l:LINE,r:POINT,phi:X):LINE ==
+      RA:=rotate(l.%A,r,phi)
+      RB:=rotate(l.%B,r,phi)
+      line(RA,RB)
+      
+    rotate(c:CIRCLE,r:POINT,phi:X):CIRCLE ==
+      RM:=rotate(c.%M,r,phi)
+      circle(RM,c.%r)
+      
+-- https://en.wikipedia.org/wiki/Rotations_and_reflections_in_two_dimensions   
+    
+    

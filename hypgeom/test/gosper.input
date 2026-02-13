@@ -1,0 +1,58 @@
+-- GospersMethod: (Q, V, () -> V) -> Union(Q, failed)
+--
+--  GospersMethod(b, n, new) returns a rational function rf(n) such that
+--  a(n) * rf(n) is the indefinite sum of a(n) with respect to upward
+--  difference on n, i.e. a(n+1) * rf(n+1) - a(n) * rf(n) = a(n), where
+--  b(n) = a(n)/a(n-1) is a rational function. Returns "failed" if no such 
+--  rational function rf(n) exists. Note: new is a nullary function returning 
+--  a new V every time. The condition on a(n) is that a(n)/a(n-1) is a 
+--  rational function of n.
+
+
+
+R ==> Integer
+FPI ==> Fraction Polynomial R
+GOS:=GOSPER(IndexedExponents Symbol, Symbol, R, Polynomial R, FPI)
+
+
+GospersMethod(n::FRAC POLY INT,k, new$Symbol)$GOS
+
+
+-- a(n)=n -> Gosper: rf(n)
+-- sum(a(n), n) = rf(n) * a(n).
+g1:=GospersMethod(n/(n-1),n, new$Symbol)$GOS
+
+g2:=GospersMethod(n^2/(n-1)^2,n, new$Symbol)$GOS
+
+
+bb:=binomial(N,n)/binomial(N,n-1)
+nbb:=normalize(bb)::FPI
+GospersMethod(nbb,n, new$Symbol)$GOS
+
+sum(factorial(k),k=1..N)
+--sum(k*factorial(k),k=0..N)
+sum(k*factorial(k),k=1..N)
+
+--sum(4^k/binomial(2*k, k), k=0..n);
+sum(4^k/binomial(2*k, k), k=1..n)
+
+T1(k) == 1/(2*k-1)/factorial(2*k+1)
+T2(k) == binomial(n,k)*(-1)^k/factorial(k)
+T3(k) == (-1)^k*(x/2)^(2*k+p)/factorial(k)/factorial(k+p)
+--variables : % -> List(SingletonAsOrderedSet) ;; Bessel p!
+T4(k) == binomial(n,k)^2*binomial(n+k,k)^2 --> ? works
+T5(k) == binomial(k,n)^2*binomial(n+k,n)^2  -- 1-k > 0 => k=0 => not hg
+T6(k) == n^k --OK
+T7(k) == factorial(k)
+T8(k) == factorial(2*k+7)/factorial(k-3)
+T9(k) == (k^2-1)*factorial(3*k+1)/(2*k+7)/factorial(k+3)
+T10(k) == z^k/factorial(k)
+T11(k) == 2^k/factorial(k)^2
+T12(k) == binomial(n,k)
+
+q:=T6(k)/T6(k-1)
+nq:=normalize q
+GospersMethod(nq::FRAC POLY INT,k, new$Symbol)$GOS
+
+
+

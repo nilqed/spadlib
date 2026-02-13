@@ -1,0 +1,106 @@
+)co geom2d
+X ==> EXPR INT
+PG ==> GEOM2D(Integer)
+
+g:=parametricCurve(t,sin(t),cos(t))
+P:=point(cos t, sin t)
+gg:=parametricCurve(t,P)$GEOM2D(INT)
+g z
+D(g z,z)
+
+A:=point(0,0)
+B:=point(3,0)
+C:=point(0,4)
+T1:=triangle(A,B,C)
+distance(B,C)
+l:=line(B,C)
+standardForm(l)
+normalForm l
+---
+O:=point(0,0)
+dist(O,l) --> 0
+dist(B,l) --> 0
+dist(C,l) --> 0
+
+circle(A,r::EXPR INT) --> [%M = [0, 0], %r = r]
+
+member?(A,l) --> false
+member?(B,l) --> true
+member?(C,l) --> true
+
+BC2:=point(3/2::X,2::X)$PG
+member?(BC2,l)$PG --> true
+
+CP:=point(0,r::X)
+c:=circle(A,r::X)
+member?(CP,c) --> true
+cc:=circle(B,r::X)
+member?(CP,cc) --> false
+CP3:=point(3,r::X)
+member?(CP3,cc) --> true
+
+AB:=vector(A,B)
+BA:=vector(B,A)
+AA:=vector(A,A)
+AB+BA=AA
+
+nv:=normalVector l -->   [-4/5,-3/5]
+
+pl:=parametricForm(l)
+pl 0 --> [3,0] :B
+pl 1 --> [0,4} :C
+pl(1/2) --> [3/2,2] :BC2, ok!
+
+pc:=parametricForm(c)
+pc u
+pc %pi -- [-r,0]
+
+l1:=line(A,B)
+l2:=line(A,C)
+l3:=line(B,C)
+s1:=standardForm l1
+s2:=standardForm l2
+solve([s1,s2],[%X,%Y])
+
+il12:=intersect(l1,l2)
+il13:=intersect(l1,l3)
+il23:=intersect(l2,l3)
+-- error if no sol
+
+sfc:=standardForm c
+intersect(l,c)
+intersect(l1,c)
+intersect(l2,c)
+
+pr1:=point(0,r::X)
+pr2:=point(1,r::X)
+lpr:=line(pr1,pr2)
+intersect(lpr,c) -->  [[0, r]] , tangent
+pr1:=point(0,r::X+1/100)
+pr2:=point(1,r::X+1/100)
+lpr:=line(pr1,pr2)
+intersect(lpr,c) -- ?? not real solutions
+ 
+-- intersect(c,c) --> Error detected
+c2:=circle(point(1,0),r::X)
+c3:=circle(point(2*r::X,0),r::X)
+intersect(c,c2)
+intersect(c,c3)
+
+---
+tA:=translate(A,1,1)
+tl:=translate(l,1,1)
+tc:=translate(c,1,1)
+
+rotate(B,A,%pi::X/2) --> [3,0]->[0,3]  -- counterclockwise!
+rotate(C,A,%pi::X/2) --> [0,4]->[-4,0]
+
+Rl:=rotate(l,A,%pi::X/2)
+nvl:=normalVector l
+nvRl:=normalVector Rl
+dot(nvl,nvRl) --> 0
+  
+rotate(c,A,t::X) --> as was
+rotate(c,B,t::X) -->  [%M = [- 3 cos(t) + 3, - 3 sin(t)], %r = r]
+
+

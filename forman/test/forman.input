@@ -1,0 +1,120 @@
+)co forman
+
+XX ==> Expression Integer
+UK ==> Union(Kernel XX,"failed")
+KX ==> Kernel XX
+kernelHandler(x) ==>  -- macro
+  mk:UK:=mainKernel(x)
+  if mk case KX then K:KX:=mk else x
+  AA:List XX:=argument K 
+  v:Symbol:=retract(AA.3)@Symbol
+
+-- splitOp 
+f:=operator 'f
+S:=summation(f(i)*x^i,i=1..N)
+splitOp(S,j)
+A:=operator 'A
+T:=product(A(k),k=a..b)
+splitOp(T,c)
+Q:=integral(f(x)*x^2,x=a..b)
+splitOp(Q,c)
+
+
+-- multiplyOp
+G:=operator 'G
+S:=summation(G(k),k=1..N)
+multiplyOp(S,x^k)
+P:=operator 'P
+X:=operator 'X
+P:= product(X(k),k = 1..M)
+multiplyOp(P,c)
+T:=integral(e^x,x=1..L)
+multiplyOp(T,(a+b))
+
+-- splitFunctions
+[g,h,E,F]:=map(operator,['g','h,'E,'F])
+S:=summation(x*(g(k)+h(k)),k=1..N)
+splitFunctions(S)
+P:=product(E(i)*F(i),i=a..b)
+splitFunctions(P)
+P:=product(E(i)*F(i)*G(i),i=a..b)
+splitFunctions(P)
+T:=integral(e^x+f(x)^x,x=0..L)
+splitFunctions(T)
+
+-- takeNTermsHigh
+S:=summation(f(x)^j,j=a..b)
+takeNTermsHigh(S,2)
+P:=product(f(i)*x^i,i=1..N)
+takeNTermsHigh(P,1)
+Q:=integral(f(x),x=1..L)
+takeNTermsHigh(Q,p)
+
+-- takeNTermsLow
+S:=summation(f(x)^j,j=a..b)
+takeNTermsLow(S,2)
+P:=product(f(i)*x^i,i=1..N)
+takeNTermsLow(P,1)
+Q:=integral(f(x),x=1..L)
+takeNTermsLow(Q,p)
+
+-- shiftNTerms
+S:=summation(f(x)^j,j=a..b)
+shiftNTerms(S,2)
+P:=product(f(i)*x^i,i=1..N)
+shiftNTerms(P,c)
+Q:=integral(f(x),x=1..L)
+shiftNTerms(Q,4)
+
+--  splitTermsEvenOdd
+splitTermsEvenOdd(S)
+splitTermsEvenOdd(P)
+
+-- reverseOrder
+reverseOrder(S)
+reverseOrder(P)
+reverseOrder(Q) 
+---- todo (should only reverse interval! 
+---- Done, but does it make sense? According to manual, though. 
+
+-- getCoefficient
+S:=summation(A(j)*x^j,j=m..n)
+getCoefficient(S,2,x)
+getCoefficient(S,p,x)
+getCoefficient(S,p,z) -- failed, but returns original ???
+--
+getCoefficient(P,p,x) -- works for prod as well ???
+getCoefficient(P,p,z)
+
+-- takeTermsValue  --- review [todo:]
+takeTermsValue(S,2,5)
+takeTermsValue(P,2,5)
+takeTermsValue(Q,2,5)
+
+-- combineSplitFunctions
+S:=summation(x*(g(k)+h(k)),k=1..N)
+sf:=splitFunctions(S)
+combineSplitFunctions sf
+
+
+
+pp:=product(k,k=1..N)/product(k,k=1..N-2)
+pp1:=splitOp(numerator pp,N-2)
+pp2:=splitOp(numerator pp,N-2)/denominator pp
+pp3:=takeTermsValue(pp2,N-1,N)  -- if upper-lower is integer => expand
+eval(pp3,N=5) --> 20
+eval(pp3,N=n) --> same
+
+--X := operator 'X
+--T:=summation(X(s),s=a..b)
+--T2:=multiplyOp(T,x^s)
+--T3:= D(T2,x)
+--T4:=takeNTermsHigh(T3,m)
+--T5:=shiftNTerms(T4,m)
+--T6:=splitOp(T5,k)
+
+
+-- OK now; missing functions: 
+--CombineSplitOp?,GetCoefficient?,TakeTermsValue?,
+--CombineSplitFunctions?,GetNonVariantsOutside?,
+--PutMultiplicandsInside? 
