@@ -1,0 +1,74 @@
+------------
+-- Summation
+------------
+S:=sum(x^n/n,n=0..M)
+
+-- Kernel
+mk:=mainKernel S
+mkn:=name mk  --> %defsum
+mka:=argument mk --> [x^?/?,?,n,0,M], where ? is a %Symbol corresponding to n.
+
+S::InputForm
+-->  (sum (/ (^ x %D) %D) (equation %D (SEGMENT 0 M))) 
+
+-- other examples
+S1:=sum(binomial(N,n)*x^n/factorial(n),n=0..M)
+S2:=sum(k^n,k)
+
+name mainKernel S2 --> summation, product, integral
+I:=integrate(exp(-x^k),x) --> integral [f(%A),%A,x]
+
+X==>EXPR INT
+SEGB==>SegmentBinding(X)
+SEG==>Segmen(X)
+
+defOpInfo(x:X):List(X) ==
+  mk:=mainKernel x
+  mkn:=name mk 
+  not member?(mkn,['%defsum,'%defprod,'%defint]) => []
+  mka:=argument mk
+  #mka ~= 5 => []
+  cons(mkn::X,mka)
+
+defop?(x:X):Boolean ==
+  member?(name mainKernel x,['%defsum,'%defprod,'%defint]) 
+
+-- defop2list
+-- list2defop
+
+defop2list(x:X):List X ==
+  mk:=mainKernel x
+  mkn:=name mk 
+  mka:=argument mk
+  cons(mkn::X,mka)
+
+list2defop(k:List X):X ==
+  opr:X:=subst(k.2,k.3=k.4)
+  seg:SEGB:=equation(retract(k.4)@Symbol,segment(k.5,k.6)$Segment(X))$SEGB
+  s:=retract(k.1)@Symbol 
+  s = %defsum  => summation(opr,seg) 
+  s = %defprod => product(opr,seg) 
+  s = %defint  => integral(opr,seg) 
+  error "unknown %defop"
+  
+mexpt?(p:X,xs:Symbol):Boolean ==
+  x:=xs::X
+  np:=normalize p
+  lt:=isExpt(np)
+  lt case "failed" => false
+  name(lt.var) ~= xs => false
+  lt.exponent < 0 => false
+  true  
+  
+monomial?(p:X,xs:Symbol):Boolean ==
+  x:=xs::X
+  np:=normalize p
+  lt:=isTimes(np)
+  if lt case List(X) then
+    ltf:=[u for u in lt | not freeOf?(u,x)]
+    empty? ltf => true  -- a constant
+    #ltf > 1 => false   -- 
+    return mexpt?(p,x)
+  else
+    mexpt?(p,x)
+    

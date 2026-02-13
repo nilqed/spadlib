@@ -1,4 +1,4 @@
-)co forman
+)co ../src/forman
 
 XX ==> Expression Integer
 UK ==> Union(Kernel XX,"failed")
