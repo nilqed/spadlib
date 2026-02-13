@@ -1,0 +1,87 @@
+------------------------------------------
+)abbrev package FORMAN FormalManipulations
+------------------------------------------
+FormalManipulations(R) : Exports == Implementation where
+  
+  R:Join(Comparable,IntegralDomain)
+  X ==> Expression R
+  PI ==> PositiveInteger
+  UK ==> Union(Kernel X,"failed")
+  KX ==> Kernel X
+  SX ==> Segment X
+  SBX ==> SegmentBinding X
+  EFSP ==> ElementaryFunctionStructurePackage(Integer,X)
+
+  Exports ==  with
+  
+    defop? : X -> Boolean
+    defop2list : X -> List X
+    list2defop : List X -> X
+    mexpt? : (X,Symbol) -> Boolean 
+    monomial? : (X,Symbol) -> Boolean
+    polynomial? : (X,Symbol) -> Boolean
+  
+  Implementation ==  add 
+
+    defop?(x:X):Boolean ==
+      mk:UK:=mainKernel x
+      defops:List Symbol:=['%defsum,'%defprod,'%defint]
+      if mk case KX then mk:KX:=mk else return false
+      member?(name mk,defops) 
+      
+    defop2list(x:X):List X ==
+      mk:=mainKernel x
+      if mk case KX then mk:KX:=mk else return []
+      mkn:=name mk 
+      mka:=argument mk
+      cons(mkn::X,mka)
+
+    list2defop(k:List X):X ==
+      opr:X:=subst(k.2,k.3=k.4)
+      seg:SBX:=equation(retract(k.4)@Symbol,segment(k.5,k.6)$SX)$SBX
+      s:=retract(k.1)@Symbol 
+      s = '%defsum  => summation(opr,seg) 
+      s = '%defprod => product(opr,seg) 
+      s = '%defint  => integral(opr,seg) 
+      error "unknown %defop"
+
+    
+
+    mexpt?(p:X,xs:Symbol):Boolean ==
+      x:=xs::X
+      np:X:=normalize(p)$EFSP
+      lt:=isExpt(np)
+      lt case "failed" => false
+      name(lt.var) ~= xs => false
+      lt.exponent < 0 => false
+      true  
+      
+    monomial?(p:X,xs:Symbol):Boolean ==
+      x:=xs::X
+      np:X:=normalize(p)$EFSP
+      lt:=isTimes(np)
+      if lt case List(X) then
+        ltf:=[u for u in lt | not freeOf?(u,x)]
+        empty? ltf => true  -- a constant
+        #ltf > 1 => false   -- 
+        return mexpt?(first ltf,xs)
+      else
+        mexpt?(p,xs)
+        
+    polynomial?(p:X,xs:Symbol):Boolean ==
+      x:=xs::X
+      np:X:=normalize(p)$EFSP
+      dnp:=denominator np
+      not freeOf?(dnp,x) => false
+      np:X:=normalize(dnp*p)$EFSP
+      -- above handles isTimes, e.g. when p/z (quotients)!
+      freeOf?(p,x) => true      -- a constant
+      mexpt?(p,xs) => true      -- x^Integer
+      monomial?(p,xs) => true   -- coeff * x^Integer
+      ls:=isPlus(np)
+      if ls case List X then
+        lsf:List Boolean:=[polynomial?(u,xs) for u in ls]
+        empty? lsf => false -- shouldn't occur
+        return reduce(_and,lsf)
+      else
+        return false

@@ -71,4 +71,8 @@ monomial?(p:X,xs:Symbol):Boolean ==
     return mexpt?(p,x)
   else
     mexpt?(p,x)
-    
+  
+p:=a*x^5-7*x^3+c*x-z
+
+--PMK==>PatternMatchKernel(Integer,X)
+
