@@ -77,3 +77,10 @@ pFq(f8) -->
 --          4 n
 --   (30)  (   )
 --          2 n
+
+
+--f9(k) == z^k/(1-q^k)
+--ff9:=factoredForm(f9)$HYPGEOM
+--pFq(f9)
+--f9(k+1)/f9(k)
+

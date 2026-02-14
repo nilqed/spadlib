@@ -16,18 +16,18 @@ HyperGeometric(): Exports == Implementation where
   PARAM  ==> Record(ab:List SUP, const:List SUP)
 
   Exports == with
-    rational? : (X,Symbol) -> Boolean
-      ++ rational?(r,x) returns true if r is of the form p/q where p and q
-      ++ are univariate polynomials in x.
+    polynomial? : (X,X) -> Boolean
+      ++ polynomial?(p,x) returns true if p has the structure of a
+      ++ univariate polynomial in the variable x. Notice that constants
+      ++ are not considered as polynomials here. (a hack ;)
+    rational? : (X,X) -> Boolean
+      ++ rational?(r,x) returns true if r is of the form p/q where 
+      ++ polynomial?(p,x) and polynomial?(q,x) are true.
     factoredForm : (X->X) -> Fraction(FACSUP)
       ++ factoredForm(f) returns the fraction f(?+1)/f(?) in the variable "?", 
       ++ where numerator and denominator are factored, provided that this 
       ++ fraction is a rational function; otherwise an error message is
-      ++ produced. 
-    admissible? : Fraction(FACSUP) -> Boolean
-      ++ admissible?(ff), where ff is the output of factoredForm, checks if
-      ++ the factorization is complete (i.e. linear) and the b coefficients
-      ++ are non-negative.      
+      ++ produced.      
     getParameters : FACSUP -> PARAM
       ++ getParameters(p) gives the parameters of sparse univariate polynomial
       ++ p, that is the list of zeroes and possibly a constant factor when
@@ -48,22 +48,30 @@ HyperGeometric(): Exports == Implementation where
 
   Implementation == add
 
-    rational?(p:X,xs:Symbol):Boolean ==
-      x:=xs::X
-      up:=univariate(p,kernel xs)
-      dup:=denom up
+    polynomial?(p:X,x:X):Boolean ==
+      xs:=retract(x)@Symbol -- first variables x, ifCan / 1/x excluded***
+      not member?(xs, variables p) => false
+      up:=univariate(p, kernel xs)
       nup:=numer up
-      cdup:= coefficients dup
-      ndup:= coefficients nup
-      fox:=(u:X):Boolean+->freeOf?(u,x)
-      every?(fox,cdup) and every?(fox,ndup)
+      dup:=denom up
+      degree nup = 0  => false
+      degree dup >=1  => false
+      cnup:=coefficients nup 
+      lb:=[freeOf?(s,x) for s in cnup]
+      reduce(_and,lb)
 
+    rational?(r:X,x:X):Boolean ==
+      nr:X:=numerator r
+      not(polynomial?(nr,x) or freeOf?(nr,x)) => false
+      dr:X:=denominator r
+      not(polynomial?(dr,x) or freeOf?(dr,x)) => false
+      true
 
     factoredForm(f:X->X):Fraction(FACSUP) ==
       ns:X:=(nsym:=new()$Symbol)::X
       q:=f(ns+1)/f(ns)
       nq:=normalize(q)$EFSP
-      not rational?(nq,retract ns) => error "Not rational"
+      not rational?(nq,ns) => error "Not rational"
       dnq:=denom nq
       nnq:=numer nq
       unnq:=univariate(nnq,kernel nsym)
@@ -71,15 +79,7 @@ HyperGeometric(): Exports == Implementation where
       funnq:=factor unnq
       fudnq:=factor udnq
       funnq/fudnq
-
-
-    admissible? ff ==
-      fn:=factors(numer ff)
-      fd:=factors(denom ff)
-      not empty? fn and max [degree(u.factor) for u in fn] > 1 => false
-      not empty? fd and max [degree(u.factor) for u in fd] > 1 => false
-      --todo: check fd: b's>=0
-      true
+      
 
     getParameters x ==
       qm:=create()$SingletonAsOrderedSet
@@ -110,7 +110,6 @@ HyperGeometric(): Exports == Implementation where
       empty?(x) => 1$X
       p:SUP:=reduce(_*,x)
       convert p
-      
 
     pFq(f:X->X):HYPER ==
       ff:=factoredForm(f)
@@ -126,7 +125,6 @@ HyperGeometric(): Exports == Implementation where
       ca:=buildConst(gpn.const)
       cb:=buildConst(gpd.const)
       [a,b,c*ca/cb]$HYPER
-      
  
     construct(x,s) ==
       v:=s::X
@@ -142,7 +140,6 @@ HyperGeometric(): Exports == Implementation where
       if not empty? bv then
         den:=reduce(_*,bv)    
       c*num/den/(v+1$X)
-      
 
     display(x:HYPER):OutputForm ==
       OF ==> OutputForm
@@ -159,7 +156,6 @@ HyperGeometric(): Exports == Implementation where
       --B:=binomial(blankSeparate a, blankSeparate b)
       B:=blankSeparate [A,matrix [a,b],bracket c]
       --hconcat(A,B)
-
 
     hyperLookup(x:HYPER):X ==
       a:=x.ap

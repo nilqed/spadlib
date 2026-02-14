@@ -15,11 +15,24 @@ FormalManipulations(R) : Exports == Implementation where
   Exports ==  with
   
     defop? : X -> Boolean
+      ++ defop?(x) checks whether x is a definite sum, product or integral.
     defop2list : X -> List X
+      ++ defop2list(x) returns a list of the form [defop,opr(%v),%v,var,lb,ub],
+      ++ where defop is one of %defsum,%defprod or %defint, opr(%v) is the 
+      ++ operand in the dummy variable %v, var is the original index variable 
+      ++ and lb, ub the lower- and upper bound respectively.      
     list2defop : List X -> X
+      ++ list2defop(l) is the inverse of defop2list, that is the defop will
+      ++ be exactly restored from the list given by defop2list.
+      
+    splitOp : (X,X) -> X
+    multOpr : (X,X) -> X
+    
     mexpt? : (X,Symbol) -> Boolean 
     monomial? : (X,Symbol) -> Boolean
     polynomial? : (X,Symbol) -> Boolean
+    rational? : (X,Symbol) -> Boolean
+    isRational? : (X,Symbol) -> Boolean
   
   Implementation ==  add 
 
@@ -85,3 +98,39 @@ FormalManipulations(R) : Exports == Implementation where
         return reduce(_and,lsf)
       else
         return false
+        
+    rational?(p:X,xs:Symbol):Boolean == 
+      polynomial?(numerator p,xs) and polynomial?(denominator p,xs)
+
+    
+    
+    isRational?(p:X,xs:Symbol):Boolean ==
+      -- second variant when X=EXPR INT (best so far ;-)
+      x:=xs::X
+      up:=univariate(p,kernel xs)
+      dup:=denom up
+      nup:=numer up
+      cdup:= coefficients dup
+      ndup:= coefficients nup
+      fox:=(u:X):Boolean+->freeOf?(u,x)
+      every?(fox,cdup) and every?(fox,ndup)
+
+    -- :todo: shall we warn when c is one of var,lb,ub?
+    -- splitOp expands if c is numeric. Using box? doesn't work :
+    splitOp(x:X,c:X):X ==
+      not defop? x => x
+      l:=defop2list x
+      l1:=copy l
+      l2:=copy l
+      l1.6:=c
+      l2.5:=c+1
+      if l1.1='%defint::X then l2.5:=c
+      list2defop(l1) + list2defop(l2)
+      
+    multOpr(x:X,c:X):X ==
+      not defop? x => x
+      l:=defop2list x
+      l1:=copy l
+      l1.2:=c * l1.2
+      if l1.1='%defprod::X then l1.2:=(l1.2)^c
+      list2defop(l1)

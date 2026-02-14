@@ -76,3 +76,9 @@ p:=a*x^5-7*x^3+c*x-z
 
 --PMK==>PatternMatchKernel(Integer,X)
 
+
+I:=integral(sin(x),x=a..b)
+P:=product(sin(k),k=1..N)
+S:=sum(sin(k),k=1..N)
+
+splitOp(S,5)

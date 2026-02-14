@@ -50,7 +50,7 @@ T10(k) == z^k/factorial(k)
 T11(k) == 2^k/factorial(k)^2
 T12(k) == binomial(n,k)
 
-q:=T6(k)/T6(k-1)
+q:=T12(k)/T12(k-1)
 nq:=normalize q
 GospersMethod(nq::FRAC POLY INT,k, new$Symbol)$GOS
 
