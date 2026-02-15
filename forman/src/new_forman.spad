@@ -24,9 +24,28 @@ FormalManipulations(R) : Exports == Implementation where
     list2defop : List X -> X
       ++ list2defop(l) is the inverse of defop2list, that is the defop will
       ++ be exactly restored from the list given by defop2list.
-      
+
+
+    getLB  : X -> X
+    getUB  : X -> X
+    getOPT : X -> X
+    getOPR : X -> X
+    getVAR : X -> X
+    
+    setLB  : (X,X) -> X
+    setUB  : (X,X) -> X
+    setOPT : (X,X) -> X
+    setOPR : (X,X) -> X
+    setVAR : (X,X) -> X
+
+    defint? : X -> Boolean
+    defprd? : X -> Boolean
+    defsum? : X -> Boolean
+
     splitOp : (X,X) -> X
-    multOpr : (X,X) -> X
+    multiplyOp : (X,X) -> X
+    splitFunctions : X -> X
+    shiftNTerms : (X,X) -> X
     
     mexpt? : (X,Symbol) -> Boolean 
     monomial? : (X,Symbol) -> Boolean
@@ -115,22 +134,86 @@ FormalManipulations(R) : Exports == Implementation where
       fox:=(u:X):Boolean+->freeOf?(u,x)
       every?(fox,cdup) and every?(fox,ndup)
 
+
+    getLB x == defop2list(x).5 
+    getUB x == defop2list(x).6
+    getOPT x == defop2list(x).1
+    getOPR x == 
+      l:=defop2list(x)
+      subst(l.2,l.3=l.4)
+    
+    getVAR x == defop2list(x).4
+    
+    setLB(x,y) == 
+      l:=copy defop2list(x)  
+      l.5:=y
+      list2defop(l)
+      
+    setUB(x,y) == 
+      l:=copy defop2list(x)  
+      l.6:=y
+      list2defop(l)
+      
+    setOPT(x,y) ==
+      -- y=%defop ... checks?    
+      l:=copy defop2list(x)  
+      l.1:=y
+      list2defop(l)
+      
+    setOPR(x,y) ==
+      l:=copy defop2list(x)  
+      l.2:=subst(y,l.4=l.3)
+      list2defop(l)
+    
+    setVAR(x,y) ==
+      -- one has to )clear properties 'x' first!
+      l:=copy defop2list(x)
+      l.4:=y
+      list2defop l
+
+    defint? x == test(getOPT x = '%defint::X)
+    defprd? x == test(getOPT x = '%defprod::X)
+    defsum? x == test(getOPT x = '%defsum::X)
+
+
     -- :todo: shall we warn when c is one of var,lb,ub?
     -- splitOp expands if c is numeric. Using box? doesn't work :
     splitOp(x:X,c:X):X ==
       not defop? x => x
-      l:=defop2list x
-      l1:=copy l
-      l2:=copy l
-      l1.6:=c
-      l2.5:=c+1
-      if l1.1='%defint::X then l2.5:=c
-      list2defop(l1) + list2defop(l2)
+      defsum? x => setUB(x,c) + setLB(x,c+1)
+      defprd? x => setUB(x,c) * setLB(x,c+1)
+      defint? x => setUB(x,c) + setLB(x,c)
       
-    multOpr(x:X,c:X):X ==
+      
+    multiplyOp(x:X,c:X):X ==
       not defop? x => x
-      l:=defop2list x
-      l1:=copy l
-      l1.2:=c * l1.2
-      if l1.1='%defprod::X then l1.2:=(l1.2)^c
-      list2defop(l1)
+      defsum? x or defint? x => setOPR(x,c*getOPR(x))
+      defprd? x => setOPR(x,getOPR(x)^c)
+      
+      
+    splitFunctions(x:X):X ==
+      not defop? x => x
+      opr:=getOPR(x)
+      if defsum? x or defint? x then
+        ip:=isPlus(distribute opr)
+        ip case "failed" => x
+        ip:=ip::List X
+        lop:=[setOPR(x,i) for i in ip]
+        return reduce(_+,lop)
+      else
+        it:=isTimes(distribute opr)
+        it case "failed" => x
+        it:=it::List X
+        lop:=[setOPR(x,i) for i in it]
+        return reduce(_*,lop)
+ 
+    shiftNTerms(x:X,c:X):X ==
+      not defop? x => x
+      l:=copy defop2list x
+      l.5:=l.5+c
+      l.6:=l.6+c
+      l.2:=subst(l.2,l.3=l.3-c)
+      list2defop l
+
+      
+      

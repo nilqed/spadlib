@@ -27,7 +27,7 @@ HyperGeometric(): Exports == Implementation where
     admissible? : Fraction(FACSUP) -> Boolean
       ++ admissible?(ff), where ff is the output of factoredForm, checks if
       ++ the factorization is complete (i.e. linear) and the b coefficients
-      ++ are non-negative.      
+      ++ are positive.      
     getParameters : FACSUP -> PARAM
       ++ getParameters(p) gives the parameters of sparse univariate polynomial
       ++ p, that is the list of zeroes and possibly a constant factor when
@@ -78,7 +78,10 @@ HyperGeometric(): Exports == Implementation where
       fd:=factors(denom ff)
       not empty? fn and max [degree(u.factor) for u in fn] > 1 => false
       not empty? fd and max [degree(u.factor) for u in fd] > 1 => false
-      --todo: check fd: b's>=0
+      --todo: check fd: b's>0
+      --qm:=create()$SingletonAsOrderedSet
+      empty? fd => true
+      --[(s.factor-qm) ??? for s in fd]
       true
 
     getParameters x ==

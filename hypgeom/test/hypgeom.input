@@ -84,3 +84,5 @@ pFq(f8) -->
 --pFq(f9)
 --f9(k+1)/f9(k)
 
+admissible? ff2 
+--.....

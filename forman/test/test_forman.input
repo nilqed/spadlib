@@ -1,0 +1,66 @@
+)co ../src/new_forman
+
+X ==> Expression Integer
+[f,g,h]:=map(operator,['f,'g,'h])
+
+
+S:=sum(f(k),k=a..b)
+P:=product(f(k),k=a..b)
+I:=integral(f(x),x=a..b)
+
+S3:=sum(f(k)+g(k)+h(k),k=a..b)
+P3:=product(f(k)*g(k)*h(k),k=a..b)
+I3:=integral(f(x)+g(x)+h(x),x=a..b)
+
+SX:=sum(c*h(l)*f(l)-r*g(l)^l*f(l),l=-p..q)
+
+---------------------------
+
+-- use with care : much nonsense possible ;)
+
+getLB(S)
+getUB(S)
+getOPT(S)
+getOPR(S)
+getVAR(S)
+
+setLB(S,1)
+setLB(S,u+v)
+setUB(S,100)
+setUB(S,u^2)
+
+setOPT(S,%defprod)
+setOPT(S,%defint)
+
+setOPR(S,getVAR(S)^n)
+setOPR(S,f(sin k))
+setOPR(S,1)
+setOPR(S,q)
+
+setVAR(S,m) --hmmm?
+setVAR(S,hello)
+
+
+
+---------------------------
+splitOp(S,c)
+splitOp(P,c)
+splitOp(I,c)
+
+multiplyOp(S,c)
+multiplyOp(P,c)
+multiplyOp(I,c)
+
+splitFunctions(S3)
+splitFunctions(P3)
+splitFunctions(I3)
+
+shiftNTerms(S,-a)
+shiftNTerms(P,-b)
+shiftNTerms(I,-c)
+
+
+
+
+
+
