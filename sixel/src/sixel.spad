@@ -11,19 +11,42 @@ SixelGraphics : Exports == Implementation where
   
   Exports == with
     
-    init : () -> SExpression
+    init : () -> Boolean
     lisp : String -> SExpression
     latex2sixel : String -> Void
     img2sixel : String -> Void
+    test1 : () -> Void()
 	
+    -- set functions return the old values!
+    getForegroundColor : () -> String
+    getBackgroundColor : () -> String
+    getTeXPointSize    : () -> String
+    getResolution      : () -> String
+    getOffset          : () -> String
+    getSize            : () -> String
+    
+    -- set functions return the old values!
+    setForegroundColor : String -> String
+    setBackgroundColor : String -> String
+    setTeXPointSize    : String -> String
+    setResolution      : String -> String
+    setOffset          : String -> String
+    setSize            : String -> String    
 	
   Implementation == add 
  
     lisp s == EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
 
     initialized:Boolean:=false
+    pt:String := "11pt"
+    fg:String := "Green"
+    bg:String := "Transparent"
+    res:String := "150"
+    size:String := "bbox"
+    offset:String := "-1.0cm,-2.0cm"
+    
 
-    init() == lisp "(progn (defmacro temp-basename (prefix) _
+    initLSP():SExpression == lisp "(progn (defmacro temp-basename (prefix) _
       `(let ((a (write-to-string (get-universal-time))) _
        (b (write-to-string (random 1000)))) _
        (format nil _"~A-~A-~A_" ,prefix a b))) _
@@ -82,19 +105,68 @@ SixelGraphics : Exports == Implementation where
              :ignore-error-status t)))"
 
 
-    latex2sixel tex == 
-      fmt:="(latex-to-sixel _"~A_")"
-      cmd:=string FORMAT('NIL,fmt,tex)$Lisp
+
+    init () ==
       if not initialized then
-        init()
-        initialized:=true
+        initLSP()
+        initialized:=true 
+      initialized
+
+    latex2sixel tex == 
+      fmt:="(latex-to-sixel _"~A_" :pt  _"~A_" :fg   _"~A_" :bg  _"~A_" _
+                                   :res _"~A_" :size _"~A_" :off _"~A_")"
+      cmd:=string FORMAT('NIL,fmt,tex,pt,fg,bg,res,size,offset)$Lisp
+      init()
       lisp cmd
 
     img2sixel img ==
       fmt:="(image-to-sixel _"~A_")" 
       cmd:=string FORMAT('NIL,fmt,img)$Lisp
-      if not initialized then
-        init()
-        initialized:=true
+      init()
       lisp cmd      
 
+
+    getForegroundColor() == fg
+    getBackgroundColor() == bg
+    getTeXPointSize()    == pt
+    getResolution()      == res
+    getOffset()          == offset
+    getSize()            == size
+    
+
+    setForegroundColor color == 
+      old:=fg
+      fg:=color
+      return old
+      
+    setBackgroundColor color == 
+      old:=bg
+      bg:=color
+      return old
+      
+    setTeXPointSize npt ==
+      old:=pt
+      pt:=npt
+      return old
+
+    setResolution nres == 
+      old:=res
+      res:=nres
+      return old
+      
+    setOffset noff ==
+      old:=offset
+      offset:=noff
+      return old
+    
+    setSize nsize ==
+      old:=size
+      size:=nsize
+      return old
+      
+      
+    tex1:="$$\\int__{\\Omega} d\\omega}=\\int__{\\partial\\Omega} \\omega$$"
+    logo1:="/home/kfp/quicklisp/local-projects/cl-sixel/docs/made-with-lisp.jpg"
+    test1() ==
+      latex2sixel tex1
+      img2sixel logo1
