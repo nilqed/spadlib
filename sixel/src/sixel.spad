@@ -4,7 +4,7 @@
 ++ License: BSD
 ++ References:
 ++ Description:
-++
+++ Todo: chk libsixel in init , double slashes/underline ..., TexFormat etc.
 SixelGraphics : Exports == Implementation where
   
   TMPDIR ==> "/tmp/"
@@ -17,7 +17,7 @@ SixelGraphics : Exports == Implementation where
     img2sixel : String -> Void
     test1 : () -> Void()
 	
-    -- set functions return the old values!
+    
     getForegroundColor : () -> String
     getBackgroundColor : () -> String
     getTeXPointSize    : () -> String

@@ -8,3 +8,7 @@ for a in ../spadlib/*/src/*.spad
        ./spad2doc.py < $a  > ./docs/$b.html; 
   done
 
+cd ./docs
+source mkidx.sh
+
+echo DONE

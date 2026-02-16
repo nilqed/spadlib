@@ -23,16 +23,10 @@
 </pre>
 </pre>
 </pre>
-<strong><code>polynomial? : (X,X) -> Boolean</code></strong>
+<strong><code>rational? : (X,Symbol) -> Boolean</code></strong>
 <pre style='color: darkgreen;'>
- polynomial?(p,x) returns true if p has the structure of a
- univariate polynomial in the variable x. Notice that constants
- are not considered as polynomials here. (a hack ;)
-</pre>
-<strong><code>rational? : (X,X) -> Boolean</code></strong>
-<pre style='color: darkgreen;'>
- rational?(r,x) returns true if r is of the form p/q where
- polynomial?(p,x) and polynomial?(q,x) are true.
+ rational?(r,x) returns true if r is of the form p/q where p and q
+ are univariate polynomials in x.
 </pre>
 <strong><code>factoredForm : (X->X) -> Fraction(FACSUP)</code></strong>
 <pre style='color: darkgreen;'>
@@ -40,6 +34,12 @@
  where numerator and denominator are factored, provided that this
  fraction is a rational function; otherwise an error message is
  produced.
+</pre>
+<strong><code>admissible? : Fraction(FACSUP) -> Boolean</code></strong>
+<pre style='color: darkgreen;'>
+ admissible?(ff), where ff is the output of factoredForm, checks if
+ the factorization is complete (i.e. linear) and the b coefficients
+ are positive.
 </pre>
 <strong><code>getParameters : FACSUP -> PARAM</code></strong>
 <pre style='color: darkgreen;'>
@@ -69,6 +69,13 @@
 <strong><code>hyperLookup : HYPER -> X</code></strong>
 <pre style='color: darkgreen;'>
  Lookup the output of pFq in a table.
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
 </pre>
 </pre>
 </pre>

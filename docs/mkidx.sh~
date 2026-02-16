@@ -18,7 +18,7 @@ for a in *.html;
     h=$(echo  $g | sed -e 's/h2/h4/g');
     k=$(echo  $h | sed -e 's/blue/black/g');
     printf "%s| " $k >> index;
-    printf "%s<br>" " <a href=./$a>$(basename $a .html)</a>" >> index;
+    printf "%s<br>" "  ... <a href=./$a>$(basename $a .html)</a>" >> index;
     #echo "<hr width="100%" size="1">" >> index;
   done; 
 
