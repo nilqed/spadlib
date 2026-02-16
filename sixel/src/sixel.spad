@@ -1,0 +1,100 @@
+)abbrev package SIXEL SixelGraphics
+++ Author: $author
+++ Date Created: $defaultdate
+++ License: BSD
+++ References:
+++ Description:
+++
+SixelGraphics : Exports == Implementation where
+  
+  TMPDIR ==> "/tmp/"
+  
+  Exports == with
+    
+    init : () -> SExpression
+    lisp : String -> SExpression
+    latex2sixel : String -> Void
+    img2sixel : String -> Void
+	
+	
+  Implementation == add 
+ 
+    lisp s == EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
+
+    initialized:Boolean:=false
+
+    init() == lisp "(progn (defmacro temp-basename (prefix) _
+      `(let ((a (write-to-string (get-universal-time))) _
+       (b (write-to-string (random 1000)))) _
+       (format nil _"~A-~A-~A_" ,prefix a b))) _
+       (defparameter +temp+ _"/tmp_") _
+       (defparameter tex-template _"\\documentclass[~A]{article} _
+         \\usepackage{amsmath,amssymb} _
+         \\usepackage{breqn} _
+         \\pagestyle{empty} _
+         \\begin{document} _
+          ~A _
+         \\end{document}_") _
+        (defparameter latex-cmd _
+           _"latex -jobname=~A --output-directory=~A _
+                   -interaction=nonstopmode ~A_") _
+        (defparameter dvipng-cmd _
+           _"dvipng -T ~A -D ~A -O ~A -fg ~A -bg ~A -q -o ~A ~A_") _
+        (defparameter image-to-sixel-cmd _
+            _"img2sixel ~A_") _
+        (defun write-tex-file (jobname tex &key (pt _"11pt_")) _
+          (let ((file-name (concatenate 'string +temp+ _"/_" _
+                 jobname _".tex_"))) _
+            (with-open-file (texf file-name _
+              :direction :output _
+              :if-exists :supersede _
+              :if-does-not-exist :create) _
+              (format texf tex-template pt tex)))) _
+        (defun run-latex (jobname) _
+          (let* ((file-name (concatenate 'string +temp+ _"/_" _
+                  jobname _".tex_")) _
+            (cmd (format nil latex-cmd jobname +temp+ file-name))) _
+            (uiop:run-program cmd :output nil :ignore-error-status t))) _
+        (defun run-dvipng (jobname fg bg res size off) _
+          (let* ((file-name (concatenate 'string +temp+ _"/_" _
+                  jobname _".dvi_")) _
+             (img (concatenate 'string +temp+ _"/_" jobname _".png_")) _
+             (cmd (format nil dvipng-cmd size res off fg bg img file-name))) _
+             (uiop:run-program cmd :output nil :ignore-error-status t))) _
+        (defun run-img-to-sixel (jobname) _
+          (let* ((img (concatenate 'string +temp+ _"/_" _
+                  jobname _".png_")) _
+             (cmd (format nil image-to-sixel-cmd img))) _
+             (uiop:run-program cmd :output t :ignore-error-status t))) _
+        (defun tidy-up (jobname) jobname)  _
+        (defun latex-to-sixel (tex  &key (pt _"11pt_") (fg _"Green_") _
+             (bg _"Transparent_") _
+             (res _"150_") (size _"bbox_") (off _"-1.0cm,-2.0cm_")) _
+           (let* ((jobname (temp-basename _"ltx2sixel_"))) _
+             (progn (write-tex-file jobname tex :pt pt) _
+               (run-latex jobname) _
+               (run-dvipng jobname fg bg res size off) _
+               (run-img-to-sixel jobname) _
+               (tidy-up jobname)))) _
+       (defun image-to-sixel (file) _
+          (uiop:run-program _
+          (format nil _"img2sixel ~A_" file) :output t _
+             :ignore-error-status t)))"
+
+
+    latex2sixel tex == 
+      fmt:="(latex-to-sixel _"~A_")"
+      cmd:=string FORMAT('NIL,fmt,tex)$Lisp
+      if not initialized then
+        init()
+        initialized:=true
+      lisp cmd
+
+    img2sixel img ==
+      fmt:="(image-to-sixel _"~A_")" 
+      cmd:=string FORMAT('NIL,fmt,img)$Lisp
+      if not initialized then
+        init()
+        initialized:=true
+      lisp cmd      
+

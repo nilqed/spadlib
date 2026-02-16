@@ -1,0 +1,14 @@
+# SciTE session file
+
+buffer.1.path=/home/kfp/quicklisp/local-projects/spadlib/forman/src/new_forman.spad
+buffer.1.position=5975
+buffer.1.scroll=187
+
+buffer.2.path=/home/kfp/quicklisp/local-projects/spadlib/forman/test/new_forman.input
+buffer.2.position=1
+buffer.2.scroll=0
+
+buffer.3.path=/home/kfp/quicklisp/local-projects/spadlib/forman/test/test_forman.input
+buffer.3.position=854
+buffer.3.scroll=32
+buffer.3.current=1
