@@ -1,0 +1,132 @@
+)abbrev package HTOOT Hunchentoot
+++ Author: $author
+++ Date Created: $defaultdate
+++ License: BSD
+++ References: 
+++   * https://edicl.github.io/hunchentoot/
+++   * https://github.com/edicl/hunchentoot
+++   * https://common-lisp-libraries.readthedocs.io/hunchentoot/
+++ Description:  Hunchentoot is a web server written in Common Lisp and at 
+++   the same time a toolkit for building dynamic websites. As a stand-alone 
+++   web server, Hunchentoot is capable of HTTP/1.1 chunking (both directions), 
+++   persistent connections (keep-alive), and SSL.
+++
+Hunchentoot() : Exports == Implementation where
+  
+  SEX ==> SExpression
+  STR ==> String
+  NNI ==> NonNegativeInteger
+  
+  features ==> _*FEATURES_*$Lisp
+  reval(s) ==>  EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
+  format   ==>  FORMAT$Lisp  
+  
+  
+  Exports == with
+    
+    installed? : () -> Boolean
+      ++ installed?() is true if the symbol :HUNCHENTOOT is in *features*.
+      ++ We then assume, that Hunchentoot is installed (optimistic :)
+      
+    version : () -> SExpression
+    
+    start : (NNI,STR,STR) -> SEX
+      ++ a:=start(port,address,docroot) starts the webserver listening on
+      ++ port 'port' and address 'address'. Static files are served from
+      ++ docroot (a path). The return value 'a' is an instance off the acceptor
+      ++ class and should be stored in order to stop/restart the server.
+    stop  : SEX -> SEX
+      ++ stop(a) stops the webserver, where 'a' is the return value of the 
+      ++ start function.
+    restart : SEX -> SEX
+      ++ restart(a) starts the server with acceptor 'a' again after it has
+      ++ been stopped.
+    started? : SEX -> Boolean
+      ++ started?(a) returns true if the server has beeen started.
+    getAddress : SEX -> SEX
+      ++ getAddress(a) returns the ip address listening on.
+    getPort : SEX -> SEX
+      ++ getPort(a) return the ip port listening on.
+    describe : SEX -> SEX
+      ++ describe(a) returns all info about a (essentially the CL 
+      ++ inspect/describe function)
+    folderDispatch : (STR,STR) -> SEX
+      ++ folderDispatch("/docs/","/home/kfp/devel/fricas-book/") creates and
+      ++ pushes a folder dispatcher and handler, so that for example:
+      ++ http://localhost:8080/docs/index.html displays the file index.html.
+      ++ Note: the end slashes in both parameters are required (acc. to docu)
+    defEasyHandler : (STR,STR,STR,STR) -> SEX
+      ++ defEasyHandler(name,uri,parameters,handler) ...
+		
+  Implementation == add 
+  
+    initialized?:=false
+  
+    htAcceptorFun:STR:="(defun boot::htacceptor (fun acc) _
+      (case fun _
+        (10 (hunchentoot::stop acc)) _
+        (20 (hunchentoot::start acc)) _
+        (30 (hunchentoot::started-p acc)) _
+        (40 (hunchentoot::acceptor-address acc)) _
+        (50 (hunchentoot::acceptor-port acc)) _
+        (otherwise 'nil)))"
+  
+    fmtStart:STR:="(hunchentoot:start _
+      (make-instance 'hunchentoot:easy-acceptor :port ~A _
+        :address _"~A_" :document-root _"~A_"))"
+    
+    installed?() == reval "(member ':HUNCHENTOOT *features*)"
+    
+    init():Void ==
+      not installed?() => error "Hunchentoot not found. /todo:"
+      initialized? => void()
+      reval htAcceptorFun
+      initialized:=true
+      void()
+    
+    start(port,address,docroot) ==
+      init()
+      s:=string format('NIL,fmtStart,port,address,docroot)
+      reval(s)
+
+    stop(a)       == HTACCEPTOR(10,a)$Lisp
+    restart(a)    == HTACCEPTOR(20,a)$Lisp
+    started?(a)   == HTACCEPTOR(30,a)$Lisp
+    getAddress(a) == HTACCEPTOR(40,a)$Lisp
+    getPort(a)    == HTACCEPTOR(50,a)$Lisp
+    describe(a)   == DESCRIBE(a)$Lisp
+      
+
+    pushDispatchTable(s:STR):STR ==
+      string format('NIL,"(push ~A hunchentoot:*dispatch-table*)",s)
+      
+    folderDispatch(prefix,basepath) ==
+      s:="(hunchentoot:create-folder-dispatcher-and-handler _"~A_" _"~A_")"
+      reval string format('NIL,pushDispatchTable(s),prefix,basepath)
+
+    defEasyHandler(name,uri,parameters,handler) ==
+      s:="(hunchentoot:define-easy-handler (~A :uri _"~A_") (~A) ~A)"
+      reval string format('NIL,s,name,uri,parameters,handler)
+      
+
+--  handler:="(write-to-string (+ (parse-integer x) (parse-integer y)))"
+--  defEasyHandler("add-two-integers","/add2","x y",handler)
+
+-- http://localhost:8080/add2?x=10122212120&y=20000000
+-- --> 10142212120
+
+-- Function: (create-folder-dispatcher-and-handler uri-prefix base-path 
+--   &optional content-type)
+
+-- folderDispatch("/docs/","/home/kfp/devel/fricas-book/")
+-- http://localhost:8080/docs/index.html [ok]
+
+--;; Create a folder dispatcher and handler
+--(hunchentoot:create-folder-dispatcher-and-handler
+--  "/static/"  ;; URL prefix
+--  *static-folder*)  ;; Directory to serve files from
+-- *** must be pushed to *dispatch-table*
+
+-- a:=start(...)
+-- CLASS_-OF(a)$Lisp
+   
