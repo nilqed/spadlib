@@ -1,0 +1,94 @@
+)show HTOOT
+ Hunchentoot is a package constructor
+ Abbreviation for Hunchentoot is HTOOT
+ This constructor is exposed in this frame.
+------------------------------- Operations --------------------------------
+
+ installed? : () -> Boolean            started? : SExpression -> Boolean
+ stop : SExpression -> SExpression     version : () -> SExpression
+ defEasyHandler : (String, String, String, String) -> SExpression
+ describe : SExpression -> SExpression
+ folderDispatch : (String, String) -> SExpression
+ getAddress : SExpression -> SExpression
+ getPort : SExpression -> SExpression
+ restart : SExpression -> SExpression
+ start : (NonNegativeInteger, String, String) -> SExpression
+---------------------------------------------------------------------------
+
+-- Is HT installed at all?
+--
+installed?()$HTOOT  --> should be true
+
+
+-- Start it
+-- port,address, document-root may be empty "".
+a:=start(8080,"localhost","/tmp")
+
+a -->  #<EASY-ACCEPTOR (host localhost, port 8080)> of type SEX
+
+getAddress a --> "localhost"
+getPort a --> 8080 
+
+started? a --> true
+
+
+-- Define an easy handler (adding two integers)
+--
+handler:="(write-to-string (+ (parse-integer x) (parse-integer y)))"
+defEasyHandler("add-two-integers","/add2","x y",handler)
+
+--> ADD-TWO-INTEGERS,Type: SExpression
+
+-- Use a browser (GET-METHOD):
+http://localhost:8080/add2?x=10122212120&y=20000000 --> 10142212120
+
+Notice: the x,y parameters are connected by "&"!
+
+
+-- Add a folder dispatcher and handler, e.g. to serve the book
+--
+folderDispatch("/docs/","/home/kfp/devel/fricas-book/")
+
+browser: http://localhost:8080/docs/index.html 
+
+
+-- stop(a), restart(a) is obvious
+
+-- describe a (inspect the instance a)
+--
+describe a
+
+(2) -> describe a
+
+#<HUNCHENTOOT:EASY-ACCEPTOR (host localhost, port 8080)>
+  [standard-object]
+
+Slots with :INSTANCE allocation:
+  PORT                           = 8080
+  ADDRESS                        = "localhost"
+  NAME                           = #:G30
+  REQUEST-CLASS                  = HUNCHENTOOT:REQUEST
+  REPLY-CLASS                    = HUNCHENTOOT:REPLY
+  TASKMASTER                     = #<HUNCHENTOOT:ONE-THREAD-PER-CONNECTION-TASKMASTER {1002DDCE63}>
+  OUTPUT-CHUNKING-P              = T
+  INPUT-CHUNKING-P               = T
+  PERSISTENT-CONNECTIONS-P       = T
+  READ-TIMEOUT                   = 20
+  WRITE-TIMEOUT                  = 20
+  LISTEN-SOCKET                  = #<USOCKET:STREAM-SERVER-USOCKET {10031DA1C3}>
+  LISTEN-BACKLOG                 = 50
+  ACCEPTOR-SHUTDOWN-P            = NIL
+  REQUESTS-IN-PROGRESS           = 0
+  SHUTDOWN-QUEUE                 = #<SB-THREAD:WAITQUEUE Anonymous condition variable {1002DDE9D3}>
+  SHUTDOWN-LOCK                  = #<SB-THREAD:MUTEX "hunchentoot-acceptor-shutdown" free owner=0>
+  ACCESS-LOG-DESTINATION         = #<SYNONYM-STREAM :SYMBOL SB-SYS:*STDERR* {1000009603}>
+  MESSAGE-LOG-DESTINATION        = #<SYNONYM-STREAM :SYMBOL SB-SYS:*STDERR* {1000009603}>
+  ERROR-TEMPLATE-DIRECTORY       = #P"/home/kfp/devel/hsbcl/pp/hunchentoot-v1.3.0/www/errors/"
+  DOCUMENT-ROOT                  = #P"/tmp"
+
+   (2)  ()
+                                                            Type: SExpression
+(2) ->
+
+
+
