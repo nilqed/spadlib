@@ -1,0 +1,130 @@
+)abbrev package CELINE CelineMethod
+CelineMethod(R): Exports == Implementation where
+  R:Join(Comparable,IntegralDomain,RTR,LER)  
+  X   ==> Expression R
+  FPR ==> Fraction Polynomial R
+  
+  RTR ==> RetractableTo R
+  LER ==> LinearlyExplicitOver R
+  
+  POLR ==> Polynomial R
+  NNI  ==> NonNegativeInteger
+  PI   ==> PositiveInteger
+  BOP  ==> BasicOperator
+  
+  EFSP ==> ElementaryFunctionStructurePackage(Integer,X)
+  UPR  ==> Union(Polynomial R,"failed")
+  SMP  ==> SparseMultivariatePolynomial(Integer,Kernel(X))
+  SMPF ==> SparseMultivariatePolynomial(R,Kernel(X))
+  FSMP ==> Factored SMP
+
+
+
+  Exports == with
+    coeffMatrix : (PI,PI) -> Matrix X
+      ++ coeffMatrix(I,J) constructs a (I+1)x(J+1) matrix of new
+      ++ symbols.
+    funcMatrix  : ((X,X)->X,PI,PI) -> Matrix X
+      ++ funcMatrix(f,I,J) constructs a (J+1)x(I+1) matrix with
+      ++ the entries M(i,j):=f(n-j,k-i)
+    sumAndNormalize : (Matrix X,Matrix X) -> X
+      ++ 
+    retractNumeratorToPolyInt : X -> UPR
+      ++
+    findCoeffs : (POLR,Matrix X, Symbol) -> List List Equation FPR
+      ++
+    celine :((X,X)->X,PI,PI) -> Union(Matrix X,"failed")
+      ++ celine(f,I,J) tries to find a recurrence for 
+      ++ F(n) = summation(f(n,k),k). The returned value is either
+      ++ "failed" or the coefficient matrix for the recurrence.
+      ++ If successfull, then it holds that the trace of 
+      ++ celine(f,I,J)*funcMatrix(f,I,J) is zero (normalize). 
+    firstOrderRecurrence : ((X,X)->X,X->Matrix X) -> X      
+
+
+
+  Implementation == add
+
+    coeffMatrix(I:PI,J:PI):Matrix X ==
+      matrix [[new()$Symbol::X for j in 0..J] for i in 0..I]
+
+    funcMatrix(F:(X,X)->X,I:PI,J:PI):Matrix X ==
+      n:X:='n::X
+      k:X:='k::X
+      matrix [[F(n-j::X,k-i::X)/F(n,k)  for i in 0..I] for j in 0..J]
+
+    sumAndNormalize(CM:Matrix X, FM:Matrix X):X ==
+      n:=nrows(CM)
+      t:X:=trace(squareMatrix(CM*FM)$SquareMatrix(n,X))
+      normalize(t)$ElementaryFunctionStructurePackage(Integer,X)
+
+    retractNumeratorToPolyInt(san:X):UPR ==
+      --p:Polynomial R:=retract(numerator san)
+      p:=retractIfCan(numerator san)@UPR
+      p case "failed" => "failed"
+      return p
+ 
+
+    findCoeffs(p:POLR,m:Matrix X,k:Symbol):List List Equation FPR ==
+      d:=degree(p,k)
+      eqs:List Equation FPR:=[coefficient(p,k,l)::FPR=0 for l in 0..d]
+      v:=members m
+      x:=variables v
+      sol:=solve(eqs,x)$SystemSolvePackage(R) --$TransSolvePackage(Integer)
+      --first sol -- if more?
+      
+      
+    convToFPR(M:Matrix X):Matrix FPR ==
+      m:=copy(M)
+      nr:=nrows(m)
+      nc:=ncols(m)
+      r:=zero(nr,nc)$Matrix(FPR)
+      for i in 1..nr repeat
+        for j in 1..nc repeat
+          r(i,j):=retract m(i,j)
+      return r
+
+    convertToX(x:List Equation FPR):List Equation X ==
+      [lhs(s)::X=rhs(s)::X for s in x]
+
+    celine(F:(X,X)->X,I:PI,J:PI):Union(Matrix X,"failed") ==
+      cm:Matrix X:=coeffMatrix(I,J)
+      fm:=funcMatrix(F,I,J)
+      san:=sumAndNormalize(cm,fm)
+      p:=retractNumeratorToPolyInt(san)
+      p case "failed" => "failed"
+      --
+      fseq:=first findCoeffs(p,cm,'k)
+      seq:=convertToX(fseq)
+      ev:=(x:X):X+->eval(x,seq)
+      map(ev,cm)
+
+    firstOrderRecurrence(F:(X,X)->X,A:X->Matrix X):X ==
+      n:X:='n::X
+      k:X:='k::X
+      --fm:=funcMatrix(F,1,1)
+      a00:=(n:X):X+->elt(A(n),1,1)
+      a01:=(n:X):X+->elt(A(n),1,2)
+      a10:=(n:X):X+->elt(A(n),2,1)
+      a11:=(n:X):X+->elt(A(n),2,2)
+      anum:=(n:X):X+->a11(n)+a01(n)
+      aden:=(n:X):X+->a00(n)+a10(n)
+      alpha:=(n:X):X+->-anum(n)/aden(n)
+      beta:=(n:X):X+->a10(n)/aden(n)*F(n+1,n+1)
+      sb1:SegmentBinding X:=equation('k,segment(0,n)$Segment(X))
+      sb2:SegmentBinding X:=equation('k,segment(1,n)$Segment(X))
+      Q:=(n:X):X+->product(alpha(k),sb1)
+      if F(0,0) ~= 0 then
+        r:X:=Q(n)*(F(0,0)/alpha(0)+ summation(beta(k)/Q(k),sb2))
+      else
+        r:X:=Q(n)*summation(beta(k)/Q(k),sb2)
+      return r
+      
+
+-- https://en.wikipedia.org/wiki/Recurrence_relation
+-- C:=celine2((k,n)+->binomial(n,k),operator 'T,1,1)
+-- variables(%)
+-- C=0 ; %/?%
+-- sum(C,k=1..n), tower(C), kernels(C), variables C, mainKernel C
+
+

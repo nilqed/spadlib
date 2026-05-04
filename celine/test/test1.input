@@ -1,0 +1,39 @@
+)co ../src/celine.spad
+
+X ==> EXPR INT
+
+F:=(n:X,k:X):X+->k*binomial(n,k)
+cF:=celine(F,1,1)
+fF:=funcMatrix(F,1,1)
+test(normalize trace(cF*fF) = 0)
+
+H:=(n:X,k:X):X+->binomial(n,k)
+cH:=celine(H,1,1)
+fH:=funcMatrix(H,1,1)
+test(normalize trace(cH*fH) = 0)
+
+Q:=(n:X,k:X):X+->binomial(n,k)^2
+cQ:=celine(Q,2,2)
+fQ:=funcMatrix(Q,2,2)
+test(normalize trace(cQ*fQ) = 0)
+
+R:=(n:X,k:X):X+->(-1)^k*factorial(n)*'x::X^k/(factorial(k)^2*factorial(n-k))
+cR:=celine(R,2,2)
+fR:=funcMatrix(R,2,2)
+test(normalize trace(cR*fR) = 0)
+
+----
+G:=operator 'G
+GM:=funcMatrix((n,k)+->G(n,k),1,1)
+trace(cF*GM)
+
+----
+GM2:=funcMatrix((n,k)+->G(n,k),2,2)
+trace(cR*GM2)
+
+---- hmm
+--MF:=x+->eval(cF,n=x)
+--firstOrderRecurrence(F,MF)
+
+GG:=funcMatrix((n,k)+->G(n),1,1)
+eqREC:=trace(cF*GG)=0
