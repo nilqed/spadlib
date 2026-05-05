@@ -1,6 +1,8 @@
 )abbrev package CELINE CelineMethod
-CelineMethod(R): Exports == Implementation where
-  R:Join(Comparable,IntegralDomain,RTR,LER)  
+CelineMethod: Exports == Implementation where
+  -- Ref: https://www2.math.upenn.edu/~wilf/AeqB.pdf
+  -- R:Join(Comparable,IntegralDomain,RTR,LER) 
+  R   ==> Integer  
   X   ==> Expression R
   FPR ==> Fraction Polynomial R
   
@@ -39,8 +41,12 @@ CelineMethod(R): Exports == Implementation where
       ++ "failed" or the coefficient matrix for the recurrence.
       ++ If successfull, then it holds that the trace of 
       ++ celine(f,I,J)*funcMatrix(f,I,J) is zero (normalize). 
-    firstOrderRecurrence : ((X,X)->X,X->Matrix X) -> X      
-
+    firstOrderRecurrence : ((X,X)->X,X->Matrix X) -> X 
+      ++
+    recRel : ((X,X)->X,PI,PI) -> Union(X,"failed")  
+      ++
+    recEq : ((X,X)->X,PI,PI) -> Union(Equation X,"failed")          
+      ++ 
 
 
   Implementation == add
@@ -99,6 +105,31 @@ CelineMethod(R): Exports == Implementation where
       ev:=(x:X):X+->eval(x,seq)
       map(ev,cm)
 
+
+    recRel(F:(X,X)->X,I:PI,J:PI):Union(X,"failed") ==
+      C:=celine(F,I,J)
+      C case "failed" => "failed"
+      zero? C => "failed"
+      S:=operator 'S
+      SM:=funcMatrix((n,k)+->S(n),I,J)
+      if C case Matrix(X) then
+        M:=C*SM      
+        r:=numerator reduce(_+,[M(i,i) for i in 1..I+1])
+      else
+        "failed"
+
+    -- solve([r=0],[S(n)])
+    -- F:=(n,k)+->binomial(n,k)*binomial(2*k,k)*(-2)^(n-k)
+    
+    recEq(F:(X,X)->X,I:PI,J:PI):Union(Equation X,"failed") ==
+      r:Union(X,"failed"):=recRel(F,I,J)
+      r case "failed" => "failed"
+      S:=operator 'S
+      n:='n::X
+      s:=solve([r=0],[S(n)::X])$TransSolvePackage(Integer)
+      empty? s => "failed"
+      first first s
+
     firstOrderRecurrence(F:(X,X)->X,A:X->Matrix X):X ==
       n:X:='n::X
       k:X:='k::X
@@ -122,9 +153,4 @@ CelineMethod(R): Exports == Implementation where
       
 
 -- https://en.wikipedia.org/wiki/Recurrence_relation
--- C:=celine2((k,n)+->binomial(n,k),operator 'T,1,1)
--- variables(%)
--- C=0 ; %/?%
--- sum(C,k=1..n), tower(C), kernels(C), variables C, mainKernel C
-
 

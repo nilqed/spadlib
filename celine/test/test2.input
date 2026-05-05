@@ -1,0 +1,34 @@
+)co ../src/celine.spad
+
+X ==> EXPR INT
+
+
+F1:=(n,k)+->binomial(n,k)
+r1:=recEq(F1,1,1)
+
+-- Example 4.3.1. 
+F2:=(n,k)+->binomial(n,k)^2
+r2:=recEq(F2,2,2)
+
+-- Example 4.3.3. 
+F3:=(n,k)+->binomial(n,k)*binomial(2*k,k)*(-2)^(n-k)
+r3:=recEq(F3,2,2)
+
+-- Example 4.3.2. 
+F4:=(n,k)+->(-1)^k*binomial(n,k)*x^k/factorial(k)
+r4:=recEq(F4,2,2)  -- (1,2) already works!
+
+-- Example 4.1.1.
+F5:=(n,k)+->k*binomial(n,k)
+r5:=recEq(F5,1,1)
+
+
+F6:=(n,k)+->k^2*binomial(n,k)
+r6:=recEq(F6,1,1) -- fails, but (1,2) and (2,1) are working .... pref: 1,2
+
+r6_12:=recEq(F6,1,2)
+r6_21:=recEq(F6,2,1)
+
+r6_21 - r6_12
+
+
