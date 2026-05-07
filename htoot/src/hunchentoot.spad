@@ -57,6 +57,8 @@ Hunchentoot() : Exports == Implementation where
       ++ Note: the end slashes in both parameters are required (acc. to docu)
     defEasyHandler : (STR,STR,STR,STR) -> SEX
       ++ defEasyHandler(name,uri,parameters,handler) ...
+      
+    jfricas : NNI -> SEX 
 		
   Implementation == add 
   
@@ -109,24 +111,130 @@ Hunchentoot() : Exports == Implementation where
       reval string format('NIL,s,name,uri,parameters,handler)
       
 
---  handler:="(write-to-string (+ (parse-integer x) (parse-integer y)))"
---  defEasyHandler("add-two-integers","/add2","x y",handler)
+-------------------------
+ 
+    wsFmt():SEX ==
+      s:="(defun ws-fmt (marker) _
+       (|sayMSG| (format nil _"--FORMAT:~A:~D_" marker boot::|$IOindex|)))"
+      reval(s)
 
--- http://localhost:8080/add2?x=10122212120&y=20000000
--- --> 10142212120
+    setIoHook():SEX ==
+      s:="(setf |$ioHook| _
+      (lambda (x &optional args) _
+        (cond _
+         ((eq x '|startAlgebraOutput|) (ws-fmt _"BEG:Algebra_")) _
+         ((eq x '|endOfAlgebraOutput|) (ws-fmt _"END:Algebra_")) _
+         ((eq x '|startPatternMsg|)    (ws-fmt _"BEG:ERROR_")) _
+         ((eq x '|endPatternMsg|)      (ws-fmt _"END:ERROR_")) _
+         ((eq x '|startKeyedMsg|) _
+          (cond _
+           ((eq (car args) 'S2GL0012) (ws-fmt _"BEG:Type_")) _
+           ((eq (car args) 'S2GL0013) (ws-fmt _"BEG:Time_")) _
+           ((eq (car args) 'S2GL0014) (ws-fmt _"BEG:TypeTime_")) _
+           ((eq (car args) 'S2GL0016) (ws-fmt _"BEG:Storage_")) _
+           ('T                        (ws-fmt _"BEG:KeyedMsg_")))) _
+         ((eq x '|endOfKeyedMsg|) _
+          (cond _
+           ((eq (car args) 'S2GL0012) (ws-fmt _"END:Type_")) _
+           ((eq (car args) 'S2GL0013) (ws-fmt _"END:Time_")) _
+           ((eq (car args) 'S2GL0014) (ws-fmt _"END:TypeTime_")) _
+           ((eq (car args) 'S2GL0016) (ws-fmt _"END:Storage_")) _
+           ('T                        (ws-fmt _"END:KeyedMsg_")))) _
+        )))"
+      reval(s)
+      
+    webspadParseAndEvalStr():SEX ==
+      s:="(defun |webspad-parseAndEvalStr| (code) _
+       (setf |$printStorageIfTrue| T) _
+       (setf |$MARGIN| 0) _
+       (setf |$print_equatnum| NIL) _
+       (eq (catch 'SPAD_READER (catch '|top_level| (|interpret_block| code))) _
+       '|restart|))"
+      reval(s)
 
--- Function: (create-folder-dispatcher-and-handler uri-prefix base-path 
---   &optional content-type)
 
--- folderDispatch("/docs/","/home/kfp/devel/fricas-book/")
--- http://localhost:8080/docs/index.html [ok]
+    defStruct():SEX ==
+      s:="(defstruct r _
+            (stdout    _"_" :type string) _
+            (error?    _"_" :type string) _
+            (input     _"_" :type string))"
+      reval(s)
+      
 
---;; Create a folder dispatcher and handler
---(hunchentoot:create-folder-dispatcher-and-handler
---  "/static/"  ;; URL prefix
---  *static-folder*)  ;; Directory to serve files from
--- *** must be pushed to *dispatch-table*
+    defStreams():SEX ==
+      s1:="(defvar webspad-stream (make-string-output-stream))"
+      s2:="(defvar proxy-stdout boot::*standard-output*)"
+      s3:="(setf boot::*standard-output* (make-synonym-stream 'proxy-stdout))"
+      s4:="(boot::|setOutputAlgebra|   'boot::|%initialize%|) _
+           (boot::|setOutputFortran|   'boot::|%initialize%|) _
+           (boot::|setOutputMathml|    'boot::|%initialize%|) _
+           (boot::|setOutputTexmacs|   'boot::|%initialize%|) _
+           (boot::|setOutputHtml|      'boot::|%initialize%|) _
+           (boot::|setOutputOpenMath|  'boot::|%initialize%|) _
+           (boot::|setOutputTex|       'boot::|%initialize%|) _
+           (boot::|setOutputFormatted| 'boot::|%initialize%|)"
+      reval("(progn " s1 s2 s3 s4 ")")
+      
+    webspadEval():SEX ==
+      s:="(defun webspad-eval (input) _
+            (let* ( _
+                  (data (make-r :input input)) _
+                  (proxy-stdout webspad-stream) _
+                  (*error-output* proxy-stdout) _
+                  ) _
+            (setf (r-error? data) _
+              (if (boot::|webspad-parseAndEvalStr| input) _"T_" _"F_")) _
+            (setf (r-stdout data) (get-output-stream-string webspad-stream)) _
+            data))"
+      reval(s)
 
--- a:=start(...)
--- CLASS_-OF(a)$Lisp
-   
+
+    spadEval():SEX ==
+      s:="(defun spad-eval (code) _
+          (format nil _"~{~A~%~}_" (boot::|parseAndEvalToString| code)))" 
+      reval(s)
+
+    encodeJson():SEX ==
+      s:="(defun encode-json (data) _
+          (format nil _"{ \_"stdout\_":~S, \_"error?\_":~S, \_"input\_":~S}_" _
+          (r-stdout data) _
+          (r-error? data) _
+          (r-input data)))"
+      reval(s)
+      
+    fricasEval():SEX ==
+      s:="(hunchentoot:define-easy-handler (fricas-eval :uri _"/eval_") (code) _
+            (setf (hunchentoot:content-type*) _"text/plain_") _
+            (format nil _"~A~%_" (spad-eval code)))"
+      reval(s)
+      
+    fricasRaw():SEX ==
+      s:="(hunchentoot:define-easy-handler (fricas-raw :uri _"/raw_") (code) _
+            (setf (hunchentoot:content-type*) _"text/plain_") _
+            (format nil _"~A~%_" (webspad-eval code)))"    
+      reval(s)
+      
+    fricasJson():SEX ==
+      s:="(hunchentoot:define-easy-handler (fricas-json :uri _"/json_") (code) _
+            (setf (hunchentoot:content-type*) _"text/plain_") _
+            (format nil _"~A~%_" (encode-json (webspad-eval code))))"    
+      reval(s)
+
+    -- exported
+    jfricas(port:NNI):SEX ==
+      wsFmt()
+      setIoHook()
+      webspadParseAndEvalStr()
+      defStruct()
+      defStreams()
+      webspadEval()
+      spadEval()
+      encodeJson()
+      fricasEval()
+      fricasRaw()
+      fricasJson()
+      start(port,"localhost","")
+
+
+      
+          
