@@ -1,12 +1,14 @@
+-- Sat 9 May 22:36:23 CEST 2026
 --------------------------------------
 )abbrev package HYPGEOM HyperGeometric
 --------------------------------------
 HyperGeometric(): Exports == Implementation where
   R ==> Fraction Integer  -- must be FRAC INT not INT!!
-  X ==> Expression R 
+  X ==> Expression R
   NNI ==> NonNegativeInteger
   SMP ==> SparseMultivariatePolynomial(R, Kernel X) -- if R has IntegralDomain
   SUP ==> SparseUnivariatePolynomial SMP 
+  FSF ==> FunctionalSpecialFunction(R,X)
   
   EFSP   ==> ElementaryFunctionStructurePackage(R,X)
   FACSUP ==> Factored SUP
@@ -24,6 +26,7 @@ HyperGeometric(): Exports == Implementation where
       ++ where numerator and denominator are factored, provided that this 
       ++ fraction is a rational function; otherwise an error message is
       ++ produced. 
+    factoredForm : X -> Fraction(FACSUP) 
     admissible? : Fraction(FACSUP) -> Boolean
       ++ admissible?(ff), where ff is the output of factoredForm, checks if
       ++ the factorization is complete (i.e. linear) and the b coefficients
@@ -38,6 +41,7 @@ HyperGeometric(): Exports == Implementation where
     pFq : (X->X) -> HYPER
       ++ pFq(f) provides the hypergeometric parameters as a record of the
       ++ form Record(ap:List X, bq:List X, fac:X), where X=EXPR(INT).
+    pFq : X -> HYPER
     construct: (HYPER,Symbol) -> X
       ++ construct(pfq,x) constructs the hypergeometric expression with 
       ++ the output of pFq in the symbol x.
@@ -45,6 +49,9 @@ HyperGeometric(): Exports == Implementation where
       ++ Fancy display the output of pFq.
     hyperLookup : HYPER -> X
       ++ Lookup the output of pFq in a table.
+    createHyperF : HYPER -> X
+      ++ 
+    sum : (X,Symbol) -> X
 
   Implementation == add
 
@@ -72,6 +79,25 @@ HyperGeometric(): Exports == Implementation where
       fudnq:=factor udnq
       funnq/fudnq
 
+    factoredForm(S:X):Fraction(FACSUP) ==
+      mk:=mainKernel S
+      mk case "failed" => error "mainKernel failed."
+      not (name mk = 'summation) => error "Sum expected."
+      args:=argument mk
+      not (#args = 3) => error "Unexpected number of kernel arguments."
+      summand:=first args
+      var:=second args
+      not freeOf?(summand,third args) => error "Strange summand."
+      q:=eval(summand,var=var+1)/summand
+      nq:=normalize(q)$EFSP
+      not rational?(nq,retract var) => error "Not rational"
+      dnq:=denom nq
+      nnq:=numer nq
+      unnq:=univariate(nnq,kernel retract var)
+      udnq:=univariate(dnq,kernel retract var)
+      funnq:=factor unnq
+      fudnq:=factor udnq
+      funnq/fudnq
 
     admissible? ff ==
       fn:=factors(numer ff)
@@ -129,7 +155,21 @@ HyperGeometric(): Exports == Implementation where
       ca:=buildConst(gpn.const)
       cb:=buildConst(gpd.const)
       [a,b,c*ca/cb]$HYPER
-      
+
+    pFq(S:X):HYPER ==
+      ff:=factoredForm(S)
+      gpn:=getParameters(numer ff)
+      gpd:=getParameters(denom ff)
+      a:=[convert t for t in gpn.ab]
+      b:=[convert t for t in gpd.ab]
+      if member?(1$X,b) then
+        b:=delete(b,position(1$X,b))
+      else
+        a:=cons(1$X,a)
+      c:=convert unit(numer ff)
+      ca:=buildConst(gpn.const)
+      cb:=buildConst(gpd.const)
+      [a,b,c*ca/cb]$HYPER        
  
     construct(x,s) ==
       v:=s::X
@@ -175,3 +215,13 @@ HyperGeometric(): Exports == Implementation where
           return (1-c)^(-a.1)
       0$X
 
+
+    sum(f:X,s:Symbol):X ==
+      S:=summation(f,s)
+      h:HYPER:=pFq(S)
+      eval(f,s::X=0) * hypergeometricF(h.ap,h.bq,h.fac)
+      
+
+
+-- S1:=sum((-1)^k*(x/2)^(2*k+p)/factorial(k)/factorial(k+p),k)
+-- S2:=sum(1/(2*n-1)/factorial(2*n+1),n)  --  display pFq(S2)

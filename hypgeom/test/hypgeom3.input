@@ -1,0 +1,54 @@
+)co ../src/hypgeom
+
+-- 2^n
+sum(binomial(n,k),'k)$HYPGEOM
+
+-- exp(x)
+sum(x^k/factorial(k),'k)$HYPGEOM
+
+-- Example 3.3.1.
+sum(2^k/factorial(k)^2,'k)$HYPGEOM
+
+
+-- Example 3.3.2.
+sum(1/(2*k-1)/factorial(2*k+1),'k)$HYPGEOM
+
+-- Example 3.3.4. 
+sum(binomial(n,k)*(-1)^k/factorial(k),'k)$HYPGEOM
+
+-- Example 3.3.5. (Bessel: J_p(x))
+sum((-1)^k*(x/2)^(2*k+p)/factorial(k)/factorial(k+p),'k)$HYPGEOM
+
+-- Sec 3.4 / (2n)!/n!^2
+sum(binomial(n,k)^2,k)$HYPGEOM
+
+-- Sec 3.4.1
+sum((-1)^k*binomial(r - s - k, k)*binomial(r - 2*k, n - k)/(r - n - k + 1),k)$HYPGEOM
+
+-- Sec 3.4.2
+sum(binomial(n, k)^3, k)$HYPGEOM
+
+-- Example 3.6.1
+sum((-1)^k*binomial(2*n,k)^2,k)$HYPGEOM
+
+-- Example 3.6.2
+sum((-1)^k*binomial(2*n,k)*binomial(2*k,k)*binomial(4*n-2*k,2*n-k),k)$HYPGEOM
+
+
+----------------
+-- 3.8 Exercises
+----------------
+sum(binomial(n,k)*binomial(n+a,k)*binomial(n-a,n-k),k)$HYPGEOM
+sum(binomial(n,k)^5,k)$HYPGEOM
+sum((-1)^k*binomial(k,n-k),k)$HYPGEOM
+---- 3.a-g
+sum(binomial(n,k)/binomial(2*n-1,k),k)$HYPGEOM
+sum(binomial(n,k)^2*binomial(3*n+k,2*n),k)$HYPGEOM
+sum((-1)^k*binomial(n,k)*factorial(k+3*a)/factorial(k+a),k)$HYPGEOM
+sum(4^k*(-1)^k*binomial(k+a,a)*binomial(n+k,2*k+2*a),k)$HYPGEOM
+sum(binomial(2*n+2,2*k+1)*binomial(x+k,2*n+1),k)$HYPGEOM
+sum(binomial(2*n+1,2*p+2*k+1)*binomial(p+k,k),k)$HYPGEOM
+sum((-1)^k*binomial(2*n,k)*binomial(2*x,x+n-k)*binomial(2*z,z-n+k),k)$HYPGEOM
+----
+
+
