@@ -204,6 +204,28 @@ HyperGeometric(): Exports == Implementation where
       --hconcat(A,B)
 
 
+    checkGauss2F1(x:HYPER):Boolean ==
+      not(#(x.ap)=2 and #(x.bq)=1) => false
+      not(x.fac=1$X) => false
+      a:Union(Integer,"failed"):=retractIfCan(x.ap.1)
+      b:Union(Integer,"failed"):=retractIfCan(x.ap.2)
+      if a case Integer then 
+        a:=a::Integer
+        if a < 0 then return true        
+      if b case Integer then
+        b:=b::Integer 
+        if b < 0 then return true
+      r:X:=x.bq.1 - x.ap.1 - x.ap.2 
+      not smaller?(r,0::X) => true
+      false
+
+    checkKummer2F1(x:HYPER):Boolean ==
+      not(#(x.ap)=2 and #(x.bq)=1) => false
+      not(x.fac=-1$X) => false 
+      r:X:=x.ap.1 - x.ap.2 + x.bq.1       
+      r=1$X => true
+      false
+
     hyperLookup(x:HYPER):X ==
       a:=x.ap
       b:=x.bq
@@ -213,9 +235,13 @@ HyperGeometric(): Exports == Implementation where
       if p=1 then
         if q=0 then
           return (1-c)^(-a.1)
+      checkGauss2F1(x) => Gamma(b.1-a.1-a.2)*Gamma(b.1)/ _
+                          (Gamma(b.1-a.1)*Gamma(b.1-a.2))   
+      checkKummer2F1(x) => Gamma((1/2)*a.2+1)*Gamma(a.2-a.1+1)/ _
+                          (Gamma(a.2+1)*Gamma((1/2)*a.2-a.1+1))                             
       0$X
 
-
+    --check f(0)~=0
     sum(f:X,s:Symbol):X ==
       S:=summation(f,s)
       h:HYPER:=pFq(S)

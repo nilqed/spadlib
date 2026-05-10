@@ -1,6 +1,7 @@
 )co ../src/hypgeom
 
 -- 2^n
+sum(binomial(n,k),'k)
 sum(binomial(n,k),'k)$HYPGEOM
 
 -- exp(x)
