@@ -50,7 +50,10 @@ HyperGeometric(): Exports == Implementation where
     hyperLookup : HYPER -> X
       ++ Lookup the output of pFq in a table.
     createHyperF : HYPER -> X
-      ++ 
+      ++
+    hgFtoHYPER : X -> HYPER
+      ++ hgFtoHYPER(f) converts f:=hypergeometricF([a..],[b..],x) to
+      ++ a HYPER record [[a..],[b..],x]$HYPER.
     sum : (X,Symbol) -> X
 
   Implementation == add
@@ -241,7 +244,29 @@ HyperGeometric(): Exports == Implementation where
                           (Gamma(a.2+1)*Gamma((1/2)*a.2-a.1+1))                             
       0$X
 
-    --check f(0)~=0
+
+    -- better: mainKernel hypergeometricF
+    --         argument mainKernel hypergeometricF([a1..ap],[b1..bq],x) -->
+    --         [a1,..,ap,b1,..,bq,x,p,q] as List(X)
+    -- name mainKernel hyper... -->  hypergeometricF @ Symbol
+    
+    hgFtoHYPER(f:X):HYPER ==
+      k:=mainKernel(f) 
+      k case "failed" => error "Not a kernel?" 
+      not(name k = 'hypergeometricF) => error "Not hypergeometricF."
+      args:List X:=argument k
+      narg:=#args
+      q:Union(Integer,"failed"):=retractIfCan(args.narg)
+      p:Union(Integer,"failed"):=retractIfCan(args.(narg-1))
+      p case "failed" => error "p?"
+      q case "failed" => error "q?"
+      ap:=args.(1..p)
+      bq:=args.(p+1..q+1)
+      fac:=args.(q+2)
+      [ap,bq,fac]$HYPER
+      
+
+    -- :todo:check f(0)~=0
     sum(f:X,s:Symbol):X ==
       S:=summation(f,s)
       h:HYPER:=pFq(S)
