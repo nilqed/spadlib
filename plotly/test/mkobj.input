@@ -6,6 +6,9 @@ X ==> Expression Integer
 SBF ==> SegmentBinding Float
 LDO ==> List DrawOption
 
+DF ==> DoubleFloat
+SPACE3 ==> ThreeSpace(DF)
+
 
 
 g1:=makeObject(sin(x),x=-%pi..%pi,[])
@@ -61,4 +64,16 @@ draw(f:X, s:SBF, o:LDO):String ==
     
   
 -- <div id="plotly.3987860723.429" style="width:480px; height:400px;"></div>
+
+
+
+-- makeObject : (Ex, BIND, BIND, L DROP) -> SPACE3
+
+s:=makeObject(x^2-y^2,x=-1..1,y=-1..1,[])
+
+objects s
+
+mesh? s --> true
+
+lprop s -->  [Component is not closed, not solid]
 

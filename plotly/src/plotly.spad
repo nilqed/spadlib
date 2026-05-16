@@ -2,9 +2,14 @@
 ++ Author: Kurt Pagani <nilqed@gmail.com>
 ++ Date Created: Fri 15 May 15:19:12 CEST 2026
 ++ License: BSD/FRICAS
+++ Status: prototype
 ++ References: 
 ++  https://github.com/plotly/plotly.js (MIT licensed)
 ++  https://plotly.com/javascript/
+++  https://plotly.com/javascript/reference/index/
+++  https://plotly.com/javascript/plotlyjs-function-reference/
+++  https://plotly.com/javascript/plotlyjs-events/
+++  https://plotly.com/javascript/configuration-options/
 ++  https://gigamonkeys.com/book/a-few-format-recipes.html
 ++ Description:
 ++  Open-source JavaScript charting library behind Plotly and Dash 
@@ -23,7 +28,11 @@
 ++        object, see documentation
 ++        (defaults to {})
 ++ --------------------------------------------------
+++  The idea here is to provide functions which generate the code as strings.
+++  The low-level main function is plotly(data,layout,config,width,height).
+++  The Fricas draw functions are then based on it.
 ++ Required: plotly-x.y.z.min.js 
+++  There is no plotly-latest anymore, i.e. one has to update cdn if necessary
 ++
 PlotlyJS : Exports == Implementation where
 
@@ -38,6 +47,7 @@ PlotlyJS : Exports == Implementation where
   LLP ==> List List Point DoubleFloat
   TLD ==> TopLevelDrawFunctions X
   STR ==> String
+  SP3 ==> ThreeSpace DF
   DF  ==> DoubleFloat
   PI  ==> PositiveInteger 
   X   ==> Expression Integer
@@ -54,7 +64,10 @@ PlotlyJS : Exports == Implementation where
       ++ as a string for setting up a unique <div> id with width w and height h 
       ++ and calling Plotly.newPlot(id,data,alyout,config).
     displayHTML : STR -> Void()
+      ++ Example: displayHTML draw(sin x, x=-4..4,[title("sin(x)")])
+      ++ Creates a plotly.id.html file and opens it in standard browser
     draw : (X,SBF,LDO) -> String 
+    draw : (X,SBF,SBF, LDO) -> String 
 
 	
   Implementation == add 
@@ -69,6 +82,10 @@ PlotlyJS : Exports == Implementation where
 
     -- type,x,y
     traceFmtXY:="{type: '~A', x: [~{~a~^, ~}], y: [~{~a~^, ~}]}"
+
+    -- type,x,y
+    traceFmtXYZ:="{type: '~A', x: [~{~a~^, ~}], y: [~{~a~^, ~}],_
+      z: [~{~a~^, ~}], mode:'markers',  marker:{size:'1'} }"
 
     -- list of traces
     dataFmt:="[~{~a~^, ~}]"
@@ -91,7 +108,7 @@ PlotlyJS : Exports == Implementation where
 
     defWidth:NNI:=480
     defHeight:NNI:=400
-    defPath:="/home/kfp/tmp"  --todo
+    defPath:="/home/kfp/tmp/"  --todo
     
     
 
@@ -114,7 +131,13 @@ PlotlyJS : Exports == Implementation where
       xarr:=[p.1 for p in l]
       yarr:=[p.2 for p in l]  
       string format('NIL,traceFmtXY,type,xarr,yarr)
-  
+
+    traceFromPointList3d(l:LPT,type:STR):STR ==
+      xarr:=[p.1 for p in l]
+      yarr:=[p.2 for p in l]  
+      zarr:=[p.3 for p in l]
+      string format('NIL,traceFmtXYZ,type,xarr,yarr,zarr)
+
     dataFromPointLists(ll:LLP):STR ==
       type:="scatter"
       dll:=[traceFromPointList(l,type) for l in ll]
@@ -123,11 +146,16 @@ PlotlyJS : Exports == Implementation where
     dataFromGraphImage(g:GraphImage):String ==
       pl:=pointLists g
       dataFromPointLists(pl)
+
+    dataFromThreeSpace(s:SP3):String ==
+      pl:=lp s
+      tr:List STR:=[traceFromPointList3d(pl,"scatter3d")]
+      string format('NIL,dataFmt,tr)
   
     layoutFromDrawOptions(ldop:List DrawOption):String ==
       title:=title(ldop,"Title")$DOF
       style:=style(ldop,"")$DOF
-      string format('NIL,"{title:'~A' ~A}",title,style)
+      string format('NIL,"{title:{text:'~A'}, ~A}",title,style)
 
     -- export display methods
     displayHTML(s) ==
@@ -148,4 +176,13 @@ PlotlyJS : Exports == Implementation where
       c:="{}"
       plotly(d,l,c,defWidth,defHeight)
       
+    draw(f:X, sx:SBF,sy:SBF, o:LDO):String == 
+      s:=makeObject(f,sx,sy,[])$TLD
+      d:=dataFromThreeSpace(s) 
+      l:=layoutFromDrawOptions(o)
+      c:="{}"
+      plotly(d,l,c,defWidth+300,defHeight+200)
 
+
+--2d  displayHTML draw(x*sin x, x=-4..4,[title("abc"),style("xaxis:{title:{text:'x'}}")])
+--3d  displayHTML draw(x^2-y^2,x=-1..1,y=-1..1,[])$PLOTLY
