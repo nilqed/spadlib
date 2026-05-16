@@ -1,0 +1,64 @@
+format ==> FORMAT$Lisp
+reval(s) ==> EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
+
+DOF0 ==> DrawOptionFunctions0
+X ==> Expression Integer
+SBF ==> SegmentBinding Float
+LDO ==> List DrawOption
+
+
+
+g1:=makeObject(sin(x),x=-%pi..%pi,[])
+l1:=pointLists g1
+
+xarr:=[p.1 for p in l1.1]
+yarr:=[p.2 for p in l1.1]
+
+
+xyFmt:="[ {x: [~{~a~^, ~}], y: [~{~a~^, ~}]} ]"
+format('NIL,xyFmt,xarr,yarr)
+----------------------------------
+
+traceFmt:="{type: '~A', x: [~{~a~^, ~}], y: [~{~a~^, ~}]}"
+dataFmt:="[~{~a~^, ~}]"
+
+traceFromPointList(l,type) ==
+  xarr:=[p.1 for p in l]
+  yarr:=[p.2 for p in l]  
+  string format('NIL,traceFmt,type,xarr,yarr)
+  
+dataFromPointLists(ll) ==
+  type:="scatter"
+  dll:=[traceFromPointList(l,type) for l in ll]
+  string format('NIL,dataFmt,dll)
+
+dataFromGraphImage(g:GraphImage):String ==
+  pl:=pointLists g
+  dataFromPointLists(pl)
+  
+layoutFromDrawOptions(ldop:List DrawOption):String ==
+  title:=title(ldop,"Title")$DOF0
+  style:=style(ldop,"")$DOF0
+  string format('NIL,"{title:'~A' ~A}",title,style)
+
+--local: create a (hopefully) unique id for the <div>
+newID():String == 
+  fmt:="(format 'nil _"plotly.~A_.~A_" (get-universal-time) (random 1000))"
+  string reval fmt
+
+
+-- id,data,layout,config 
+plotlyFmt:="<script>Plotly.newPlot(~A,~A,~A,~A);</script>"
+
+
+draw(f:X, s:SBF, o:LDO):String == 
+  id:=newID()
+  g:=makeObject(f,s,[]) 
+  d:=dataFromGraphImage(g) 
+  l:=layoutFromDrawOptions(o)
+  c:="{}"
+  j:=string format('NIL,plotlyFmt,id,d,l,c)
+    
+  
+-- <div id="plotly.3987860723.429" style="width:480px; height:400px;"></div>
+

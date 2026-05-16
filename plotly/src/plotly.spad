@@ -1,0 +1,151 @@
+)abbrev package PLOTLY PlotlyJS
+++ Author: Kurt Pagani <nilqed@gmail.com>
+++ Date Created: Fri 15 May 15:19:12 CEST 2026
+++ License: BSD/FRICAS
+++ References: 
+++  https://github.com/plotly/plotly.js (MIT licensed)
+++  https://plotly.com/javascript/
+++  https://gigamonkeys.com/book/a-few-format-recipes.html
+++ Description:
+++  Open-source JavaScript charting library behind Plotly and Dash 
+++  --------------------------------------------------
+++  Plotly.newPlot(divID, data, layout, config)
+++
+++    divID
+++        DOM node or string id of a DOM node
+++    data
+++        array of objects, see documentation
+++        (defaults to [])
+++    layout
+++        object, see documentation/
+++        (defaults to {})
+++    config
+++        object, see documentation
+++        (defaults to {})
+++ --------------------------------------------------
+++ Required: plotly-x.y.z.min.js 
+++
+PlotlyJS : Exports == Implementation where
+
+  EXF ==> Expression Float
+  SBF ==> SegmentBinding Float
+  LDO ==> List DrawOption
+  LDF ==> List DoubleFloat
+  MSC ==> MoreSystemCommands
+  NNI ==> NonNegativeInteger
+  DOF ==> DrawOptionFunctions0
+  LPT ==> List Point DoubleFloat
+  LLP ==> List List Point DoubleFloat
+  TLD ==> TopLevelDrawFunctions X
+  STR ==> String
+  DF  ==> DoubleFloat
+  PI  ==> PositiveInteger 
+  X   ==> Expression Integer
+  
+  format ==> FORMAT$Lisp
+  reval(s) ==> EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
+  
+  Exports ==  with
+    
+    init : () -> STR
+      ++ init() returns the CDN if not yet initialized, else "" is returned.
+    plotly : (STR,STR,STR,NNI,NNI) -> STR
+      ++ plotly(data,layout,config,w,h) returns the html and javascript code
+      ++ as a string for setting up a unique <div> id with width w and height h 
+      ++ and calling Plotly.newPlot(id,data,alyout,config).
+    displayHTML : STR -> Void()
+    draw : (X,SBF,LDO) -> String 
+
+	
+  Implementation == add 
+  
+    initialized?:Boolean := false  
+
+    cdn:STR:="<script src='https://cdn.plot.ly/plotly-3.5.1.min.js' _
+                 charset='utf-8'></script>"
+
+    -- id,data,layout,config 
+    plotlyFmt:="<script>Plotly.newPlot('~A',~A,~A,~A);</script>"
+
+    -- type,x,y
+    traceFmtXY:="{type: '~A', x: [~{~a~^, ~}], y: [~{~a~^, ~}]}"
+
+    -- list of traces
+    dataFmt:="[~{~a~^, ~}]"
+    
+    configFmt:="{~A}"
+    
+    -- id, width, height
+    divFmt:="<div id='~A' style='width:~Apx; height:~Apx;'></div>"
+
+    htmlFmt:="<html><head></head><body>~A</body></html>"
+
+    --local  
+    jsScript(code:String):String ==
+      string FORMAT('NIL,"<script>~%~A~%</script>",code)$Lisp
+      
+    --local: create a (hopefully) unique id for the <div>
+    newID():STR == 
+      fmt:="(format 'nil _"plotly.~A_.~A_" (get-universal-time) (random 1000))"
+      string reval fmt
+
+    defWidth:NNI:=480
+    defHeight:NNI:=400
+    defPath:="/home/kfp/tmp"  --todo
+    
+    
+
+    -- export
+   
+    init() == 
+      initialized? => ""
+      initialized? := true
+      cdn
+
+    plotly(data,layout,config,w,h) ==
+      i:=init()
+      id:=newID()
+      div:=string format('NIL,divFmt,id,w,h)
+      plt:=string format('NIL,plotlyFmt,id,data,layout,config)
+      concat [i,div,plt]
+
+    -- local: fricas specific
+    traceFromPointList(l:LPT,type:STR):STR ==
+      xarr:=[p.1 for p in l]
+      yarr:=[p.2 for p in l]  
+      string format('NIL,traceFmtXY,type,xarr,yarr)
+  
+    dataFromPointLists(ll:LLP):STR ==
+      type:="scatter"
+      dll:=[traceFromPointList(l,type) for l in ll]
+      string format('NIL,dataFmt,dll)
+
+    dataFromGraphImage(g:GraphImage):String ==
+      pl:=pointLists g
+      dataFromPointLists(pl)
+  
+    layoutFromDrawOptions(ldop:List DrawOption):String ==
+      title:=title(ldop,"Title")$DOF
+      style:=style(ldop,"")$DOF
+      string format('NIL,"{title:'~A' ~A}",title,style)
+
+    -- export display methods
+    displayHTML(s) ==
+      if initialized? then s:=cdn s
+      h:=string format('NIL,htmlFmt,s)
+      fn:STR:=defPath newID() ".html"
+      f:TextFile:=open(fn::FileName,"output")
+      writeLine!(f,h)
+      close! f
+      systemCommand("system open " fn)$MSC
+
+
+    -- export draw
+    draw(f:X, s:SBF, o:LDO):String == 
+      g:=makeObject(f,s,[])$TLD
+      d:=dataFromGraphImage(g) 
+      l:=layoutFromDrawOptions(o)
+      c:="{}"
+      plotly(d,l,c,defWidth,defHeight)
+      
+

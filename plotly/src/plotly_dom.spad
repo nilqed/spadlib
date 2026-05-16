@@ -1,0 +1,59 @@
+)abbrev domain PLOTLY PlotlyJS
+++ Author: Kurt Pagani <nilqed@gmail.com>
+++ Date Created: 15-MAY-20226
+++ License: BSD/FRICAS
+++ References:
+++ Description:
+++
+PlotlyJS : Exports == Implementation where
+  
+  STR ==> String
+  
+  DATA   ==> Record(traces:STR)
+  LAYOUT ==> Record(props:STR)
+  
+  REP ==> Record(id:STR,js:STR,data:DATA,layout:LAYOUT)
+  
+  format ==> FORMAT$Lisp
+  reval(s) ==> EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
+  
+  
+  Exports == SetCategory with
+    
+    new : () -> %
+    
+    elt : (%,Symbol) -> STR
+    
+    --elt : (%,"js") -> STR
+    
+    coerce : % -> OutputForm
+	
+	
+  Implementation == add 
+
+    Rep := REP
+    
+    -- create a (hopefully) unique id for the <div>
+    newID():STR == 
+      fmt:="(format 'nil _"plotly.~A_.~A_" (get-universal-time) (random 1000))"
+      string reval fmt
+
+    
+    new():% == [newID(),"",[""]$DATA,[""]$LAYOUT]@Rep
+    
+    elt(x,s) == 
+      s = 'id => x.id
+      s = 'js => x.js
+      return "none"
+    
+
+
+    coerce(p:%):OutputForm == 
+      q:REP:=p::Rep
+      message(q.id)
+      
+      
+-- usage: 
+-- g:=new()$PLOTLY
+-- g.id
+-- g.js

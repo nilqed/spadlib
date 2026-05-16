@@ -1,0 +1,201 @@
+)abbrev package PLOTLY PlotlyJS
+++ Author: Kurt Pagani <nilqed@gmail.com>
+++ Date Created: Fri 15 May 15:19:12 CEST 2026
+++ License: BSD/FRICAS
+++ References: 
+++  https://github.com/plotly/plotly.js (MIT licensed)
+++  https://plotly.com/javascript/
+++  https://gigamonkeys.com/book/a-few-format-recipes.html
+++ Description:
+++  Open-source JavaScript charting library behind Plotly and Dash 
+++ Required: 
+++
+PlotlyJS : Exports == Implementation where
+
+  EXF ==> Expression Float
+  SBF ==> SegmentBinding Float
+  LDO ==> List DrawOption
+  LDF ==> List DoubleFloat
+  MSC ==> MoreSystemCommands
+  STR ==> String
+  DF  ==> DoubleFloat
+  PI  ==> PositiveInteger 
+  
+  format ==> FORMAT$Lisp
+  reval(s) ==> EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
+  
+  Exports ==  with
+    
+    displayData : String -> Void
+    
+    init : () -> Void
+    
+    draw: (EXF, SBF) -> Void
+    draw: (EXF, SBF, LDO) -> Void
+    
+    draw: (EXF, SBF, SBF) -> Void
+    draw: (EXF, SBF, SBF, LDO) -> Void
+    
+    draw: (LDF, LDF) -> Void
+    draw: (LDF, LDF, LDO) -> Void
+    
+    -- tmp exports
+    graphDiv : (STR,PI,PI) -> STR
+      ++ Construct a new div with id=prefix+[new suffix]
+      ++ graphDiv("plotly",600,400)
+      ++ "<div id='plotly' style='width:600px;height:400px;'></div>"
+
+    makeTrace : (STR,STR,LDF,LDF,STR,STR) -> STR 
+      ++ makeTrace("trace","scatter",[1.0],[2.0],"lines","test")
+      
+    makeData : List STR -> STR
+      ++ makeData(["trace1","trace2","trace3"])
+      
+    makeLayout : (STR,STR,STR,STR) -> STR
+      ++ makeLayout("title","xtitle","ytitle","not impl")
+
+
+	
+  Implementation == add 
+  
+    initialized?:Boolean := false
+
+    displayData data ==
+      fmt:String:="@[~A@]"
+      format('T,fmt,data)    
+
+    init():Void ==
+      initialized? => void()
+      cdn:="<script src='https://cdn.plot.ly/plotly-3.5.1.min.js' _
+            charset='utf-8'></script>"
+      initialized? := true
+      displayData(cdn)
+
+    --local
+    newElementId(pre:String):String ==
+      pre delete(string(new()$Symbol),1)
+      
+    --local  
+    jsScript(code:String):String ==
+      string FORMAT('NIL,"<script>~%~A~%</script>",code)$Lisp
+      
+    --local: create a (hopefully) unique id for the <div>
+    newID():STR == 
+      fmt:="(format 'nil _"plotly.~A_.~A_" (get-universal-time) (random 1000))"
+      string reval fmt
+
+
+    draw(ex:EXF, seg:SBF, opts:LDO):Void == void()
+      
+    draw(ex:EXF, seg:SBF):Void == draw(ex, seg, []) 
+      
+    draw(ex:EXF, seg1:SBF, seg2:SBF, opts:LDO):Void == void()
+           
+    draw(ex:EXF, seg1:SBF, seg2:SBF):Void == draw(ex, seg1, seg2, [])
+    
+    draw(lx:LDF, ly:LDF, opts:LDO):Void ==
+      -- init if necessary (i.e. first time use)
+      init()
+      -- create the div fmt
+      div:="<div id='~A' style='width:~Apx;height:~Apx;'></div>"
+      -- create a new element 'id'
+      id:=newElementId "plotly"
+      -- code format
+      code:="~A = document.getElementById('~A'); _
+            Plotly.newPlot( ~A, [{ _
+            x: [~{~a~^, ~}], _
+            y: [~{~a~^, ~}] }], { _
+            margin: { t: 0 } } );"   
+      -- fill the div
+      divf:=string FORMAT('NIL,div,id,400,250)$Lisp
+      -- fill the code
+      codef:=string FORMAT('NIL,code,id,id,id,lx,ly)$Lisp
+      -- make the script
+      script:=jsScript codef
+      -- displayData
+      displayData(divf script)
+
+
+    draw(lx:LDF, ly:LDF):Void == draw(lx, ly, [])
+    
+
+----------------------------------------------------
+-- Plotly.newPlot(graphDiv, data, layout, config)
+--
+--    graphDiv
+--        DOM node or string id of a DOM node
+--    data
+--        array of objects, see documentation
+--        (defaults to [])
+--    layout
+--        object, see documentation/
+--        (defaults to {})
+--    config
+--        object, see documentation
+--        (defaults to {})
+----------------------------------------------------
+
+    graphDiv(id:STR,w:PI,h:PI):STR ==
+      div:="<div id='~A' style='width:~Apx;height:~Apx;'></div>"
+      string FORMAT('NIL,div,id,w,h)$Lisp
+      
+
+    makeTrace(id:STR,type:STR,x:LDF,y:LDF,mode:STR,name:STR):STR ==
+      trace:="var ~A = {~% _
+            type: '~A',~% _
+            x: [~{~a~^, ~}],~% _
+            y: [~{~a~^, ~}] }],~%  _
+            mode: '~A',~% _
+            name: '~A'};~%"
+      --
+      string FORMAT('NIL,trace,id,type,x,y,mode,name)$Lisp
+      
+
+    makeData(traces:List STR):STR ==
+      data:="var data = [~{~a~^, ~}];~%"
+      string FORMAT('NIL,data,traces)$Lisp
+
+
+    makeLayout(title:STR,xaxis:STR,yaxis:STR,legend:STR):STR ==
+      -- provisional (maybe Records?)
+      layout:="var layout = {~% _
+        title: { text: '~A' },~% _
+        xaxis: { text: '~A' },~% _
+        yaxis: { text: '~A' },~% _
+        margin: { t: 10 } _
+        };~%"
+      --
+      string format('NIL,layout,title,xaxis,yaxis)
+
+
+    makeFinish(id:STR,data:STR,layout:STR,config:STR):STR ==
+      -- without config at the moment!
+      code:="~A = document.getElementById('~A'); Plotly.newPlot(~A,~A,~A);~%)"
+      codef:=string FORMAT('NIL,code,id,id,id,data,layout)$Lisp
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
