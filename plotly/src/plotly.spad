@@ -85,7 +85,8 @@ PlotlyJS : Exports == Implementation where
 
     -- type,x,y
     traceFmtXYZ:="{type: '~A', x: [~{~a~^, ~}], y: [~{~a~^, ~}],_
-      z: [~{~a~^, ~}], mode:'markers',  marker:{size:'1'} }"
+      z: [~{~a~^, ~}], mode:'markers',  marker:{size:'1', color:'brown'},_
+        surfaceaxis:'2' }"
 
     -- list of traces
     dataFmt:="[~{~a~^, ~}]"
@@ -95,7 +96,7 @@ PlotlyJS : Exports == Implementation where
     -- id, width, height
     divFmt:="<div id='~A' style='width:~Apx; height:~Apx;'></div>"
 
-    htmlFmt:="<html><head></head><body>~A</body></html>"
+    htmlFmt:="<!DOCTYPE html><html><head></head><body>~A</body></html>"
 
     --local  
     jsScript(code:String):String ==
@@ -109,6 +110,7 @@ PlotlyJS : Exports == Implementation where
     defWidth:NNI:=480
     defHeight:NNI:=400
     defPath:="/home/kfp/tmp/"  --todo
+    def3dType:="scatter3d"
     
     
 
@@ -147,9 +149,9 @@ PlotlyJS : Exports == Implementation where
       pl:=pointLists g
       dataFromPointLists(pl)
 
-    dataFromThreeSpace(s:SP3):String ==
+    dataFromThreeSpace(s:SP3,type:STR):String ==
       pl:=lp s
-      tr:List STR:=[traceFromPointList3d(pl,"scatter3d")]
+      tr:List STR:=[traceFromPointList3d(pl,type)]
       string format('NIL,dataFmt,tr)
   
     layoutFromDrawOptions(ldop:List DrawOption):String ==
@@ -178,7 +180,7 @@ PlotlyJS : Exports == Implementation where
       
     draw(f:X, sx:SBF,sy:SBF, o:LDO):String == 
       s:=makeObject(f,sx,sy,[])$TLD
-      d:=dataFromThreeSpace(s) 
+      d:=dataFromThreeSpace(s,def3dType) 
       l:=layoutFromDrawOptions(o)
       c:="{}"
       plotly(d,l,c,defWidth+300,defHeight+200)
@@ -186,3 +188,4 @@ PlotlyJS : Exports == Implementation where
 
 --2d  displayHTML draw(x*sin x, x=-4..4,[title("abc"),style("xaxis:{title:{text:'x'}}")])
 --3d  displayHTML draw(x^2-y^2,x=-1..1,y=-1..1,[])$PLOTLY
+--    displayHTML draw(x^2-y^2,x=-1..1,y=-1..1,[title("z=x^2-y^2")])$PLOTLY
