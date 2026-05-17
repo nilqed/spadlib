@@ -95,8 +95,11 @@ PlotlyJS : Exports == Implementation where
     traceFmtXYZIJK:="{type: 'mesh3d', x:[~{~a~^, ~}], y:[~{~a~^, ~}],_
       z:[~{~a~^, ~}], i:[~{~a~^, ~}], j:[~{~a~^, ~}], k:[~{~a~^, ~}],_
       color:'orange',_
-      colorscale: [[-1, 'red'],[0, 'green'],_
-        [1, 'blue']] }"
+      intensity:[~{~a~^, ~}], autocolorscale:'true',_
+      colorscale: 'Portland'}"
+     
+    -- todo: colorFunction from DrawOpt ...     
+    --colorscale: [[-1, 'red'],[0, 'green'], [1, 'blue']] }"
 
     -- list of traces
     dataFmt:="[~{~a~^, ~}]"
@@ -160,7 +163,7 @@ PlotlyJS : Exports == Implementation where
       iarr:=[n.1 -1 for n in t]
       jarr:=[n.2 -1 for n in t]  
       karr:=[n.3 -1 for n in t]
-      string format('NIL,traceFmtXYZIJK,xarr,yarr,zarr,iarr,jarr,karr)
+      string format('NIL,traceFmtXYZIJK,xarr,yarr,zarr,iarr,jarr,karr,zarr)
 
     dataFromPointLists(ll:LLP):STR ==
       type:="scatter"

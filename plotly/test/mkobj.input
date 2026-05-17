@@ -105,4 +105,10 @@ mesh2quad(s:SPACE3):QUAD ==
   q:=concat [[[ind.i.j,ind.(i+1).j,ind.(i+1).(j+1),ind.i.(j+1)] for j in 1..(h-1)] for i in 1..(w-1)]
   [lps,q]$QUAD
 
+
+
+
 -- ok, works
+
+f(z)==z
+sc:=makeObject(x^2-y^2,x=-1..1,y=-1..1,[colorFunction(f)])
