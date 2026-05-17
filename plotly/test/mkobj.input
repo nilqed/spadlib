@@ -77,3 +77,32 @@ mesh? s --> true
 
 lprop s -->  [Component is not closed, not solid]
 
+lps:=lp s     -->  List(Point(DoubleFloat))
+ind:=lllip s  -->  List(List(List(NonNegativeInteger)))
+w:=#(ind.1.1)
+h:=#(ind.1)
+test(#lps = w*h)
+
+--  757 ...         784     
+--  ...
+--  85 86 87 88 ... 112   
+--  57 58 59 60 ... 84    h
+--  29 30 31 32 ... 56    ^
+--   1  2  3  4 ... 28    |
+--  ---> w                |
+
+-- 1 29 30 | 2 29 30 | 2 3 30 | 3 30 31 | ... 
+
+QUAD:=Record(pts:List Point DF,quads:List List NonNegativeInteger)
+
+mesh2quad(s:SPACE3):QUAD ==
+  not mesh? s => error "not a mesh"
+  lps:=lp s
+  ind:=first lllip(s)
+  w:=#(ind.1)
+  h:=#(ind)
+  not test(#lps = w*h) => error "corrupted mesh"
+  q:=concat [[[ind.i.j,ind.(i+1).j,ind.(i+1).(j+1),ind.i.(j+1)] for j in 1..(h-1)] for i in 1..(w-1)]
+  [lps,q]$QUAD
+
+-- ok, works

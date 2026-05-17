@@ -52,6 +52,9 @@ PlotlyJS : Exports == Implementation where
   PI  ==> PositiveInteger 
   X   ==> Expression Integer
   
+  QUAD ==> Record(pts:List Point DF,quads:List List NNI)
+  TRIS ==> Record(pts:List Point DF,tris:List List NNI) 
+  
   format ==> FORMAT$Lisp
   reval(s) ==> EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
   
@@ -68,7 +71,7 @@ PlotlyJS : Exports == Implementation where
       ++ Creates a plotly.id.html file and opens it in standard browser
     draw : (X,SBF,LDO) -> String 
     draw : (X,SBF,SBF, LDO) -> String 
-
+    mesh2triang : SP3 -> TRIS
 	
   Implementation == add 
   
@@ -87,6 +90,13 @@ PlotlyJS : Exports == Implementation where
     traceFmtXYZ:="{type: '~A', x: [~{~a~^, ~}], y: [~{~a~^, ~}],_
       z: [~{~a~^, ~}], mode:'markers',  marker:{size:'1', color:'brown'},_
         surfaceaxis:'2' }"
+     
+    -- type mesh3d / todo intensity maps     
+    traceFmtXYZIJK:="{type: 'mesh3d', x:[~{~a~^, ~}], y:[~{~a~^, ~}],_
+      z:[~{~a~^, ~}], i:[~{~a~^, ~}], j:[~{~a~^, ~}], k:[~{~a~^, ~}],_
+      color:'orange',_
+      colorscale: [[-1, 'red'],[0, 'green'],_
+        [1, 'blue']] }"
 
     -- list of traces
     dataFmt:="[~{~a~^, ~}]"
@@ -110,7 +120,7 @@ PlotlyJS : Exports == Implementation where
     defWidth:NNI:=480
     defHeight:NNI:=400
     defPath:="/home/kfp/tmp/"  --todo
-    def3dType:="scatter3d"
+    def3dType:="mesh3d" -- "scatter3d"     
     
     
 
@@ -140,6 +150,18 @@ PlotlyJS : Exports == Implementation where
       zarr:=[p.3 for p in l]
       string format('NIL,traceFmtXYZ,type,xarr,yarr,zarr)
 
+
+    traceFromMesh3d(m:TRIS):STR ==
+      l:=m.pts
+      xarr:=[p.1 for p in l]
+      yarr:=[p.2 for p in l]  
+      zarr:=[p.3 for p in l]
+      t:=m.tris
+      iarr:=[n.1 -1 for n in t]
+      jarr:=[n.2 -1 for n in t]  
+      karr:=[n.3 -1 for n in t]
+      string format('NIL,traceFmtXYZIJK,xarr,yarr,zarr,iarr,jarr,karr)
+
     dataFromPointLists(ll:LLP):STR ==
       type:="scatter"
       dll:=[traceFromPointList(l,type) for l in ll]
@@ -151,14 +173,38 @@ PlotlyJS : Exports == Implementation where
 
     dataFromThreeSpace(s:SP3,type:STR):String ==
       pl:=lp s
-      tr:List STR:=[traceFromPointList3d(pl,type)]
-      string format('NIL,dataFmt,tr)
+      if type = "scatter3d" then
+        tr:List STR:=[traceFromPointList3d(pl,type)]
+        return string format('NIL,dataFmt,tr)
+      if type = "mesh3d" then
+        t:=mesh2triang(s)
+        tr:List STR:=[traceFromMesh3d(t)] 
+        return string format('NIL,dataFmt,tr)
+      error "unknown type."
+        
   
     layoutFromDrawOptions(ldop:List DrawOption):String ==
       title:=title(ldop,"Title")$DOF
       style:=style(ldop,"")$DOF
       string format('NIL,"{title:{text:'~A'}, ~A}",title,style)
 
+    mesh2quad(s:SP3):QUAD ==
+      not mesh? s => error "not a mesh"
+      lps:=lp s
+      m:=first lllip(s)
+      w:=#(first m)
+      h:=#m
+      not test(#lps = w*h) => error "corrupted mesh"
+      q:=concat [[[m.i.j,m.(i+1).j,m.(i+1).(j+1),m.i.(j+1)]_
+        for j in 1..(h-1)] for i in 1..(w-1)]
+      [lps,q]$QUAD
+
+    mesh2triang(s:SP3):TRIS ==
+      mq:=mesh2quad(s)
+      q:=mq.quads
+      t:=concat [[[u.1,u.2,u.4],[u.4,u.2,u.3]] for u in q]
+      [mq.pts,t]$TRIS
+      
     -- export display methods
     displayHTML(s) ==
       if initialized? then s:=cdn s
@@ -189,3 +235,8 @@ PlotlyJS : Exports == Implementation where
 --2d  displayHTML draw(x*sin x, x=-4..4,[title("abc"),style("xaxis:{title:{text:'x'}}")])
 --3d  displayHTML draw(x^2-y^2,x=-1..1,y=-1..1,[])$PLOTLY
 --    displayHTML draw(x^2-y^2,x=-1..1,y=-1..1,[title("z=x^2-y^2")])$PLOTLY
+
+-- s:=makeObject(x^2-y^2,x=-1..1,y=-1..1,[])
+-- mesh2triang(s)
+
+--  displayHTML draw(sin(x*y),x=-5..5,y=-3..3,[title("z=sin(x*y)")])$PLOTLY
