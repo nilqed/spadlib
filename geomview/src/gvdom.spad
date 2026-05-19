@@ -1,0 +1,122 @@
+)abbrev package LSPSPT LispSupport
+LispSupport : Exports == Implementation where
+  Exports == with
+
+    lisp : String -> SExpression
+      ++ lisp(s) reads the string s and evaluates in Lisp.
+    runProgram : String -> String
+      ++ runProgram use UIOP:RUN-PROGRAM to execute the program.
+    runProgramMVB : String -> List SExpression
+      ++ runProgramMVB is like runProgram but uses multi-value bind
+      ++ to return stdout, stderr and the exit code as a list of SExpression
+      ++ in this order.
+
+  Implementation == add
+
+    lisp s == EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
+
+    runProgram(s) ==
+      fmt1:="(uiop:run-program _"~A_" :output :string :error-output "
+      fmt2:=":string :ignore-error-status t)"
+      cmd:=string FORMAT('NIL,fmt1 fmt2,s)$Lisp
+      string lisp(cmd)
+
+    runProgramMVB(s) ==
+      fmt1:="(multiple-value-bind (output error-output exit-code)"
+      fmt2:="(uiop:run-program _"~A_" :output :string :error-output "
+      fmt3:=":string :ignore-error-status t)"
+      fmt4:="(list output error-output exit-code))"
+      cmd:=string FORMAT('NIL,fmt1 fmt2 fmt3 fmt4,s)$Lisp
+      destruct lisp cmd
+      
+      
+)abbrev domain GEOMVIEW GeomView
+++ Author: Kurt Pagani <nilqed@gmail.com>
+++ Date Created: Tue 19 May 14:48:03 CEST 2026
+++ License: BSD/Fricas
+++ References:
+++ Description:
+++
+GeomView : Exports == Implementation where
+  
+  STR ==> String
+  SEX ==> SExpression
+  MSC ==> MoreSystemCommands
+  REP ==> Record(pipe:STR,path:STR)
+  
+  format ==> FORMAT$Lisp
+  probeFile ==> PROBE_-FILE$Lisp
+
+  
+  Exports == SetCategory with
+    
+    new : () -> %
+    close : % -> Boolean
+    coerce : % -> OutputForm
+    
+    elt : (%,Symbol) -> String
+
+    
+    makePipe: STR -> STR
+    writePipe : (%,STR) -> Void
+    pipeAlive? : % -> Boolean
+    pipeExists? : % -> Boolean
+
+	
+  Implementation == SExpression add 
+
+    Rep := REP
+    
+    -- locals
+    
+    pipeDefPath:STR:= "/tmp/geomview/" 
+    
+    sys(c:STR):Void == systemCommand("system " c)$MSC
+    
+    newID():STR ==
+      fmt:="(format 'nil _"fricas.~A_.~A_" (get-universal-time) (random 1000))"
+      string lisp(fmt)$LispSupport
+
+    pipeExists?(p:%):Boolean == not null? (b:SEX:=probeFile(p.path))
+
+    pipeAlive?(p:%):Boolean ==
+      cmd:=string format('NIL,"fuser ~A",p.path)
+      bs:STR:=runProgram(cmd)$LispSupport
+      bs="" => false
+      true
+
+
+    makePipe(s:STR):STR ==
+      cmd:=string format('NIL,"togeomview ~A </dev/null",s)
+      sys(cmd)
+      b:SEX:=probeFile(pipeDefPath s)
+      null? b => error string format('NIL,"Could not create pipe ~A",s)
+      --debug: format('T,"Pipe /tmp/geomview/~a created. ~%",s)
+      return s
+
+    writePipe(p:%,c:STR):Void ==
+      cmd:STR:=string format('NIL,"printf '~A' > ~A",c,p.path)
+      sys(cmd)
+      --runProgram(cmd)$LispSupport
+      --lisp(string format('NIL,"(uiop:read-file-string _"~A_")",p.path))
+
+    -- exports
+    new() == 
+      pipeID:=newID()
+      p:=makePipe(pipeID)
+      [p,pipeDefPath p]@REP
+      
+    close(g:%):Boolean == 
+      writePipe(g,"(quit)")
+      sys(string format('NIL,"rm ~A",g.path))
+      not pipeExists?(g)
+      
+    coerce(g:%):OutputForm == message(g.pipe)$OutputForm
+      
+    elt(g:%,s:Symbol):String ==
+      s='path => g.path
+      s='id   => g.pipe
+      s='close => latex close(g)
+      "none"      
+      
+      

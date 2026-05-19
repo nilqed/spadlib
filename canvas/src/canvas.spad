@@ -1,0 +1,36 @@
+)abbrev domain CANVAS HTMLcanvas
+++ Author: Kurt Pagani <nilqed@gmail.com>
+++ Date Created: Mon 18 May 13:58:06 CEST 2026
+++ License: BSD/Fricas
+++ References:
+++ Description:
+++
+HTMLcanvas : Exports == Implementation where
+  
+  PI  ==> PositiveInteger
+  STR ==> String
+  REP ==> Record(id:STR,width:PI,height:PI)
+  
+  Exports == Join(SetCategory) with
+    
+    new : (PI,PI) -> %
+    coerce : % -> OutputForm
+    
+    elt : (%,Symbol) -> (STR->STR)
+	
+	
+  Implementation == add 
+
+    Rep := REP
+    
+    new(w,h) == ["newid",w,h]@Rep
+    
+    elt(c:%,s:Symbol):STR->STR == 
+      s='fillStyle => (x:STR):STR+->string(FORMAT('NIL,"CTX.fillStyle='~A';",x)$Lisp)$SExpression
+      s='strokeStyle => (x:STR):STR+->string(FORMAT('NIL,"~ACTX.strokeStyle='~A';",x)$Lisp)
+      error "unknown fun"
+      
+    coerce(c:%):OutputForm == message(c.id)$OutputForm
+   
+ -- c:=new(20,20)$CANVAS
+ -- 

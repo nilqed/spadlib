@@ -1,0 +1,26 @@
+# SciTE session file
+
+buffer.1.path=/home/kfp/quicklisp/local-projects/spadlib/plotly/docs/ex1.txt
+buffer.1.position=350
+buffer.1.scroll=0
+
+buffer.2.path=/home/kfp/quicklisp/local-projects/spadlib/plotly/docs/test1.html
+buffer.2.position=128
+buffer.2.scroll=0
+
+buffer.3.path=/home/kfp/quicklisp/local-projects/spadlib/plotly/src/plotly_dom.spad
+buffer.3.position=851
+buffer.3.scroll=0
+
+buffer.4.path=/home/kfp/quicklisp/local-projects/spadlib/plotly/src/plotly_pkg.spad
+buffer.4.position=3930
+buffer.4.scroll=114
+
+buffer.5.path=/home/kfp/quicklisp/local-projects/spadlib/plotly/test/mkobj.input
+buffer.5.position=2573
+buffer.5.scroll=74
+
+buffer.6.path=/home/kfp/quicklisp/local-projects/spadlib/plotly/src/plotly.spad
+buffer.6.position=3736
+buffer.6.scroll=81
+buffer.6.current=1
