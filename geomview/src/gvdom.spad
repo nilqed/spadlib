@@ -40,9 +40,24 @@ LispSupport : Exports == Implementation where
 GeomView : Exports == Implementation where
   
   STR ==> String
+  INT ==> Integer
   SEX ==> SExpression
   MSC ==> MoreSystemCommands
   REP ==> Record(pipe:STR,path:STR)
+  
+  LLI ==> List List Integer
+  LLS ==> List List String
+  LLF ==> List List Float
+  LI  ==> List Integer
+  LS  ==> List String
+  LF  ==> List Float
+  FL  ==> Float
+  BO  ==> Boolean
+
+  COLOR ==> Record(red:FL,green:FL,blue:FL,transparency:FL)
+  POINT ==> Record(X:FL,Y:FL,Z:FL,color:COLOR,diam:INT)
+  PLINE ==> Record(vertices:List POINT,color:COLOR,diam:INT)
+  
   
   format ==> FORMAT$Lisp
   probeFile ==> PROBE_-FILE$Lisp
@@ -54,13 +69,143 @@ GeomView : Exports == Implementation where
     close : % -> Boolean
     coerce : % -> OutputForm
     
-    elt : (%,Symbol) -> String
+    elt : (%,Symbol) -> Union(STR,Boolean,LS->Void)
 
     
     makePipe: STR -> STR
     writePipe : (%,STR) -> Void
     pipeAlive? : % -> Boolean
     pipeExists? : % -> Boolean
+
+
+    mkPtsFmt: (STR,INT,LLS,LLS) -> STR
+      ++ mkPtsFmt(name,diam,lp,lc) creates a OOGL VECT object comprising
+      ++ points only. The parameters are: name (arbitrary identifier), diam
+      ++ the diameter of the points (e.g. 10), lp a list of lists of floats
+      ++ as strings, and lc a list of lists of floats as strings, representing 
+      ++ the color of each point as r,g,b and transparency.[low-level].
+    drawPoint: (%,STR,POINT) -> Void 
+      ++ drawPoint(p,n,pt) draws the point 'pt' named 'n' to the pipe 'p'.
+    drawPolyLine: (%,STR,PLINE,Boolean) -> Void 
+      ++ drawPolyLine(p,n,pl,closed?) draws the polyline 'pl' named 'n' to the 
+      ++ pipe 'p'. Set the parameter closed?=true if the polyline shall be 
+      ++ closed.
+    load: (%,STR) -> Void
+      ++ load(pipe,file) loads the given file into geomview (pipe). 
+    load: (%,STR,STR) -> Void  
+      ++ Loads the given file into geomview (pipe). The third argument 
+      ++ specifies the type of data it contains, which may be 'command' 
+      ++ (geomview commands), 'geometry' (OOGL geometric data), or 'camera' 
+      ++ (OOGL camera definition). If omitted, attempts to guess about the 
+      ++ file's contents. Loading geometric data creates a new visible object; 
+      ++ loading a camera opens a new window; loading a command file executes 
+      ++ those commands.
+    loadPath : % -> Void
+      ++ loadPath(pipe) returns the current search path for command, geometry, 
+      ++ etc. files. 
+    setLoadPath: (%,LS) -> Void
+      ++ setLoadPath(pipe,[path1,...,pathN]) Sets search path for command, 
+      ++ geometry, etc. files. The PATHi are strings giving the pathnames of 
+      ++ directories to be searched. The special directory name + is replaced 
+      ++ by the existing path, so e.g. setLoadPath(p,["mydir","+"]) prepends 
+      ++ mydir to the path.
+    help: (%,STR) -> Void
+      ++ help(pipe,cmd) prints info about cmd. Command may include * wildcards.
+      ++ For instance, help(pipe,"*") prints all commands.
+    scale : (%,STR,Float) -> Void
+      ++ scale(pipe,GEOM-ID,factor) scales GEOM-ID, multiplying its size by 
+      ++ factor.
+    scale : (%,STR,Float,Float,Float) -> Void
+      ++ scale(pipe,GEOM-ID,fx,fy,fz) scales GEOM-ID, multiplying its size by 
+      ++ fx,fy,fz. Scaling only really makes sense in Euclidean space!
+    geometryObjects : % -> Void
+      ++ geometryObjects(pipe) returns a list of names of all geometry objects. 
+    cameras : % -> Void
+      ++ cameras(pipe) returns a list of names of all cameras.     
+    setBackColor : (%,STR,FL,FL,FL) -> Void
+      ++ setBackColor(pipe,cam-id,r,g,b) sets the background color of CAM-ID; 
+      ++ R G B are numbers between 0 and 1.
+    setBackgroundImage : (%,STR,STR) -> Void
+      ++ setBackgroundImage(pipe,cam,filename) uses the given image as the 
+      ++ background of camera CAM-ID (which must be a real camera, not default 
+      ++ or allcams). Centers the image on the window area. Works only with 
+      ++ GL and OpenGL graphics. Use "" for filename to remove background. 
+      ++ With no filename argument, returns name of that window's current 
+      ++ background image, or "". Any file type acceptable as a texture is 
+      ++ allowed, e.g. .ppm.gz, .sgi, etc.      
+    setBBoxColor : (%,STR,FL,FL,FL) -> Void
+      ++ setBBoxColor(pipe,geom-id,r,g,b) Set the bounding-box color of 
+      ++ GEOM-ID; R G B are numbers between 0 and 1.
+    drawBBox : (%,STR,Boolean) -> Void
+      ++ drawBBox(pipe,true or false) whether GEOM-ID's bounding-box should be 
+      ++ drawn.
+    resetCamera: (%,STR) -> Void
+      ++ resetCamera(pipe,cam-id) resets CAM-ID to its default value.     
+    cmdFile : (%,STR,STR) -> Void 
+      ++ cmdFile(pipe,infile,outfile) reads commands from INFILE; sends 
+      ++ corresponding responses (e.g. anything written to filename -) to 
+      ++ OUTFILE, stdout by default (use outfile=""). 
+    copyObject : (%,STR,STR) -> Void
+      ++ copyObject(pipe,id,name) copies an object or camera to a new object
+      ++ with 'name'=name.
+    deleteObject : (%,STR) -> Void
+      ++ deleteObject(pipe,id) delete object or camera ID.      
+    dither : (%,STR,STR) -> Void
+      ++ dither(pipe,cam,opt) turns dithering on or off in that camera. 
+      ++ opt: {"on"|"off"|"toggle"}.
+    drawView : (%,STR) -> Void
+      ++ drawView(pipe,cam) draws the view in CAM-ID, if it needs redrawing. 
+    geomviewVersion: % -> Void
+      ++ geomviewVersion prints a string representing the version of geomview 
+      ++ that is running.     
+    setModel:(%,STR,STR) -> Void
+      ++ setModel(pipe,cam,mod) set the model used to display geometry in this 
+      ++ camera, where mod={"virtual"|"projective"|"conformal"}.
+    drawHSphere : (%,STR,Boolean) -> Void
+      ++ drawHSphere(pipe,cam,true/false) whether to draw a unit sphere: the 
+      ++ sphere at infinity in hyperbolic space, and a reference sphere in 
+      ++ Euclidean and spherical spaces. 
+    drawLinesCloser : (%,STR,Float) -> Void
+      ++ drawLinesCloser(pipe,cam,dist) draws lines (including edges) closer to
+      ++ the camera than polygons by DIST / 10^5 of the Z-buffer range. 
+      ++ DIST = 3.0 by default. If DIST is too small, a line lying on a surface
+      ++ may be dotted or invisible, depending on the viewpoint. If DIST is 
+      ++ too large, lines may appear in front of surfaces that they actually 
+      ++ lie behind. Good values for DIST vary with the scene, viewpoint, and 
+      ++ distance between near and far clipping planes. This feature is a 
+      ++ kludge, but can be helpful.   
+    transform : (%,STR,STR,STR,STR,FL,FL,FL,FL,Boolean) -> Void
+      ++ transform(pipe,objectID,centerID,frameID,action,x,y,z,dt?,smooth?) 
+      ++ where action in [rotate|translate|translate-scaled|scale], applies a 
+      ++ motion (rotation, translation, scaling) to object objectID; that is, 
+      ++ construct and concatenate a transformation matrix with objectID's 
+      ++ transform. The 3 IDs involved are the object that moves, the center of 
+      ++ motion, and the frame of reference in which to apply the motion. The 
+      ++ center is easiest understood for rotations: if centerID is the same as 
+      ++ objectID then it will spin around its own axes; otherwise the moving 
+      ++ object will orbit the center object. There is the special keyword 
+      ++ bbox-center which may be used for centerID. As a result the motion 
+      ++ will be relative to the center of the bounding box of objectID. 
+      ++ Normally frameID, in whose coordinate system the (mouse) motions are 
+      ++ interpreted, is focus, the current camera. Translations can be scaled 
+      ++ proportional to the distance between the target and the center. 
+      ++ Support for spherical and hyperbolic as well as Euclidean space is 
+      ++ built-in: use the space command to change spaces. With type rotate 
+      ++ x, y, and z are floats specifying angles in RADIANS. For types 
+      ++ translate and translate-scaled x, y, and z are floats specifying 
+      ++ distances in the coordinate system of the center object.
+      ++ The optional dt field allows a simple form of animation; if present, 
+      ++ the object moves by just that amount during approximately dt seconds, 
+      ++ then stops. If present and followed by the smooth keyword, the motion 
+      ++ is animated with a 3t^2-2t^3 function, so as to start and stop 
+      ++ smoothly. If absent, the motion is applied immediately. 
+    reset : % -> Void
+      ++ reset(pipe) is equivalent to (progn (new-center ALLGEOMS)(new-center 
+      ++ ALLCAMS)), i.e. a full reset of the pipe.  
+    newCamera : (%,STR) -> Void
+      ++ newCamera(pipe,cam-id) creates a new camera with the given name 
+      ++ (a string). If a camera with that name already exists, the new object 
+      ++ is given a unique name.     
 
 	
   Implementation == SExpression add 
@@ -113,10 +258,179 @@ GeomView : Exports == Implementation where
       
     coerce(g:%):OutputForm == message(g.pipe)$OutputForm
       
-    elt(g:%,s:Symbol):String ==
+    elt(g:%,s:Symbol):Union(STR,Boolean,LS->Void) ==
       s='path => g.path
       s='id   => g.pipe
-      s='close => latex close(g)
-      "none"      
+      s='close => close(g)
+      s='gcl => (c:LS):Void+->writePipe(g,first c) 
+      "unknown element"@STR      
       
+    -------------------------------------------------------------------------
+    fmtPtsHead:="(progn (new-geometry _"[~A]_" appearance {linewidth ~A}"
+    fmtPtsA:="~A ~% VECT ~A ~A ~A~%~{~A ~}~%~{~A ~}~%"  -- intro 
+    fmtPtsB:="~{~{~A ~}~%~}~%~{~{~A ~}~%~})~%~A)"       -- data
+    fmtPts:=concat(fmtPtsA,fmtPtsB)$String
+    fmtPtsTail:="(normalization _"World_" none)"
+    
+    
+    mkPtsFmt(name:STR,diam:INT,p:LLS,c:LLS):STR ==
+      nL:INT:=#p
+      nV:=nL
+      nC:=#c
+      lv:=[1 for i in 1..nL]
+      lc:=[1 for i in 1..nC]
+      f1:=string FORMAT('NIL,fmtPtsHead,name,diam)$Lisp
+      f2:=string FORMAT('NIL,fmtPts,f1,nL,nV,nC,lv,lc,p,c,fmtPtsTail)$Lisp
+
+
+    drawPoint(pipe:%,name:STR,data:POINT):Void ==
+      p:List Float:=[data.X,data.Y,data.Z]
+      c:COLOR:=data.color
+      cl:List Float:=[c.red,c.green,c.blue,c.transparency]
+      lv:LLS:=[[toString(s) for s in p]]
+      lc:LLS:=[[toString(s) for s in cl]]
+      mp:=mkPtsFmt(name,data.diam,lv,lc)
+      writePipe(pipe,mp)
       
+    drawPolyLine(pipe:%,name:STR,data:PLINE,closed:Boolean):Void ==
+      v:List POINT:=data.vertices
+      c:COLOR:=data.color
+      cl:List Float:=[c.red,c.green,c.blue,c.transparency]
+      lf:LF:=concat [[s.X,s.Y,s.Z] for s in v]
+      llv:LLS:=[[toString(s) for s in lf]]
+      llc:LLS:=[[toString(s) for s in cl]]
+      nL:INT:=1
+      nV:INT:=#v
+      nC:INT:=1
+      lv:LI
+      if closed then lv:=[-nV] else lv:=[nV]
+      lc:LI:=[1]
+      f1:=string FORMAT('NIL,fmtPtsHead,name,data.diam)$Lisp
+      f2:=string FORMAT('NIL,fmtPts,f1,nL,nV,nC,lv,lc,llv,llc,fmtPtsTail)$Lisp
+      --output(f2)$OutputPackage
+      writePipe(pipe,f2)
+
+    load(p:%,f:STR):Void ==
+      cmd:=string FORMAT('NIL,"(load ~A)",f)$Lisp
+      writePipe(p,cmd)
+      
+    load(p:%,f:STR,opt:STR):Void ==
+      o:List String:=["command","geometry","camera"]
+      not member?(opt,o) => error "options are: [command|geometry|camera])"
+      cmd:=string FORMAT('NIL,"(load ~A ~A)",f,opt)$Lisp
+      writePipe(p,cmd)
+      
+    loadPath(p:%):Void ==
+      cmd:="(echo)(echo (load-path))(echo)"
+      writePipe(p,cmd)
+      
+    setLoadPath(p:%,paths:LS) ==
+      cmd:=string FORMAT('NIL,"(set-load-path ~A)",paths)$Lisp
+      writePipe(p,cmd)
+
+    help(p:%,c:STR):Void ==
+      cmd:=string FORMAT('NIL,"(morehelp ~A)",c)$Lisp
+      writePipe(p,cmd)
+      
+    scale(p:%,g:STR,f:Float):Void ==
+      fs:STR:=toString(f)
+      cmd:=string FORMAT('NIL,"(scale ~A ~A)",g,fs)$Lisp
+      writePipe(p,cmd)
+      
+    scale(p:%,g:STR,fx:Float,fy:Float,fz:Float):Void ==
+      sx:STR:=toString(fx); sy:STR:=toString(fy); sz:STR:=toString(fz);  
+      cmd:=string FORMAT('NIL,"(scale ~A ~A ~A ~A)",g,sx,sy,sz)$Lisp
+      writePipe(p,cmd)
+    
+    geometryObjects(p:%) ==
+      cmd:="(echo)(echo (all geometry))(echo)"
+      writePipe(p,cmd)      
+      
+    cameras(p:%) ==
+      cmd:="(echo)(echo (all cameras))(echo)"
+      writePipe(p,cmd) 
+
+    setBackColor(p:%,cam:STR,r:FL,g:FL,b:FL):Void ==
+      sr:STR:=toString(r); sg:STR:=toString(g); sb:STR:=toString(b); 
+      cmd:=string FORMAT('NIL,"(backcolor ~A ~A ~A ~A)",cam,sr,sg,sb)$Lisp
+      writePipe(p,cmd) 
+
+    setBackgroundImage(p:%,cam:STR,img:STR):Void ==
+      cmd:=string FORMAT('NIL,"(background-image ~A ~A)",cam,img)$Lisp
+      writePipe(p,cmd) 
+      
+    setBBoxColor(p:%,geom:STR,r:FL,g:FL,b:FL):Void ==
+      sr:STR:=toString(r); sg:STR:=toString(g); sb:STR:=toString(b); 
+      cmd:=string FORMAT('NIL,"(bbox-color ~A ~A ~A ~A)",geom,sr,sg,sb)$Lisp
+      writePipe(p,cmd)              
+       
+    drawBBox(p:%,geom:STR,b:Boolean):Void ==
+      yn:STR 
+      if b then yn:="yes" else yn:="no"
+      cmd:=string FORMAT('NIL,"(bbox-draw ~A ~A)",geom,yn)$Lisp
+      writePipe(p,cmd) 
+     
+    resetCamera(p:%,cam:STR):Void ==
+      cmd:=string FORMAT('NIL,"(camera-reset ~A)",cam)$Lisp
+      writePipe(p,cmd)           
+ 
+    cmdFile(p:%,infile:STR,outfile:STR):Void ==
+      if outfile="" then outfile:="stdout"
+      cmd:=string FORMAT('NIL,"(command ~A ~A)",infile,outfile)$Lisp
+      writePipe(p,cmd)   
+
+    copyObject(p:%,id:STR,name:STR):Void ==
+      cmd:=string FORMAT('NIL,"(copy ~A ~A)",id,name)$Lisp
+      writePipe(p,cmd) 
+
+    deleteObject(p:%,id:STR):Void ==
+      cmd:=string FORMAT('NIL,"(delete ~A)",id)$Lisp
+      writePipe(p,cmd) 
+      
+    dither(p:%,cam:STR,opt:STR):Void ==
+      cmd:=string FORMAT('NIL,"(dither ~A ~A)",cam,opt)$Lisp
+      writePipe(p,cmd)       
+
+    drawView(p:%,cam:STR):Void ==
+      cmd:=string FORMAT('NIL,"(draw ~A)",cam)$Lisp
+      writePipe(p,cmd)        
+      
+    geomviewVersion(p:%):Void == 
+      writePipe(p,"(echo)(echo (geomview-version))(echo)")
+
+
+    setModel(p:%,cam:STR,opt:STR):Void ==
+      cmd:=string FORMAT('NIL,"(hmodel ~A ~A)",cam,opt)$Lisp
+      writePipe(p,cmd)          
+
+    drawHSphere(p:%,cam:STR,b:Boolean):Void ==
+      yn:STR
+      if b then yn:="yes" else yn:="no"
+      cmd:=string FORMAT('NIL,"(hsphere-draw ~A ~A)",cam,yn)$Lisp
+      writePipe(p,cmd)  
+      
+    drawLinesCloser(p:%,cam:STR,dist:Float):Void ==
+      d:STR:=toString(dist)
+      cmd:=string FORMAT('NIL,"(lines-closer ~A ~A)",cam,d)$Lisp
+      writePipe(p,cmd)
+      
+    transform(p:%,o:STR,c:STR,f:STR,a:STR,x:FL,y:FL,z:FL,dt:FL,s?:BO):Void ==
+      sx:STR:=toString(x); sy:STR:=toString(y); sz:STR:=toString(z);
+      fmt:="(transform ~A ~A ~A ~A ~A ~A ~A ~A ~A)"
+      cmd:STR
+      if not zero? dt then
+        sdt:STR:=toString(dt)
+        if s? then
+          cmd:=string FORMAT('NIL,fmt,o,c,f,a,sx,sy,sz,sdt,"smooth")$Lisp
+        else
+          cmd:=string FORMAT('NIL,fmt,o,c,f,a,sx,sy,sz,sdt,"")$Lisp
+      else
+        cmd:=string FORMAT('NIL,fmt,o,c,f,a,sx,sy,sz,"","")$Lisp  
+      writePipe(p,cmd)        
+      
+    reset(p:%):Void == writePipe(p,"(new-reset)") 
+      
+    newCamera(p:%,cam:STR):Void ==
+      cmd:=string FORMAT('NIL,"(new-camera ~A)",cam)$Lisp 
+      writePipe(p,cmd)  
+          

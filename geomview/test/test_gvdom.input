@@ -1,0 +1,32 @@
+)co ../src/gvdom
+
+---(1) -> )d op drawPoint
+--
+-- There is one exposed function called drawPoint :
+--   [1] (GeomView,String,Record(X: Float,Y: Float,Z: Float,color:
+--            Record(red: Float,green: Float,blue: Float,transparency: Float),
+--            diam: Integer)) -> Void
+--            from GeomView
+
+g:=new()$GEOMVIEW
+
+
+COLOR ==> Record(red: Float,green: Float,blue: Float,transparency: Float)
+POINT ==> Record(X: Float,Y: Float,Z: Float,color:COLOR,diam:Integer)
+
+c1:COLOR:=[1.0,0.0,0.0,1.0]
+c2:COLOR:=[0.0,1.0,0.0,1.0]
+c3:COLOR:=[0.0,0.0,1.0,1.0]
+c0:COLOR:=[0.5,0.5,0.5,1.0]
+
+p0:POINT:=[0.0,0.0,0.0,c0,10]
+p1:POINT:=[1.0,0.0,0.0,c1,10]
+p2:POINT:=[0.0,1.0,0.0,c2,10]
+p3:POINT:=[0.0,0.0,1.0,c3,10]
+
+
+drawPoint(g,"O",p0)
+drawPoint(g,"A",p1)
+drawPoint(g,"B",p2)
+drawPoint(g,"C",p3)
+
