@@ -42,6 +42,7 @@ GeomView : Exports == Implementation where
   STR ==> String
   INT ==> Integer
   SEX ==> SExpression
+  NNI ==> NonNegativeIntger
   MSC ==> MoreSystemCommands
   REP ==> Record(pipe:STR,path:STR)
   
@@ -49,6 +50,7 @@ GeomView : Exports == Implementation where
   LLS ==> List List String
   LLF ==> List List Float
   LI  ==> List Integer
+  PI  ==> PositiveInteger
   LS  ==> List String
   LF  ==> List Float
   FL  ==> Float
@@ -69,8 +71,18 @@ GeomView : Exports == Implementation where
     close : % -> Boolean
     coerce : % -> OutputForm
     
-    elt : (%,Symbol) -> Union(STR,Boolean,LS->Void)
-
+    --elt : (%,Symbol) -> Union(STR,Boolean,LS->Void)
+    elt : (%,"help") -> (STR -> Void)
+    elt : (%,"morehelp") -> (STR -> Void)
+    elt : (%,"loc") -> STR
+    elt : (%,"id") -> STR
+    elt : (%,"close") -> Boolean
+    elt : (%,"gcl") -> (STR -> Void)
+    elt : (%,"objects") -> Void
+    elt : (%,"cameras") -> Void
+    elt : (%,"hidepanels") -> Void
+    elt : (%,"showpanels") -> Void
+    elt : (%,"load") -> (STR -> Void) 
     
     makePipe: STR -> STR
     writePipe : (%,STR) -> Void
@@ -111,6 +123,9 @@ GeomView : Exports == Implementation where
       ++ mydir to the path.
     help: (%,STR) -> Void
       ++ help(pipe,cmd) prints info about cmd. Command may include * wildcards.
+      ++ For instance, help(pipe,"*") prints all commands.
+    morehelp: (%,STR) -> Void
+      ++ morehelp(pipe,cmd) prints info about cmd. Command may include * wildcards.
       ++ For instance, help(pipe,"*") prints all commands.
     scale : (%,STR,Float) -> Void
       ++ scale(pipe,GEOM-ID,factor) scales GEOM-ID, multiplying its size by 
@@ -205,7 +220,21 @@ GeomView : Exports == Implementation where
     newCamera : (%,STR) -> Void
       ++ newCamera(pipe,cam-id) creates a new camera with the given name 
       ++ (a string). If a camera with that name already exists, the new object 
-      ++ is given a unique name.     
+      ++ is given a unique name.  
+    windowSize : (%,STR,PI,PI) -> Void
+      ++ windowSize(g,camID,xsize,ysize) sets the size of the camera window with
+      ++ id = camID.
+    windowPosition : (%,STR,PI,PI,PI,PI) -> Void
+      ++ windowPosition(g,camID,xmin,xmax,ymin,ymax) sets the position and size
+      ++ of the camera window with id=camID.
+    windowBorder : (%,STR,Boolean) -> Void
+      ++ windowNoBorder(g,camID,true/false) shows/hides the border of the window.
+    windowPixelAspect : (%,STR,DoubleFloat) -> Void
+      ++ windowPixelAspect(g,camID,f) sets the pixel aspect ratio.
+    uiPanel : (%,STR,Boolean) -> Void
+      ++ uiPanel(g,panelname,true/false) does or does not display the panel with
+      ++ name panelname. Panelnames are: geomview, tools, appearance, cameras,
+      ++ lighting, obscure, materials, command, credits.
 
 	
   Implementation == SExpression add 
@@ -258,13 +287,30 @@ GeomView : Exports == Implementation where
       
     coerce(g:%):OutputForm == message(g.pipe)$OutputForm
       
-    elt(g:%,s:Symbol):Union(STR,Boolean,LS->Void) ==
+    elt0(g:%,s:Symbol):Union(STR,Boolean,LS->Void) ==
       s='path => g.path
       s='id   => g.pipe
       s='close => close(g)
       s='gcl => (c:LS):Void+->writePipe(g,first c) 
       "unknown element"@STR      
-      
+
+    elt(g,"help") == (s:STR):Void+->help(g,s)
+    elt(g,"morehelp") == (s:STR):Void+->morehelp(g,s)
+    elt(g,"loc") == g.path
+    elt(g,"id") == g.pipe
+    elt(g,"close") == close(g)
+    elt(g,"gcl") == (c:STR):Void+->writePipe(g,c)      
+    elt(g,"objects") == geometryObjects(g)
+    elt(g,"cameras") == cameras(g)
+    elt(g,"hidepanels") == 
+      uiPanel(g,"geomview",false)
+      uiPanel(g,"tools",false)
+    elt(g,"showpanels") == 
+      uiPanel(g,"geomview",true) 
+      uiPanel(g,"tools",true)
+    elt(g,"load") == (f:STR):Void+->load(g,f)    
+
+
     -------------------------------------------------------------------------
     fmtPtsHead:="(progn (new-geometry _"[~A]_" appearance {linewidth ~A}"
     fmtPtsA:="~A ~% VECT ~A ~A ~A~%~{~A ~}~%~{~A ~}~%"  -- intro 
@@ -279,8 +325,8 @@ GeomView : Exports == Implementation where
       nC:=#c
       lv:=[1 for i in 1..nL]
       lc:=[1 for i in 1..nC]
-      f1:=string FORMAT('NIL,fmtPtsHead,name,diam)$Lisp
-      f2:=string FORMAT('NIL,fmtPts,f1,nL,nV,nC,lv,lc,p,c,fmtPtsTail)$Lisp
+      f1:=string format('NIL,fmtPtsHead,name,diam)
+      f2:=string format('NIL,fmtPts,f1,nL,nV,nC,lv,lc,p,c,fmtPtsTail)
 
 
     drawPoint(pipe:%,name:STR,data:POINT):Void ==
@@ -305,19 +351,19 @@ GeomView : Exports == Implementation where
       lv:LI
       if closed then lv:=[-nV] else lv:=[nV]
       lc:LI:=[1]
-      f1:=string FORMAT('NIL,fmtPtsHead,name,data.diam)$Lisp
-      f2:=string FORMAT('NIL,fmtPts,f1,nL,nV,nC,lv,lc,llv,llc,fmtPtsTail)$Lisp
+      f1:=string format('NIL,fmtPtsHead,name,data.diam)
+      f2:=string format('NIL,fmtPts,f1,nL,nV,nC,lv,lc,llv,llc,fmtPtsTail)
       --output(f2)$OutputPackage
       writePipe(pipe,f2)
 
     load(p:%,f:STR):Void ==
-      cmd:=string FORMAT('NIL,"(load ~A)",f)$Lisp
+      cmd:=string format('NIL,"(load ~A)",f)
       writePipe(p,cmd)
       
     load(p:%,f:STR,opt:STR):Void ==
       o:List String:=["command","geometry","camera"]
       not member?(opt,o) => error "options are: [command|geometry|camera])"
-      cmd:=string FORMAT('NIL,"(load ~A ~A)",f,opt)$Lisp
+      cmd:=string format('NIL,"(load ~A ~A)",f,opt)
       writePipe(p,cmd)
       
     loadPath(p:%):Void ==
@@ -325,21 +371,25 @@ GeomView : Exports == Implementation where
       writePipe(p,cmd)
       
     setLoadPath(p:%,paths:LS) ==
-      cmd:=string FORMAT('NIL,"(set-load-path ~A)",paths)$Lisp
+      cmd:=string format('NIL,"(set-load-path ~A)",paths)
       writePipe(p,cmd)
 
     help(p:%,c:STR):Void ==
-      cmd:=string FORMAT('NIL,"(morehelp ~A)",c)$Lisp
+      cmd:=string FORMAT('NIL,"(help ~A)",c)$Lisp
+      writePipe(p,cmd)
+      
+    morehelp(p:%,c:STR):Void ==
+      cmd:=string format('NIL,"(morehelp ~A)",c)
       writePipe(p,cmd)
       
     scale(p:%,g:STR,f:Float):Void ==
       fs:STR:=toString(f)
-      cmd:=string FORMAT('NIL,"(scale ~A ~A)",g,fs)$Lisp
+      cmd:=string format('NIL,"(scale ~A ~A)",g,fs)
       writePipe(p,cmd)
       
     scale(p:%,g:STR,fx:Float,fy:Float,fz:Float):Void ==
       sx:STR:=toString(fx); sy:STR:=toString(fy); sz:STR:=toString(fz);  
-      cmd:=string FORMAT('NIL,"(scale ~A ~A ~A ~A)",g,sx,sy,sz)$Lisp
+      cmd:=string format('NIL,"(scale ~A ~A ~A ~A)",g,sx,sy,sz)
       writePipe(p,cmd)
     
     geometryObjects(p:%) ==
@@ -352,47 +402,47 @@ GeomView : Exports == Implementation where
 
     setBackColor(p:%,cam:STR,r:FL,g:FL,b:FL):Void ==
       sr:STR:=toString(r); sg:STR:=toString(g); sb:STR:=toString(b); 
-      cmd:=string FORMAT('NIL,"(backcolor ~A ~A ~A ~A)",cam,sr,sg,sb)$Lisp
+      cmd:=string format('NIL,"(backcolor ~A ~A ~A ~A)",cam,sr,sg,sb)
       writePipe(p,cmd) 
 
     setBackgroundImage(p:%,cam:STR,img:STR):Void ==
-      cmd:=string FORMAT('NIL,"(background-image ~A ~A)",cam,img)$Lisp
+      cmd:=string format('NIL,"(background-image ~A ~A)",cam,img)
       writePipe(p,cmd) 
       
     setBBoxColor(p:%,geom:STR,r:FL,g:FL,b:FL):Void ==
       sr:STR:=toString(r); sg:STR:=toString(g); sb:STR:=toString(b); 
-      cmd:=string FORMAT('NIL,"(bbox-color ~A ~A ~A ~A)",geom,sr,sg,sb)$Lisp
+      cmd:=string format('NIL,"(bbox-color ~A ~A ~A ~A)",geom,sr,sg,sb)
       writePipe(p,cmd)              
        
     drawBBox(p:%,geom:STR,b:Boolean):Void ==
       yn:STR 
       if b then yn:="yes" else yn:="no"
-      cmd:=string FORMAT('NIL,"(bbox-draw ~A ~A)",geom,yn)$Lisp
+      cmd:=string format('NIL,"(bbox-draw ~A ~A)",geom,yn)
       writePipe(p,cmd) 
      
     resetCamera(p:%,cam:STR):Void ==
-      cmd:=string FORMAT('NIL,"(camera-reset ~A)",cam)$Lisp
+      cmd:=string format('NIL,"(camera-reset ~A)",cam)
       writePipe(p,cmd)           
  
     cmdFile(p:%,infile:STR,outfile:STR):Void ==
       if outfile="" then outfile:="stdout"
-      cmd:=string FORMAT('NIL,"(command ~A ~A)",infile,outfile)$Lisp
+      cmd:=string format('NIL,"(command ~A ~A)",infile,outfile)
       writePipe(p,cmd)   
 
     copyObject(p:%,id:STR,name:STR):Void ==
-      cmd:=string FORMAT('NIL,"(copy ~A ~A)",id,name)$Lisp
+      cmd:=string format('NIL,"(copy ~A ~A)",id,name)
       writePipe(p,cmd) 
 
     deleteObject(p:%,id:STR):Void ==
-      cmd:=string FORMAT('NIL,"(delete ~A)",id)$Lisp
+      cmd:=string format('NIL,"(delete ~A)",id)
       writePipe(p,cmd) 
       
     dither(p:%,cam:STR,opt:STR):Void ==
-      cmd:=string FORMAT('NIL,"(dither ~A ~A)",cam,opt)$Lisp
+      cmd:=string format('NIL,"(dither ~A ~A)",cam,opt)
       writePipe(p,cmd)       
 
     drawView(p:%,cam:STR):Void ==
-      cmd:=string FORMAT('NIL,"(draw ~A)",cam)$Lisp
+      cmd:=string format('NIL,"(draw ~A)",cam)
       writePipe(p,cmd)        
       
     geomviewVersion(p:%):Void == 
@@ -400,18 +450,18 @@ GeomView : Exports == Implementation where
 
 
     setModel(p:%,cam:STR,opt:STR):Void ==
-      cmd:=string FORMAT('NIL,"(hmodel ~A ~A)",cam,opt)$Lisp
+      cmd:=string format('NIL,"(hmodel ~A ~A)",cam,opt)
       writePipe(p,cmd)          
 
     drawHSphere(p:%,cam:STR,b:Boolean):Void ==
       yn:STR
       if b then yn:="yes" else yn:="no"
-      cmd:=string FORMAT('NIL,"(hsphere-draw ~A ~A)",cam,yn)$Lisp
+      cmd:=string format('NIL,"(hsphere-draw ~A ~A)",cam,yn)
       writePipe(p,cmd)  
       
     drawLinesCloser(p:%,cam:STR,dist:Float):Void ==
       d:STR:=toString(dist)
-      cmd:=string FORMAT('NIL,"(lines-closer ~A ~A)",cam,d)$Lisp
+      cmd:=string format('NIL,"(lines-closer ~A ~A)",cam,d)
       writePipe(p,cmd)
       
     transform(p:%,o:STR,c:STR,f:STR,a:STR,x:FL,y:FL,z:FL,dt:FL,s?:BO):Void ==
@@ -421,16 +471,46 @@ GeomView : Exports == Implementation where
       if not zero? dt then
         sdt:STR:=toString(dt)
         if s? then
-          cmd:=string FORMAT('NIL,fmt,o,c,f,a,sx,sy,sz,sdt,"smooth")$Lisp
+          cmd:=string format('NIL,fmt,o,c,f,a,sx,sy,sz,sdt,"smooth")
         else
-          cmd:=string FORMAT('NIL,fmt,o,c,f,a,sx,sy,sz,sdt,"")$Lisp
+          cmd:=string format('NIL,fmt,o,c,f,a,sx,sy,sz,sdt,"")
       else
-        cmd:=string FORMAT('NIL,fmt,o,c,f,a,sx,sy,sz,"","")$Lisp  
+        cmd:=string format('NIL,fmt,o,c,f,a,sx,sy,sz,"","")  
       writePipe(p,cmd)        
       
     reset(p:%):Void == writePipe(p,"(new-reset)") 
       
     newCamera(p:%,cam:STR):Void ==
-      cmd:=string FORMAT('NIL,"(new-camera ~A)",cam)$Lisp 
+      cmd:=string format('NIL,"(new-camera ~A)",cam)
       writePipe(p,cmd)  
-          
+
+
+    windowSize(p,cam,xsize,ysize) ==
+      cmd:=string format('NIL,"(window ~A {size ~A ~A})",cam,xsize,ysize)
+      writePipe(p,cmd) 
+    
+    windowPosition(p,cam,xmin,xmax,ymin,ymax) ==
+      fmt:="(window ~A {position ~A ~A ~A ~A})"
+      cmd:=string format('NIL,fmt,cam,xmin,xmax,ymin,ymax)
+      writePipe(p,cmd)
+     
+    windowBorder(p,cam,b) ==
+      border:STR:="border"
+      if not b then border:="noborder"      
+      cmd:=string format('NIL,"(window ~A {~A})",cam,border)
+      writePipe(p,cmd)       
+    
+    windowPixelAspect(p,cam,f) ==
+      cmd:=string format('NIL,"(window ~A {pixelaspect ~A})",cam,f)
+      writePipe(p,cmd)      
+    
+    uiPanel(p,panel,b) ==
+      pans:LS:=["geomview", "tools", "appearance", "cameras", "lighting",_
+             "obscure", "materials", "command", "credits"]
+      not member?(panel,pans) => error "unknown panel type."
+      onoff:STR:="off"
+      if b then onoff:="on" 
+      cmd:=string format('NIL,"(ui-panel ~A ~A)",panel,onoff)
+      writePipe(p,cmd)            
+    
+     

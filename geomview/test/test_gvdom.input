@@ -13,20 +13,46 @@ g:=new()$GEOMVIEW
 
 COLOR ==> Record(red: Float,green: Float,blue: Float,transparency: Float)
 POINT ==> Record(X: Float,Y: Float,Z: Float,color:COLOR,diam:Integer)
+PLINE ==> Record(vertices:List POINT,color:COLOR,diam:INT)
 
 c1:COLOR:=[1.0,0.0,0.0,1.0]
 c2:COLOR:=[0.0,1.0,0.0,1.0]
 c3:COLOR:=[0.0,0.0,1.0,1.0]
 c0:COLOR:=[0.5,0.5,0.5,1.0]
 
+c4:COLOR:=[0.1,0.4,0.5,1.0]
+
 p0:POINT:=[0.0,0.0,0.0,c0,10]
 p1:POINT:=[1.0,0.0,0.0,c1,10]
 p2:POINT:=[0.0,1.0,0.0,c2,10]
 p3:POINT:=[0.0,0.0,1.0,c3,10]
 
+l1:PLINE:=[[p0,p1],c4,2]
+l2:PLINE:=[[p0,p2],c4,2]
+l3:PLINE:=[[p0,p3],c4,2]
 
 drawPoint(g,"O",p0)
 drawPoint(g,"A",p1)
 drawPoint(g,"B",p2)
 drawPoint(g,"C",p3)
+
+drawPolyLine(g,"OA",l1,false)
+drawPolyLine(g,"OB",l2,false)
+drawPolyLine(g,"OC",l3,false)
+
+
+g.hidepanels
+windowSize(g,"Camera",800,600)
+windowBorder(g,"Camera",false)
+windowBorder(g,"Camera",true)
+
+g.load "cube"  -- same as load(g,"cube")
+
+loadPath(g) -- ("." "/usr/share/geomview/geom" "/usr/share/geomview")
+
+)sys ls /usr/share/geomview/geom
+
+g.load "cone.off"
+
+
 
