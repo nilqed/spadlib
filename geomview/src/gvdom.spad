@@ -73,6 +73,7 @@ GeomView : Exports == Implementation where
     
     --elt : (%,Symbol) -> Union(STR,Boolean,LS->Void)
     elt : (%,"help") -> (STR -> Void)
+    elt : (%,"version") -> Void
     elt : (%,"morehelp") -> (STR -> Void)
     elt : (%,"loc") -> STR
     elt : (%,"id") -> STR
@@ -83,6 +84,8 @@ GeomView : Exports == Implementation where
     elt : (%,"hidepanels") -> Void
     elt : (%,"showpanels") -> Void
     elt : (%,"load") -> (STR -> Void) 
+    elt : (%,"delete") -> (STR -> Void) 
+    elt : (%,"copy") -> ((STR,STR) -> Void) 
     
     makePipe: STR -> STR
     writePipe : (%,STR) -> Void
@@ -295,6 +298,7 @@ GeomView : Exports == Implementation where
       "unknown element"@STR      
 
     elt(g,"help") == (s:STR):Void+->help(g,s)
+    elt(g,"version") == geomviewVersion(g)
     elt(g,"morehelp") == (s:STR):Void+->morehelp(g,s)
     elt(g,"loc") == g.path
     elt(g,"id") == g.pipe
@@ -309,6 +313,8 @@ GeomView : Exports == Implementation where
       uiPanel(g,"geomview",true) 
       uiPanel(g,"tools",true)
     elt(g,"load") == (f:STR):Void+->load(g,f)    
+    elt(g,"delete") == (obj:STR):Void+->deleteObject(g,obj) 
+    elt(g,"copy") == (a:STR,b:STR):Void+->copyObject(g,a,b)    
 
 
     -------------------------------------------------------------------------

@@ -53,6 +53,17 @@ loadPath(g) -- ("." "/usr/share/geomview/geom" "/usr/share/geomview")
 )sys ls /usr/share/geomview/geom
 
 g.load "cone.off"
+g.delete "cone.off"
 
+g.objects
+copyObject(g,"[A]","[D]")
+g.objects
+
+-- g.close
+-- type ? while focus in window => keyboard shortcuts .....
+
+(g.copy)("cube","cube2")
+g.objects
+g.version
 
 
