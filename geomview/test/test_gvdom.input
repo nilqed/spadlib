@@ -67,3 +67,9 @@ g.objects
 g.version
 
 
+DF ==> DoubleFloat
+drawPlane(g,"XY",[0.0::DF,0,0],[1.0::DF,0,0],[0.0::DF,1,0])
+drawPlane(g,"YZ",[0.0::DF,0,0],[0.0::DF,1,0],[0.0::DF,0,1])
+drawPlane(g,"XZ",[0.0::DF,0,0],[1.0::DF,0,0],[0.0::DF,0,1])
+
+

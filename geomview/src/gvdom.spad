@@ -46,9 +46,11 @@ GeomView : Exports == Implementation where
   MSC ==> MoreSystemCommands
   REP ==> Record(pipe:STR,path:STR)
   
+  
   LLI ==> List List Integer
   LLS ==> List List String
   LLF ==> List List Float
+  LDF ==> List DoubleFloat
   LI  ==> List Integer
   PI  ==> PositiveInteger
   LS  ==> List String
@@ -86,6 +88,8 @@ GeomView : Exports == Implementation where
     elt : (%,"load") -> (STR -> Void) 
     elt : (%,"delete") -> (STR -> Void) 
     elt : (%,"copy") -> ((STR,STR) -> Void) 
+    elt : (%,"reset") -> Void
+    elt : (%,"cmdfile") -> ((STR,STR) -> Void) 
     
     makePipe: STR -> STR
     writePipe : (%,STR) -> Void
@@ -105,6 +109,10 @@ GeomView : Exports == Implementation where
       ++ drawPolyLine(p,n,pl,closed?) draws the polyline 'pl' named 'n' to the 
       ++ pipe 'p'. Set the parameter closed?=true if the polyline shall be 
       ++ closed.
+    drawQuad : (%,STR,List List DoubleFloat) -> Void
+      ++ --todo
+    drawPlane : (%,STR,LDF,LDF,LDF) -> Void
+      ++ --todo
     load: (%,STR) -> Void
       ++ load(pipe,file) loads the given file into geomview (pipe). 
     load: (%,STR,STR) -> Void  
@@ -314,7 +322,9 @@ GeomView : Exports == Implementation where
       uiPanel(g,"tools",true)
     elt(g,"load") == (f:STR):Void+->load(g,f)    
     elt(g,"delete") == (obj:STR):Void+->deleteObject(g,obj) 
-    elt(g,"copy") == (a:STR,b:STR):Void+->copyObject(g,a,b)    
+    elt(g,"copy") == (a:STR,b:STR):Void+->copyObject(g,a,b)  
+    elt(g,"reset") == reset(g)
+    elt(g,"cmdfile") == (a:STR,b:STR):Void+->cmdFile(g,a,b)     
 
 
     -------------------------------------------------------------------------
@@ -324,7 +334,14 @@ GeomView : Exports == Implementation where
     fmtPts:=concat(fmtPtsA,fmtPtsB)$String
     fmtPtsTail:="(normalization _"World_" none)"
     
+ 
+    fmtQuadHead:="(progn (new-geometry _"[~A]_" QUAD ~%"
+    fmtQuadPts:="~{~{~A ~}~}))"
     
+    mkQuadFmt(name:STR, p:List List DoubleFloat):STR ==
+      fmt:=fmtQuadHead fmtQuadPts fmtPtsTail
+      string format('NIL,fmt,name,p)
+
     mkPtsFmt(name:STR,diam:INT,p:LLS,c:LLS):STR ==
       nL:INT:=#p
       nV:=nL
@@ -361,6 +378,17 @@ GeomView : Exports == Implementation where
       f2:=string format('NIL,fmtPts,f1,nL,nV,nC,lv,lc,llv,llc,fmtPtsTail)
       --output(f2)$OutputPackage
       writePipe(pipe,f2)
+
+    drawQuad(p:%,name:STR,pts:List List DoubleFloat):Void ==
+      mq:=mkQuadFmt(name,pts)
+      writePipe(p,mq)
+      
+    drawPlane(p:%,name:STR,o:LDF,u1:LDF,u2:LDF):Void ==
+      p1:=[o.i+u1.i for i in 1..3]
+      p2:=[o.i+u2.i for i in 1..3]
+      p3:=[p1.i+p2.i for i in 1..3]
+      pts:List LDF:=[o,p1,p3,p2]
+      drawQuad(p,name,pts)
 
     load(p:%,f:STR):Void ==
       cmd:=string format('NIL,"(load ~A)",f)
