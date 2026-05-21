@@ -72,4 +72,7 @@ drawPlane(g,"XY",[0.0::DF,0,0],[1.0::DF,0,0],[0.0::DF,1,0])
 drawPlane(g,"YZ",[0.0::DF,0,0],[0.0::DF,1,0],[0.0::DF,0,1])
 drawPlane(g,"XZ",[0.0::DF,0,0],[1.0::DF,0,0],[0.0::DF,0,1])
 
+scale(g,"[XY]",2.0::Float)
+scale(g,"[XZ]",2.0::Float,0.5,1.4)
 
+g.gcl "(zoom Camera 0.3)"
