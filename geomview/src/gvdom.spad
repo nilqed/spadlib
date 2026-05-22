@@ -10,7 +10,7 @@ GeomView : Exports == Implementation where
   STR ==> String
   INT ==> Integer
   SEX ==> SExpression
-  NNI ==> NonNegativeIntger
+  NNI ==> NonNegativeInteger
   MSC ==> MoreSystemCommands
   REP ==> Record(pipe:STR,path:STR)
   
@@ -19,17 +19,29 @@ GeomView : Exports == Implementation where
   LLS ==> List List String
   LLF ==> List List Float
   LDF ==> List DoubleFloat
+  LLN ==> List List NNI
+  SP3 ==> ThreeSpace DoubleFloat
   LI  ==> List Integer
   PI  ==> PositiveInteger
   LS  ==> List String
   LF  ==> List Float
   FL  ==> Float
+  DF  ==> DoubleFloat
   BO  ==> Boolean
+  R   ==> Expression Integer
+
 
   COLOR ==> Record(red:FL,green:FL,blue:FL,transparency:FL)
   POINT ==> Record(X:FL,Y:FL,Z:FL,color:COLOR,diam:INT)
-  PLINE ==> Record(vertices:List POINT,color:COLOR,diam:INT)
+  PLINE ==> Record(vertices:List POINT,color:COLOR,diam:INT)  
   
+  QUAD ==> Record(pts:List Point DF,quads:List List NNI)
+  TRIS ==> Record(pts:List Point DF,tris:List List NNI) 
+  
+  TLD ==> TopLevelDrawFunctions R
+  DOF ==> DrawOptionFunctions0
+  SBF ==> SegmentBinding Float
+  LDO ==> List DrawOption
   
   format ==> FORMAT$Lisp
   probeFile ==> PROBE_-FILE$Lisp
@@ -214,8 +226,13 @@ GeomView : Exports == Implementation where
       ++ uiPanel(g,panelname,true/false) does or does not display the panel with
       ++ name panelname. Panelnames are: geomview, tools, appearance, cameras,
       ++ lighting, obscure, materials, command, credits.
-
-	
+    zoom : (%,STR,DF) -> Void
+      ++ zoom(g,camID,FACTOR). Zoom camID, multiplying its field of view by 
+      ++ FACTOR. FACTOR should be a positive number. 
+    draw : (%,R,SBF,SBF,LDO) -> Void
+      ++
+    
+    
   Implementation == SExpression add 
 
     Rep := REP
@@ -268,6 +285,24 @@ GeomView : Exports == Implementation where
       sys(cmd)
       --runProgram(cmd)
       --lisp(string format('NIL,"(uiop:read-file-string _"~A_")",p.path))
+
+    mesh2quad(s:SP3):QUAD ==
+      not mesh? s => error "not a mesh"
+      lps:=lp s
+      m:LLN:=first lllip(s) -- give type LLN -> accelerates compilation
+      w:=#(first m)
+      h:=#m
+      not test(#lps = w*h) => error "corrupted mesh"
+      q:LLN:=concat [[[m.i.j,m.(i+1).j,m.(i+1).(j+1),m.i.(j+1)]_
+        for j in 1..(h-1)] for i in 1..(w-1)]
+      [lps,q]$QUAD
+
+    mesh2triang(s:SP3):TRIS ==
+      mq:=mesh2quad(s)
+      q:=mq.quads
+      t:=concat [[[u.1,u.2,u.4],[u.4,u.2,u.3]] for u in q]
+      [mq.pts,t]$TRIS
+
 
     -- exports
     new() == 
@@ -532,4 +567,15 @@ GeomView : Exports == Implementation where
       cmd:=string format('NIL,"(ui-panel ~A ~A)",panel,onoff)
       writePipe(p,cmd)            
     
+    zoom(p,camID,factor) ==
+      cmd:=string format('NIL,"(zoom ~A ~A)",camID,factor)
+      writePipe(p,cmd) 
 
+
+    --- draw functions
+    draw(p:%,f:R, sx:SBF,sy:SBF, o:LDO):Void == 
+      s:=makeObject(f,sx,sy,[])$TLD
+      lps:=lp s
+      pts:LLS:=[[toString(u.i) for i in 1..3] for u in lps]
+      idx:=first lllip(s)
+      void()
