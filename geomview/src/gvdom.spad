@@ -280,9 +280,23 @@ GeomView : Exports == Implementation where
       --debug: format('T,"Pipe /tmp/geomview/~a created. ~%",s)
       return s
 
+
+    writeToFile(s:STR):Void ==
+      fn:FileName:=coerce("/tmp/geomviewtmp.gcl")$FileName
+      f:TextFile:=open(fn, "output")
+      write!(f,s)
+      close!(f)      
+
+
     writePipe(p:%,c:STR):Void ==
-      cmd:STR:=string format('NIL,"printf '~A' > ~A",c,p.path)
-      sys(cmd)
+      cmd1:STR:=string format('NIL,"printf _"~A_" > ~A",c,p.path)
+      cmd2:STR:=string format('NIL,"cat /tmp/geomviewtmp.gcl | togeomview ~A",p.id)
+      if #cmd1 > 64000 then
+        writeToFile(c)
+        sys(cmd2)
+        --error "data to big ...."
+      else
+        sys(cmd1)
       --runProgram(cmd)
       --lisp(string format('NIL,"(uiop:read-file-string _"~A_")",p.path))
 

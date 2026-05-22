@@ -2,6 +2,7 @@
 
 format ==> FORMAT$Lisp
 
+
 fmtPtsHead:="(progn (new-geometry _"[~A]_" appearance {linewidth ~A}"
 fmtPtsA:="~A ~% VECT ~A ~A ~A~%~{~A ~}~%~{~A ~}~%"  -- intro 
 fmtPtsB:="~{~{~A ~}~%~}~%~{~{~A ~}~%~})~%~A)"       -- data
@@ -12,7 +13,11 @@ fmtPtsTail:="(normalization _"World_" none)"
 
 --s:=makeObject(x^2-y^2,x=0..1,y=0..2,[])
 fx:=2*besselJ(1.0,%pi*sqrt(x^2+y^2))/%pi/sqrt(x^2+y^2)
-s:=makeObject(fx,x=-2..2,y=-2..2,[])
+--
+-- s:=makeObject(fx,x=-2..2,y=-2..2,[var1Steps(56),var2Steps(56)])
+s:=makeObject(fx,x=-2..2,y=-2..2,[var1Steps(28),var2Steps(28)])
+-- Couldn't execute "sh": Argument list too long
+
 lps:=lp s
 idx:=first lllip(s)
 pts:= [[toString(u.i) for i in 1..3] for u in lps]
