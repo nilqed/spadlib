@@ -15,12 +15,12 @@ fmtPtsTail:="(normalization _"World_" none)"
 fx:=2*besselJ(1.0,%pi*sqrt(x^2+y^2))/%pi/sqrt(x^2+y^2)
 --
 -- s:=makeObject(fx,x=-2..2,y=-2..2,[var1Steps(56),var2Steps(56)])
-s:=makeObject(fx,x=-2..2,y=-2..2,[var1Steps(28),var2Steps(28)])
+s:=makeObject(fx,x=-3..3,y=-3..3,[var1Steps(84),var2Steps(84)])
 -- Couldn't execute "sh": Argument list too long
 
-lps:=lp s
-idx:=first lllip(s)
-pts:= [[toString(u.i) for i in 1..3] for u in lps]
+lps:=lp s ;
+idx:=first lllip(s) ;
+pts:= [[toString(u.i) for i in 1..3] for u in lps] ;
 
 fmtVECT1:="(progn (new-geometry _"[~A]_" appearance {linewidth ~A} ~%"
 fmtVECT2:="~%VECT~%~A ~A ~A ~%" --NPolylines  NVertices  NColors
@@ -36,12 +36,12 @@ nv:=reduce(_+,[#u for u in idx])
 nc:=np
 s2:=string format('NIL,fmtVECT2,np,nv,nc) --> 28 784 1
 
-nvp:=[#u for u in idx]
-ncp:=[1 for u in idx]
+nvp:=[#u for u in idx] ;
+ncp:=[1 for u in idx] ;
 s3:=string format('NIL,fmtVECT3,nvp,ncp) -->
 
-va:=concat [[pts.(u.i) for i in 1..#u]  for u in idx] --> List(List(String))
-ca:=[["0.0","0.0","1.0","1.0"] for i in 1..np]
+va:=concat [[pts.(u.i) for i in 1..#u]  for u in idx] ; --> List(List(String))
+ca:=[["0.0","0.0","1.0","1.0"] for i in 1..np] ;
 s4:=string format('NIL,fmtVECT4,va,ca)
 
 cmd:=s1 s2 s3 s4 fmtVECT5
@@ -55,13 +55,17 @@ fmtVECT:="(progn (new-geometry _"[~A]_" appearance {linewidth ~A} ~%_
 mkVECT(name,linewidth,np,nv,nc,nvp,ncp,va,ca) == 
   string format('NIL,fmtVECT,name,linewidth,np,nv,nc,nvp,ncp,va,ca)
   
-vec1:=mkVECT("draw1",2,np,nv,nc,nvp,ncp,va,ca)
+vec1:=mkVECT("draw1",2,np,nv,nc,nvp,ncp,va,ca) ;
 g:=new()$GEOMVIEW
 writePipe(g,vec1)
 
 
 ----
 tidx:=[[u.k for u in idx] for k in 1..np] -- transposed
-va2:=concat [[pts.(u.i) for i in 1..#u]  for u in tidx]
-vec2:=mkVECT("draw2",2,np,nv,nc,nvp,ncp,va2,ca)
+va2:=concat [[pts.(u.i) for i in 1..#u]  for u in tidx] ;
+ca2:=[["1.0","0.0","0.0","1.0"] for i in 1..np]  ; -- np only if square grid
+vec2:=mkVECT("draw2",2,np,nv,nc,nvp,ncp,va2,ca2) ;
 writePipe(g,vec2)
+
+
+gvx_version:=pushPipe(g,"(echo (geomview-version))")

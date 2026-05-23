@@ -75,6 +75,12 @@ GeomView : Exports == Implementation where
     writePipe : (%,STR) -> Void
     pipeAlive? : % -> Boolean
     pipeExists? : % -> Boolean
+    
+    pushPipe : (%,STR) -> STR
+      ++ pushPipe(p,cmd) writes 'cmd' to a command file, then executes
+      ++ it by using '(command infile outfile)' and finally reads in the
+      ++ outfile as a string. This way we get output as a string instead
+      ++ of getting it to 'stdout' when using writePipe.      
 
 
     mkPtsFmt: (STR,INT,LLS,LLS) -> STR
@@ -293,12 +299,25 @@ GeomView : Exports == Implementation where
       cmd2:STR:=string format('NIL,"cat /tmp/geomviewtmp.gcl | togeomview ~A",p.id)
       if #cmd1 > 64000 then
         writeToFile(c)
+        message("big data ... writing /tmp/geomviewtmp.gcl")$OutputForm
         sys(cmd2)
-        --error "data to big ...."
+        --error "data to big ...."   / load(p,"....") also working
       else
         sys(cmd1)
       --runProgram(cmd)
       --lisp(string format('NIL,"(uiop:read-file-string _"~A_")",p.path))
+
+
+    pushPipe(p:%,c:STR):STR ==
+      writeToFile(c)
+      writePipe(p,"(command _"/tmp/geomviewtmp.gcl_" _"/tmp/geomviewtmp.out_")")
+      fn:FileName:=coerce("/tmp/geomviewtmp.out")$FileName
+      f:TextFile:=open(fn, "input")
+      r:STR:=""
+      while not endOfFile?(f) repeat
+        r:=r readLine!(f)
+      close!(f)
+      return r      
 
     mesh2quad(s:SP3):QUAD ==
       not mesh? s => error "not a mesh"
