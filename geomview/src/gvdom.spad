@@ -18,8 +18,10 @@ GeomView : Exports == Implementation where
   LLI ==> List List Integer
   LLS ==> List List String
   LLF ==> List List Float
+  LLD ==> List List DoubleFloat
   LDF ==> List DoubleFloat
   LLN ==> List List NNI
+  LNI ==> List NonNegativeInteger
   SP3 ==> ThreeSpace DoubleFloat
   LI  ==> List Integer
   PI  ==> PositiveInteger
@@ -391,6 +393,18 @@ GeomView : Exports == Implementation where
     fmtQuadHead:="(progn (new-geometry _"[~A]_" QUAD ~%"
     fmtQuadPts:="~{~{~A ~}~}))"
     
+    -- name,linewidth,NPolylines,NVertices,NColors, number of vertices, 
+    -- number of colors supplied per polyline, all the vertices, all the colors
+    -- normalization [all, none, each, keep].
+    fmtVECT:="(progn (new-geometry _"[~A]_" appearance {linewidth ~A} ~%_
+      ~%VECT~%~A ~A ~A ~%~{~A ~}~%~{~A ~}~%~{~{~A ~}~%~}~%~{~{~A ~}~%~})~%_
+      (normalization _"World_" ~A))"  
+      
+    mkVECT:(STR,INT,INT,INT,INT,LNI,LNI,LLS,LLS,STR) -> STR  
+    mkVECT(name,linewidth,np,nv,nc,nvp,ncp,va,ca,norm) == 
+      string format('NIL,fmtVECT,name,linewidth,np,nv,nc,nvp,ncp,va,ca,norm)
+
+
     mkQuadFmt(name:STR, p:List List DoubleFloat):STR ==
       fmt:=fmtQuadHead fmtQuadPts fmtPtsTail
       string format('NIL,fmt,name,p)
@@ -607,8 +621,34 @@ GeomView : Exports == Implementation where
 
     --- draw functions
     draw(p:%,f:R, sx:SBF,sy:SBF, o:LDO):Void == 
-      s:=makeObject(f,sx,sy,[])$TLD
+      s:=makeObject(f,sx,sy,o)$TLD
       lps:=lp s
       pts:LLS:=[[toString(u.i) for i in 1..3] for u in lps]
       idx:=first lllip(s)
-      void()
+      M:Matrix(NNI):=matrix(idx)
+      -- x direction
+      np:=nrows M
+      lines:=entries [row(M,i) for i in 1..np]
+      nv:=reduce(_+,[#u for u in lines])
+      nc:=np
+      nvp:=[#u for u in lines]
+      ncp:=[1::NNI for u in lines]
+      va:=concat [[pts.(u.i) for i in 1..#u]  for u in lines] 
+      ca:=[["0.0","0.0","1.0","1.0"] for i in 1..np] 
+      vec1:=mkVECT("draw1",2,np,nv,nc,nvp,ncp,va,ca,"all") 
+      -- y direction
+      M:=transpose(M)
+      np:=nrows M
+      lines:=entries [row(M,i) for i in 1..np]
+      nv:=reduce(_+,[#u for u in lines])
+      nc:=np
+      nvp:=[#u for u in lines]
+      ncp:=[1::NNI for u in lines]
+      va:=concat [[pts.(u.i) for i in 1..#u]  for u in lines] 
+      ca:=[["1.0","0.0","0.0","1.0"] for i in 1..np] 
+      vec2:=mkVECT("draw2",2,np,nv,nc,nvp,ncp,va,ca,"all")    
+      writePipe(p,vec1)
+      writePipe(p,vec2)      
+
+      
+-- draw(g,x^2-y^2,x=-1..1,y=-1..1,[var1Steps(86),var2Steps(56)])
