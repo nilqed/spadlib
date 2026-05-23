@@ -650,5 +650,10 @@ GeomView : Exports == Implementation where
       writePipe(p,vec1)
       writePipe(p,vec2)      
 
-      
+
+-- g:=new()$GEOMVIEW
 -- draw(g,x^2-y^2,x=-1..1,y=-1..1,[var1Steps(86),var2Steps(56)])
+-- draw(g,sin(x-y),x=-1..1,y=-1..1,[var1Steps(22),var2Steps(16),title("A")])
+-- setBackColor(g,"Camera",1.0,1.0,1.0) --> white
+-- g.gcl "(snapshot Camera snapshot.ps ps)"  --> todo in spad
+-- g.close
