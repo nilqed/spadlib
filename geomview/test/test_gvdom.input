@@ -8,6 +8,9 @@
 --            diam: Integer)) -> Void
 --            from GeomView
 
+pause ==> READ_-LINE()$Lisp
+
+
 g:=new()$GEOMVIEW
 
 
@@ -41,24 +44,29 @@ drawPolyLine(g,"OB",l2,false)
 drawPolyLine(g,"OC",l3,false)
 
 
-g.hidepanels
+pause ------
+
+--g.hidepanels
 windowSize(g,"Camera",800,600)
-windowBorder(g,"Camera",false)
-windowBorder(g,"Camera",true)
+
+--windowBorder(g,"Camera",false)
+--windowBorder(g,"Camera",true)
 
 g.load "cube"  -- same as load(g,"cube")
 
 loadPath(g) -- ("." "/usr/share/geomview/geom" "/usr/share/geomview")
 
-)sys ls /usr/share/geomview/geom
+--)sys ls /usr/share/geomview/geom
 
 g.load "cone.off"
-g.delete "cone.off"
+--g.delete "cone.off"
 
 g.objects
 copyObject(g,"[A]","[D]")
 g.objects
 
+pause -----------------
+ 
 -- g.close
 -- type ? while focus in window => keyboard shortcuts .....
 
@@ -76,3 +84,5 @@ scale(g,"[XY]",2.0::Float)
 scale(g,"[XZ]",2.0::Float,0.5,1.4)
 
 g.gcl "(zoom Camera 0.3)"
+
+
