@@ -531,12 +531,14 @@ GeomView : Exports == Implementation where
       cmd:=string format('NIL,"(command ~A ~A)",infile,outfile)
       writePipe(p,cmd)   
 
-    copyObject(p:%,id:STR,name:STR):Void ==
-      cmd:=string format('NIL,"(copy ~A ~A)",id,name)
+    -- do not use 'id' (provokes a mysterious error), use objId instead.
+    copyObject(p:%,objId:STR,newName:STR):Void ==
+      cmd:=string format('NIL,"(copy ~A ~A)",objId,newName)
       writePipe(p,cmd) 
 
-    deleteObject(p:%,id:STR):Void ==
-      cmd:=string format('NIL,"(delete ~A)",id)
+    -- do not use 'id' (provokes a mysterious error), use objId instead.
+    deleteObject(p:%,objId:STR):Void ==
+      cmd:=string format('NIL,"(delete ~A)",objId)
       writePipe(p,cmd) 
       
     dither(p:%,cam:STR,opt:STR):Void ==
