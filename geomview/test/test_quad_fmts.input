@@ -1,0 +1,33 @@
+)co ../src/gvdom
+
+format ==> FORMAT$Lisp
+
+fmtCQUAD:="(progn (new-geometry _"[~A]_" CQUAD ~%_
+      ~{ ~{~{~A ~} ~} ~% ~})~%_
+      (normalization _"World_" ~A))" 
+      
+
+format('NIL,fmtCQUAD,"A",[ [[1,11],[2,22],[3,33],[4,44]],[[5,55],[6,66],[7,77],[8,88]]],"B")
+
+COLOR ==> Record(red: Float,green: Float,blue: Float,transparency: Float)
+c1:COLOR:=[1.0,0.0,0.0,1.0]
+c2:COLOR:=[0.0,1.0,0.0,1.0]
+c3:COLOR:=[0.0,0.0,1.0,1.0]
+c0:COLOR:=[0.5,0.5,0.5,1.0]
+c4:COLOR:=[0.1,0.4,0.5,1.0]
+
+fx:=2*besselJ(1.0,%pi*sqrt(x^2+y^2))/%pi/sqrt(x^2+y^2)
+
+-- s:=makeObject(fx,x=-2..2,y=-2..2,[var1Steps(56),var2Steps(84)])
+s:=makeObject(fx,x=-3..3,y=-3..3,[])
+m:=mesh2quad(s);
+
+--q:=m.quads
+--p:=m.pts
+
+-- concat points and green color
+ll:=[ [concat([m.pts.i.j for j in 1..3],[0.0,1.0,0.0,1.0]) for i in q] for q in m.quads ] ;
+ss:=string format('NIL,fmtCQUAD,"A",ll,"all")
+writeToFile(ss)
+g:=new()$GEOMVIEW
+load(g,"/tmp/geomviewtmp.gcl")

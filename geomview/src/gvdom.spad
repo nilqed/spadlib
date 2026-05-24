@@ -239,7 +239,10 @@ GeomView : Exports == Implementation where
       ++ FACTOR. FACTOR should be a positive number. 
     draw : (%,R,SBF,SBF,LDO) -> Void
       ++
-    
+    mesh2quad : SP3 -> QUAD
+      ++ temp. only
+    writeToFile : STR -> Void
+      ++ temp. only
     
   Implementation == SExpression add 
 
@@ -404,6 +407,10 @@ GeomView : Exports == Implementation where
     mkVECT(name,linewidth,np,nv,nc,nvp,ncp,va,ca,norm) == 
       string format('NIL,fmtVECT,name,linewidth,np,nv,nc,nvp,ncp,va,ca,norm)
 
+
+    fmtCQUAD:="(progn (new-geometry _"[~A]_" CQUAD ~%_
+      ~{ ~{~A ~} ~{~A ~} ~{~A ~} ~{~A ~} ~% ~})~%_
+      (normalization _"World_" ~A))" 
 
     mkQuadFmt(name:STR, p:List List DoubleFloat):STR ==
       fmt:=fmtQuadHead fmtQuadPts fmtPtsTail

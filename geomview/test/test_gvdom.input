@@ -8,7 +8,11 @@
 --            diam: Integer)) -> Void
 --            from GeomView
 
+--reval(s) ==> EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
 pause ==> READ_-LINE()$Lisp
+  
+
+-----------------------------------------------------------------------
 
 
 g:=new()$GEOMVIEW
@@ -43,8 +47,9 @@ drawPolyLine(g,"OA",l1,false)
 drawPolyLine(g,"OB",l2,false)
 drawPolyLine(g,"OC",l3,false)
 
+--------------------------
+pause -----> g.? functions
 
-pause ------
 
 --g.hidepanels
 windowSize(g,"Camera",800,600)

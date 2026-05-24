@@ -61,11 +61,17 @@ writePipe(g,vec1)
 
 
 ----
-tidx:=[[u.k for u in idx] for k in 1..np] -- transposed
-va2:=concat [[pts.(u.i) for i in 1..#u]  for u in tidx] ;
-ca2:=[["1.0","0.0","0.0","1.0"] for i in 1..np]  ; -- np only if square grid
-vec2:=mkVECT("draw2",2,np,nv,nc,nvp,ncp,va2,ca2) ;
-writePipe(g,vec2)
+--tidx:=[[u.k for u in idx] for k in 1..np] -- transposed
+--va2:=concat [[pts.(u.i) for i in 1..#u]  for u in tidx] ;
+--ca2:=[["1.0","0.0","0.0","1.0"] for i in 1..np]  ; -- np only if square grid
+--vec2:=mkVECT("draw2",2,np,nv,nc,nvp,ncp,va2,ca2) ;
+--writePipe(g,vec2)
 
 
 gvx_version:=pushPipe(g,"(echo (geomview-version))")
+
+
+
+
+
+
