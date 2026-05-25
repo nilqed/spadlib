@@ -199,7 +199,7 @@ PlotlyJS : Exports == Implementation where
       h:=#m
       not test(#lps = w*h) => error "corrupted mesh"
       q:=concat [[[m.i.j,m.(i+1).j,m.(i+1).(j+1),m.i.(j+1)]_
-        for j in 1..(h-1)] for i in 1..(w-1)]
+        for j in 1..(w-1)] for i in 1..(h-1)]
       [lps,q]$QUAD
 
     mesh2triang(s:SP3):TRIS ==

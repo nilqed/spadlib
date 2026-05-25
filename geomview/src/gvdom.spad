@@ -243,6 +243,8 @@ GeomView : Exports == Implementation where
       ++ temp. only
     writeToFile : STR -> Void
       ++ temp. only
+    drawQ : (%,R,SBF,SBF,LDO) -> Void
+      ++ temp. only
     
   Implementation == SExpression add 
 
@@ -332,7 +334,7 @@ GeomView : Exports == Implementation where
       h:=#m
       not test(#lps = w*h) => error "corrupted mesh"
       q:LLN:=concat [[[m.i.j,m.(i+1).j,m.(i+1).(j+1),m.i.(j+1)]_
-        for j in 1..(h-1)] for i in 1..(w-1)]
+        for j in 1..(w-1)] for i in 1..(h-1)]
       [lps,q]$QUAD
 
     mesh2triang(s:SP3):TRIS ==
@@ -409,7 +411,7 @@ GeomView : Exports == Implementation where
 
 
     fmtCQUAD:="(progn (new-geometry _"[~A]_" CQUAD ~%_
-      ~{ ~{~A ~} ~{~A ~} ~{~A ~} ~{~A ~} ~% ~})~%_
+      ~{ ~{~{~A ~} ~} ~% ~})~%_
       (normalization _"World_" ~A))" 
 
     mkQuadFmt(name:STR, p:List List DoubleFloat):STR ==
@@ -664,6 +666,18 @@ GeomView : Exports == Implementation where
       writePipe(p,vec2)      
 
 
+    drawQ(p:%,f:R, sx:SBF,sy:SBF, o:LDO):Void == 
+      s:=makeObject(f,sx,sy,o)$TLD
+      not mesh? s => error "not a mesh?"
+      m:=mesh2quad(s)
+      ll:List List List DoubleFloat
+      ll:=[ [concat([m.pts.i.j for j in 1..3],[0.0,1.0,0.0,1.0]) for i in q]_
+              for q in m.quads ] ;
+      ss:=string format('NIL,fmtCQUAD,"A",ll,"all") 
+      writePipe(p,ss)  
+      --writeToFile(ss)
+      --load(p,"/tmp/geomviewtmp.gcl")      
+
 -- g:=new()$GEOMVIEW
 -- draw(g,x^2-y^2,x=-1..1,y=-1..1,[var1Steps(86),var2Steps(56)])
 -- draw(g,sin(x-y),x=-1..1,y=-1..1,[var1Steps(22),var2Steps(16),title("A")])
@@ -674,3 +688,13 @@ GeomView : Exports == Implementation where
 -- SHIFT-? --> keyboard commands ....
 -- g.close
 -----------------------
+
+---test drawQ
+--  fx:=2*besselJ(1,%pi*sqrt(x^2+y^2))/%pi/sqrt(x^2+y^2)
+--  g:=new()$GEOMVIEW
+--   drawQ(g,fx,x=-3.0..3,y=-3.0..3,[]::List DrawOption)
+--  g.close
+--  g:=new()$GEOMVIEW
+--  drawQ(g,fx,x=-3.0..3,y=-3.0..3,[var1Steps(55),var2Steps(67)])
+--  deleteObject(g,"[A]")
+--  drawQ(g,fx,x=-5.0..5,y=-5.0..5,[var1Steps(55),var2Steps(67)])

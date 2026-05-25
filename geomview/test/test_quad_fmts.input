@@ -19,7 +19,7 @@ c4:COLOR:=[0.1,0.4,0.5,1.0]
 fx:=2*besselJ(1.0,%pi*sqrt(x^2+y^2))/%pi/sqrt(x^2+y^2)
 
 -- s:=makeObject(fx,x=-2..2,y=-2..2,[var1Steps(56),var2Steps(84)])
-s:=makeObject(fx,x=-3..3,y=-3..3,[])
+s:=makeObject(fx,x=-3..3,y=-3..3,[var1Steps(55),var2Steps(55)]) -- use odd numbers
 m:=mesh2quad(s);
 
 --q:=m.quads
