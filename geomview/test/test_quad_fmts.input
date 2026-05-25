@@ -25,9 +25,22 @@ m:=mesh2quad(s);
 --q:=m.quads
 --p:=m.pts
 
+DF==>DoubleFloat
+colFun(v:List DF):List(DF) == [sin(v.1)^2,cos(v.2)^2,cosh(v.3),1.0]
+colFun2(v:List DF):List(DF) == [sin(v.1)^2,cos(v.2)^2,tanh(v.3),1.0]
+
 -- concat points and green color
-ll:=[ [concat([m.pts.i.j for j in 1..3],[0.0,1.0,0.0,1.0]) for i in q] for q in m.quads ] ;
-ss:=string format('NIL,fmtCQUAD,"A",ll,"all")
+--ll:=[ [concat(pp:=[m.pts.i.j for j in 1..3],[0.0,1.0,0.0,1.0]) for i in q]_
+--        for q in m.quads ] ;
+
+--- with color function ... todo:
+ll:=[ [concat(pp:=[m.pts.i.j for j in 1..3],colFun pp) for i in q]_
+        for q in m.quads ] ;
+
+
+ss:=string format('NIL,fmtCQUAD,"A",ll,"all") ;
 writeToFile(ss)
 g:=new()$GEOMVIEW
 load(g,"/tmp/geomviewtmp.gcl")
+
+
