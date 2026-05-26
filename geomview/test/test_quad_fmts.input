@@ -28,13 +28,14 @@ m:=mesh2quad(s);
 DF==>DoubleFloat
 colFun(v:List DF):List(DF) == [sin(v.1)^2,cos(v.2)^2,cosh(v.3),1.0]
 colFun2(v:List DF):List(DF) == [sin(v.1)^2,cos(v.2)^2,tanh(v.3),1.0]
+colFun3(v:List DF):List(DF) == [0.0,0.0,tanh(v.3),1.0]
 
 -- concat points and green color
 --ll:=[ [concat(pp:=[m.pts.i.j for j in 1..3],[0.0,1.0,0.0,1.0]) for i in q]_
 --        for q in m.quads ] ;
 
 --- with color function ... todo:
-ll:=[ [concat(pp:=[m.pts.i.j for j in 1..3],colFun pp) for i in q]_
+ll:=[ [concat(pp:=[m.pts.i.j for j in 1..3],colFun3 pp) for i in q]_
         for q in m.quads ] ;
 
 
@@ -43,4 +44,91 @@ writeToFile(ss)
 g:=new()$GEOMVIEW
 load(g,"/tmp/geomviewtmp.gcl")
 
+LDF ==> List DoubleFloat
+LDO ==> List DrawOption
+zcolor(x:DF,y:DF,z:DF):DF == z
+ldo:LDO:=[colorFunction(zcolor),var1Steps(56)]
 
+option?(ldo,colorFunction3)
+option?(ldo,var1Steps)
+
+option(ldo,colorFunction3) --> theMap(*3;zcolor;1;initial)
+option(ldo,var1Steps) --> 56
+
+--colFun:=(v:LDF):LDF+->[sin(v.1)^2,cos(v.2)^2,cosh(v.3),1.0]
+
+cc:=[m.pts.i.4 for i in 1..#m.pts]
+#cc
+
+minc:=min(cc)
+maxc:=max(cc)
+ratio(c:DF):DF ==
+  maxc-minc < 0.01 => 1.0
+  (c-minc)/(maxc-minc)
+  
+index(c:DF):Integer==1+wholePart(ratio(c)*26.0)
+
+color2rgb(c:DF):LDF ==
+  idx:=index(c)
+  idx=1  => [1.00, 0.00, 0.00, 1.0]       -- Pure Red
+  idx=2  => [1.00, 0.33, 0.00, 1.0]       -- Orange-Red
+  idx=3	 => [1.00, 0.67, 0.00, 1.0]	      -- Dark Orange
+  idx=4	 => [1.00, 1.00, 0.00, 1.0]	      -- Pure Yellow
+  idx=5	 => [0.83, 1.00, 0.00, 1.0]	      -- Lime Green
+  idx=6	 => [0.67, 1.00, 0.00, 1.0]	      -- Chartreuse
+  idx=7	 => [0.33, 1.00, 0.00, 1.0]	      -- Bright Leaf Green
+  idx=8	 => [0.17, 1.00, 0.00, 1.0]	      -- Spring Green
+  idx=9	 => [0.00, 1.00, 0.17, 1.0]	      -- Mint Green
+  idx=10 => [0.00, 1.00, 0.00, 1.0]       -- Pure Green
+  idx=11 => [0.00, 1.00, 0.33, 1.0]       -- Pastel Green / Teal
+  idx=12 => [0.00, 1.00, 0.67, 1.0]       -- Turquoise
+  idx=13 => [0.00, 1.00, 1.00, 1.0]       -- Pure Cyan
+  idx=14 => [0.00, 0.67, 1.00, 1.0]       -- Sky Blue
+  idx=15 => [0.00, 0.33, 1.00, 1.0]       -- Electric Blue
+  idx=16 => [0.00, 0.00, 1.00, 1.0]       -- Deep Blue
+  idx=17 => [0.17, 0.00, 1.00, 1.0]       -- Cobalt Blue
+  idx=18 => [0.33, 0.00, 1.00, 1.0]       -- Indigo
+  idx=19 => [0.00, 0.00, 1.00, 1.0]       -- Pure Blue
+  idx=20 => [0.48, 0.00, 1.00, 1.0]       -- Violet
+  idx=21 => [0.67, 0.00, 1.00, 1.0]       -- Deep Purple
+  idx=22 => [0.83, 0.00, 1.00, 1.0]       -- Bright Purple
+  idx=23 => [1.00, 0.00, 1.00, 1.0]       -- Pure Magenta
+  idx=24 => [1.00, 0.00, 0.67, 1.0]       -- Hot Pink
+  idx=25 => [1.00, 0.00, 0.48, 1.0]       -- Deep Pink
+  idx=26 => [1.00, 0.00, 0.33, 1.0]       -- Crimson / Rose
+  idx=27 => [1.00, 0.00, 0.17, 1.0]       -- Ruby Red  
+  error "out of range [1..27]"
+
+
+)if false
+The 27-Hue Float Matrix (0.0 to 1.0)
+Wheel Index 	Domain Color Name	Red Float (R)	Green Float (G)	Blue Float (B)	Approximate Visual Hue
+1	red() (Base 1)	1.00	0.00	0.00	Pure Red
+2		1.00	0.33	0.00	Orange-Red
+3		1.00	0.67	0.00	Dark Orange
+4		1.00	1.00	0.00	Pure Yellow
+5		0.83	1.00	0.00	Lime Green
+6		0.67	1.00	0.00	Chartreuse
+7		0.33	1.00	0.00	Bright Leaf Green
+8		0.17	1.00	0.00	Spring Green
+9		0.00	1.00	0.17	Mint Green
+10	green() (Base 2)	0.00	1.00	0.00	Pure Green
+11		0.00	1.00	0.33	Pastel Green / Teal
+12		0.00	1.00	0.67	Turquoise
+13		0.00	1.00	1.00	Pure Cyan
+14		0.00	0.67	1.00	Sky Blue
+15		0.00	0.33	1.00	Electric Blue
+16		0.00	0.00	1.00	Deep Blue
+17		0.17	0.00	1.00	Cobalt Blue
+18		0.33	0.00	1.00	Indigo
+19	blue() (Base 3)	0.00	0.00	1.00	Pure Blue
+20		0.48	0.00	1.00	Violet
+21		0.67	0.00	1.00	Deep Purple
+22		0.83	0.00	1.00	Bright Purple
+23		1.00	0.00	1.00	Pure Magenta
+24		1.00	0.00	0.67	Hot Pink
+25		1.00	0.00	0.48	Deep Pink
+26		1.00	0.00	0.33	Crimson / Rose
+27		1.00	0.00	0.17	Ruby Red
+
+)endif
