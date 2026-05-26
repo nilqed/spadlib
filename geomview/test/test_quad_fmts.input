@@ -97,7 +97,9 @@ color2rgb(c:DF):LDF ==
   idx=25 => [1.00, 0.00, 0.48, 1.0]       -- Deep Pink
   idx=26 => [1.00, 0.00, 0.33, 1.0]       -- Crimson / Rose
   idx=27 => [1.00, 0.00, 0.17, 1.0]       -- Ruby Red  
+  --[1.0,0.0,0.0,1.0]
   error "out of range [1..27]"
+
 
 
 )if false
