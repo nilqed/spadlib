@@ -30,6 +30,7 @@ GeomView : Exports == Implementation where
   FL  ==> Float
   DF  ==> DoubleFloat
   BO  ==> Boolean
+  DO  ==> DrawOption
   R   ==> Expression Integer
 
 
@@ -44,6 +45,13 @@ GeomView : Exports == Implementation where
   DOF ==> DrawOptionFunctions0
   SBF ==> SegmentBinding Float
   LDO ==> List DrawOption
+  
+  PSC  ==> ParametricSpaceCurve R
+  PSCF ==> ParametricSpaceCurve(DF -> DF)
+  PSF  ==> ParametricSurface R
+  PSFF ==> ParametricSurface((DF, DF) -> DF)
+  
+
   
   format ==> FORMAT$Lisp
   probeFile ==> PROBE_-FILE$Lisp
@@ -93,6 +101,8 @@ GeomView : Exports == Implementation where
       ++ the color of each point as r,g,b and transparency.[low-level].
     drawPoint: (%,STR,POINT) -> Void 
       ++ drawPoint(p,n,pt) draws the point 'pt' named 'n' to the pipe 'p'.
+    drawPoint: (%,STR,FL,FL,FL,Color,Integer) -> Void
+      ++ drawPoint(p,name,x,y,z,color,size)
     drawPolyLine: (%,STR,PLINE,Boolean) -> Void 
       ++ drawPolyLine(p,n,pl,closed?) draws the polyline 'pl' named 'n' to the 
       ++ pipe 'p'. Set the parameter closed?=true if the polyline shall be 
@@ -245,6 +255,8 @@ GeomView : Exports == Implementation where
       ++ temp. only
     drawQ : (%,R,SBF,SBF,LDO) -> Void
       ++ temp. only
+    drawQCF : (%,R,SBF,SBF,LDO) -> Void
+      ++ temp. only / fricas color function provided via DrawOption
     color2rgb : (DF,DF,DF) -> LDF 
       ++
     
@@ -345,6 +357,36 @@ GeomView : Exports == Implementation where
       t:=concat [[[u.1,u.2,u.4],[u.4,u.2,u.3]] for u in q]
       [mq.pts,t]$TRIS
 
+    hues:Table(Integer,LDF):=table()
+    
+    hues.1  := [1.00, 0.00, 0.00, 1.0]       -- Pure Red
+    hues.2  := [1.00, 0.33, 0.00, 1.0]       -- Orange-Red
+    hues.3	:= [1.00, 0.67, 0.00, 1.0]	     -- Dark Orange
+    hues.4	:= [1.00, 1.00, 0.00, 1.0]	     -- Pure Yellow
+    hues.5	:= [0.83, 1.00, 0.00, 1.0]	     -- Lime Green
+    hues.6	:= [0.67, 1.00, 0.00, 1.0]	     -- Chartreuse
+    hues.7	:= [0.33, 1.00, 0.00, 1.0]	     -- Bright Leaf Green
+    hues.8	:= [0.17, 1.00, 0.00, 1.0]	     -- Spring Green
+    hues.9	:= [0.00, 1.00, 0.17, 1.0]	     -- Mint Green
+    hues.10 := [0.00, 1.00, 0.00, 1.0]       -- Pure Green
+    hues.11 := [0.00, 1.00, 0.33, 1.0]       -- Pastel Green / Teal
+    hues.12 := [0.00, 1.00, 0.67, 1.0]       -- Turquoise
+    hues.13 := [0.00, 1.00, 1.00, 1.0]       -- Pure Cyan
+    hues.14 := [0.00, 0.67, 1.00, 1.0]       -- Sky Blue
+    hues.15 := [0.00, 0.33, 1.00, 1.0]       -- Electric Blue
+    hues.16 := [0.00, 0.00, 1.00, 1.0]       -- Deep Blue
+    hues.17 := [0.17, 0.00, 1.00, 1.0]       -- Cobalt Blue
+    hues.18 := [0.33, 0.00, 1.00, 1.0]       -- Indigo
+    hues.19 := [0.00, 0.00, 1.00, 1.0]       -- Pure Blue
+    hues.20 := [0.48, 0.00, 1.00, 1.0]       -- Violet
+    hues.21 := [0.67, 0.00, 1.00, 1.0]       -- Deep Purple
+    hues.22 := [0.83, 0.00, 1.00, 1.0]       -- Bright Purple
+    hues.23 := [1.00, 0.00, 1.00, 1.0]       -- Pure Magenta
+    hues.24 := [1.00, 0.00, 0.67, 1.0]       -- Hot Pink
+    hues.25 := [1.00, 0.00, 0.48, 1.0]       -- Deep Pink
+    hues.26 := [1.00, 0.00, 0.33, 1.0]       -- Crimson / Rose
+    hues.27 := [1.00, 0.00, 0.17, 1.0]       -- Ruby Red 
+
 
     -- exports
     new() == 
@@ -437,7 +479,7 @@ GeomView : Exports == Implementation where
       lv:LLS:=[[toString(s) for s in p]]
       lc:LLS:=[[toString(s) for s in cl]]
       --mp:=mkPtsFmt(name,data.diam,lv,lc)
-      mp:=mkVECT(name,data.diam,1,1,1,[1],[1],lv,lc,"none")
+      mp:=mkVECT(name,data.diam,1,1,1,[1],[1],lv,lc,"none")  -- all?
       writePipe(pipe,mp)
       
     drawPolyLine(pipe:%,name:STR,data:PLINE,closed:Boolean):Void ==
@@ -642,37 +684,18 @@ GeomView : Exports == Implementation where
 
     color2rgb(minc:DF,maxc:DF,c:DF):LDF ==
       idx:=index(minc,maxc,c)
-      idx=1  => [1.00, 0.00, 0.00, 1.0]       -- Pure Red
-      idx=2  => [1.00, 0.33, 0.00, 1.0]       -- Orange-Red
-      idx=3	 => [1.00, 0.67, 0.00, 1.0]	      -- Dark Orange
-      idx=4	 => [1.00, 1.00, 0.00, 1.0]	      -- Pure Yellow
-      idx=5	 => [0.83, 1.00, 0.00, 1.0]	      -- Lime Green
-      idx=6	 => [0.67, 1.00, 0.00, 1.0]	      -- Chartreuse
-      idx=7	 => [0.33, 1.00, 0.00, 1.0]	      -- Bright Leaf Green
-      idx=8	 => [0.17, 1.00, 0.00, 1.0]	      -- Spring Green
-      idx=9	 => [0.00, 1.00, 0.17, 1.0]	      -- Mint Green
-      idx=10 => [0.00, 1.00, 0.00, 1.0]       -- Pure Green
-      idx=11 => [0.00, 1.00, 0.33, 1.0]       -- Pastel Green / Teal
-      idx=12 => [0.00, 1.00, 0.67, 1.0]       -- Turquoise
-      idx=13 => [0.00, 1.00, 1.00, 1.0]       -- Pure Cyan
-      idx=14 => [0.00, 0.67, 1.00, 1.0]       -- Sky Blue
-      idx=15 => [0.00, 0.33, 1.00, 1.0]       -- Electric Blue
-      idx=16 => [0.00, 0.00, 1.00, 1.0]       -- Deep Blue
-      idx=17 => [0.17, 0.00, 1.00, 1.0]       -- Cobalt Blue
-      idx=18 => [0.33, 0.00, 1.00, 1.0]       -- Indigo
-      idx=19 => [0.00, 0.00, 1.00, 1.0]       -- Pure Blue
-      idx=20 => [0.48, 0.00, 1.00, 1.0]       -- Violet
-      idx=21 => [0.67, 0.00, 1.00, 1.0]       -- Deep Purple
-      idx=22 => [0.83, 0.00, 1.00, 1.0]       -- Bright Purple
-      idx=23 => [1.00, 0.00, 1.00, 1.0]       -- Pure Magenta
-      idx=24 => [1.00, 0.00, 0.67, 1.0]       -- Hot Pink
-      idx=25 => [1.00, 0.00, 0.48, 1.0]       -- Deep Pink
-      idx=26 => [1.00, 0.00, 0.33, 1.0]       -- Crimson / Rose
-      idx=27 => [1.00, 0.00, 0.17, 1.0]       -- Ruby Red 
-      error "out of range [1..27]"
-
+      hues.idx
 
     --- draw functions
+    
+    drawPoint(p:%,name:STR,x:FL,y:FL,z:FL,color:Color,size:Integer):Void == 
+      hc:Integer:=hue(color)
+      c:LDF:=(hues.hc)
+      digits(3)$Float  -- otherwise float might make troubles/ "21_345"
+      cc:LF:=[convert(u)$DF for u in c]
+      ccc:COLOR:=[cc.1,cc.2,cc.3,cc.4]
+      pt:POINT:=[x,y,z,ccc,size]$POINT
+      drawPoint(p,name,pt)
 
     draw(p:%,f:R, sx:SBF,sy:SBF, o:LDO):Void == 
       s:=makeObject(f,sx,sy,o)$TLD
@@ -713,18 +736,7 @@ GeomView : Exports == Implementation where
       m:=mesh2quad(s)
       colFun:=(v:LDF):LDF+->[sin(v.1)^2,cos(v.2)^2,cosh(v.3),1.0]  --default?
       ll:List List List DoubleFloat
-      if option?(o,'colorFunction1) or _
-         option?(o,'colorFunction2) or _
-         option?(o,'colorFunction3) then 
-      ----
-        cc:LDF:=[m.pts.i.4 for i in 1..#m.pts]
-        minc:DF:=min(cc)
-        maxc:DF:=max(cc)
-        ll:=[ [concat(pp:LDF:=[m.pts.i.j for j in 1..3],_
-           color2rgb(minc,maxc,m.pts.i.4)) for i in q] for q in m.quads ]
-      ----
-      else
-        ll:=[ [concat(pp:LDF:=[m.pts.i.j for j in 1..3],colFun pp) for i in q]_
+      ll:=[ [concat(pp:LDF:=[m.pts.i.j for j in 1..3],colFun pp) for i in q]_
                for q in m.quads ] 
       --
       ss:=string format('NIL,fmtCQUAD,"A",ll,"all") 
@@ -732,8 +744,20 @@ GeomView : Exports == Implementation where
       --writeToFile(ss)
       --load(p,"/tmp/geomviewtmp.gcl")      
 
-
-
+    -- drawQCF uses quads and fricas colors (4th component of point)
+    -- if option?(o,'colorFunction?123)
+    drawQCF(p:%,f:R, sx:SBF,sy:SBF, o:LDO):Void == 
+      s:=makeObject(f,sx,sy,o)$TLD
+      not mesh? s => error "not a mesh?"
+      m:=mesh2quad(s)
+      ll:List List List DoubleFloat
+      cc:LDF:=[m.pts.i.4 for i in 1..#m.pts]
+      minc:DF:=min(cc)
+      maxc:DF:=max(cc)
+      ll:=[ [concat([m.pts.i.j for j in 1..3],_
+        color2rgb(minc,maxc,m.pts.i.4)) for i in q] for q in m.quads ]
+      ss:=string format('NIL,fmtCQUAD,"A",ll,"all") 
+      writePipe(p,ss)      
 
 -- g:=new()$GEOMVIEW
 -- draw(g,x^2-y^2,x=-1..1,y=-1..1,[var1Steps(86),var2Steps(56)])

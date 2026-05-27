@@ -1,0 +1,17 @@
+R ==> Expression Integer
+DF ==> DoubleFloat
+
+PSC  ==> ParametricSpaceCurve R
+PSCF ==> ParametricSpaceCurve(DF -> DF)
+
+c1:=curve(cos(t),sin(t),t)
+s1:=makeObject(c1,t=0..2*%pi,[])
+curve? s1 --> true
+
+lps1:=lp s1
+#lps1
+
+idx1:=lllip s1
+
+--- if tubeRadius(4) given then mesh? s1 true .....
+--- tubePoints: PositiveInteger -> % , default is 6
