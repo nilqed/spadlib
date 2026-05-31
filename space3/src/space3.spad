@@ -1,0 +1,84 @@
+)abbrev package SP3CONV ThreeSpaceConverters
+++ Author: $author
+++ Date Created: $defaultdate
+++ License: BSD
+++ References:
+++ Description:
+++
+ThreeSpaceConverters : Exports == Implementation where
+  
+  NNI ==> NonNegativeInteger
+  LLN ==> List List NNI
+  LNI ==> List NNI
+  LDF ==> List DoubleFloat
+  LLF ==> List List DoubleFloat
+  SP3 ==> ThreeSpace DoubleFloat
+  STR ==> String
+  INT ==> Integer
+  DF  ==> DoubleFloat
+  LI  ==> List Integer
+
+  
+  QUAD ==> Record(pts:List Point DF, quads : List List NNI)
+  TRIS ==> Record(pts:List Point DF, tris  : List List NNI) 
+  
+  
+  VECT ==> "VECT~%~A ~A ~A ~%~{~A ~}~%~{~A ~}~%~{~{~A ~}~%~}~{~{~A ~}~%~}" 
+  MESH ==> "CMESH~%~A ~A ~%~{~{~A ~}~%~}"  
+  
+  format ==> FORMAT$Lisp
+  
+  Exports == with
+    
+    mkVECT : (NNI,NNI,NNI,LI,LNI,LLF,LLF) -> STR
+      ++ mkVECT(np,nv,nc,nvp,ncp,v,c) creates a VECT OOGL format string, where
+      ++ np: number of polylines, nv: number of vertices, nc: number of colors
+      ++ nvp: list of numbers of vertices per polyline
+      ++ ncp: list of numbers of colors per polyline (0,1 or #vert)
+      ++ v : list of point coordinates, c: list of rgba values 
+      ++ Ex: mkVECT(1,1,1,[1],[1],[[1.0,2.0,3.0]],[[0.0,0.0,1.0,1.0]])
+      ++ is a blue point (pixel).
+
+    mkMESH : (LLF,LLN,LDF -> LDF) -> STR
+
+    mesh2quad : SP3 -> QUAD
+    mesh2tris : SP3 -> TRIS
+	
+	
+  Implementation ==  add 
+    
+    mesh2quad(s:SP3):QUAD ==
+      not mesh? s => error "not a mesh"
+      lps:=lp s
+      m:LLN:=first lllip(s) -- give type LLN -> accelerates compilation
+      w:=#(first m)
+      h:=#m
+      not test(#lps = w*h) => error "corrupted mesh"
+      q:LLN:=concat [[[m.i.j, m.(i+1).j, m.(i+1).(j+1), m.i.(j+1)]_
+        for j in 1..(w-1)] for i in 1..(h-1)]
+      [lps,q]$QUAD
+
+    mesh2tris(s:SP3):TRIS ==
+      mq:=mesh2quad(s)
+      q:=mq.quads
+      t:=concat [[[u.1,u.2,u.4],[u.4,u.2,u.3]] for u in q]
+      [mq.pts,t]$TRIS
+
+ 
+    mkVECT(np,nv,nc,nvp,ncp,v,c) ==
+      err1:="The sum (of absolute values) of the Nv[i] must equal NVertices."
+      err2:="The sum of the Nc[i] must equal NColors."
+      not nv=reduce(_+,[abs(u) for u in nvp]) => error err1
+      not nc=reduce(_+,[u for u in ncp]) => error err2
+      string format('NIL,VECT,np,nv,nc,nvp,ncp,v,c)   
+
+    mkMESH(pts,idx,colfun) ==
+      err1:="Number of points does not correspond to mesh size."
+      nu:=#idx
+      nv:=#(idx.1)
+      not #pts = nu*nv => error err1
+      pc:=[concat(p,colfun(p)) for p in pts]
+      uv:=concat [[pc.i for i in r] for r in idx]
+      string format('NIL,MESH,nu,nv,uv) 
+
+

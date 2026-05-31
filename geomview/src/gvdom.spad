@@ -430,7 +430,6 @@ GeomView : Exports == Implementation where
     elt(g,"reset") == reset(g)
     elt(g,"cmdfile") == (a:STR,b:STR):Void+->cmdFile(g,a,b)     
 
-
     -------------------------------------------------------------------------
     fmtPtsHead:="(progn (new-geometry _"[~A]_" appearance {linewidth ~A}"
     fmtPtsA:="~A ~% VECT ~A ~A ~A~%~{~A ~}~%~{~A ~}~%"  -- intro 

@@ -1,0 +1,25 @@
+)co ../src/space3.spad
+
+DF ==> DoubleFloat
+LDF ==> List DF
+
+s:=makeObject(x*y,x=-1..1,y=-2..2,[])
+
+lps:=lp s
+
+pts:=[[u.1,u.2,u.3] for u in lps]
+idx:=first lllip(s)
+
+colfun:=(p:LDF):LDF+->[1.0,abs(p.2)/3.0,abs(p.1),1.0]
+
+m:=mkMESH(pts,idx,colfun);
+FORMAT('T,"~A",m)$Lisp
+
+
+testMESH(s:String):Void ==
+  systemCommand string FORMAT('NIL,"system printf _"~A_" > /tmp/testgv.mesh",s)$Lisp
+  systemCommand "system printf _"(load /tmp/testgv.mesh)_" | togeomview"
+  
+
+testMESH m
+
