@@ -10,9 +10,9 @@ lps:=lp s
 pts:=[[u.1,u.2,u.3] for u in lps]
 idx:=first lllip(s)
 
-colfun:=(p:LDF):LDF+->[1.0,abs(p.2)/3.0,abs(p.1),1.0]
+colfun:=(p:LDF):LDF+->[0.2,abs(p.2)/3.0,abs(p.1),1.0]
 
-m:=mkMESH(pts,idx,colfun);
+m:=mkMESH(pts,idx,colfun,false,false);
 FORMAT('T,"~A",m)$Lisp
 
 

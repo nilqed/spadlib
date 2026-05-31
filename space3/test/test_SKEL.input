@@ -1,0 +1,32 @@
+)co ../src/space3.spad
+
+DF ==> DoubleFloat
+LDF ==> List DF
+
+s:=makeObject(x*y,x=-1..1,y=-2..2,[])
+
+lps:=lp s
+
+pts:=[[u.1,u.2,u.3] for u in lps]
+idx:=first lllip(s)
+
+c1:=[0.3,0.1,0.8,1.0]
+c2:=[0.7,0.9,0.2,1.0]
+cl1:=[c1 for i in 1..#idx]
+cl2:=[c2 for i in 1..#idx]
+
+M:=matrix idx
+MT:=transpose M
+idx2:=listOfLists MT
+
+
+--k:=mkSKEL(#pts,#idx,pts,idx,cl1)
+k2:=mkSKEL(#pts,2*#idx,pts,concat(idx,idx2),concat(cl1,cl2))
+
+
+
+
+
+testSKEL(s:String):Void ==
+  systemCommand string FORMAT('NIL,"system printf _"~A_" > /tmp/testgv.skel",s)$Lisp
+  systemCommand "system printf _"(load /tmp/testgv.skel)_" | togeomview"
