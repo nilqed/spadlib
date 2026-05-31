@@ -1,0 +1,46 @@
+)co ../src/space3.spad
+
+DF ==> DoubleFloat
+LDF ==> List DF
+STR ==> String
+
+s:=makeObject(x*y,x=-1..1,y=-2..2,[])
+
+m:=mesh2quad(s)
+
+colfun:=(p:LDF):LDF+->[0.3,abs(p.2)/5.0,abs(p.1)/7,1.0]
+
+pts:=[[u.1,u.2,u.3] for u in m.pts]
+idx:=m.quads
+
+
+q:=mkQUAD(pts,idx,colfun)
+
+
+writeToFile(s:STR):Void ==
+  fn:FileName:=coerce("/tmp/testgv.quad")$FileName
+  f:TextFile:=open(fn, "output")
+  write!(f,s)
+  close!(f)    
+
+testQUAD(s:String):Void ==
+  --systemCommand string FORMAT('NIL,"system printf _"~A_" > /tmp/testgv.quad",s)$Lisp
+  writeToFile q
+  systemCommand "system printf _"(load /tmp/testgv.quad)_" | togeomview"
+  
+
+testQUAD q
+
+---
+
+
+-- (20) -> testQUAD q
+--   Compiling function testQUAD with type String -> Void
+--
+--   >> System error:
+--   Couldn't execute "sh": Argument list too long
+
+--(with-open-file (output _"/tmp/testgv.quad_" :direction :output
+--    :if-does-not-exist :create :if-exists :supersede)
+--       (format output _"~A_" q))
+

@@ -30,3 +30,7 @@ k2:=mkSKEL(#pts,2*#idx,pts,concat(idx,idx2),concat(cl1,cl2))
 testSKEL(s:String):Void ==
   systemCommand string FORMAT('NIL,"system printf _"~A_" > /tmp/testgv.skel",s)$Lisp
   systemCommand "system printf _"(load /tmp/testgv.skel)_" | togeomview"
+  
+  
+  
+testSKEL k2
