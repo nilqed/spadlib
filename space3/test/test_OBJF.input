@@ -1,0 +1,28 @@
+)co ../src/space3.spad
+
+DF ==> DoubleFloat
+LDF ==> List DF
+
+s:=makeObject(x*y,x=-1..1,y=-2..2,[])
+
+lps:=lp s
+
+m:=mesh2tris(s)
+
+pts:=[[u.1,u.2,u.3] for u in m.pts]
+idx:=m.tris
+
+
+objf:=mkOBJF(pts,idx)
+
+
+
+testOBJF(s:String):Void == 
+  writeToFile(objf,"/tmp/gvtest.obj")
+  systemCommand "system paraview /tmp/gvtest.obj"
+  
+-- test it
+testOBJF(objf)
+  
+  
+  

@@ -1,0 +1,32 @@
+)co ../src/space3.spad
+
+DF ==> DoubleFloat
+LDF ==> List DF
+
+s:=makeObject(x*y,x=-1..1,y=-2..2,[])
+
+lps:=lp s
+
+
+
+pts:=[[u.1,u.2,u.3] for u in lps]
+idx:=first lllip(s)
+
+M:=matrix idx
+MT:=transpose M
+idx2:=listOfLists MT
+
+
+objl:=mkOBJL(pts,concat(idx,idx2))
+
+
+
+testOBJL(s:String):Void == 
+  writeToFile(s,"/tmp/gvtest2.obj")
+  systemCommand "system paraview /tmp/gvtest2.obj"
+  
+-- test it
+testOBJL(objl)
+  
+  
+  

@@ -1,0 +1,20 @@
+)co ../src/space3.spad
+
+DF ==> DoubleFloat
+LDF ==> List DF
+
+s:=makeObject(x*y,x=-1..1,y=-2..2,[])
+
+lps:=lp s
+
+pts:=[[u.1,u.2,u.3] for u in lps]
+
+sgle:=mkSGLE("/tmp/testsgle",16,16,pts)
+
+
+testSGLE(s:String):Void == 
+  writeToFile(s,"/tmp/testsgle.gle")
+  systemCommand "system qgle /tmp/testsgle.gle"
+  
+-- test it!  
+testSGLE sgle
