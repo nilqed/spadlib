@@ -52,10 +52,29 @@ s5:=sum(binomial(5,k)^3,k=0..5)
 test(S5=s5)
 
 ---
-c4:=recEq((n,k)+->binomial(n,k)^4,5,5)
+--c4:=recEq((n,k)+->binomial(n,k)^4,5,5)
 --> works but takes long long ...
 --> c4e:=eval(c4,[%G0=0,%GN=0]) -- free to choose constants
 --> c4e [ok]  S(n) = a1(n)*S(n-1) + ... a4(n)*S(n-4)
 
+
+-----------------
+-- 4.6.3 Examples
+-----------------
+
+exa:= (n,k) +-> (-1)^k*binomial(n,k)*binomial(2*n-2*k,n+a)
+ra:=recEq(exa,1,2)
+
+exb:= (n,k) +-> binomial(x,k)*binomial(y,n-k)
+rb:=recEq(exb,1,2)
+
+exc:= (n,k) +-> k*binomial(2*n+1,2*k+1)
+rc:=recEq(exc,2,2)
+
+exd:= (n,k) +-> 2^(-k)*binomial(n+k,k)
+rd:=recEq(exd,1,1)
+
+exe:= (n,k) +-> (1)^k*binomial(n-k,k)*2^(n-2*k)
+re:=recEq(exe,1,2)
 
 
