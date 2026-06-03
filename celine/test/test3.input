@@ -1,0 +1,61 @@
+)co ../src/celine.spad
+
+X ==> EXPR INT
+
+
+-- more examples
+
+-- Example 3.3.1
+f1:= (n,k)+-> 2^k / factorial(k)^2
+r1:=recEq(f1,1,1)
+
+-- Example 3.3.2
+f2 := (n,k) +-> 1/(2*k-1)/factorial(2*k+1)
+r2:=recEq(f2,1,1)
+
+-- Example 3.3.4. 
+f4 := (n,k) +-> binomial(n,k)*(-1)^k/factorial(k)
+r4:=recEq(f4,1,1)
+r4_12:=recEq(f4,1,2)  -- 21 fails, 22 works
+
+--Example 3.3.5. the Bessel function
+f5 := (n,k) +-> (-1)^k*(x/2)^(2*k+p)/(factorial(k)*factorial(k+p))
+r5:=recEq(f5,1,1)
+
+-- Eq 3.4.2
+f6 := (n,k) +-> (-1)^k*binomial(r-s-k,k)*binomial(r-2*k,n-k)/(r-n-k+1)
+r6:=recEq(f6,1,1) -- 11,12,21,22 failed
+
+-- Example 3.6.1
+f7 := (n,k) +-> (-1)^k * binomial(2*n,k)^2
+r7:=recEq(f7,1,1)
+
+-- Example 3.6.2
+f8 := (n,k) +-> (-1)^k * binomial(2*n,k)*binomial(2*k,k)*binomial(4*n-2*k,2*n-k)
+r8:=recEq(f8,1,1)
+
+
+c1:=recEq((n,k)+->binomial(n,k),1,1)
+c2:=recEq((n,k)+->binomial(n,k)^2,2,2)
+c3:=recEq((n,k)+->binomial(n,k)^3,3,3)
+
+s3:=sum(binomial(5,k)^3,k=0..5)
+
+eval(c3,n=5)
+s2:=sum(binomial(2,k)^3,k=0..2)
+s3:=sum(binomial(3,k)^3,k=0..3)
+s4:=sum(binomial(4,k)^3,k=0..4)
+
+-->  eval(c3,n=5) => s5:=(606*s4+1199*s3+468*s2)/125
+S5:=(606*s4+1199*s3+468*s2)/125
+s5:=sum(binomial(5,k)^3,k=0..5)
+test(S5=s5)
+
+---
+c4:=recEq((n,k)+->binomial(n,k)^4,5,5)
+--> works but takes long long ...
+--> c4e:=eval(c4,[%G0=0,%GN=0]) -- free to choose constants
+--> c4e [ok]  S(n) = a1(n)*S(n-1) + ... a4(n)*S(n-4)
+
+
+

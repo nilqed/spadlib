@@ -9,8 +9,8 @@ buffer.2.position=181
 buffer.2.scroll=0
 
 buffer.3.path=/home/kfp/quicklisp/local-projects/spadlib/space3/src/space3.spad
-buffer.3.position=7064
-buffer.3.scroll=165
+buffer.3.position=1273
+buffer.3.scroll=31
 
 buffer.4.path=/home/kfp/quicklisp/local-projects/spadlib/space3/test/test_VECT.input
 buffer.4.position=1038
@@ -41,6 +41,6 @@ buffer.10.position=302
 buffer.10.scroll=0
 
 buffer.11.path=/home/kfp/quicklisp/local-projects/spadlib/space3/test/test_SGLE.input
-buffer.11.position=315
-buffer.11.scroll=0
+buffer.11.position=602
+buffer.11.scroll=6
 buffer.11.current=1
