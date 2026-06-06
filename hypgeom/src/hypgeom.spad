@@ -58,7 +58,7 @@ HyperGeometric(): Exports == Implementation where
 
   Implementation == add
 
-    rational?(p:X,xs:Symbol):Boolean ==
+    rational0?(p:X,xs:Symbol):Boolean ==
       x:=xs::X
       up:=univariate(p,kernel xs)
       dup:=denom up
@@ -68,6 +68,13 @@ HyperGeometric(): Exports == Implementation where
       fox:=(u:X):Boolean+->freeOf?(u,x)
       every?(fox,cdup) and every?(fox,ndup)
 
+    rational?(f:X, xs:Symbol):Boolean ==
+      k:Kernel X:=kernel xs
+      for kk in tower f repeat
+        a:Boolean:=member?(k, tower(kk::X)) 
+        b:Boolean:=(symbolIfCan(kk) case "failed")
+        a and b => return false
+      true
 
     factoredForm(f:X->X):Fraction(FACSUP) ==
       ns:X:=(nsym:=new()$Symbol)::X

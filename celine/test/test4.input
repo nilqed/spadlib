@@ -1,0 +1,13 @@
+X ==> EXPR INT
+
+notRF?(f:X, k:Kernel X):Boolean ==
+  for kk in tower f repeat
+    a:Boolean:=member?(k, tower(kk::X)) 
+    b:Boolean:=(symbolIfCan(kk) case "failed")
+    a and b => return true
+  false
+  
+ratFun?(f,k) == not notRF?(f,k)  
+  
+f:=1/k
+ratFun?(f,kernel k)

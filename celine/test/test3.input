@@ -2,6 +2,7 @@
 
 X ==> EXPR INT
 
+)set mess time on
 
 -- more examples
 
@@ -78,3 +79,43 @@ exe:= (n,k) +-> (1)^k*binomial(n-k,k)*2^(n-2*k)
 re:=recEq(exe,1,2)
 
 
+-- Dixon
+dixon:= (n,k) +-> (-1)^k*binomial(2*n,k)^3
+--rdix:=recEq(dixon,3,8)
+-- don't use 8,3 !!
+
+--(51) -> rdix:=recEq(dixon,8,3)
+--
+--   (51)
+--     S(n)
+--   =
+--                     7          6           5           4           3          2
+--             - 7776 n  + 49248 n  - 126576 n  + 170568 n  - 129462 n  + 55008 n
+--           +
+--             - 12078 n + 1080
+--        *
+--           S(n - 1)
+--       +
+--                       7           6            5            4            3
+--             - 104976 n  + 769824 n  - 2291976 n  + 3546828 n  - 3027537 n
+--           +
+--                      2
+--             1391769 n  - 311922 n + 27720
+--        *
+--           S(n - 2)
+-- /
+--            7        6         5         4        3        2
+--       144 n  - 768 n  + 1544 n  - 1452 n  + 633 n  - 103 n
+--                               Type: Union(Equation(Expression(Integer)),...)
+--                                  Time: 888.73 (EV) + 15.06 (GC) = 903.80 sec
+--(52) ->
+
+--b0:=factor denom(rhs rdix)
+--           2         2     3        2
+--   (59)  n (2 n - 1) (36 n  - 156 n  + 221 n - 103)
+--Type: Factored(SparseMultivariatePolynomial(Integer,Kernel(Expression(Integer))))
+--                                                                  Time: 0 sec
+-- num:=denom(rhs rdix)*rhs(rdix)
+-- b1,b2 by subst S(n-1)=x, S(n-2)=y then D(.... numer and factor .....
+
+ 
