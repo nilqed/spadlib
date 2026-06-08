@@ -80,6 +80,10 @@ re:=recEq(exe,1,2)
 
 
 -- Dixon
+-- K. Wegschaider, Computer Generated Proofs of Binomial Multi-Sum Identities, 
+-- Diploma Thesis, RISC, J. Kepler University, Linz, May 1997. [ps]
+-- https://www3.risc.jku.at/research/combinat/software/ergosum/RISC/MultiSum.html
+
 dixon:= (n,k) +-> (-1)^k*binomial(2*n,k)^3
 --rdix:=recEq(dixon,3,8)
 -- don't use 8,3 !!
