@@ -7,6 +7,7 @@ s:=makeObject(x*y,x=-1..1,y=-2..2,[])
 
 lps:=lp s
 
+-- triangulation
 m:=mesh2tris(s)
 
 pts:=[[u.1,u.2,u.3] for u in m.pts]
