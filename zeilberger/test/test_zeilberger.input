@@ -1,0 +1,70 @@
+)co zeilberger
+
+X ==> EXPR INT
+S := operator 'S
+
+----
+J:=1
+----
+
+F11:(X,X)->X:= (n,k) +-> binomial(n,k)
+S(n) = sum(F11(n,k),k)
+-- expected: - S(n + 1) + 2 S(n) = 0
+S11:=recEq(F11,1,k)
+
+F12:(X,X)->X:= (n,k) +-> binomial(n,k)^2
+S(n) = sum(F12(n,k),k)
+-- expected:  (- n - 1)S(n + 1) + (4 n + 2)S(n) = 0
+S12:=recEq(F12,1,k)
+
+F13:(X,X)->X:= (n,k) +-> (-1)^k*binomial(2*n,k)^3   -- Dixon
+S(n) = sum(F13(n,k),k)
+-- expected: (- n^2  - 2 n - 1)S(n + 1) + (- 27 n^2  - 27 n - 6)S(n) = 0
+S13:=recEq(F13,1,k)
+
+F14:(X,X)->X:= (n,k) +-> 4^(-k)*binomial(n,2*k)*binomial(2*k,k)
+S(n) = sum(F14(n,k),k)
+-- expected: (- n - 1)S(n + 1) + (2 n + 1)S(n) = 0
+S14:=recEq(F14,1,k)
+
+--F15:(X,X)->X:= (n,k) +-> binomial(n+k,2*k)*binomial(2*k,k)*(-1)^k/(k+1) -- only 2 eq 4 unk
+
+F16:(X,X)->X:= (n,k) +-> (-1)^k*binomial(n,k)*binomial(2*n-2*k,n+a)
+S(n) = sum(F16(n,k),k)
+-- expected: (n - a + 1)S(n + 1) + (- 2 n - 2)S(n) = 0     --***verify
+S16:=recEq(F16,1,k)
+
+F17:(X,X)->X:= (n,k) +-> binomial(x,k)*binomial(y,n-k)
+S(n) = sum(F17(n,k),k)
+-- expected: (- n - 1)S(n + 1) + (y + x - n)S(n) = 0   --***verify
+S17:=recEq(F17,1,k)
+
+F18:(X,X)->X:= (n,k) +-> k*binomial(2*n+1,2*k+1)
+S(n) = sum(F18(n,k),k)
+-- expected:  (- 2 n^2  + n)S(n + 1) + (8 n^2  + 4 n)S(n) = 0  --***verify
+S18:=recEq(F18,1,k)
+
+F19:(X,X)->X:= (n,k) +-> (-1)^k*binomial(n-k,k)*2^(n-2*k)
+S(n) = sum(F19(n,k),k)
+-- expected:  (n + 1)S(n + 1) + (- n - 2)S(n) = 0  --***verify
+S19:=recEq(F19,1,k)
+
+J:=2
+F21:(X,X)->X:= (n,k) +-> binomial(2*k,k)*binomial(n,k)*(-1/2)^k -- Reed-Dawson
+S(n) = sum(F21(n,k),k)
+-- expected: (- n - 2)S(n + 2) + (n + 1)S(n) = 0
+S21:=recEq(F21,2,k)
+
+
+F22:(X,X)->X:= (n,k) +-> 2^(-n)*(-1)^k*binomial(2*n-2*k,n-k)*binomial(n-k,k)*x^(n-2*k)
+S(n) = sum(F22(n,k),k)
+-- Legendre polynomials
+-- expected: (n + 2)S(n + 2) + (- 2 n - 3)x S(n + 1) + (n + 1)S(n) = 0
+S22:=recEq(F22,2,k)
+
+F23:(X,X)->X:= (n,k) +-> 2^(-k)*factorial(n)/factorial(k)/factorial(n-2*k)
+S(n) = sum(F23(n,k),k)
+-- expected: - S(n + 2) + S(n + 1) + (n + 1)S(n) = 0 --***verify
+S23:=recEq(F23,2,k)
+
+

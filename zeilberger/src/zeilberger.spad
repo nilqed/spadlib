@@ -1,0 +1,169 @@
+)abbrev package ZEIL Zeilberger
+++ Author: $author
+++ Date Created: $defaultdate
+++ License: BSD
+++ References:
+++ Description:
+++
+Zeilberger() : Exports == Implementation where
+  
+  R   ==> Integer
+  X   ==> Expression R
+  XX  ==> (X,X)->X
+  OF  ==> OutputForm
+  
+  SUP ==> SparseUnivariatePolynomial
+  FPX ==> FRAC SUPX
+  NNI ==> NonNegativeInteger
+  SYM ==> Symbol
+  
+  SUPX ==> SUP(X)
+  NIXX ==> (NNI,X,X) -> X
+  EFSP ==> ElementaryFunctionStructurePackage(R,X)
+  TSPR ==> TransSolvePackage R
+  LEQX ==> List Equation X
+  EQSR ==> Record(eqs:LEQX,unk:List X,cert:X)
+  
+  nz ==> normalize$EFSP
+  
+  Exports == with
+    
+    term : (XX,NNI,X) -> X
+    termRatio : (XX,NNI,X) -> Record(p0:X,r:X,s:X)
+    gosper : (SUPX,SUPX) -> Record(pa:SUPX,pb:SUPX,pc:SUPX)
+    upperBound : (Record(pa:SUPX,pb:SUPX,pc:SUPX),SUPX) -> Union(Integer,"failed")
+    equationsSetup : (XX,NNI,X) -> EQSR
+    solveEquations: (EQSR,NNI) -> Union(LEQX,"failed")
+    recEq: (XX,NNI,X) -> Union(Equation X,"failed")
+	
+  Implementation == add 
+    
+    term(F:XX,J:NNI,k:X):X ==
+      n:X:='n::X
+      t:List(X):=[subscript('a,[j::OF])::X*F(n+j::X,k) for j in 0..J]
+      reduce(_+,t)
+      
+    termRatio(F:XX,J:NNI,k:X):Record(p0:X,r:X,s:X) ==
+      n:X:='n::X
+      --q:X:=nz( term(F,J,k+1::X)/term(F,J,k) )
+      r12:=nz(F(n,k+1::X)/F(n,k))
+      s12:=nz(F(n,k)/F(n-1::X,k))
+      r1:=numerator r12
+      r2:=denominator r12
+      s1:=numerator s12
+      s2:=denominator s12
+      P1:=(j:NNI):X+->reduce("*",[eval(s1,n,n+j::X-i::X) for i in 0..j-1],1)
+      P2:=(j:NNI):X+->reduce("*",[eval(s2,n,n+l::X) for l in j+1..J],1)
+      p:List(X):=[subscript('a,[j::OF])::X * P1(j) * P2(j) for j in 0..J]
+      p0:=nz(reduce(_+,p))
+      u1:List(X):=[eval(s2,n,n+l::X) for l in 1..J]
+      u2:List(X):=[eval(s2,[n=n+l::X,k=k+1::X]) for l in 1..J]
+      r:= r1 * reduce("*",u1,1)
+      s:= r2 * reduce("*",u2,1)
+      qrs:=nz(r/s)
+      [p0,numerator qrs,denominator qrs]
+      
+    gosper(r:SUPX,s:SUPX):Record(pa:SUPX,pb:SUPX,pc:SUPX) ==
+      lcr:=leadingCoefficient r
+      lcs:=leadingCoefficient s
+      Z:=lcr/lcs
+      r:=r/lcr
+      s:=s/lcs
+      h:X:='h::X
+      single:=create()$SingletonAsOrderedSet
+      Rh:X:=resultant(r,eval(s,single,single::SUPX+h::SUPX))
+      Rh0:List Equation X:=solve(Rh=0,'h)$TransSolvePackage(R)
+      nums:List X:=[rhs z for z in Rh0|integer?(rhs z)$IntegerRetractions(X)]
+      ints:List Integer:=[retract(u) for u in nums]
+      S:=[u for u in ints | u >=0 ]
+      output("** NNI zeroes of the resultant: ",S::OutputForm)$OutputPackage
+      N:=#S
+      p:=[subscript('p,[j::OF])::X::SUPX for j in 0..N]
+      q:=[subscript('q,[j::OF])::X::SUPX for j in 0..N]
+      w:=[subscript('w,[j::OF])::X::SUPX for j in 1..N]
+      p.1:=r
+      q.1:=s
+      for j in 1..N repeat
+        w.j:=gcd(p.j,eval(q.j,single,single::SUPX+(S.j)::SUPX))
+        p.(j+1) := numer(p.j / w.j)
+        q.(j+1) := numer(q.j / eval(w.j,single,single::SUPX-(S.j)::SUPX))
+      a:=Z*p.(N+1)
+      b:=q.(N+1)
+      P1:=(i:NNI):SUPX+->reduce("*",[eval(w.i,single,single::SUPX-j::SUPX) for j in 1..S.i],1)      
+      c:=reduce("*",[P1(i) for i in 1..N],1)
+      [a,b,c]
+      
+    upperBound(g:Record(pa:SUPX,pb:SUPX,pc:SUPX),p0:SUPX):Union(Integer,"failed") ==
+      single:=create()$SingletonAsOrderedSet
+      a:SUPX:=g.pa
+      b:SUPX:=g.pb
+      c:SUPX:=g.pc * p0
+      lc ==> leadingCoefficient
+      BA:X:=lc(eval(b,single,single::SUPX-1::SUPX)-a)
+      if degree(a) ~= degree(b) or lc a ~= lc b then
+        D:List Integer:=[degree(c)-max(degree(a),degree(b))]
+      else
+        x:X:=BA/lc(a)
+        if integer?(x)$IntegerRetractions(X) then
+          D:=[degree(c)-degree(a)+1,retract x]
+        else
+          D:=[degree(c)-degree(a)+1]
+      output("** D:=",D::OutputForm)$OutputPackage
+      output("** BA:=",BA::OutputForm)$OutputPackage
+      output("** lca:=",lc(a)::OutputForm)$OutputPackage
+      D:=[u for u in D | u>=0 ]
+      empty? D => "failed"
+      max(D)
+
+    equationsSetup(F:XX,J:NNI,k:X):EQSR ==
+      single:=create()$SingletonAsOrderedSet
+      tr:=termRatio(F,J::NNI,k::X)
+      ur:=univariate(tr.r,kernel 'k)
+      us:=univariate(tr.s,kernel 'k)
+      up0:=numer univariate(tr.p0,kernel 'k) --?
+      pr:=retract(ur)@SUPX
+      ps:=retract(us)@SUPX
+      p0:=up0 --retract(up0)@SUPX
+      g:=gosper(pr,ps)
+      d:=upperBound(g,up0)
+      d case "failed" => [[],[],0] 
+      d:=d::Integer
+      b:=[subscript('b,[j::OF])::X for j in 0..d]
+      x0:=reduce(_+,[b.l*k^(l-1) for l in 1..d+1],0)
+      x1:=reduce(_+,[b.l*(k+1)^(l-1) for l in 1..d+1],0)
+      ux0:=numer univariate(x0,kernel 'k) 
+      ux1:=numer univariate(x1,kernel 'k) 
+      p:=g.pc * p0
+      p2:=g.pa
+      p3:=eval(g.pb,single,single::SUPX - 1::SUPX)
+      eqx:SUPX:=p2*ux1-p3*ux0-p
+      ceqx:List X:=coefficients(eqx)
+      output("** Equations:=",ceqx::OutputForm)$OutputPackage
+      a:=[subscript('a,[j::OF])::X for j in 0..J]
+      gp:=p3/p*ux0
+      gpn:X:=retract eval(numer gp,single,k::SUPX)
+      gpd:X:=retract eval(denom gp,single,k::SUPX)
+      G:X:=gpn/gpd*term(F,J,k)
+      [[u=0$X for u in ceqx],concat(a,b),G]
+      
+
+    solveEquations(e:EQSR,J:NNI):Union(LEQX,"failed") ==
+      empty?(e.eqs) or empty?(e.unk) => "failed"
+      x:=[u for u in e.unk | u ~= subscript('b,[0::OF])::X ]
+      s:=solve(e.eqs,x)$TSPR
+      empty? s => "failed"
+      first s
+      
+    recEq(F:XX,J:NNI,k:X):Union(Equation X,"failed") ==
+      es:=equationsSetup(F,J,k)
+      sol:=solveEquations(es,J)
+      if sol case "failed" then return "failed"
+      else sol:=sol::LEQX
+      S:=operator 'S
+      n:='n::X
+      rec:List X:=[rhs(sol.(i+1)) * S(n+i::X) for i in 0..J]
+      rr:=reduce(_+,rec,0)   
+      b0:=subscript('b,[0::OF])::X      
+      rr:=numerator nz(rr/b0)
+      rr=0$X
+ 
