@@ -33,7 +33,7 @@ Zeilberger() : Exports == Implementation where
     gosper : (SUPX,SUPX) -> Record(pa:SUPX,pb:SUPX,pc:SUPX)
     upperBound : (Record(pa:SUPX,pb:SUPX,pc:SUPX),SUPX) -> Union(Integer,"failed")
     equationsSetup : (XX,NNI,X) -> EQSR
-    solveEquations: (EQSR,NNI) -> Union(LEQX,"failed")
+    solveEquations: EQSR -> Union(LEQX,"failed")
     recEq: (XX,NNI,X) -> Union(Equation X,"failed")
 	
   Implementation == add 
@@ -76,7 +76,7 @@ Zeilberger() : Exports == Implementation where
       nums:List X:=[rhs z for z in Rh0|integer?(rhs z)$IntegerRetractions(X)]
       ints:List Integer:=[retract(u) for u in nums]
       S:=[u for u in ints | u >=0 ]
-      output("** NNI zeroes of the resultant: ",S::OutputForm)$OutputPackage
+      --output("** NNI zeroes of the resultant: ",S::OutputForm)$OutputPackage
       N:=#S
       p:=[subscript('p,[j::OF])::X::SUPX for j in 0..N]
       q:=[subscript('q,[j::OF])::X::SUPX for j in 0..N]
@@ -108,9 +108,9 @@ Zeilberger() : Exports == Implementation where
           D:=[degree(c)-degree(a)+1,retract x]
         else
           D:=[degree(c)-degree(a)+1]
-      output("** D:=",D::OutputForm)$OutputPackage
-      output("** BA:=",BA::OutputForm)$OutputPackage
-      output("** lca:=",lc(a)::OutputForm)$OutputPackage
+      --output("** D:=",D::OutputForm)$OutputPackage
+      --output("** BA:=",BA::OutputForm)$OutputPackage
+      --output("** lca:=",lc(a)::OutputForm)$OutputPackage
       D:=[u for u in D | u>=0 ]
       empty? D => "failed"
       max(D)
@@ -138,7 +138,7 @@ Zeilberger() : Exports == Implementation where
       p3:=eval(g.pb,single,single::SUPX - 1::SUPX)
       eqx:SUPX:=p2*ux1-p3*ux0-p
       ceqx:List X:=coefficients(eqx)
-      output("** Equations:=",ceqx::OutputForm)$OutputPackage
+      --output("** Equations:=",ceqx::OutputForm)$OutputPackage
       a:=[subscript('a,[j::OF])::X for j in 0..J]
       gp:=p3/p*ux0
       gpn:X:=retract eval(numer gp,single,k::SUPX)
@@ -147,23 +147,24 @@ Zeilberger() : Exports == Implementation where
       [[u=0$X for u in ceqx],concat(a,b),G]
       
 
-    solveEquations(e:EQSR,J:NNI):Union(LEQX,"failed") ==
+    solveEquations(e:EQSR):Union(LEQX,"failed") ==
       empty?(e.eqs) or empty?(e.unk) => "failed"
-      x:=[u for u in e.unk | u ~= subscript('b,[0::OF])::X ]
-      s:=solve(e.eqs,x)$TSPR
+      s:=solve(e.eqs,[e.unk.i for i in 1..min(#e.unk-1,#e.eqs)])$TSPR
       empty? s => "failed"
       first s
       
     recEq(F:XX,J:NNI,k:X):Union(Equation X,"failed") ==
       es:=equationsSetup(F,J,k)
-      sol:=solveEquations(es,J)
+      sol:=solveEquations(es)
       if sol case "failed" then return "failed"
       else sol:=sol::LEQX
       S:=operator 'S
       n:='n::X
       rec:List X:=[rhs(sol.(i+1)) * S(n+i::X) for i in 0..J]
       rr:=reduce(_+,rec,0)   
-      b0:=subscript('b,[0::OF])::X      
-      rr:=numerator nz(rr/b0)
+      rr:=numerator nz(rr)
+      u0:LEQX:=[es.unk.i=0 for i in #es.eqs+1..#es.unk-1]
+      if not empty? u0 then rr:=nz(eval(rr,u0))
+      rr:=eval(rr,[es.unk.(#es.unk)=1])
       rr=0$X
  
