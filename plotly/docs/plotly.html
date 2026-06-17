@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SPADLIB (spad2doc)</title>
+</head>
+<body>
+<h2 style='color: blue;'>PlotlyJS</h2>
+</pre>
+<pre style='color: brown;'>
+ Author: Kurt Pagani <nilqed@gmail.com>
+ Date Created: Fri 15 May 15:19:12 CEST 2026
+ License: BSD/FRICAS
+ Status: prototype
+ References:
+  https://github.com/plotly/plotly.js (MIT licensed)
+  https://plotly.com/javascript/
+  https://plotly.com/javascript/reference/index/
+  https://plotly.com/javascript/plotlyjs-function-reference/
+  https://plotly.com/javascript/plotlyjs-events/
+  https://plotly.com/javascript/configuration-options/
+  https://gigamonkeys.com/book/a-few-format-recipes.html
+ Description:
+  Open-source JavaScript charting library behind Plotly and Dash
+  --------------------------------------------------
+  Plotly.newPlot(divID, data, layout, config)
+
+    divID
+        DOM node or string id of a DOM node
+    data
+        array of objects, see documentation
+        (defaults to [])
+    layout
+        object, see documentation/
+        (defaults to {})
+    config
+        object, see documentation
+        (defaults to {})
+ --------------------------------------------------
+  The idea here is to provide functions which generate the code as strings.
+  The low-level main function is plotly(data,layout,config,width,height).
+  The Fricas draw functions are then based on it.
+ Required: plotly-x.y.z.min.js
+  There is no plotly-latest anymore, i.e. one has to update cdn if necessary
+
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<strong><code>init : () -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ init() returns the CDN if not yet initialized, else "" is returned.
+</pre>
+<strong><code>plotly : (STR,STR,STR,NNI,NNI) -> STR</code></strong>
+<pre style='color: darkgreen;'>
+ plotly(data,layout,config,w,h) returns the html and javascript code
+ as a string for setting up a unique <div> id with width w and height h
+ and calling Plotly.newPlot(id,data,alyout,config).
+</pre>
+<strong><code>displayHTML : STR -> Void()</code></strong>
+<pre style='color: darkgreen;'>
+ Example: displayHTML draw(sin x, x=-4..4,[title("sin(x)")])
+ Creates a plotly.id.html file and opens it in standard browser
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</body>
+</html>

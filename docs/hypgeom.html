@@ -23,6 +23,7 @@
 </pre>
 </pre>
 </pre>
+</pre>
 <strong><code>rational? : (X,Symbol) -> Boolean</code></strong>
 <pre style='color: darkgreen;'>
  rational?(r,x) returns true if r is of the form p/q where p and q
@@ -34,6 +35,7 @@
  where numerator and denominator are factored, provided that this
  fraction is a rational function; otherwise an error message is
  produced.
+</pre>
 </pre>
 <strong><code>admissible? : Fraction(FACSUP) -> Boolean</code></strong>
 <pre style='color: darkgreen;'>
@@ -57,6 +59,7 @@
  pFq(f) provides the hypergeometric parameters as a record of the
  form Record(ap:List X, bq:List X, fac:X), where X=EXPR(INT).
 </pre>
+</pre>
 <strong><code>construct: (HYPER,Symbol) -> X</code></strong>
 <pre style='color: darkgreen;'>
  construct(pfq,x) constructs the hypergeometric expression with
@@ -69,6 +72,114 @@
 <strong><code>hyperLookup : HYPER -> X</code></strong>
 <pre style='color: darkgreen;'>
  Lookup the output of pFq in a table.
+</pre>
+<strong><code>createHyperF : HYPER -> X</code></strong>
+<pre style='color: darkgreen;'>
+
+</pre>
+<strong><code>hgFtoHYPER : X -> HYPER</code></strong>
+<pre style='color: darkgreen;'>
+ hgFtoHYPER(f) converts f:=hypergeometricF([a..],[b..],x) to
+ a HYPER record [[a..],[b..],x]$HYPER.
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
 </pre>
 </pre>
 </pre>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SPADLIB (spad2doc)</title>
+</head>
+<body>
+<h2 style='color: blue;'>Hunchentoot</h2>
+</pre>
+<pre style='color: brown;'>
+ Author: $author
+ Date Created: $defaultdate
+ License: BSD
+ References:
+   * https://edicl.github.io/hunchentoot/
+   * https://github.com/edicl/hunchentoot
+   * https://common-lisp-libraries.readthedocs.io/hunchentoot/
+ Description:  Hunchentoot is a web server written in Common Lisp and at
+   the same time a toolkit for building dynamic websites. As a stand-alone
+   web server, Hunchentoot is capable of HTTP/1.1 chunking (both directions),
+   persistent connections (keep-alive), and SSL.
+
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<strong><code>installed? : () -> Boolean</code></strong>
+<pre style='color: darkgreen;'>
+ installed?() is true if the symbol :HUNCHENTOOT is in *features*.
+ We then assume, that Hunchentoot is installed (optimistic :)
+</pre>
+</pre>
+</pre>
+</pre>
+<strong><code>start : (NNI,STR,STR) -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ a:=start(port,address,docroot) starts the webserver listening on
+ port 'port' and address 'address'. Static files are served from
+ docroot (a path). The return value 'a' is an instance off the acceptor
+ class and should be stored in order to stop/restart the server.
+</pre>
+<strong><code>stop  : SEX -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ stop(a) stops the webserver, where 'a' is the return value of the
+ start function.
+</pre>
+<strong><code>restart : SEX -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ restart(a) starts the server with acceptor 'a' again after it has
+ been stopped.
+</pre>
+<strong><code>started? : SEX -> Boolean</code></strong>
+<pre style='color: darkgreen;'>
+ started?(a) returns true if the server has beeen started.
+</pre>
+<strong><code>getAddress : SEX -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ getAddress(a) returns the ip address listening on.
+</pre>
+<strong><code>getPort : SEX -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ getPort(a) return the ip port listening on.
+</pre>
+<strong><code>describe : SEX -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ describe(a) returns all info about a (essentially the CL
+ inspect/describe function)
+</pre>
+<strong><code>folderDispatch : (STR,STR) -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ folderDispatch("/docs/","/home/kfp/devel/fricas-book/") creates and
+ pushes a folder dispatcher and handler, so that for example:
+ http://localhost:8080/docs/index.html displays the file index.html.
+ Note: the end slashes in both parameters are required (acc. to docu)
+</pre>
+<strong><code>defEasyHandler : (STR,STR,STR,STR) -> SEX</code></strong>
+<pre style='color: darkgreen;'>
+ defEasyHandler(name,uri,parameters,handler) ...
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</body>
+</html>

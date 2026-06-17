@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SPADLIB (spad2doc)</title>
+</head>
+<body>
+<h2 style='color: blue;'>CelineMethod</h2>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+<strong><code>coeffMatrix : (PI,PI) -> Matrix X</code></strong>
+<pre style='color: darkgreen;'>
+ coeffMatrix(I,J) constructs a (I+1)x(J+1) matrix of new
+ symbols.
+</pre>
+<strong><code>funcMatrix  : ((X,X)->X,PI,PI) -> Matrix X</code></strong>
+<pre style='color: darkgreen;'>
+ funcMatrix(f,I,J) constructs a (J+1)x(I+1) matrix with
+ the entries M(i,j):=f(n-j,k-i)
+</pre>
+<strong><code>sumAndNormalize : (Matrix X,Matrix X) -> X</code></strong>
+<pre style='color: darkgreen;'>
+
+</pre>
+<strong><code>retractNumeratorToPolyInt : X -> UPR</code></strong>
+<pre style='color: darkgreen;'>
+
+</pre>
+<strong><code>findCoeffs : (POLR,Matrix X, Symbol) -> List List Equation FPR</code></strong>
+<pre style='color: darkgreen;'>
+
+</pre>
+<strong><code>celine :((X,X)->X,PI,PI) -> Union(Matrix X,"failed")</code></strong>
+<pre style='color: darkgreen;'>
+ celine(f,I,J) tries to find a recurrence for
+ F(n) = summation(f(n,k),k). The returned value is either
+ "failed" or the coefficient matrix for the recurrence.
+ If successfull, then it holds that the trace of
+ celine(f,I,J)*funcMatrix(f,I,J) is zero (normalize).
+</pre>
+<strong><code>firstOrderRecurrence : ((X,X)->X,X->Matrix X) -> X</code></strong>
+<pre style='color: darkgreen;'>
+
+</pre>
+<strong><code>recRel : ((X,X)->X,PI,PI) -> Union(X,"failed")</code></strong>
+<pre style='color: darkgreen;'>
+
+</pre>
+<strong><code>recEq : ((X,X)->X,PI,PI) -> Union(Equation X,"failed")</code></strong>
+<pre style='color: darkgreen;'>
+
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</pre>
+</body>
+</html>
