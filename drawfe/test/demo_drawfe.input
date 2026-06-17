@@ -1,8 +1,11 @@
 -- )lib DRAWCFUN DRAWCURV DRAWFE DRAW DRAWPT GRIMAGE VIEW2D VIEW3D
 
-)compile drawfe
-)compile view2D+
-)compile view3D+
+-- QT terminal requires:
+--  sudo apt install gnuplot-qt
+
+)compile ../src/drawfe
+)compile ../src/view2D+
+)compile ../src/view3D+
 
 
 macro wait ==
