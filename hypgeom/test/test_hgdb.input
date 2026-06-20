@@ -1,0 +1,34 @@
+)co ../src/hgdb.spad
+
+R ==> Complex Integer
+X ==> Expression R
+NNI ==> NonNegativeInteger
+HYPER ==> Record(ap:List X,bq:List X,fac:X)
+UPX ==> UnivariatePolynomial('z,X)
+UTS ==> UnivariateTaylorSeries(X,'z,0)
+
+h0:=[[],[],x]@HYPER
+h1:=[[a::X,3,-5],[-1,-n::X,-3,5],1]@HYPER
+h2:=[[3,1],[1],z]@HYPER
+h3:=[[a::X,-2,-4,5],[5,8],z]@HYPER
+h4:=[[a::X,2,5,-5],[2,-6,8,b::X],z]@HYPER
+
+order h1 --> [3,4]
+getNonPosInt(h1.bq) --> [-1,-3]
+
+reduce0(h1)
+reduce0(h2)
+
+formalSeries h0
+formalSeries h1
+formalSeries h2
+
+ts0:=truncatedSeries(h0,N::X)
+numeric eval(ts0,[N=10,x=1])
+
+ts2:=truncatedSeries(h2,N::X)
+numeric eval(ts2,[N=10,z=1])
+
+map(polynomial?,[h0,h1,h2,h3,h4])
+
+hgToPolyIfCan(h3)

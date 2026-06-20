@@ -1,0 +1,98 @@
+)abbrev package HYPGDB HyperGeometricDatabase
+++ Author: $author
+++ Date Created: $defaultdate
+++ License: BSD
+++ References:
+++ Description:
+++
+HyperGeometricDatabase() : Exports == Implementation where
+  
+  R ==> Complex Integer
+  X ==> Expression R
+  NNI ==> NonNegativeInteger
+  HYPER ==> Record(ap:List X,bq:List X,fac:X)
+  
+  IRR ==> IntegerRetractions(R)
+  XUP ==> ExpressionToUnivariatePowerSeries(R, X)
+  UTS ==> UnivariateTaylorSeries(X,'z,0)
+  UPX ==> UnivariatePolynomial('z,X)
+  
+  Exports == with
+    
+    order: HYPER -> List NNI
+      ++ order(h) return the order of as [#ap,#bq].
+    getNonPosInt : List X -> List Integer
+      ++ getNonPosIntB(h) returns all non-positive integers in bq.
+    reduce0 : HYPER -> HYPER
+      ++ reduce0(h) recursively cancels all ap[i]=bq[j]. Note: it is not
+      ++ tested whether bq contains non-positive integers.
+    formalSeries : HYPER -> X
+    truncatedSeries : (HYPER,X) -> X
+    polynomial? : HYPER -> Boolean
+    hgToPolyIfCan : HYPER -> Union(UnivariatePolynomial('z,X),"failed")
+	
+	
+  Implementation == add 
+    
+    order(h) == [#h.ap,#h.bq]
+    
+    getNonPosInt(x:List X):List Integer ==
+      empty? x => []
+      rx:List Union(Integer,"failed"):=[retractIfCan(u) for u in x]
+      ix:List Integer:=[u::Integer for u in rx | u case Integer]
+      nx:List Integer:=[u for u in ix | u <= 0]
+
+    reduce0(h:HYPER):HYPER ==
+      sa:Set X:=set h.ap
+      sb:Set X:=set h.bq
+      ab:=intersect(sa,sb)
+      empty? ab => h
+      m:=first members ab
+      nap:=delete(h.ap,position(m,h.ap))
+      nbq:=delete(h.bq,position(m,h.bq))
+      h0:HYPER:=[nap,nbq,h.fac]
+      reduce0(h0)
+      
+    formalSeries(h:HYPER):X ==
+      pb:=reduce("*",[Gamma(h.bq.i) for i in 1..#h.bq],1)
+      pa:=reduce("*",[Gamma(h.ap.i) for i in 1..#h.ap],1)
+      n:='%n::X
+      npb:=reduce("*",[Gamma(n+h.bq.i) for i in 1..#h.bq],1)
+      npa:=reduce("*",[Gamma(n+h.ap.i) for i in 1..#h.ap],1)
+      pb/pa*summation(npa/npb*h.fac^n/factorial(n),'%n)
+      
+    truncatedSeries(h:HYPER,N:X):X ==
+      pb:=reduce("*",[Gamma(h.bq.i) for i in 1..#h.bq],1)
+      pa:=reduce("*",[Gamma(h.ap.i) for i in 1..#h.ap],1)
+      n:='%n::X
+      npb:=reduce("*",[Gamma(n+h.bq.i) for i in 1..#h.bq],1)
+      npa:=reduce("*",[Gamma(n+h.ap.i) for i in 1..#h.ap],1)
+      seg:Segment(X):=segment(0$X,N)
+      sb:=equation('%n,seg)$SegmentBinding(X)
+      pb/pa*summation(npa/npb*h.fac^n/factorial(n),sb)      
+            
+
+    polynomial?(h:HYPER):Boolean ==
+      na:=getNonPosInt(h.ap)
+      nb:=getNonPosInt(h.bq)
+      empty? na and empty? nb => false
+      empty? na and not empty? nb => false
+      empty? nb and not empty? na => true
+      if not empty? na and not empty? nb then
+        am:=max(na)
+        bm:=max(nb)
+        if bm < am then return true
+      false
+      
+
+    hgToPolyIfCan(h:HYPER):Union(UnivariatePolynomial('z,X),"failed") ==
+      not polynomial? h => "failed"
+      hF:X:=hypergeometricF(h.ap,h.bq,'z::X)
+      na:=getNonPosInt(h.ap)
+      am:=abs(max(na))
+      dhF:List X:=[D(hF,'z,i) for i in 0..am]
+      edhF:List X:=[eval(u,['z::X=0$X])$X for u in dhF]
+      construct([[i,edhF.(i+1)] for i in 0..am])$UnivariatePolynomial('z,X)
+      
+
+--hypergeometricF : (List(%), List(%), %) -> % if % has RETRACT(INT) and R has INTDOM
