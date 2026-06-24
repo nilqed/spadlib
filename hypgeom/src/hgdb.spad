@@ -11,11 +11,8 @@ HyperGeometricDatabase() : Exports == Implementation where
   X ==> Expression R
   NNI ==> NonNegativeInteger
   HYPER ==> Record(ap:List X,bq:List X,fac:X)
-  
   IRR ==> IntegerRetractions(R)
-  XUP ==> ExpressionToUnivariatePowerSeries(R, X)
-  UTS ==> UnivariateTaylorSeries(X,'z,0)
-  UPX ==> UnivariatePolynomial('z,X)
+  SUPX ==> SparseUnivariatePolynomial X
   
   Exports == with
     
@@ -29,7 +26,7 @@ HyperGeometricDatabase() : Exports == Implementation where
     formalSeries : HYPER -> X
     truncatedSeries : (HYPER,X) -> X
     polynomial? : HYPER -> Boolean
-    hgToPolyIfCan : HYPER -> Union(UnivariatePolynomial('z,X),"failed")
+    hgToPolyIfCan : HYPER -> Union(SUPX,"failed")
 	
 	
   Implementation == add 
@@ -85,14 +82,14 @@ HyperGeometricDatabase() : Exports == Implementation where
       false
       
 
-    hgToPolyIfCan(h:HYPER):Union(UnivariatePolynomial('z,X),"failed") ==
+    hgToPolyIfCan(h:HYPER):Union(SUPX,"failed") ==
       not polynomial? h => "failed"
       hF:X:=hypergeometricF(h.ap,h.bq,'z::X)
       na:=getNonPosInt(h.ap)
       am:=abs(max(na))
       dhF:List X:=[D(hF,'z,i) for i in 0..am]
       edhF:List X:=[eval(u,['z::X=0$X])$X for u in dhF]
-      construct([[i,edhF.(i+1)] for i in 0..am])$UnivariatePolynomial('z,X)
+      construct([[i,edhF.(i+1)] for i in 0..am])$SUPX
       
 
 --hypergeometricF : (List(%), List(%), %) -> % if % has RETRACT(INT) and R has INTDOM
