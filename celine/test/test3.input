@@ -79,10 +79,18 @@ exe:= (n,k) +-> (1)^k*binomial(n-k,k)*2^(n-2*k)
 re:=recEq(exe,1,2)
 
 
--- Dixon
+-- Dixon'a Identity 
 -- K. Wegschaider, Computer Generated Proofs of Binomial Multi-Sum Identities, 
 -- Diploma Thesis, RISC, J. Kepler University, Linz, May 1997. [ps]
 -- https://www3.risc.jku.at/research/combinat/software/ergosum/RISC/MultiSum.html
+
+
+-- page 24: ... It is an enormous waste of computation time to take S[3,8] as
+-- a structure if the smaller S[Dixon] suffices: solving a 25x24 equation 
+-- system in 76 seconds compared to solving a 43x36 system in 3117 seconds.
+
+-- Note: *** this was 1997 (apparently using Mathematica) ***
+-- It still takes (2026) ~900s using fricas. 
 
 dixon:= (n,k) +-> (-1)^k*binomial(2*n,k)^3
 --rdix:=recEq(dixon,3,8)
