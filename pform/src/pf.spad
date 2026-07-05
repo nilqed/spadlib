@@ -1,0 +1,109 @@
+)abbrev domain PFORM Pform
+Pform : Exports == Implementation where
+  REP ==> Record(sym:Symbol,deg:Polynomial Integer,cl?:Boolean,ex?:Boolean)
+  Exports == SetCategory with
+    pform : (Symbol, Polynomial Integer) -> %
+    closedPform : (Symbol, Polynomial Integer) -> %
+    exactPform  : (Symbol, Polynomial Integer) -> %
+    deg : % -> Polynomial Integer
+    sym : % -> Symbol
+    close : % -> %
+    closed? : % -> Boolean
+    exact? : % -> Boolean
+    _= : (%,%) -> Boolean
+  Implementation == add 
+    Rep := REP
+    pform(s,d) == [s,d,false,false]@REP
+    closedPform(s,d) == [s,d,true,false]@REP
+    dsym(s:Symbol):Symbol == 
+      a:String:=string name s
+      d:String:="d"
+      da:=coerce(d a)$Symbol
+      not scripted? s => da
+      script(da,scripts s)
+    exactPform(s,d) == [dsym(s),d+1,true,true]@REP
+    coerce(s:%):OutputForm == s.sym::OutputForm
+    deg s == s.deg
+    sym s == s.sym
+    closed? s == s.cl?
+    exact? s == s.ex?
+    (x:% = y:%):Boolean == x.sym = y.sym and x.deg = y.deg
+
+
+)abbrev domain WEDGE WedgeProduct
+WedgeProduct : Exports == Implementation where
+  Exports == SetCategory with
+    _* : (Pform,%) -> %
+    _* : (%,%) -> %
+    _= : (%,%) -> Boolean
+    coerce : Pform -> %
+    deg : % -> Polynomial Integer
+    support : % -> List Pform
+    construct : List Pform -> %
+  Implementation == add 
+    Rep := List Pform
+    coerce(a:Pform):% == [a]@Rep
+    coerce(x:%):OutputForm == 
+      ox:=[u::OutputForm for u in x@Rep]
+      --ix:=Lambda()$MathematicalSymbols :: OutputForm
+      ix:=char(1997)$Character :: OutputForm
+      infix(ix,ox)
+    (a:Pform * x:%):% == concat([a],x@Rep)@Rep
+    (x:% * y:%):% == concat(x@Rep,y@Rep)@Rep   
+    (x:% = y:%):Boolean == 
+      #x ~= #y => false
+      empty? x => true
+      q:List Boolean:=[(x.i=y.i)$Pform for i in 1..#x]
+      reduce(_and,q)
+      
+    deg x == 
+      d:List Polynomial Integer:=[deg(u)$Pform for u in x@Rep]
+      reduce(_+,d)
+      
+    support x == x@Rep
+    construct lp == lp
+
+
+)abbrev domain PFORMX PformExpression
+PformExpression : Exports == Implementation where
+  R ==> Expression Integer
+  T ==> Record(k: WedgeProduct, c: R)
+  Exports == FreeModuleCategory(R,WedgeProduct) with
+    coerce : WedgeProduct -> %
+    coerce : Pform -> %
+    _*: (%,%) -> %
+    _*: (R,Pform) -> %
+    deg : % -> List Polynomial Integer
+    d : Pform -> %  
+    d : WedgeProduct -> %
+    d : % -> %
+  Implementation == FreeModule(R,WedgeProduct) add 
+    Rep := FreeModule(R,WedgeProduct)
+    coerce(f:Pform):% == f::WedgeProduct::%
+    d(f:Pform):% == f::WedgeProduct::%
+    (r:R * x:Pform):% == r*x::% 
+    (x:% * y:%):% ==
+      tx:=listOfTerms x
+      ty:=listOfTerms y
+      txy:=concat [[[u.k*v.k,u.c*v.c]$T for v in ty] for u in tx]
+      construct txy
+    deg x == [deg(u) for u in support x]
+    d(f:Pform):% ==
+      closed? f => 0@%    
+      exactPform(sym f,deg f) :: %
+    d(w:WedgeProduct):% ==
+      sw:=support w
+      empty? sw => 0@%
+      f:Pform:=first sw
+      r:List Pform:=rest sw
+      empty? r => d f
+      wr:WedgeProduct:=construct(r)$WedgeProduct
+      fac:R:=(-1)^(deg f)::R
+      d(f) * wr::%  + fac * ( f::% * d(wr) )
+    d(x:%):% ==
+      tx:=listOfTerms x
+      dtx:List %:=[u.c*d(u.k) for u in tx]
+      reduce(_+,dtx,0@%)
+ 
+--  w:=pform(omega()$MathematicalSymbols,p)
+--  w*w --> ...

@@ -1,0 +1,57 @@
+
+F(x,y) == x*x + x*y + y*y
+
+n:=100
+l1:=sort removeDuplicates concat [[F(x,y) for x in -n..n|x<=y] for y in -n..n]
+
+-- sn:=set [i for i in 0..3*n^2]
+-- ln:=set l1
+
+
+isSquare? (m:Integer):Boolean ==
+ m < 0 => false
+ mf:=convert(m)$Float
+ smf:=sqrt(mf)
+ fm:=floor smf
+ cm:=ceiling smf
+ fm = cm => true
+ false
+ 
+
+isFrustum?(m:Integer):Boolean ==
+  m < 0 => false
+  -- D^2 = 4*m - 3*x^2 >= 0
+  sq:=[]
+  x:Integer:=0
+  while (4*m-3*x^2) > 0 repeat
+    if isSquare?(4*m-3*x^2) then sq:=concat(sq,x)
+    x:=x+1
+  empty? sq => false
+  output sq
+  --2 y +x = u = +- sqrt(4 m - 3 x^2)
+  y1:List Float :=[(sqrt(4*m-3*z^2)-z)/2 for z in sq]
+  y2:List Float :=[(-sqrt(4*m-3*z^2)-z)/2 for z in sq]
+  output y1
+  output y2
+  ry1:=[retract u for u in y1]
+  ry2:=[retract u for u in y2]
+  output ry1
+  output ry2
+  empty? ry1 => false
+  empty? ry2 => false
+  true
+  
+
+p1:=F(a*d+b*c+b*d,a*c-b*d) - F(a,b)*F(c,d)
+p2:=F(a*d+b*c+b*d,a*c-b*d) - F(c,d)*F(a,b)
+
+
+
+pn:=[u for u in l1| prime?  u]
+#pn / #l1
+
+
+
+    
+      
+

@@ -1,0 +1,29 @@
+)co frustum
+
+F ==> Frustum
+
+f0:=construct(x,y)$F
+f1:=construct(a,b)$F
+f2:=construct(c,d)$F
+
+
+eqS:=(a+b)^2-a*b+(c+d)^2-c*d-(a+b)^2-(a+b)*(c+d)-(c+d)^2=0
+
+sol:=solve(eqS,d)
+
+fx:=construct(c,numer rhs sol.1)$F
+
+d:=numer rhs sol.1
+d:=eval(d,c=1-b-a)
+c:=1-b-a
+
+
+--> 0
+eval(f1) + eval(construct(c,d)$F) - eval(construct(a+b,c+d)$F) 
+
+c:=1-b-a
+d:=b^2+(a-1)*(b+a)
+construct(c,d)$F
+
+-- (a+b)^2+(a+b)*(c+d)+(c+d)^2-a^2-a*b-b^2-c^2-c*d-d^2 ---> 0
+-- forall a,b exists c,d such that [a,b]+[c,d]=[a+b,c+d]

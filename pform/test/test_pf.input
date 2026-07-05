@@ -1,0 +1,22 @@
+)co pf
+
+a:=pform(a,2)
+b:=pform(b,p)
+c:=pform(c,q)
+
+[deg a,deg b, deg c]
+
+a*b
+a*b*c
+
+deg( (a*b*c)$WEDGE)
+
+r1:= a*b*c + x^n * a * b
+r2:= y*c*b - 2 * a
+
+r12:=r1*r2
+r21:=r2*r1
+
+deg(a*b*c+a+a*b)
+support(a*b*c+a+a*b)
+

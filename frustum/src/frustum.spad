@@ -1,0 +1,55 @@
+)abbrev domain FRUSTUM Frustum
+++ Author: $author
+++ Date Created: $defaultdate
+++ License: BSD
+++ References: https://archive.org/details/theoryoffrustums00john_0
+++ Description:  The theory of frustums and its justification of Euler's lemma 
+++ : and application to the solution of X^3+-Y^3=Z^3 by Johnson, Ernest C.
+++ Publication date 1937 
+++
+Frustum() : Exports == Implementation where
+  
+  R   ==> Integer
+  PR  ==> Polynomial R
+  REP ==> Record(brx:PR,bry:PR)
+  OUT ==> OutputForm
+  
+  Exports == SetCategory with
+    
+    construct : (PR,PR) -> %
+    coerce : % -> OutputForm
+    firstBase : % -> PR
+    middleBase : % -> PR
+    lastBase : % -> PR
+    baseRoots : % -> List PR
+    eval : % -> PR
+    _* : (%,%) -> %
+    
+	
+	
+  Implementation == add 
+  
+    Rep := REP
+  
+    construct(x:PR,y:PR):% == [x,y]$REP
+    coerce(f:%):OutputForm == 
+      x:=f.brx :: OUT
+      y:=f.bry :: OUT
+      z:= 2 :: OUT
+      x^z+x*y+y^z      
+    
+    firstBase f == f.brx^2
+    middleBase f == f.brx * f.bry
+    lastBase f == f.bry^2
+    
+    baseRoots f == [f.brx,f.bry]
+    
+    eval(f:%):PR == f.brx^2 + f.brx * f.bry + f.bry^2
+    
+    -- Proposition 3
+    f1 * f2 == 
+      construct(f1.brx*f2.bry+f1.bry*f2.brx+f1.bry*f2.bry,f1.brx*f2.brx-f1.bry*f2.bry)
+
+    
+    
+   

@@ -1,0 +1,71 @@
+)co knuthbendix.spad
+
+-- https://www.philipzucker.com/string_knuth/
+
+X ==> KnuthBendix(Integer)
+
+kb(x) == construct(x)$X
+
+subseq(kb [2,2], kb [1,1,1,2,2]) = 4
+subseq(kb [2,2], kb [1,1,1,2,2,2]) = 4
+subseq(kb [], kb [1,2,3]) = 1
+subseq(kb [3,4], kb [4,5,3]) = -1
+subseq(kb [3,4], kb [4,5,3,4]) = 3
+
+
+replace(kb[1,2,3,4], kb[2,3], kb[5,6]) = kb[1,5,6,4]
+replace(kb[1,2,3,4], kb[2,3], kb[5,6,7]) = kb[1,5,6,7,4]
+replace(kb[1,2,3,4], kb[2,3], kb[5,6,7,8]) = kb[1,5,6,7,8,4]
+replace(kb[1,1], kb[4,4], kb[2,2]) = kb[1,1]
+
+
+rewrite(kb[1,2,3,4], [kb[2,3]=kb[5,6], kb[5,6]=kb[7,8]]) = kb[1,7,8,4]
+rewrite(kb[1,1,1,1,1,1], [kb[1,1]=kb[]]) = kb[]
+rewrite(kb[1,1,1,1,2,1], [kb[1,1]=kb[]]) = kb[2,1]
+
+s1:=kb[2,4,6,8]
+t1:=kb[1,2,3,4]
+shortlex(kb[2,4,6,8],kb[1,2,3,4])
+
+overlaps(kb[1,2], kb[2,3]) = [kb[1,2,3]]
+overlaps(kb[1,2], kb[3,2]) = []
+overlaps(kb[1,2], kb[2,1]) = [kb[1,2,1],kb[2,1,2]]
+overlaps(kb[1,2], kb[1,2]) = [kb[1,2]]
+overlaps(kb[2,2], kb[2,2,3]) = [kb[2,2,3],kb[2,2,2,3]]
+overlaps(kb[], kb[1,2]) = [kb[1,2]]
+
+
+e := 0
+a := 1 -- a is rotate square
+b := 2 -- b is flip square horizontally.
+E := [kb[-a, a]=kb[], kb[-b,b]=kb[], kb[a,a,a,a]=kb[], kb[b,b]=kb[], kb[a,a,a,b]=kb[b,a]] 
+
+#E
+
+
+for x in E repeat
+  output(x)
+
+d:=deduce E;
+for x in d repeat
+  output(x)
+
+R:=KB(E);
+for x in R repeat
+  output(x)
+  
+RR:=[rewrite(lhs u,R)=rewrite(rhs u,R) for u in E];
+for x in RR repeat
+  output(x)
+
+--------------
+Y:=KNBX(Symbol)
+Z:=KNBX(String)
+C:=KNBX(Character)
+
+qy:=construct([c,b,a])$Y
+qz:=construct(["c->q","b^2","a1"])$Z
+qc:=construct([char(45),char(49),char(66)])$C
+
+
+

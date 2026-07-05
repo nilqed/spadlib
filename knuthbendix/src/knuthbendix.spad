@@ -1,0 +1,137 @@
+)abbrev package KNBX KnuthBendix 
+++ Author: $author
+++ Date Created: $defaultdate
+++ License: BSD
+++ References:
+++ Description:
+++  inspired by https://www.philipzucker.com/string_knuth/
+++  
+++
+KnuthBendix(S:OrderedSet) : Exports == Implementation where
+  
+  LS ==> LinearAggregate S
+
+  
+  Exports == Join(LS,finiteAggregate) with
+    
+    subseq  : (%,%) -> Integer
+    replace : (%,%,%) -> %
+    rewrite : (%,List Equation %) -> %
+    
+    shortlex : (%,%) -> List %
+    overlaps : (%,%) -> List %
+    deduce   : List Equation % -> List Equation %   
+    
+    KB : List Equation % -> List Equation %
+    --coerce : % -> OutputForm
+	
+	
+  Implementation == List S add 
+    
+    subseq(s,t) ==
+      #s>#t => -1
+      s=t => 1
+      for i in 0..(#t - #s) repeat
+        if s=t.(i+1..i+#s) then
+          return (i+1)
+      return(-1)
+      
+    replace(s,l,r) == 
+      i:=subseq(l,s)
+      if i >= 1 then
+        return concat [s.(1..i-1),r,s.(i+#l..#s)]
+      else
+        return s
+      
+    rewrite(s,R) == 
+      while true repeat
+        s0:=s
+        for r in R repeat
+          s:=replace(s,lhs r, rhs r)
+        if s=s0 then
+          return s
+
+    shortlex(s,t) ==
+      empty? s and empty? t => []
+      #s < #t => [t,s]
+      #s > #t => [s,t]
+      s.1 < t.1   => [t,s]
+      s.1 > t.1   => [s,t]
+      []     
+   
+
+    overlaps(s,t) == 
+      out: List % := []
+      a := s 
+      b := t
+
+      if #b < #a then 
+       a := t
+       b := s
+
+      if subseq(a, b) >=1 then
+        out := concat [out, [b]]
+
+      for osize in 1..#a-1 repeat
+        if b.(#b-osize+1..#b) = a.(1..osize) then
+          out := concat [out, [concat(b, a.(osize+1..#a))]]
+
+        if a.(#a-osize+1..#a) = b.(1..osize) then
+          out := concat [out, [concat(a, b.(osize+1..#b))]]
+          
+      out
+
+
+    deduce(R) ==
+      out: List Equation % := []  
+      
+      for i in 1..#R repeat 
+        lhs := lhs R.i   
+        rhs := rhs R.i
+        for j in 1..i repeat 
+          lhs1 := lhs R.j
+          rhs1 := rhs R.j
+
+          for o in overlaps(lhs1, lhs) repeat 
+            x := rewrite(o, [lhs1=rhs1])
+            y := rewrite(o, [lhs=rhs])
+
+            if x ~= y then out := concat [out, [x=y]]
+      out
+      
+
+
+    KB(E: List Equation %): List Equation % ==
+      ER: List Equation % := copy E
+      R: List Equation % := []
+      done: Boolean := false
+
+      while not done repeat
+        done := true
+
+       -- add deduced critical pairs from current R into E
+        for cp in deduce(R) repeat
+          ER := concat [ER, [cp]]
+          
+        -- process E until empty
+        while #ER > 0 repeat
+          -- pop last element
+          lastIdx: Integer := #ER
+          rule: Equation % := ER.lastIdx
+          ER := ER.(1..(lastIdx-1)) 
+
+          lhs: % := lhs rule
+          rhs: % := rhs rule
+
+          lhs := rewrite(lhs, R)
+          rhs := rewrite(rhs, R)
+
+          if lhs ~= rhs then 
+            done := false;
+            ordered: List % := shortlex(lhs, rhs)
+            R := concat [R, [ordered.1 = ordered.2]]
+
+      R
+
+
+-- s1:=construct([1,2,3])$KNBX(INT)
