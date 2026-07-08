@@ -1,0 +1,76 @@
+-- https://gsll.common-lisp.dev/
+-- https://gitlab.common-lisp.net/antik/gsll
+-- https://gitlab.common-lisp.net/antik/gsll/-/blob/master/special-functions/bessel.lisp?ref_type=heads
+
+)co ../src/gsl.spad
+
+DF ==> DoubleFloat
+SYM ==> Symbol
+
+---
+J0:=lookup "gsl_sf_bessel_J0_e"
+documentation J0
+
+r1_j0:= evfun(J0,[1.2::DF::SEX])
+r2_j0:= evfun(J0,[5.122::DF::SEX])
+
+map(float,destruct r1_j0)
+---
+
+cj0:="CYLINDRICAL-BESSEL-J0"::SYM::SEX
+documentation cj0
+evfun(cj0,[4.0::DF::SEX])
+
+besselJ(0,4.0) -- fricas
+
+---
+
+S(str) ==> str::SYM::SEX
+F(df)  ==> df::DF::SEX
+I(n)   ==> n::SEX
+
+evfun(S "cylindrical-bessel-J0",[F 4.0])
+evfun(S "cylindrical-bessel-J1",[F 4.0])
+evfun(S "cylindrical-bessel-J",[I 2,F 4.0])
+evfun(S "cylindrical-bessel-Y0",[F 4.0])
+evfun(S "cylindrical-bessel-Y1",[F 4.0])
+evfun(S "cylindrical-bessel-Y",[I 3,F 4.0])
+evfun(S "cylindrical-bessel-I0",[F 4.0])
+evfun(S "cylindrical-bessel-I1",[F 4.0])
+evfun(S "cylindrical-bessel-I",[I 3,F 4.0])
+evfun(S "cylindrical-bessel-I",[F 3.0,F 4.0])
+evfun(S "cylindrical-bessel-I0-scaled",[F 4.0])
+evfun(S "cylindrical-bessel-I1-scaled",[F 4.0])
+evfun(S "cylindrical-bessel-I-scaled",[I 3,F 4.0])
+evfun(S "cylindrical-bessel-I-scaled",[F 3.0,F 4.0])
+evfun(S "cylindrical-bessel-K0",[F 4.0])
+evfun(S "cylindrical-bessel-K1",[F 4.0])
+evfun(S "cylindrical-bessel-K",[I 2,F 4.0])
+evfun(S "cylindrical-bessel-K",[F 3.0,F 4.0])
+evfun(S "cylindrical-bessel-K0-scaled",[F 4.0])
+evfun(S "cylindrical-bessel-K1-scaled",[F 4.0])
+evfun(S "cylindrical-bessel-K-scaled",[I 2,F 4.0])
+evfun(S "cylindrical-bessel-K-scaled",[F 3.0, F 4.0])
+evfun(S "spherical-bessel-j0",[F 4.0])
+evfun(S "spherical-bessel-j1",[F 4.0])
+evfun(S "spherical-bessel-j2",[F 4.0])
+evfun(S "spherical-bessel-jl",[I 3 ,F 4.0])
+evfun(S "spherical-bessel-y0",[F 4.0])
+evfun(S "spherical-bessel-y1",[F 4.0])
+evfun(S "spherical-bessel-y2",[F 4.0])
+evfun(S "spherical-bessel-yl",[I 2,F 4.0])
+evfun(S "spherical-bessel-i0-scaled",[F 4.0])
+evfun(S "spherical-bessel-i1-scaled",[F 4.0])
+evfun(S "spherical-bessel-i2-scaled",[F 4.0])
+evfun(S "spherical-bessel-il-scaled",[I 3,F 4.0])
+evfun(S "spherical-bessel-k0-scaled",[F 4.0])
+evfun(S "spherical-bessel-k1-scaled",[F 4.0])
+evfun(S "spherical-bessel-k2-scaled",[F 4.0])
+evfun(S "spherical-bessel-kl-scaled",[I 3,F 4.0])
+evfun(S "cylindrical-bessel-J 3.0",[F 4.0])
+evfun(S "cylindrical-bessel-Y 3.0",[F 4.0])
+evfun(S "bessel-lnKnu",[F 3.0, F 4.0])
+evfun(S "bessel-zero-J0",[I 5])
+evfun(S "bessel-zero-J1",[I 5])
+evfun(S "bessel-zero-Jnu",[F 2.0,I 5])
+

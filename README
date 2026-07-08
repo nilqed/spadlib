@@ -17,7 +17,11 @@ Install
   quicklisp can find the ASDF files. This is not necessary if the
   packages are moved to 'local-project/<item>', i.e without the 'spadlib'
   folder.  
+
+  One may also create the system-index in the local-project folder easily
+  by
   
+        find . -name *.asd -print > system-index.txt
 		  
 Usage
 

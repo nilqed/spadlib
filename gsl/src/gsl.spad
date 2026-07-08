@@ -1,0 +1,91 @@
+)abbrev package GSL GnuScientificLibrary
+++ Author: $author
+++ Date Created: $defaultdate
+++ License: BSD
+++ References: 
+++   https://gsll.common-lisp.dev/
+++   https://gitlab.common-lisp.net/antik/gsll
+++
+++ Description:
+++
+GnuScientificLibrary : Exports == Implementation where
+
+  SEX ==> SExpression
+  
+  Exports == with
+    
+    lisp : String -> SExpression
+      ++ lisp(s) reads the string s and evaluates in Lisp.
+    runProgram : String -> String
+      ++ runProgram use UIOP:RUN-PROGRAM to execute the program.
+    runProgramMVB : String -> List SExpression
+      ++ runProgramMVB is like runProgram but uses multi-value bind
+      ++ to return stdout, stderr and the exit code as a list of SExpression
+      ++ in this order.
+
+    init : -> SEX
+      ++ init() initializes GSLL
+    test : -> SEX
+      ++ test() tests GSLL
+    lookup : String -> SEX
+      ++ Find the appropriate function(s) in the GSL documentation.
+      ++ Use the GSLL function gsl-lookup to find the equivalent GSLL function,
+      ++ for example lookup("gsl_sf_elljac_e")
+    examples : -> SEX
+      ++ Use the function examples() without an argument to get a list of 
+      ++ example categories. Then use the function with a category name as 
+      ++ the argument to get a list of examples under that category, for 
+      ++ example examples('higher-moments). 
+    examples : SEX -> SEX
+      ++ See examples() above.
+    documentation : SEX -> SEX
+      ++ s:=lookup("gsl_sf_elljac_e"), then documentation s
+    evfun : (SEX,List SEX) -> SEX
+	
+  Implementation == add 
+    
+    lisp s == EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp 
+    
+    runProgram(s) ==
+      fmt1:="(uiop:run-program _"~A_" :output :string :error-output "
+      fmt2:=":string :ignore-error-status t)"
+      cmd:=string FORMAT('NIL,fmt1 fmt2,s)$Lisp
+      string lisp(cmd)
+
+    runProgramMVB(s) ==
+      fmt1:="(multiple-value-bind (output error-output exit-code)"
+      fmt2:="(uiop:run-program _"~A_" :output :string :error-output "
+      fmt3:=":string :ignore-error-status t)"
+      fmt4:="(list output error-output exit-code))"
+      cmd:=string FORMAT('NIL,fmt1 fmt2 fmt3 fmt4,s)$Lisp
+      destruct lisp cmd
+
+    init () ==
+      --lisp "(setf (logical-pathname-translations _"SB-CLTL2_") _
+      --     '((_"**;*.*.*_" _"/usr/lib/sbcl/**/*.*_")))"
+      --lisp "(setf (uiop:getenv _"SBCL_HOME_") _"/usr/lib/sbcl_")"
+      lisp "(load _"/usr/lib/sbcl/contrib/sb-cltl2_")"
+      lisp "(load _"~/quicklisp/setup.lisp_")"
+      lisp "(ql:quickload :gsll)"
+
+    test() ==
+      lisp "(asdf:test-system :gsll)"
+      
+    lookup s ==
+      lisp string FORMAT('NIL,"(gsll:gsl-lookup _"~A_")",s)$Lisp
+      
+    examples () ==
+      lisp "(gsll:examples)"
+
+    examples(c) == 
+      lisp string FORMAT('NIL,"(gsll:examples '~A)",c)$Lisp
+      
+    documentation s ==
+      lisp string FORMAT('NIL,"(documentation 'gsll:~A 'function)",s)$Lisp
+
+    evfun(func,args) ==
+      fmt:="(multiple-value-list (gsll:~A ~{~A ~}))"
+      lisp string FORMAT('NIL,fmt,func,args)$Lisp
+
+    -- initialize gsll
+    init()
