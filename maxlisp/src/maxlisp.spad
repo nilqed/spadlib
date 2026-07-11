@@ -1,0 +1,86 @@
+)abbrev package MAXLISP MaximaLisp
+++ Author: $author
+++ Date Created: $defaultdate
+++ License: BSD
+++ References: 
+++
+++ Description:
+++
+MaximaLisp : Exports == Implementation where
+
+  SEX ==> SExpression
+  STR ==> String
+  DF  ==> DoubleFloat
+  CF  ==> Complex Float
+  IF  ==> InputForm
+  CDF ==> Complex DoubleFloat
+  
+  Exports == with
+    
+    lisp : String -> SExpression
+      ++ lisp(s) reads the string s and evaluates in Lisp.
+    runProgram : String -> String
+      ++ runProgram use UIOP:RUN-PROGRAM to execute the program.
+    runProgramMVB : String -> List SExpression
+      ++ runProgramMVB is like runProgram but uses multi-value bind
+      ++ to return stdout, stderr and the exit code as a list of SExpression
+      ++ in this order.
+      
+    maxlisp : String -> String
+    maxcli  : String -> String
+    
+    realpart : STR -> DF
+    imagpart : STR -> DF
+    
+    bessel_j : (DF,CDF) -> CDF 
+
+
+  Implementation == add 
+    
+    lisp s == EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp 
+    
+    runProgram(s) ==
+      fmt1:="(uiop:run-program _"~A_" :output :string :error-output "
+      fmt2:=":string :ignore-error-status t)"
+      cmd:=string FORMAT('NIL,fmt1 fmt2,s)$Lisp
+      string lisp(cmd)
+
+    runProgramMVB(s) ==
+      fmt1:="(multiple-value-bind (output error-output exit-code)"
+      fmt2:="(uiop:run-program _"~A_" :output :string :error-output "
+      fmt3:=":string :ignore-error-status t)"
+      fmt4:="(list output error-output exit-code))"
+      cmd:=string FORMAT('NIL,fmt1 fmt2 fmt3 fmt4,s)$Lisp
+      destruct lisp cmd
+
+    maxlisp x ==
+      fmt:="maxima --batch-string=\_":lisp ~A\_" --very-quiet"
+      cmd:=string FORMAT('NIL,fmt,x)$Lisp
+      runProgram cmd
+
+    maxcli x ==
+      fmt:="maxima --batch-string=\_"display2d:false;~A;\_" --quiet"
+      cmd:=string FORMAT('NIL,fmt,x)$Lisp
+      r:=runProgram cmd
+      i:=position("%o2",r,1)
+      rightTrim(r.(i+4..#r),char(10))
+
+
+    realpart(z:STR):DF ==
+      fmt:=string FORMAT('NIL,"(realpart ~A)",z)$Lisp
+      float lisp fmt
+      
+    imagpart(z:STR):DF ==
+      fmt:=string FORMAT('NIL,"(imagpart ~A)",z)$Lisp
+      float lisp fmt
+
+    bessel_j(v,z) ==
+      fmt:SEX:=FORMAT('NIL,"(bessel-j ~A ~A)",v,convert(z)$CDF)$Lisp
+      r:=maxlisp string fmt
+      complex(realpart(r), imagpart(r))
+
+
+
+
+
+-- interpret parse(maxlisp "(bessel-j 3 4)")$INFORM      

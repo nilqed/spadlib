@@ -1,0 +1,27 @@
+)co ../src/maxlisp
+
+-- kfp@omega:~/devel/maxima-code/src$ most bessel.lisp
+
+SEX ==> SExpression
+STR ==> String
+DF  ==> DoubleFloat
+CF  ==> Complex Float
+IF  ==> InputForm
+CDF ==> Complex DoubleFloat
+
+
+maxlisp "(+ 2 3)"
+maxlisp "(lisp-implementation-type)"
+maxlisp "(lisp-implementation-version)"
+
+--maxlisp "(bessel-j-hypergeometric (complex 1.0 2.0) (complex 3.0 4.0))"
+--maxlisp "(bessel-j (complex 1.0 2.0) (complex 3.0 4.0))"
+
+bessel_j(1.0::DF,2.0+%i*3.0::DF)
+besselJ(1.0::DF,2.0+%i*3.0::DF)
+
+r1:=maxcli "diff(sin(x^n),x);"
+interpret parse(r1)$INFORM
+
+r2:=maxcli "bessel_j(1.0+%i*2.0,3.0-4.0*%i);"
+interpret parse(r2)$INFORM
