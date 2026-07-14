@@ -1,0 +1,151 @@
+The following performance considerations arise from a strange book I found
+in the internet archive some time ago:
+
+"The theory of frustums and its justification of Euler's lemma : and 
+application to the solution of X^3 +- Y^3 = Z^3"
+by Johnson, Ernest C.
+Publication date: 1937 
+Topics: Algebra
+
+https://archive.org/details/theoryoffrustums00john_0
+
+-- 
+A "frustum" (according to the definition in the book) is a number (or
+generally, an algebraic expression) of the form x^2+x*y+y^2. It's shown
+that these numbers are closed w.r.t multiplication in Z (the integers). 
+I've never heard the term "frustum" before in this context 
+(even AI was puzzled :). 
+It's also notable that the book has a (handwritten) dedication on the backside
+of the front cover: To R.D. Carmichael, with compliments of ...
+
+I assume it's https://en.wikipedia.org/wiki/Robert_Daniel_Carmichael, well
+known in number theory?
+Moreover a relationship to Eisenstein integers is striking.
+https://en.wikipedia.org/wiki/Eisenstein_integer
+
+Naively I tried to compute some figures using list comprehension 
+(my favourite) using the code below:
+
+F(x,y) == x*x + x*y + y*y
+k:=sort removeDuplicates concat [[F(x,y) for x in -n..n|x<=y] for y in -n..n];
+
+n:=100 --> Time: 0.46 (EV) = 0.46 sec
+n:=250 --> Time: 12.64 (EV) = 12.65 sec
+n:=300 --> Time: 25.43 (EV) + 0.02 (GC) = 25.45 sec
+n:=350 --> Time: 46.33 (EV) + 0.02 (GC) = 46.35 sec
+n:=400 --> Time: 80.62 (EV) + 0.06 (GC) = 80.68 sec
+n:=450 --> Time: 129.11 (EV) + 0.02 (GC) = 129.13 sec
+n:=500 --> Time: 191.74 (EV) + 0.03 (GC) = 191.77 sec
+n:=600 --> Time: 408.03 (EV) + 0.09 (GC) = 408.12 sec
+...
+
+I was slightly disappointed, so I guessed that 'list comprehension' is 
+elegant but time consuming. However, naif use of 'for loops' is even worse:
+
+l:=[]
+
+for x in -n..n repeat
+  for y in -n..n | y >= x repeat
+    l:=concat(l,x*x+x*y+y*y);
+
+ll:=sort removeDuplicates l;
+
+n:=100 --> Time: 0.89 (IN) + 6.54 (EV) + 2.15 (OT) + 0.06 (GC) = 9.64 sec
+n:=250 --> Time: 159.73 (EV) + 0.01 (OT) + 2.62 (GC) = 162.36 sec
+n:=300 --> Time: 335.64 (EV) + 0.01 (OT) + 7.14 (GC) = 342.80 sec
+...
+
+One should use in-place operations and 'cons' instead of 'concat', then
+for n=500 we come near to list compr: Time: 196.12 (EV) + 0.01 (OT) = 196.15 sec
+
+
+Julia is swift:
+
+function L(n)
+    l=[[x*x+x*y+y*y for x in -n:n] for y in -n:n];
+    ll=collect.(Iterators.flatten(l));
+    length(ll)
+end
+L (generic function with 1 method)
+
+julia> @time L(1000)
+  0.808957 seconds (8.01 M allocations: 386.224 MiB, 62.72% gc time)
+4004001
+
+julia> @time L(500)
+  0.060564 seconds (2.01 M allocations: 104.875 MiB)
+1002001
+
+So I was blaming the Lisp, i.e. SBCL in this case. I wrote a "loop.lisp"
+which does the same/similar calculation (without ambition to optimize).
+Surprisingly SBCL is swift too. I used the occasion to test all Lisps
+available on my old laptop and below are the results.
+
+The first table computes a list of (n+1)*(n+1) frustums without the
+removeDuplicates and without sorting. 
+
+The second table (with removeDuplicates/sorting) reveals that only
+SBCL and CCL are able to do it in reasonable time. All other were
+running too long (out of patience) and were interrupted by CTRL-C.
+
+Create a list of (n+1)*(n+1) frustums
+==========================================================================
+CL Implementation                     n=100       n=500     n=1000   
+==========================================================================
+time clisp        loop.lisp ........  0.199s      3.811s    14.817s
+time gcl    -load loop.lisp ........  0.071s      1.255s     4.981s
+time clasp --load loop.lisp ........  8.808s      9.309s    11.006s
+time abcl  --load loop.lisp ........  3.678s      8.214s    22.197s
+time ecl   --load loop.lisp ........  0.095s      0.649s     2.607s
+time sbcl  --load loop.lisp ........  0.570s      0.639s     0.884s
+time npt   --load loop.lisp ........  0.117s      2.541s    10.103s (*)
+time ccl   --load loop.lisp ........  0.023s      0.210s     1.003s
+time cmucl  -load loop.lisp ........  0.189s      4.240s    17.408s
+time fricas -eval ")r loop.lisp" ...  0.312s      0.315s     0.468s
+time fricas -nosman -eval ")r loop.lisp"                     0.250s
+
+
+With <remove-duplicates> then <sort>
+==========================================================================
+CL Implementation                     n=100       n=500     n=1000   
+==========================================================================
+time clisp        loop.lisp ........  2.270s  >17m13.835s   --
+time gcl    -load loop.lisp ........  2.845s  >19m38.601s   --
+time clasp --load loop.lisp ........ 36.475s  > 3m32.393s   --
+time abcl  --load loop.lisp ........  4.437s  > 4m23.858s   --
+time ecl   --load loop.lisp ........  2.830s  >11m11.945s   --
+time sbcl  --load loop.lisp ........  0.568s       0.762s   1.765s
+time npt   --load loop.lisp ........  1.464s  >11m40.147s   --
+time ccl   --load loop.lisp ........  0.032s       0.630s   2.942s
+time cmucl  -load loop.lisp ........  1.350s  >  4m9.288s   --
+time fricas -eval ")r loop.lisp" ...  0.072s       0.294s   1.242s
+
+>t : interrupt after time t (CTRL-C)
+(*) npt --heap 4g for n=1000 (otherwise core dump)
+
+-------------
+IMPL/VERSIONS
+-------------
+GNU CLISP 2.49.93+ (2018-02-18) (built on lcy02-amd64-009.buildd [127.0.1.1])
+GCL 2.6.14 git tag Version_2_6_15pre7
+clasp-boehmprecise-3.0.1-52-g41acb8d40
+Armed Bear Common Lisp 1.9.0
+ECL 24.5.10
+SBCL 2.2.9.debian
+npt Version 1.1.2
+Clozure Common Lisp Version 1.13 (v1.13-24-g0258e095) LinuxX8664
+CMU Common Lisp 2025-09 (21E Unicode)
+FriCAS 2025.12.23git built with sbcl 2.2.9.debian
+
+-------------
+Questions:
+
+1. Where's the time loss in FriCAS vs. SBCL? Or is there a method to speed up?
+2. Why is 'cons' so much better than 'concat'. How can a user know which 
+   one to choose?
+3. And most baffling, why does fricas -eval ")r loop.lisp" outperforms 
+   sbcl  --load loop.lisp? (same SBCL under Fricas!).
+4. Not fricas related, but why do most of the Lisps fail on the simple loop.lisp
+   with sort/remove-duplicates? (sort is not even necessary). 
+   
+   

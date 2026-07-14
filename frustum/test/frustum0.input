@@ -1,0 +1,65 @@
+-- number of different integers of the form x^2+x*y+y^2 for (x,y) in [-n,n]x[-n,n]
+
+f1(n:INT):INT == 
+  #removeDuplicates!(concat! [[x*x+x*y+y*y for x in -n..n|x<=y] for y in -n..n])
+  
+f2(n:INT):INT == 
+  l:List INT:=[]
+  for x in -n..n repeat
+    for y in -n..n | y >= x repeat
+      l:=cons(x*x+x*y+y*y,l);  
+  #removeDuplicates!(l)
+
+f3(n:INT):INT == 
+  l:List INT:=[]
+  for x in -n..n repeat
+    for y in -n..n | y >= x repeat
+      l:=concat!(l,x*x+x*y+y*y);  
+  #removeDuplicates!(l)
+
+
+---
+reval(s) ==> EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
+df:="(defun frustum (n)(remove-duplicates _
+       (apply #'append (loop for x from (- n) to n collect _
+         (loop for y from (- n) to n collect  _
+           (+ (* x x) (* x y) (* y y)))))))"
+     
+reval(df)
+---
+
+f4(n:INT):INT == integer LENGTH(FRUSTUM(n)$Lisp)$Lisp
+
+)set message time on
+
+f1(100) --> Time: 0.37 (EV) + 0.02 (OT) = 0.39 sec
+f2(100) --> Time: 0.29 (EV) = 0.30 sec
+f3(100) --> Time: 4.01 (EV) + 0.05 (GC) = 4.06 sec
+f4(100) --> Time: 0.07 (EV) = 0.07 sec
+
+f1(250) --> Time: 10.26 (EV) = 10.26 sec
+f2(250) --> Time: 10.26 (EV) = 10.26 sec
+f3(250) --> Time: 157.82 (EV) + 2.64 (GC) = 160.46 sec
+f4(250) --> Time: 0.41 (EV) + 0.01 (GC) = 0.42 sec
+
+f1(500) --> Time: 163.73 (EV) = 163.73 sec
+f2(500) --> Time: 165.17 (EV) = 165.17 sec
+--f3(500) --> too long :( ctrl-c after 30min / don't use concat.
+f4(500) --> Time: 1.63 (EV) + 0.25 (GC) = 1.87 sec
+
+f4(1000) --> Time: 6.84 (EV) + 0.33 (GC) = 7.17 sec
+f4(2000) --> Time: 29.35 (EV) + 2.35 (GC) = 31.70 sec
+f4(3000) --> Time: 65.58 (EV) + 6.18 (GC) = 71.76 sec
+
+-- 2793219 frustums in 6001^2=36012001 for n=3000.
+
+
+
+-- (apply #'append '((1 2) (3 4) (5 6)))
+-- => (1 2 3 4 5 6)
+-- (mapcan #'identity '((1 2) (3 4) (5 6)))
+
+-- (defun frustum (n)(remove-duplicates 
+--  (apply #'append (loop for x from (- n) to n collect 
+--    (loop for y from (- n) to n collect
+--      (+ (* x x) (* x y) (* y y)))))))
