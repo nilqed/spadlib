@@ -2,7 +2,7 @@ The following performance considerations arise from a strange book I found
 in the internet archive some time ago:
 
 "The theory of frustums and its justification of Euler's lemma : and 
-application to the solution of X^3 +- Y^3 = Z^3"
+application to the solution of X^3 +- Y^3 ~= Z^3"
 by Johnson, Ernest C.
 Publication date: 1937 
 Topics: Algebra
@@ -148,4 +148,6 @@ Questions:
 4. Not fricas related, but why do most of the Lisps fail on the simple loop.lisp
    with sort/remove-duplicates? (sort is not even necessary). 
    
+See https://groups.google.com/g/fricas-devel/c/WsOiIx0g8lc for some enligthenment
+of Q1,Q2. 
    
