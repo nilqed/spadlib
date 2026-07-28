@@ -1,0 +1,199 @@
+-- Mon 27 Jul 15:45:37 CEST 2026
+-- jfinstall.input
+-- Usage: )r jfinstall )q
+-- install() if not auto
+-- provide path FDIR as a string, and confirm by yes/YES.
+-- makes a full installation (test example: "/tmp", yes .....
+-- start: /tmp/venv/jfricas/bin/jfricasTMP
+-- remove: rm -rf /tmp/venv 
+-- Tip von Ralf:  constructor_name?: Symbol -> Boolean (BRINFO)
+--
+
+lisp(s) ==> EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
+format ==> FORMAT$Lisp
+
+isSBCL?():Boolean == string lisp "(lisp-implementation-type)" = "SBCL"
+
+if not isSBCL?() then
+  output("*****")
+  output("This script requires a FriCAS that was compiled with SBCL.")
+  output("Please, consult the documentation.")
+  output("Press any key to exit ...")
+  lisp "(read)"
+  systemCommand "quit"
+
+getEnvVar(v:String):String ==
+  r:=lisp string format('NIL,"(sb-ext:posix-getenv _"~A_")",v)
+  null? r => ""
+  string r
+  -- Ex: getEnvVar "HOME", "PATH", "FRICAS" ...
+  
+setEnvVar(var:String,value:String):Boolean ==
+  s:=string format('NIL,"(sb-posix:setenv _"~A_" _"~A_" 1)",var,value) 
+  r:=integer lisp s
+  test(getEnvVar(var)=value)
+
+hasHT?():Boolean ==  not null? lisp "(find  ':HUNCHENTOOT  *features*)"
+
+hasJF?():Boolean == constructor_name?('JFriCAS)$BRINFO
+
+getInstDir():String == getEnvVar "FRICAS"
+
+getCWD():String == string lisp "(sb-posix:getcwd)"
+
+getUserInput(prompt:String):SExpression == 
+  output(prompt)
+  lisp "(read)"
+  
+fileExists?(f:String):Boolean ==
+  not null? lisp string format('NIL,"(probe-file _"~A_")",f)
+
+-- runProgram("/usr/bin/python",["--version"])
+runProgramSBCL(prog:String,args:List String):SExpression ==
+  fmt:="(read-line (sb-ext:process-output_
+    (sb-ext:run-program _"~A_" '(~{_"~A_" ~}) :output :stream)) nil  nil)"
+  cmd:=string FORMAT('NIL,fmt,prog,args)$Lisp
+  lisp cmd
+  
+-- better  
+runProgram(s:String):SExpression ==
+  fmt1:="(uiop:run-program _"~A_" :output :string :error-output "
+  fmt2:=":string :ignore-error-status t)"
+  cmd:=string FORMAT('NIL,fmt1 fmt2,s)$Lisp
+  lisp cmd
+  
+hasPython3?():Boolean == 
+  pyv:=string runProgram("python --version") 
+  empty? pyv => false
+  prefix?("Python 3",pyv)
+  
+hasPip3?():Boolean ==
+  pip:=string runProgram("pip3 --version") 
+  empty? pip => false
+  prefix?("pip",pip)  
+  
+hasVenv?():Boolean ==
+  ven:=string runProgram("pip3 show virtualenv") 
+  empty? ven => false
+  prefix?("Name: virtualenv",ven)
+  
+  
+getPYSITE():String == 
+  pys:=runProgram("$JFRICASINSTALL/bin/python3 -c 'import site; print(site.getsitepackages()[0])'")
+  trim(string pys,char 10)  
+
+divider(chr:PositiveInteger,len:PositiveInteger):Void ==
+  output construct([char chr for i in 1..len])$String
+
+checkPreReq():Boolean ==
+  divider(61,74)
+  output "Checking prerequisites for JFriCAS installation."
+  divider(61,74)
+  output("This FriCAS is installed @ ...........",p1:=getInstDir())
+  output("This FriCAS was compiled with SBCL ...",b1:=isSBCL?())
+  output("HUNCHENTOOT inside? ..................",b2:=hasHT?())
+  output("JFriCAS package installed? ...........",b3:=hasJF?())
+  output("Current working directory @ ..........",p2:=getCWD())
+  output("Python site-packages are @ ...........",p3:="tbd.")
+  output("Python3 available? ...................",b4:=hasPython3?())
+  output("Pip3 available? ......................",b5:=hasPip3?())
+  output("Python package virtualenv available? .",b6:=hasVenv?())
+  divider(45,74)
+  if not b1 then 
+    output("Only SBCL supported at the moment.")
+    return false
+  if not b2 then
+    output("Hunchentoot not found. Compile FriCAS with hsbcl.")
+    return false
+  if not b3 then
+    output("JFriCAS package not installed. Get a newer version of FriCAS.")
+    return false
+  if not b4 then
+    output("Python3 not found. Install it by your package manager.")
+    return false
+  if not b5 then
+    output("Pip3 not found. Install it by your package manager.")
+    return false
+  if not b6 then
+    output("Package virtualenv not found. Install it with pip3.")
+    return false
+  if empty? p1 then
+    output("Could not determine installation folder of FriCAS.")
+    return false
+  if empty? p3 then
+    output("Could not find Python3 site-packages path.")
+    return false
+  --- usw.
+  output("*** All requirements satisfied ***")
+  true
+
+
+writeJfricasSkript(path:String):Boolean ==
+  if empty? path then
+    JFI:String:=getEnvVar("JFRICASINSTALL")
+  else
+    JFI:=path
+  jfs:String:=JFI "/bin/jfricasTMP"
+  jf:=jfs::FileName
+  jfh:=open(jf,"output")$TextFile
+  writeLine!(jfh, "export PATH=" getEnvVar("FRICASINSTALL") "/bin:$PATH")
+  writeLine!(jfh, "source " JFI "/bin/activate")
+  writeLine!(jfh, "jupyter notebook $1")
+  close!(jfh)
+  runProgram("chmod +x $JFRICASINSTALL/bin/jfricasTMP")
+  true
+
+setInstEnvVars(fdir:String):Boolean ==
+  not setEnvVar("FRICASINSTALL",getInstDir()) => false
+  not setEnvVar("VENV",fdir "/venv") => false
+  not setEnvVar("JFRICASINSTALL", fdir "/venv/jfricas") => false
+  --not setEnvVar("PYSITE",getPYSITE()) => false
+  --not setEnvVar("JF",getPYSITE() "/jfricas") => false
+  true
+
+
+execInstall():Boolean == 
+  sys(s) ==> systemCommand("system " s)$MoreSystemCommands
+  sys "mkdir -vp $JFRICASINSTALL"
+  sys "python3 -m venv $JFRICASINSTALL"
+  setEnvVar("PYSITE",getPYSITE()) 
+  setEnvVar("JF",getPYSITE() "/jfricas")
+  sys "mkdir -vp $JF"
+  sys "$JFRICASINSTALL/bin/pip3 install jupyter"
+  systemCommand("cd " getEnvVar("JF"))$MoreSystemCommands
+  kernel()$JFriCAS
+  fricaskernel()$JFriCAS
+  sys "$JFRICASINSTALL/bin/jupyter kernelspec install $JF --name='jfricas' --sys-prefix"
+  sys "$JFRICASINSTALL/bin/jupyter kernelspec list"
+  writeJfricasSkript("")
+  true -- check if jfricasTMP exists.
+
+  
+
+autoInstall(fdir:String):Boolean == false  --todo
+
+install():Boolean ==
+  if checkPreReq() then
+    divider(45,74)
+    fdir:=f0:=convert(0)$SExpression
+    output("Where would you like to install jFriCAS? (full path required)")
+    while not string? fdir repeat
+      fdir:=getUserInput("Enter path as a string (quotes!) below -->")
+      if not fileExists?(string fdir) then
+        output "Path does not exist. Choose another one please."
+        fdir:=f0
+    output("Install directory is:",string fdir)
+    if not setInstEnvVars(string fdir) then
+      error "Could not set all environment variables. Abort installation."
+    else
+      yn:=getUserInput("Are you satisfied with this? Answer [yes/no]:")
+      if not(yn=convert(YES)$SExpression) then
+        error "You did not answer YES. Installation aborted."
+      else
+        output "** Starting the installation process ..."
+        execInstall()
+  else
+    error "Prerequisites not satisfied. Installation aborted."
+
+  
+
