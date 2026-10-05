@@ -83,3 +83,19 @@ bdry (1*A*B*C)
 
 ctn:= 1*B*A + 2*A*B
 normalize ctn
+
+A' := f['A','A]*A + f['A','B]*B + f['A','C]*C
+B' := f['B','A]*A + f['B','B]*B + f['B','C]*C
+C' := f['C','A]*A + f['C','B]*B + f['C','C]*C
+
+u:=normalize (A' * B' * C')
+eq:=[f['A','C]=1-f['A','A] - f['A','B], _
+     f['B','C]=1-f['B','A] - f['B','B], _
+     f['C','C]=1-f['C','A] - f['C','B]]
+     
+uu:=subst(coefficients(u).1,eq)
+
+
+M:=matrix [[a[i,j]::R/reduce(_+,[a[i,k]::R for k in 1..3]) for j in 1..3] for i in 1..3]
+
+

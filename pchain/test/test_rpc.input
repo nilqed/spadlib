@@ -1,5 +1,5 @@
 
-)co rpc
+)co ../src/rpc
 
 Z:=point Z
 [A,B,C,D] := map(point,[A,B,C,D])

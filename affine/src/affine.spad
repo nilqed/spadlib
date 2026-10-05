@@ -74,6 +74,7 @@ AffineSimplex : Exports == Implementation where
     s:% * t:% == simplex concat(retract s,retract t)
     
     
+    
 )abbrev domain ACHAIN AffineChain
 ++ Description:
 ++

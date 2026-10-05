@@ -1,36 +1,342 @@
-)abbrev domain CANVAS HTMLcanvas
+)abbrev domain CANVAS Canvas
 ++ Author: Kurt Pagani <nilqed@gmail.com>
 ++ Date Created: Mon 18 May 13:58:06 CEST 2026
 ++ License: BSD/Fricas
 ++ References:
 ++ Description:
 ++
-HTMLcanvas : Exports == Implementation where
+Canvas : Exports == Implementation where
   
   PI  ==> PositiveInteger
+  DF  ==> DoubleFloat
   STR ==> String
-  REP ==> Record(id:STR,width:PI,height:PI)
+  SYM ==> Symbol
+  STACK ==> Stack STR
+  REP ==> Record(id:STR,width:PI,height:PI,head:STR,code:STACK)
+  
+  lisp(s) ==> EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
+  format ==> FORMAT$Lisp
   
   Exports == Join(SetCategory) with
     
     new : (PI,PI) -> %
     coerce : % -> OutputForm
+    newId : -> String
     
-    elt : (%,Symbol) -> (STR->STR)
-	
+    --elt : (%,Symbol) -> (STR->STR)
+    elt : (%,SYM,STR) -> STR
+
+    fillStyle : (%,STR) -> %
+      ++ fillStyle(c,color), default:black. Color is a name like red/green/
+      ++ blue ... or a rgb(r,g,b) string. 
+
+    strokeStyle : (%,STR) -> %
+      ++ strokeStyle(c,color), default:black. Color is a name like red/green/
+      ++ blue ... or a rgb(r,g,b) string. 
+
+      
+    fillRect : (%,DF,DF,DF,DF) -> %
+      ++ fillRect(c, x, y, width, height) draws a filled rectangle.
+      ++ x and y specify the position on the canvas (relative to the origin) 
+      ++ of the top-left corner of the rectangle. width and height provide 
+      ++ the rectangle's size.
+      
+    clearRect :(%,DF,DF,DF,DF) -> %
+      ++ The clearRect() method sets the pixels in a rectangular area to 
+      ++ transparent. The rectangle's top-left corner is at (x, y), and its 
+      ++ size is specified by width and height.
+
+    strokeRect : (%,DF,DF,DF,DF) -> %
+      ++ strokeRect(c, x, y, width, height) draws a rectangular outline. 
+      ++ x and y specify the position on the canvas (relative to the origin) 
+      ++ of the top-left corner of the rectangle. width and height provide 
+      ++ the rectangle's size.
+      
+    beginPath : % -> %
+      ++ The CanvasRenderingContext2D.beginPath() method of the Canvas 2D API 
+      ++ starts a new path by emptying the list of sub-paths. Call this method 
+      ++ when you want to create a new path.
+
+      
+    closePath : % -> %
+      ++ The CanvasRenderingContext2D.closePath() method of the Canvas 2D API 
+      ++ attempts to add a straight line from the current point to the start 
+      ++ of the current sub-path. If the shape has already been closed or has 
+      ++ only one point, this function does nothing.
+      ++ This method doesn't draw anything to the canvas directly. You can 
+      ++ render the path using the stroke() or fill() methods. 
+
+      
+    moveTo : (%,DF,DF) -> %
+      ++ The CanvasRenderingContext2D.moveTo() method of the Canvas 2D API 
+      ++ begins a new sub-path at the point specified by the given (x, y) 
+      ++ coordinates.
+
+      
+    lineTo : (%,DF,DF) -> %
+      ++ The CanvasRenderingContext2D method lineTo(), part of the Canvas 2D 
+      ++ API, adds a straight line to the current sub-path by connecting the 
+      ++ sub-path's last point to the specified (x, y) coordinates.
+      ++ Like other methods that modify the current path, this method does not 
+      ++ directly render anything. To draw the path onto a canvas, you can 
+      ++ use the fill() or stroke() methods.
+
+
+    stroke : % -> %
+      ++ The CanvasRenderingContext2D.stroke() method of the Canvas 2D API 
+      ++ strokes (outlines) the current or given path with the current stroke 
+      ++ style.
+      ++ Strokes are aligned to the center of a path; in other words, half of 
+      ++ the stroke is drawn on the inner side, and half on the outer side.
+      ++ The stroke is drawn using the non-zero winding rule, which means that 
+      ++ path intersections will still get filled.
+
+
+    fill   : % -> %
+      ++ The CanvasRenderingContext2D.fill() method of the Canvas 2D API fills 
+      ++ the current or given path with the current fillStyle.
+      
+    clip   : % -> %
+      ++ The CanvasRenderingContext2D.clip() method of the Canvas 2D API turns 
+      ++ the current or given path into the current clipping region. The 
+      ++ previous clipping region, if any, is intersected with the current or 
+      ++ given path to create the new clipping region.
+    
+    lineWidth : (%,DF) -> %
+      ++ The CanvasRenderingContext2D.lineWidth property of the Canvas 2D API 
+      ++ sets the thickness of lines.
+      ++ Value is a number specifying the line width, in coordinate space 
+      ++ units. Zero, negative, Infinity, and NaN values are ignored. This 
+      ++ value is 1.0 by default.
+
+    arc : (%,DF,DF,DF,DF,DF) -> %
+      ++ The arc() method creates a circular arc centered at (x, y) with 
+      ++ a radius of radius. The path starts at startAngle, ends at endAngle, 
+      ++ Ex. arc(c,x,y,radius,startAngle,endAngle)
+      ++ Note: angles in radians and clockwise to positive x-axis.
+
+    
+    arcCC : (%,DF,DF,DF,DF,DF) -> %
+      ++ The arcCC() method creates a circular arc centered at (x, y) with 
+      ++ a radius of radius. The path starts at startAngle, ends at endAngle, 
+      ++ Ex. arcCC(c,x,y,radius,startAngle,endAngle)
+      ++ Note: angles in radians and counter-clockwise to positive x-axis.
+
+    
+    arcTo : (%,DF, DF, DF, DF, DF) -> %
+      ++ arcTo(c, x1, y1, x2, y2, radius) adds a circular arc to the current 
+      ++ sub-path, using the given control points and radius. The arc is 
+      ++ automatically connected to the path's latest point with a straight 
+      ++ line if necessary, for example if the starting point and control 
+      ++ points are in a line. This method is commonly used for making rounded 
+      ++ corners.
+    
+    bezierCurveTo : (%,DF,DF,DF,DF,DF,DF) -> %
+      ++ The bezierCurveTo() method adds a cubic Bezier curve to the current 
+      ++ sub-path. It requires three points: the first two are control points 
+      ++ and the third one is the end point. The starting point is the latest 
+      ++ point in the current path, which can be changed using moveTo() before 
+      ++ creating the Bezier curve.
+      ++ bezierCurveTo(c, cp1x, cp1y, cp2x, cp2y, x, y)
+
+
+    ellipse : (%,DF,DF,DF,DF,DF,DF,DF) -> %
+      ++ The ellipse() method adds an elliptical arc to the current sub-path.
+      ++ ellipse(c, x, y, radiusX, radiusY, rotation, startAngle, endAngle)
+
+    ellipseCC : (%,DF,DF,DF,DF,DF,DF,DF) -> %
+      ++ The ellipseCC() method adds an elliptical arc to the current sub-path.
+      ++ ellipseCC(c, x, y, radiusX, radiusY, rotation, startAngle, endAngle)
+      ++ CC means counter-clockwise angle counter ....
+
+    
+    fillText : (%,STR,DF,DF) -> %
+      ++ The method fillText() draws a text string at the specified 
+      ++ coordinates, filling the string's characters with the current 
+      ++ fillStyle. 
+      ++ Ex. fillText(c,text, x, y)
+    
+    setLineDash : (%,List DF) -> %
+      ++ setLineDash(c,pattern) sets the dash property of the line, where
+      ++ pat is a list of numbers that specify distances to alternately draw a 
+      ++ line and a gap (in coordinate space units). If the number of elements 
+      ++ in the list is odd, the elements of the list get copied and 
+      ++ concatenated. For example, [5, 15, 25] will become 
+      ++ [5, 15, 25, 5, 15, 25]. If the list is empty, the line dash list is 
+      ++ cleared and line strokes return to being solid.
+
+
 	
   Implementation == add 
 
     Rep := REP
     
-    new(w,h) == ["newid",w,h]@Rep
+    initCanvas:Boolean := false
+    stack:STACK:=empty()$STACK
     
-    elt(c:%,s:Symbol):STR->STR == 
-      s='fillStyle => (x:STR):STR+->string(FORMAT('NIL,"CTX.fillStyle='~A';",x)$Lisp)$SExpression
-      s='strokeStyle => (x:STR):STR+->string(FORMAT('NIL,"~ACTX.strokeStyle='~A';",x)$Lisp)
-      error "unknown fun"
+    fmtC:String:="~%<canvas id='~A' width='~A' height='~A'></canvas>~%" 
+    fmtS:String:="<script>~%~A~%</script>~%"
+    fmtJ:String:="var ~Adoc = document.getElementById('~A');var ~A=~Adoc.getContext('2d');~%" 
+        
+    html:=concat("--FORMAT:BEG:Formatted:0~%--FORMAT:BEG:HTML~%~A~%--",_
+                    "FORMAT:END:HTML~%--FORMAT:END:Formatted:0~%")$String 
+
+
+    METHODS1:List(SYM):= ['fillStyle, 'strokeStyle]
+
+    newId():String ==
+      id:="(format 'nil _"canvas$~AX~A_" (get-universal-time) (random 1000))"
+      string lisp(id)
+
+    script(s:STR):STR == string format('NIL,fmtS,s)
+    
+    -- the send methods (may be changed)
+    sendHTML(s:STR):Void == format('T,html,s)
+
+    
+    new(w,h) ==
+      id:=newId()    
+      head:=string format('NIL,fmtC,id,w,h)
+      push!(string format('NIL,fmtJ,id,id,id,id),stack)
+      initCanvas:=true
+      [id,w,h,head,stack]@Rep
+
+
+    mkJS(c:%,cmd:SYM,arg:STR):STR ==
+      string format('NIL,"~A.~A='~A';",c.id,cmd,arg)
+
+    elt(c,cmd,arg) ==
+      member?(cmd,METHODS1) => mkJS(c,cmd,arg)
+      error "unknown function."
+
+    --elt(c,"fillStyle",x) == string format('NIL,"~A.fillStyle='~A';",c.id,x) 
+
+    --elt(c:%,s:Symbol):STR->STR == 
+      --s='fillStyle => (x:STR):STR+->string format('NIL,"~A.fillStyle='~A';",c.id,x)
+      --s='strokeStyle => (x:STR):STR+->string format('NIL,"~A.strokeStyle='~A';",c.id,x)
+      --error "unknown fun"
+
+    disp(c:%,d:STR):% == 
+      push!(d,stack)
+      sendHTML(script d)
+      c
+
+    fillStyle(c,color) == 
+      j:="~A.fillStyle='~A';"
+      d:=string format('NIL,j,c.id,color)
+      disp(c,d)
       
-    coerce(c:%):OutputForm == message(c.id)$OutputForm
+    strokeStyle(c,color) == 
+      j:="~A.strokeStyle='~A';"
+      d:=string format('NIL,j,c.id,color)
+      disp(c,d)
+      
+    fillRect(c,x,y,w,h) == 
+      j:="~A.fillRect(~A,~A,~A,~A);"
+      d:=string format('NIL,j,c.id,x,y,w,h)
+      disp(c,d)
+      
+    clearRect(c,x,y,w,h) ==
+      j:="~A.clearRect(~A,~A,~A,~A);"
+      d:=string format('NIL,j,c.id,x,y,w,h)
+      disp(c,d)
+      
+    strokeRect(c,x,y,w,h) ==
+      j:="~A.strokeRect(~A,~A,~A,~A);"
+      d:=string format('NIL,j,c.id,x,y,w,h)
+      disp(c,d)      
+
+    beginPath(c) ==
+      j:="~A.beginPath();"
+      d:=string format('NIL,j,c.id)
+      disp(c,d)
+      
+    closePath(c) ==
+      j:="~A.closePath();"
+      d:=string format('NIL,j,c.id)
+      disp(c,d)
+
+    stroke(c) ==
+      j:="~A.stroke();"
+      d:=string format('NIL,j,c.id)
+      disp(c,d)
+      
+    fill(c) ==
+      j:="~A.fill();"
+      d:=string format('NIL,j,c.id)
+      disp(c,d)
+      
+    clip(c) ==
+      j:="~A.clip();"
+      d:=string format('NIL,j,c.id)
+      disp(c,d)
+      
+    moveTo(c,x,y) == 
+      j:="~A.moveTo(~A,~A);"
+      d:=string format('NIL,j,c.id,x,y)
+      disp(c,d)
+      
+    lineTo(c,x,y) == 
+      j:="~A.lineTo(~A,~A);"
+      d:=string format('NIL,j,c.id,x,y)
+      disp(c,d)
+
+    lineWidth(c,w) == 
+      j:="~A.lineWidth='~A';"
+      d:=string format('NIL,j,c.id,w)
+      disp(c,d)
+
+
+    arc(c, x, y, radius, startAngle, endAngle) ==
+      j:="~A.arc(~A,~A,~A,~A,~A);"
+      d:=string format('NIL,j,c.id,x,y,radius,startAngle,endAngle)
+      disp(c,d)
+    
+
+    arcCC(c,x, y, radius, startAngle, endAngle) ==
+      j:="~A.arc(~A,~A,~A,~A,~A,true);"
+      d:=string format('NIL,j,c.id,x,y,radius,startAngle,endAngle)
+      disp(c,d)
+      
+    arcTo(c, x1, y1, x2, y2, radius) ==
+      j:="~A.arcTo(~A,~A,~A,~A,~A);"
+      d:=string format('NIL,j,c.id,x1,y1,x2,y2,radius)
+      disp(c,d)
+      
+    bezierCurveTo(c,cp1x, cp1y, cp2x, cp2y, x, y) ==
+      j:="~A.bezierCurveTo(~A,~A,~A,~A,~A,~A);"
+      d:=string format('NIL,j,c.id,cp1x,cp1y,cp2x,cp2y,x,y)
+      disp(c,d)
+
+    ellipse(c, x, y, rX, rY, rot, startAngle, endAngle) ==
+      j:="~A.ellipse(~A,~A,~A,~A,~A,~A,~A);"
+      d:=string format('NIL,j,c.id,x,y,rX,rY,rot,startAngle,endAngle)
+      disp(c,d)
+      
+    ellipseCC(c, x, y, rX, rY, rot, startAngle, endAngle) ==
+      j:="~A.ellipse(~A,~A,~A,~A,~A,~A,~A,true);"
+      d:=string format('NIL,j,c.id,x,y,rX,rY,rot,startAngle,endAngle)
+      disp(c,d)
+      
+    fillText(c,text,x,y) ==
+      j:="~A.fillText(~A,~A,~A);"
+      d:=string format('NIL,j,c.id,text,x,y)
+      disp(c,d)
+
+    setLineDash(c,pat) == 
+      j:="~A.setLineDash([~{~a~^, ~}]);"
+      d:=string format('NIL,j,c.id,pat)
+      disp(c,d)      
+
+    ---
+
+
+    coerce(c:%):OutputForm == 
+      js:=script concat reverse members(c.code)
+      if initCanvas then 
+        sendHTML(c.head js)
+        initCanvas := false
+      message(c.id)$OutputForm
    
  -- c:=new(20,20)$CANVAS
  -- 
