@@ -1,0 +1,59 @@
+)co ../src/geomview
+
+YN ==> Y_-OR_-N_-P("Continue?")$Lisp
+YESNO ==> YES_-OR_-NO_-P("Proceed with the operation?")$Lisp
+pause ==> if null? YN then systemCommand "quit"
+------------------------------------------------------------
+
+
+g:=new()$GEOMVIEW
+
+-- Record(red: Float,green: Float,blue: Float,transparency: Float)
+COLOR ==> g.recCOLOR
+
+-- Record(X: Float,Y: Float,Z: Float,color:COLOR,diam:Integer)
+POINT ==> g.recPOINT
+
+-- Record(vertices:List POINT,color:COLOR,diam:INT)
+PLINE ==> g.recPLINE
+
+
+c1:COLOR:=[1.0,0.0,0.0,1.0]
+c2:COLOR:=[0.0,1.0,0.0,1.0]
+c3:COLOR:=[0.0,0.0,1.0,1.0]
+c0:COLOR:=[0.5,0.5,0.5,1.0]
+
+c4:COLOR:=[1.00, 0.33, 0.00, 1.0] 
+c5:COLOR:=[1.00, 1.00, 0.00, 1.0]
+
+p0:POINT:=[0.0,0.0,0.0,c0,10]
+p1:POINT:=[1.0,0.0,0.0,c1,10]
+p2:POINT:=[0.0,1.0,0.0,c2,10]
+p3:POINT:=[0.0,0.0,1.0,c3,10]
+
+l1:PLINE:=[[p0,p1],c4,2]
+l2:PLINE:=[[p0,p2],c4,2]
+l3:PLINE:=[[p0,p3],c4,2]
+
+drawPoint(g,"O",p0)
+drawPoint(g,"A",p1)
+drawPoint(g,"B",p2)
+drawPoint(g,"C",p3)
+
+drawPolyLine(g,"OA",l1,false)
+drawPolyLine(g,"OB",l2,false)
+drawPolyLine(g,"OC",l3,false)
+
+pause ---
+p4:POINT:=[1.0,1.0,1.0,c4,12]
+l4:PLINE:=[[p0,p4],c5,5]
+g.drawPoint.("D",p4)
+g.drawPolyLine.("OD",l4,false)
+
+pause ---
+c6:COLOR:=[0.80, 0.60, 1.00, 1.0]
+l5:PLINE:=[[p1,p4,p2],c6,3]
+g.drawPolyLine.("ADB",l5,true)
+
+pause ---
+draw(g,sin(x*y),x=-1..1,y=-1..1,[])

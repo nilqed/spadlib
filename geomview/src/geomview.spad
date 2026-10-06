@@ -1,75 +1,131 @@
-)abbrev package LSPSPT LispSupport
-LispSupport : Exports == Implementation where
-  Exports == with
+)abbrev domain GEOMVIEW Geomview
+++ Author: Kurt Pagani <nilqed@gmail.com>
+++ Date Created: Tue 19 May 14:48:03 CEST 2026
+++ Date Revised: Tue  6 Oct 16:06:36 CEST 2026
+++ License: BSD/Fricas
+++ References: 
+++  GCL: http://www.geomview.org/docs/html/GCL-Reference.html#GCL-Reference
+++  Manual: http://www.geomview.org/docs/html/index.html#Top
+++ Description:
+++  Geomview is an interactive program for viewing and manipulating geometric 
+++  objects, originally written by staff members of the Geometry Center at 
+++  the University of Minnesota, starting in 1991. It can be used as a 
+++  standalone viewer for static objects or as a display engine for other 
+++  programs which produce dynamically changing geometry.
+++  Geomview is free software, available under the terms of the GNU Lesser 
+++  Public License.
+++
+Geomview : Exports == Implementation where
   
-    lisp : String -> SExpression
-      ++ lisp(s) reads the string s and evaluates in Lisp.
-    runProgram : String -> String
-      ++ runProgram use UIOP:RUN-PROGRAM to execute the program.
-    runProgramMVB : String -> List SExpression
-      ++ runProgramMVB is like runProgram but uses multi-value bind
-      ++ to return stdout, stderr and the exit code as a list of SExpression
-      ++ in this order.
-      
-  Implementation == add
-  
-    lisp s == EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp    
-    
-    runProgram(s) ==
-      fmt1:="(uiop:run-program _"~A_" :output :string :error-output "
-      fmt2:=":string :ignore-error-status t)"
-      cmd:=string FORMAT('NIL,fmt1 fmt2,s)$Lisp
-      string lisp(cmd)
-
-    runProgramMVB(s) ==
-      fmt1:="(multiple-value-bind (output error-output exit-code)"
-      fmt2:="(uiop:run-program _"~A_" :output :string :error-output "
-      fmt3:=":string :ignore-error-status t)"
-      fmt4:="(list output error-output exit-code))"
-      cmd:=string FORMAT('NIL,fmt1 fmt2 fmt3 fmt4,s)$Lisp
-      destruct lisp cmd
-
-
-
-)abbrev package GEOMV Geomview
-Geomview() : Exports == Implementation where
-
-  MSC ==> MoreSystemCommands
   STR ==> String
   INT ==> Integer
+  SEX ==> SExpression
+  NNI ==> NonNegativeInteger
+  MSC ==> MoreSystemCommands
+  REP ==> Record(pipe:STR,path:STR)
+  
+  
   LLI ==> List List Integer
   LLS ==> List List String
   LLF ==> List List Float
+  LLD ==> List List DoubleFloat
+  LDF ==> List DoubleFloat
+  LLN ==> List List NNI
+  LNI ==> List NonNegativeInteger
+  SP3 ==> ThreeSpace DoubleFloat
   LI  ==> List Integer
+  PI  ==> PositiveInteger
   LS  ==> List String
   LF  ==> List Float
   FL  ==> Float
+  DF  ==> DoubleFloat
   BO  ==> Boolean
-  
+  DO  ==> DrawOption
+  R   ==> Expression Integer
+
+
   COLOR ==> Record(red:FL,green:FL,blue:FL,transparency:FL)
   POINT ==> Record(X:FL,Y:FL,Z:FL,color:COLOR,diam:INT)
-  PLINE ==> Record(vertices:List POINT,color:COLOR,diam:INT)
+  PLINE ==> Record(vertices:List POINT,color:COLOR,diam:INT)  
+  
+  QUAD ==> Record(pts:List Point DF,quads:List List NNI)
+  TRIS ==> Record(pts:List Point DF,tris:List List NNI) 
+  
+  TLD ==> TopLevelDrawFunctions R
+  DOF ==> DrawOptionFunctions0
+  SBF ==> SegmentBinding Float
+  LDO ==> List DrawOption
+  
+  PSC  ==> ParametricSpaceCurve R
+  PSCF ==> ParametricSpaceCurve(DF -> DF)
+  PSF  ==> ParametricSurface R
+  PSFF ==> ParametricSurface((DF, DF) -> DF)
+  
 
-  Exports == with
-
-    makePipe : String -> String
-    quitPipe : String -> Void
-    writePipe : (String,String) -> Void
+  
+  format ==> FORMAT$Lisp
+  probeFile ==> PROBE_-FILE$Lisp
+  
+  
+  Exports == SetCategory with
+    
+    new : () -> %
+    close : % -> Boolean
+    coerce : % -> OutputForm
+    
+    elt : (%,"help") -> (STR -> Void)
+    elt : (%,"version") -> Void
+    elt : (%,"morehelp") -> (STR -> Void)
+    elt : (%,"loc") -> STR
+    elt : (%,"id") -> STR
+    elt : (%,"close") -> Boolean
+    elt : (%,"gcl") -> (STR -> Void)
+    elt : (%,"objects") -> Void
+    elt : (%,"cameras") -> Void
+    elt : (%,"hidepanels") -> Void
+    elt : (%,"showpanels") -> Void
+    elt : (%,"load") -> (STR -> Void) 
+    elt : (%,"delete") -> (STR -> Void) 
+    elt : (%,"copy") -> ((STR,STR) -> Void) 
+    elt : (%,"reset") -> Void
+    elt : (%,"cmdfile") -> ((STR,STR) -> Void) 
+    elt : (%,"recCOLOR") -> Type
+    elt : (%,"recPOINT") -> Type
+    elt : (%,"recPLINE") -> Type
+    elt : (%,"drawPoint") -> ((STR,POINT) -> Void)
+    elt : (%,"drawPolyLine") -> ((STR,PLINE,Boolean) -> Void)
+    
+    makePipe: STR -> STR
+    writePipe : (%,STR) -> Void
+    pipeAlive? : % -> Boolean
+    pipeExists? : % -> Boolean
+    
+    pushPipe : (%,STR) -> STR
+      ++ pushPipe(p,cmd) writes 'cmd' to a command file, then executes
+      ++ it by using '(command infile outfile)' and finally reads in the
+      ++ outfile as a string. This way we get output as a string instead
+      ++ of getting it to 'stdout' when using writePipe.      
     mkPtsFmt: (STR,INT,LLS,LLS) -> STR
       ++ mkPtsFmt(name,diam,lp,lc) creates a OOGL VECT object comprising
       ++ points only. The parameters are: name (arbitrary identifier), diam
       ++ the diameter of the points (e.g. 10), lp a list of lists of floats
       ++ as strings, and lc a list of lists of floats as strings, representing 
       ++ the color of each point as r,g,b and transparency.[low-level].
-    drawPoint: (STR,STR,POINT) -> Void 
+    drawPoint: (%,STR,POINT) -> Void 
       ++ drawPoint(p,n,pt) draws the point 'pt' named 'n' to the pipe 'p'.
-    drawPolyLine: (STR,STR,PLINE,Boolean) -> Void 
+    drawPoint: (%,STR,FL,FL,FL,Color,Integer) -> Void
+      ++ drawPoint(p,name,x,y,z,color,size)
+    drawPolyLine: (%,STR,PLINE,Boolean) -> Void 
       ++ drawPolyLine(p,n,pl,closed?) draws the polyline 'pl' named 'n' to the 
       ++ pipe 'p'. Set the parameter closed?=true if the polyline shall be 
       ++ closed.
-    load: (STR,STR) -> Void
+    drawQuad : (%,STR,List List DoubleFloat) -> Void
+      ++ --todo
+    drawPlane : (%,STR,LDF,LDF,LDF) -> Void
+      ++ --todo
+    load: (%,STR) -> Void
       ++ load(pipe,file) loads the given file into geomview (pipe). 
-    load: (STR,STR,STR) -> Void  
+    load: (%,STR,STR) -> Void  
       ++ Loads the given file into geomview (pipe). The third argument 
       ++ specifies the type of data it contains, which may be 'command' 
       ++ (geomview commands), 'geometry' (OOGL geometric data), or 'camera' 
@@ -77,32 +133,35 @@ Geomview() : Exports == Implementation where
       ++ file's contents. Loading geometric data creates a new visible object; 
       ++ loading a camera opens a new window; loading a command file executes 
       ++ those commands.
-    loadPath : STR -> Void
+    loadPath : % -> Void
       ++ loadPath(pipe) returns the current search path for command, geometry, 
       ++ etc. files. 
-    setLoadPath: (STR,LS) -> Void
+    setLoadPath: (%,LS) -> Void
       ++ setLoadPath(pipe,[path1,...,pathN]) Sets search path for command, 
       ++ geometry, etc. files. The PATHi are strings giving the pathnames of 
       ++ directories to be searched. The special directory name + is replaced 
       ++ by the existing path, so e.g. setLoadPath(p,["mydir","+"]) prepends 
       ++ mydir to the path.
-    help: (STR,STR) -> Void
+    help: (%,STR) -> Void
       ++ help(pipe,cmd) prints info about cmd. Command may include * wildcards.
       ++ For instance, help(pipe,"*") prints all commands.
-    scale : (STR,STR,Float) -> Void
+    morehelp: (%,STR) -> Void
+      ++ morehelp(pipe,cmd) prints info about cmd. Command may include * wildcards.
+      ++ For instance, help(pipe,"*") prints all commands.
+    scale : (%,STR,Float) -> Void
       ++ scale(pipe,GEOM-ID,factor) scales GEOM-ID, multiplying its size by 
       ++ factor.
-    scale : (STR,STR,Float,Float,Float) -> Void
+    scale : (%,STR,Float,Float,Float) -> Void
       ++ scale(pipe,GEOM-ID,fx,fy,fz) scales GEOM-ID, multiplying its size by 
       ++ fx,fy,fz. Scaling only really makes sense in Euclidean space!
-    geometryObjects : STR -> Void
+    geometryObjects : % -> Void
       ++ geometryObjects(pipe) returns a list of names of all geometry objects. 
-    cameras : STR -> Void
+    cameras : % -> Void
       ++ cameras(pipe) returns a list of names of all cameras.     
-    setBackColor : (STR,STR,FL,FL,FL) -> Void
+    setBackColor : (%,STR,FL,FL,FL) -> Void
       ++ setBackColor(pipe,cam-id,r,g,b) sets the background color of CAM-ID; 
       ++ R G B are numbers between 0 and 1.
-    setBackgroundImage : (STR,STR,STR) -> Void
+    setBackgroundImage : (%,STR,STR) -> Void
       ++ setBackgroundImage(pipe,cam,filename) uses the given image as the 
       ++ background of camera CAM-ID (which must be a real camera, not default 
       ++ or allcams). Centers the image on the window area. Works only with 
@@ -110,39 +169,39 @@ Geomview() : Exports == Implementation where
       ++ With no filename argument, returns name of that window's current 
       ++ background image, or "". Any file type acceptable as a texture is 
       ++ allowed, e.g. .ppm.gz, .sgi, etc.      
-    setBBoxColor : (STR,STR,FL,FL,FL) -> Void
+    setBBoxColor : (%,STR,FL,FL,FL) -> Void
       ++ setBBoxColor(pipe,geom-id,r,g,b) Set the bounding-box color of 
       ++ GEOM-ID; R G B are numbers between 0 and 1.
-    drawBBox : (STR,STR,Boolean) -> Void
+    drawBBox : (%,STR,Boolean) -> Void
       ++ drawBBox(pipe,true or false) whether GEOM-ID's bounding-box should be 
       ++ drawn.
-    resetCamera: (STR,STR) -> Void
+    resetCamera: (%,STR) -> Void
       ++ resetCamera(pipe,cam-id) resets CAM-ID to its default value.     
-    cmdFile : (STR,STR,STR) -> Void 
+    cmdFile : (%,STR,STR) -> Void 
       ++ cmdFile(pipe,infile,outfile) reads commands from INFILE; sends 
       ++ corresponding responses (e.g. anything written to filename -) to 
       ++ OUTFILE, stdout by default (use outfile=""). 
-    copyObject : (STR,STR,STR) -> Void
-      ++ copyObject(pipe,id,name) copies an object or camera to a new object
+    copyObject : (%,STR,STR) -> Void
+      ++ copyObject(pipe,id) copies an object or camera to a new object
       ++ with 'name'=name.
-    deleteObject : (STR,STR) -> Void
+    deleteObject : (%,STR) -> Void
       ++ deleteObject(pipe,id) delete object or camera ID.      
-    dither : (STR,STR,STR) -> Void
+    dither : (%,STR,STR) -> Void
       ++ dither(pipe,cam,opt) turns dithering on or off in that camera. 
       ++ opt: {"on"|"off"|"toggle"}.
-    drawView : (STR,STR) -> Void
+    drawView : (%,STR) -> Void
       ++ drawView(pipe,cam) draws the view in CAM-ID, if it needs redrawing. 
-    geomviewVersion: STR -> Void
+    geomviewVersion: % -> Void
       ++ geomviewVersion prints a string representing the version of geomview 
       ++ that is running.     
-    setModel:(STR,STR,STR) -> Void
+    setModel:(%,STR,STR) -> Void
       ++ setModel(pipe,cam,mod) set the model used to display geometry in this 
       ++ camera, where mod={"virtual"|"projective"|"conformal"}.
-    drawHSphere : (STR,STR,Boolean) -> Void
+    drawHSphere : (%,STR,Boolean) -> Void
       ++ drawHSphere(pipe,cam,true/false) whether to draw a unit sphere: the 
       ++ sphere at infinity in hyperbolic space, and a reference sphere in 
       ++ Euclidean and spherical spaces. 
-    drawLinesCloser : (STR,STR,Float) -> Void
+    drawLinesCloser : (%,STR,Float) -> Void
       ++ drawLinesCloser(pipe,cam,dist) draws lines (including edges) closer to
       ++ the camera than polygons by DIST / 10^5 of the Z-buffer range. 
       ++ DIST = 3.0 by default. If DIST is too small, a line lying on a surface
@@ -151,7 +210,7 @@ Geomview() : Exports == Implementation where
       ++ lie behind. Good values for DIST vary with the scene, viewpoint, and 
       ++ distance between near and far clipping planes. This feature is a 
       ++ kludge, but can be helpful.   
-    transform : (STR,STR,STR,STR,STR,FL,FL,FL,FL,Boolean) -> Void
+    transform : (%,STR,STR,STR,STR,FL,FL,FL,FL,Boolean) -> Void
       ++ transform(pipe,objectID,centerID,frameID,action,x,y,z,dt?,smooth?) 
       ++ where action in [rotate|translate|translate-scaled|scale], applies a 
       ++ motion (rotation, translation, scaling) to object objectID; that is, 
@@ -176,64 +235,271 @@ Geomview() : Exports == Implementation where
       ++ then stops. If present and followed by the smooth keyword, the motion 
       ++ is animated with a 3t^2-2t^3 function, so as to start and stop 
       ++ smoothly. If absent, the motion is applied immediately. 
-    reset : STR -> Void
+    reset : % -> Void
       ++ reset(pipe) is equivalent to (progn (new-center ALLGEOMS)(new-center 
       ++ ALLCAMS)), i.e. a full reset of the pipe.  
-    newCamera : (STR,STR) -> Void
+    newCamera : (%,STR) -> Void
       ++ newCamera(pipe,cam-id) creates a new camera with the given name 
       ++ (a string). If a camera with that name already exists, the new object 
-      ++ is given a unique name.      
-     
-  Implementation == add 
-  
-    makePipe(s) == 
-      cmd:SExpression:=FORMAT('NIL,"system togeomview ~A </dev/null",s)$Lisp 
-      systemCommand(string cmd)$MSC
-      if null? PROBE_-FILE("/tmp/geomview/" s)$Lisp then
-        error string FORMAT('NIL,"Could not create pipe ~A",s)$Lisp
-      else
-        FORMAT('T,"Pipe /tmp/geomview/~a created. ~%",s)$Lisp
-        return s
-      
-    quitPipe(s) == 
-      tp:=string FORMAT('NIL,"/tmp/geomview/~a",s)$Lisp 
-      cmd:SExpression:=FORMAT('NIL,"system echo '(quit)' > ~A",tp)$Lisp     
-      systemCommand(string cmd)$MSC
-      systemCommand("system rm /tmp/geomview/" s) -- rm pipe
-      
-    writePipe(p,c):Void ==
-      tp:=string FORMAT('NIL,"/tmp/geomview/~a",p)$Lisp 
-      cmd:SExpression:=FORMAT('NIL,"system printf '~A' > ~A",c,tp)$Lisp
-      systemCommand(string cmd)$MSC
+      ++ is given a unique name.  
+    windowSize : (%,STR,PI,PI) -> Void
+      ++ windowSize(g,camID,xsize,ysize) sets the size of the camera window with
+      ++ id = camID.
+    windowPosition : (%,STR,PI,PI,PI,PI) -> Void
+      ++ windowPosition(g,camID,xmin,xmax,ymin,ymax) sets the position and size
+      ++ of the camera window with id=camID.
+    windowBorder : (%,STR,Boolean) -> Void
+      ++ windowNoBorder(g,camID,true/false) shows/hides the border of the window.
+    windowPixelAspect : (%,STR,DoubleFloat) -> Void
+      ++ windowPixelAspect(g,camID,f) sets the pixel aspect ratio.
+    uiPanel : (%,STR,Boolean) -> Void
+      ++ uiPanel(g,panelname,true/false) does or does not display the panel with
+      ++ name panelname. Panelnames are: geomview, tools, appearance, cameras,
+      ++ lighting, obscure, materials, command, credits.
+    zoom : (%,STR,DF) -> Void
+      ++ zoom(g,camID,FACTOR). Zoom camID, multiplying its field of view by 
+      ++ FACTOR. FACTOR should be a positive number. 
+    draw : (%,R,SBF,SBF,LDO) -> Void
+      ++
+    mesh2quad : SP3 -> QUAD
+      ++ temp. only
+    writeToFile : STR -> Void
+      ++ temp. only
+    drawQ : (%,R,SBF,SBF,LDO) -> Void
+      ++ temp. only
+    drawQCF : (%,R,SBF,SBF,LDO) -> Void
+      ++ temp. only / fricas color function provided via DrawOption
+    color2rgb : (DF,DF,DF) -> LDF 
+      ++
     
+  Implementation == SExpression add 
 
+    Rep := REP
+    
+    -- locals
+    
+    lisp(s:STR):SEX == EVAL(READ_-FROM_-STRING(s)$Lisp)$Lisp
+    
+    runProgram(s:STR):STR ==
+      fmt1:="(uiop:run-program _"~A_" :output :string :error-output "
+      fmt2:=":string :ignore-error-status t)"
+      cmd:=string FORMAT('NIL,fmt1 fmt2,s)$Lisp
+      string lisp(cmd)
+
+    runProgramMVB(s:STR):List SEX ==
+      fmt1:="(multiple-value-bind (output error-output exit-code)"
+      fmt2:="(uiop:run-program _"~A_" :output :string :error-output "
+      fmt3:=":string :ignore-error-status t)"
+      fmt4:="(list output error-output exit-code))"
+      cmd:=string FORMAT('NIL,fmt1 fmt2 fmt3 fmt4,s)$Lisp
+      destruct lisp cmd
+    
+    pipeDefPath:STR:= "/tmp/geomview/" 
+    
+    sys(c:STR):Void == systemCommand("system " c)$MSC
+    
+    newID():STR ==
+      fmt:="(format 'nil _"fricas.~A_.~A_" (get-universal-time) (random 1000))"
+      string lisp(fmt)
+
+    pipeExists?(p:%):Boolean == not null? (b:SEX:=probeFile(p.path))
+
+    pipeAlive?(p:%):Boolean ==
+      cmd:=string format('NIL,"fuser ~A",p.path)
+      bs:STR:=runProgram(cmd)
+      bs="" => false
+      true
+
+
+    makePipe(s:STR):STR ==
+      cmd:=string format('NIL,"togeomview ~A </dev/null",s)
+      sys(cmd)
+      b:SEX:=probeFile(pipeDefPath s)
+      null? b => error string format('NIL,"Could not create pipe ~A",s)
+      --debug: format('T,"Pipe /tmp/geomview/~a created. ~%",s)
+      return s
+
+
+    writeToFile(s:STR):Void ==
+      fn:FileName:=coerce("/tmp/geomviewtmp.gcl")$FileName
+      f:TextFile:=open(fn, "output")
+      write!(f,s)
+      close!(f)      
+
+
+    writePipe(p:%,c:STR):Void ==
+      cmd1:STR:=string format('NIL,"printf _"~A_" > ~A",c,p.path)
+      cmd2:STR:=string format('NIL,"cat /tmp/geomviewtmp.gcl | togeomview ~A",p.id)
+      if #cmd1 > 64000 then
+        writeToFile(c)
+        message("big data ... writing /tmp/geomviewtmp.gcl")$OutputForm
+        sys(cmd2)
+        --error "data to big ...."   / load(p,"....") also working
+      else
+        sys(cmd1)
+      --runProgram(cmd)
+      --lisp(string format('NIL,"(uiop:read-file-string _"~A_")",p.path))
+
+
+    pushPipe(p:%,c:STR):STR ==
+      writeToFile(c)
+      writePipe(p,"(command _"/tmp/geomviewtmp.gcl_" _"/tmp/geomviewtmp.out_")")
+      fn:FileName:=coerce("/tmp/geomviewtmp.out")$FileName
+      f:TextFile:=open(fn, "input")
+      r:STR:=""
+      while not endOfFile?(f) repeat
+        r:=r readLine!(f)
+      close!(f)
+      return r      
+
+    mesh2quad(s:SP3):QUAD ==
+      not mesh? s => error "not a mesh"
+      lps:=lp s
+      m:LLN:=first lllip(s) -- give type LLN -> accelerates compilation
+      w:=#(first m)
+      h:=#m
+      not test(#lps = w*h) => error "corrupted mesh"
+      q:LLN:=concat [[[m.i.j,m.(i+1).j,m.(i+1).(j+1),m.i.(j+1)]_
+        for j in 1..(w-1)] for i in 1..(h-1)]
+      [lps,q]$QUAD
+
+    mesh2triang(s:SP3):TRIS ==
+      mq:=mesh2quad(s)
+      q:=mq.quads
+      t:=concat [[[u.1,u.2,u.4],[u.4,u.2,u.3]] for u in q]
+      [mq.pts,t]$TRIS
+
+    hues:Table(Integer,LDF):=table()
+    
+    hues.1  := [1.00, 0.00, 0.00, 1.0]       -- Pure Red
+    hues.2  := [1.00, 0.33, 0.00, 1.0]       -- Orange-Red
+    hues.3	:= [1.00, 0.67, 0.00, 1.0]	     -- Dark Orange
+    hues.4	:= [1.00, 1.00, 0.00, 1.0]	     -- Pure Yellow
+    hues.5	:= [0.83, 1.00, 0.00, 1.0]	     -- Lime Green
+    hues.6	:= [0.67, 1.00, 0.00, 1.0]	     -- Chartreuse
+    hues.7	:= [0.33, 1.00, 0.00, 1.0]	     -- Bright Leaf Green
+    hues.8	:= [0.17, 1.00, 0.00, 1.0]	     -- Spring Green
+    hues.9	:= [0.00, 1.00, 0.17, 1.0]	     -- Mint Green
+    hues.10 := [0.00, 1.00, 0.00, 1.0]       -- Pure Green
+    hues.11 := [0.00, 1.00, 0.33, 1.0]       -- Pastel Green / Teal
+    hues.12 := [0.00, 1.00, 0.67, 1.0]       -- Turquoise
+    hues.13 := [0.00, 1.00, 1.00, 1.0]       -- Pure Cyan
+    hues.14 := [0.00, 0.67, 1.00, 1.0]       -- Sky Blue
+    hues.15 := [0.00, 0.33, 1.00, 1.0]       -- Electric Blue
+    hues.16 := [0.00, 0.00, 1.00, 1.0]       -- Deep Blue
+    hues.17 := [0.17, 0.00, 1.00, 1.0]       -- Cobalt Blue
+    hues.18 := [0.33, 0.00, 1.00, 1.0]       -- Indigo
+    hues.19 := [0.00, 0.00, 1.00, 1.0]       -- Pure Blue
+    hues.20 := [0.48, 0.00, 1.00, 1.0]       -- Violet
+    hues.21 := [0.67, 0.00, 1.00, 1.0]       -- Deep Purple
+    hues.22 := [0.83, 0.00, 1.00, 1.0]       -- Bright Purple
+    hues.23 := [1.00, 0.00, 1.00, 1.0]       -- Pure Magenta
+    hues.24 := [1.00, 0.00, 0.67, 1.0]       -- Hot Pink
+    hues.25 := [1.00, 0.00, 0.48, 1.0]       -- Deep Pink
+    hues.26 := [1.00, 0.00, 0.33, 1.0]       -- Crimson / Rose
+    hues.27 := [1.00, 0.00, 0.17, 1.0]       -- Ruby Red 
+
+
+    -- exports
+    new() == 
+      pipeID:=newID()
+      p:=makePipe(pipeID)
+      [p,pipeDefPath p]@REP
+      
+    close(g:%):Boolean == 
+      writePipe(g,"(quit)")
+      sys(string format('NIL,"rm ~A",g.path))
+      not pipeExists?(g)
+      
+    coerce(g:%):OutputForm == message(g.pipe)$OutputForm
+     
+    -- todo: remove     
+    elt0(g:%,s:Symbol):Union(STR,Boolean,LS->Void) ==
+      s='path => g.path
+      s='id   => g.pipe
+      s='close => close(g)
+      s='gcl => (c:LS):Void+->writePipe(g,first c) 
+      "unknown element"@STR      
+
+    elt(g,"help") == (s:STR):Void+->help(g,s)
+    elt(g,"version") == geomviewVersion(g)
+    elt(g,"morehelp") == (s:STR):Void+->morehelp(g,s)
+    elt(g,"loc") == g.path
+    elt(g,"id") == g.pipe
+    elt(g,"close") == close(g)
+    elt(g,"gcl") == (c:STR):Void+->writePipe(g,c)      
+    elt(g,"objects") == geometryObjects(g)
+    elt(g,"cameras") == cameras(g)
+    elt(g,"hidepanels") == 
+      uiPanel(g,"geomview",false)
+      uiPanel(g,"tools",false)
+    elt(g,"showpanels") == 
+      uiPanel(g,"geomview",true) 
+      uiPanel(g,"tools",true)
+    elt(g,"load") == (f:STR):Void+->load(g,f)    
+    elt(g,"delete") == (obj:STR):Void+->deleteObject(g,obj) 
+    elt(g,"copy") == (a:STR,b:STR):Void+->copyObject(g,a,b)  
+    elt(g,"reset") == reset(g)
+    elt(g,"cmdfile") == (a:STR,b:STR):Void+->cmdFile(g,a,b) 
+    elt(g,"recCOLOR") == COLOR
+    elt(g,"recPOINT") == POINT
+    elt(g,"recPLINE") == PLINE    
+    elt(g,"drawPoint") == (a:STR,p:POINT):Void+->drawPoint(g,a,p)    
+    elt(g,"drawPolyLine") == (a:STR,l:PLINE,b:Boolean):Void+->drawPolyLine(g,a,l,b)    
+
+
+    -------------------------------------------------------------------------
     fmtPtsHead:="(progn (new-geometry _"[~A]_" appearance {linewidth ~A}"
     fmtPtsA:="~A ~% VECT ~A ~A ~A~%~{~A ~}~%~{~A ~}~%"  -- intro 
     fmtPtsB:="~{~{~A ~}~%~}~%~{~{~A ~}~%~})~%~A)"       -- data
     fmtPts:=concat(fmtPtsA,fmtPtsB)$String
     fmtPtsTail:="(normalization _"World_" none)"
     
+ 
+    fmtQuadHead:="(progn (new-geometry _"[~A]_" QUAD ~%"
+    fmtQuadPts:="~{~{~A ~}~}))"
     
+    -- name,linewidth,NPolylines,NVertices,NColors, number of vertices, 
+    -- number of colors supplied per polyline, all the vertices, all the colors
+    -- normalization [all, none, each, keep].
+    fmtVECT:="(progn (new-geometry _"[~A]_" appearance {linewidth ~A} ~%_
+      ~%VECT~%~A ~A ~A ~%~{~A ~}~%~{~A ~}~%~{~{~A ~}~%~}~%~{~{~A ~}~%~})~%_
+      (normalization _"World_" ~A))"  
+      
+    mkVECT:(STR,INT,INT,INT,INT,LNI,LNI,LLS,LLS,STR) -> STR  
+    mkVECT(name,linewidth,np,nv,nc,nvp,ncp,va,ca,norm) == 
+      string format('NIL,fmtVECT,name,linewidth,np,nv,nc,nvp,ncp,va,ca,norm)
+
+
+    fmtCQUAD:="(progn (new-geometry _"[~A]_" CQUAD ~%_
+      ~{ ~{~{~A ~} ~} ~% ~})~%_
+      (normalization _"World_" ~A))" 
+
+    mkQuadFmt(name:STR, p:List List DoubleFloat):STR ==
+      fmt:=fmtQuadHead fmtQuadPts fmtPtsTail
+      string format('NIL,fmt,name,p)
+
     mkPtsFmt(name:STR,diam:INT,p:LLS,c:LLS):STR ==
       nL:INT:=#p
       nV:=nL
       nC:=#c
       lv:=[1 for i in 1..nL]
       lc:=[1 for i in 1..nC]
-      f1:=string FORMAT('NIL,fmtPtsHead,name,diam)$Lisp
-      f2:=string FORMAT('NIL,fmtPts,f1,nL,nV,nC,lv,lc,p,c,fmtPtsTail)$Lisp
+      f1:=string format('NIL,fmtPtsHead,name,diam)
+      f2:=string format('NIL,fmtPts,f1,nL,nV,nC,lv,lc,p,c,fmtPtsTail)
 
 
-    drawPoint(pipe:STR,name:STR,data:POINT):Void ==
+    drawPoint(pipe:%,name:STR,data:POINT):Void ==
       p:List Float:=[data.X,data.Y,data.Z]
       c:COLOR:=data.color
       cl:List Float:=[c.red,c.green,c.blue,c.transparency]
       lv:LLS:=[[toString(s) for s in p]]
       lc:LLS:=[[toString(s) for s in cl]]
-      mp:=mkPtsFmt(name,data.diam,lv,lc)
+      --mp:=mkPtsFmt(name,data.diam,lv,lc)
+      mp:=mkVECT(name,data.diam,1,1,1,[1],[1],lv,lc,"none")  -- all?
       writePipe(pipe,mp)
       
-    drawPolyLine(pipe:STR,name:STR,data:PLINE,closed:Boolean):Void ==
+    drawPolyLine(pipe:%,name:STR,data:PLINE,closed:Boolean):Void ==
       v:List POINT:=data.vertices
       c:COLOR:=data.color
       cl:List Float:=[c.red,c.green,c.blue,c.transparency]
@@ -246,280 +512,287 @@ Geomview() : Exports == Implementation where
       lv:LI
       if closed then lv:=[-nV] else lv:=[nV]
       lc:LI:=[1]
-      f1:=string FORMAT('NIL,fmtPtsHead,name,data.diam)$Lisp
-      f2:=string FORMAT('NIL,fmtPts,f1,nL,nV,nC,lv,lc,llv,llc,fmtPtsTail)$Lisp
+      f1:=string format('NIL,fmtPtsHead,name,data.diam)
+      f2:=string format('NIL,fmtPts,f1,nL,nV,nC,lv,lc,llv,llc,fmtPtsTail)
       --output(f2)$OutputPackage
       writePipe(pipe,f2)
 
-    load(p:STR,f:STR):Void ==
-      cmd:=string FORMAT('NIL,"(load ~A)",f)$Lisp
+    drawQuad(p:%,name:STR,pts:List List DoubleFloat):Void ==
+      mq:=mkQuadFmt(name,pts)
+      writePipe(p,mq)
+      
+    drawPlane(p:%,name:STR,o:LDF,u1:LDF,u2:LDF):Void ==
+      p1:=[o.i+u1.i for i in 1..3]
+      p2:=[o.i+u2.i for i in 1..3]
+      p3:=[p1.i+p2.i for i in 1..3]
+      pts:List LDF:=[o,p1,p3,p2]
+      drawQuad(p,name,pts)
+
+    load(p:%,f:STR):Void ==
+      cmd:=string format('NIL,"(load ~A)",f)
       writePipe(p,cmd)
       
-    load(p:STR,f:STR,opt:STR):Void ==
+    load(p:%,f:STR,opt:STR):Void ==
       o:List String:=["command","geometry","camera"]
       not member?(opt,o) => error "options are: [command|geometry|camera])"
-      cmd:=string FORMAT('NIL,"(load ~A ~A)",f,opt)$Lisp
+      cmd:=string format('NIL,"(load ~A ~A)",f,opt)
       writePipe(p,cmd)
       
-    loadPath(p:STR):Void ==
+    loadPath(p:%):Void ==
       cmd:="(echo)(echo (load-path))(echo)"
       writePipe(p,cmd)
       
-    setLoadPath(p:STR,paths:LS) ==
-      cmd:=string FORMAT('NIL,"(set-load-path ~A)",paths)$Lisp
+    setLoadPath(p:%,paths:LS) ==
+      cmd:=string format('NIL,"(set-load-path ~A)",paths)
       writePipe(p,cmd)
 
-    help(p:STR,c:STR):Void ==
-      cmd:=string FORMAT('NIL,"(morehelp ~A)",c)$Lisp
+    help(p:%,c:STR):Void ==
+      cmd:=string FORMAT('NIL,"(help ~A)",c)$Lisp
       writePipe(p,cmd)
       
-    scale(p:STR,g:STR,f:Float):Void ==
+    morehelp(p:%,c:STR):Void ==
+      cmd:=string format('NIL,"(morehelp ~A)",c)
+      writePipe(p,cmd)
+      
+    scale(p:%,g:STR,f:Float):Void ==
       fs:STR:=toString(f)
-      cmd:=string FORMAT('NIL,"(scale ~A ~A)",g,fs)$Lisp
+      cmd:=string format('NIL,"(scale ~A ~A)",g,fs)
       writePipe(p,cmd)
       
-    scale(p:STR,g:STR,fx:Float,fy:Float,fz:Float):Void ==
+    scale(p:%,g:STR,fx:Float,fy:Float,fz:Float):Void ==
       sx:STR:=toString(fx); sy:STR:=toString(fy); sz:STR:=toString(fz);  
-      cmd:=string FORMAT('NIL,"(scale ~A ~A ~A ~A)",g,sx,sy,sz)$Lisp
+      cmd:=string format('NIL,"(scale ~A ~A ~A ~A)",g,sx,sy,sz)
       writePipe(p,cmd)
     
-    geometryObjects(p:STR) ==
+    geometryObjects(p:%) ==
       cmd:="(echo)(echo (all geometry))(echo)"
       writePipe(p,cmd)      
       
-    cameras(p:STR) ==
+    cameras(p:%) ==
       cmd:="(echo)(echo (all cameras))(echo)"
       writePipe(p,cmd) 
 
-    setBackColor(p:STR,cam:STR,r:FL,g:FL,b:FL):Void ==
+    setBackColor(p:%,cam:STR,r:FL,g:FL,b:FL):Void ==
       sr:STR:=toString(r); sg:STR:=toString(g); sb:STR:=toString(b); 
-      cmd:=string FORMAT('NIL,"(backcolor ~A ~A ~A ~A)",cam,sr,sg,sb)$Lisp
+      cmd:=string format('NIL,"(backcolor ~A ~A ~A ~A)",cam,sr,sg,sb)
       writePipe(p,cmd) 
 
-    setBackgroundImage(p:STR,cam:STR,img:STR):Void ==
-      cmd:=string FORMAT('NIL,"(background-image ~A ~A)",cam,img)$Lisp
+    setBackgroundImage(p:%,cam:STR,img:STR):Void ==
+      cmd:=string format('NIL,"(background-image ~A ~A)",cam,img)
       writePipe(p,cmd) 
       
-    setBBoxColor(p:STR,geom:STR,r:FL,g:FL,b:FL):Void ==
+    setBBoxColor(p:%,geom:STR,r:FL,g:FL,b:FL):Void ==
       sr:STR:=toString(r); sg:STR:=toString(g); sb:STR:=toString(b); 
-      cmd:=string FORMAT('NIL,"(bbox-color ~A ~A ~A ~A)",geom,sr,sg,sb)$Lisp
+      cmd:=string format('NIL,"(bbox-color ~A ~A ~A ~A)",geom,sr,sg,sb)
       writePipe(p,cmd)              
        
-    drawBBox(p:STR,geom:STR,b:Boolean):Void ==
+    drawBBox(p:%,geom:STR,b:Boolean):Void ==
       yn:STR 
       if b then yn:="yes" else yn:="no"
-      cmd:=string FORMAT('NIL,"(bbox-draw ~A ~A)",geom,yn)$Lisp
+      cmd:=string format('NIL,"(bbox-draw ~A ~A)",geom,yn)
       writePipe(p,cmd) 
      
-    resetCamera(p:STR,cam:STR):Void ==
-      cmd:=string FORMAT('NIL,"(camera-reset ~A)",cam)$Lisp
+    resetCamera(p:%,cam:STR):Void ==
+      cmd:=string format('NIL,"(camera-reset ~A)",cam)
       writePipe(p,cmd)           
  
-    cmdFile(p:STR,infile:STR,outfile:STR):Void ==
+    cmdFile(p:%,infile:STR,outfile:STR):Void ==
       if outfile="" then outfile:="stdout"
-      cmd:=string FORMAT('NIL,"(command ~A ~A)",infile,outfile)$Lisp
+      cmd:=string format('NIL,"(command ~A ~A)",infile,outfile)
       writePipe(p,cmd)   
 
-    copyObject(p:STR,id:STR,name:STR):Void ==
-      cmd:=string FORMAT('NIL,"(copy ~A ~A)",id,name)$Lisp
+    -- do not use 'id' (provokes a mysterious error), use objId instead.
+    copyObject(p:%,objId:STR,newName:STR):Void ==
+      cmd:=string format('NIL,"(copy ~A ~A)",objId,newName)
       writePipe(p,cmd) 
 
-    deleteObject(p:STR,id:STR):Void ==
-      cmd:=string FORMAT('NIL,"(delete ~A)",id)$Lisp
+    -- do not use 'id' (provokes a mysterious error), use objId instead.
+    deleteObject(p:%,objId:STR):Void ==
+      cmd:=string format('NIL,"(delete ~A)",objId)
       writePipe(p,cmd) 
       
-    dither(p:STR,cam:STR,opt:STR):Void ==
-      cmd:=string FORMAT('NIL,"(dither ~A ~A)",cam,opt)$Lisp
+    dither(p:%,cam:STR,opt:STR):Void ==
+      cmd:=string format('NIL,"(dither ~A ~A)",cam,opt)
       writePipe(p,cmd)       
 
-    drawView(p:STR,cam:STR):Void ==
-      cmd:=string FORMAT('NIL,"(draw ~A)",cam)$Lisp
+    drawView(p:%,cam:STR):Void ==
+      cmd:=string format('NIL,"(draw ~A)",cam)
       writePipe(p,cmd)        
       
-    geomviewVersion(p:STR):Void == 
+    geomviewVersion(p:%):Void == 
       writePipe(p,"(echo)(echo (geomview-version))(echo)")
 
 
-    setModel(p:STR,cam:STR,opt:STR):Void ==
-      cmd:=string FORMAT('NIL,"(hmodel ~A ~A)",cam,opt)$Lisp
+    setModel(p:%,cam:STR,opt:STR):Void ==
+      cmd:=string format('NIL,"(hmodel ~A ~A)",cam,opt)
       writePipe(p,cmd)          
 
-    drawHSphere(p:STR,cam:STR,b:Boolean):Void ==
+    drawHSphere(p:%,cam:STR,b:Boolean):Void ==
       yn:STR
       if b then yn:="yes" else yn:="no"
-      cmd:=string FORMAT('NIL,"(hsphere-draw ~A ~A)",cam,yn)$Lisp
+      cmd:=string format('NIL,"(hsphere-draw ~A ~A)",cam,yn)
       writePipe(p,cmd)  
       
-    drawLinesCloser(p:STR,cam:STR,dist:Float):Void ==
+    drawLinesCloser(p:%,cam:STR,dist:Float):Void ==
       d:STR:=toString(dist)
-      cmd:=string FORMAT('NIL,"(lines-closer ~A ~A)",cam,d)$Lisp
+      cmd:=string format('NIL,"(lines-closer ~A ~A)",cam,d)
       writePipe(p,cmd)
       
-    transform(p:STR,o:STR,c:STR,f:STR,a:STR,x:FL,y:FL,z:FL,dt:FL,s?:BO):Void ==
+    transform(p:%,o:STR,c:STR,f:STR,a:STR,x:FL,y:FL,z:FL,dt:FL,s?:BO):Void ==
       sx:STR:=toString(x); sy:STR:=toString(y); sz:STR:=toString(z);
       fmt:="(transform ~A ~A ~A ~A ~A ~A ~A ~A ~A)"
       cmd:STR
       if not zero? dt then
         sdt:STR:=toString(dt)
         if s? then
-          cmd:=string FORMAT('NIL,fmt,o,c,f,a,sx,sy,sz,sdt,"smooth")$Lisp
+          cmd:=string format('NIL,fmt,o,c,f,a,sx,sy,sz,sdt,"smooth")
         else
-          cmd:=string FORMAT('NIL,fmt,o,c,f,a,sx,sy,sz,sdt,"")$Lisp
+          cmd:=string format('NIL,fmt,o,c,f,a,sx,sy,sz,sdt,"")
       else
-        cmd:=string FORMAT('NIL,fmt,o,c,f,a,sx,sy,sz,"","")$Lisp  
+        cmd:=string format('NIL,fmt,o,c,f,a,sx,sy,sz,"","")  
       writePipe(p,cmd)        
       
-    reset(p:STR):Void == writePipe(p,"(new-reset)") 
+    reset(p:%):Void == writePipe(p,"(new-reset)") 
       
-    newCamera(p:STR,cam:STR):Void ==
-      cmd:=string FORMAT('NIL,"(new-camera ~A)",cam)$Lisp 
+    newCamera(p:%,cam:STR):Void ==
+      cmd:=string format('NIL,"(new-camera ~A)",cam)
       writePipe(p,cmd)  
+
+
+    windowSize(p,cam,xsize,ysize) ==
+      cmd:=string format('NIL,"(window ~A {size ~A ~A})",cam,xsize,ysize)
+      writePipe(p,cmd) 
+    
+    windowPosition(p,cam,xmin,xmax,ymin,ymax) ==
+      fmt:="(window ~A {position ~A ~A ~A ~A})"
+      cmd:=string format('NIL,fmt,cam,xmin,xmax,ymin,ymax)
+      writePipe(p,cmd)
+     
+    windowBorder(p,cam,b) ==
+      border:STR:="border"
+      if not b then border:="noborder"      
+      cmd:=string format('NIL,"(window ~A {~A})",cam,border)
+      writePipe(p,cmd)       
+    
+    windowPixelAspect(p,cam,f) ==
+      cmd:=string format('NIL,"(window ~A {pixelaspect ~A})",cam,f)
+      writePipe(p,cmd)      
+    
+    uiPanel(p,panel,b) ==
+      pans:LS:=["geomview", "tools", "appearance", "cameras", "lighting",_
+             "obscure", "materials", "command", "credits"]
+      not member?(panel,pans) => error "unknown panel type."
+      onoff:STR:="off"
+      if b then onoff:="on" 
+      cmd:=string format('NIL,"(ui-panel ~A ~A)",panel,onoff)
+      writePipe(p,cmd)            
+    
+    zoom(p,camID,factor) ==
+      cmd:=string format('NIL,"(zoom ~A ~A)",camID,factor)
+      writePipe(p,cmd) 
+
+
+    ---
+    ratio(minc:DF,maxc:DF,c:DF):DF ==
+      maxc-minc < 0.01 => 1.0
+      (c-minc)/(maxc-minc)
       
+    index(minc:DF,maxc:DF,c:DF):Integer==1+wholePart(ratio(minc,maxc,c)*26.0)
 
+    color2rgb(minc:DF,maxc:DF,c:DF):LDF ==
+      idx:=index(minc,maxc,c)
+      hues.idx
 
-)abbrev package GVDRAW GeomviewDraw
-++ Author: $author
-++ Date Created: $defaultdate
-++ License: BSD
-++ References:
-++ Description:
-++
-GeomviewDraw : Exports == Implementation where
-
-  ANY1 ==> AnyFunctions1
-  B    ==> Boolean
-  F    ==> Float
-  L    ==> List
-  SEG  ==> Segment Float
-  SF   ==> DoubleFloat
-  DROP ==> DrawOption
-  PLOT ==> Plot
-  PPC  ==> ParametricPlaneCurve(SF -> SF)
-  PSC  ==> ParametricSpaceCurve(SF -> SF)
-  PSF  ==> ParametricSurface((SF, SF) -> SF)
-  LST  ==> List String
-  Pt   ==> Point SF
-  PSFUN ==> (SF, SF) -> Pt
-  PCFUN ==> SF -> Pt
-  SPACE3 ==> ThreeSpace(SF)
-  VIEW2 ==> TwoDimensionalViewport
-  VIEW3 ==> ThreeDimensionalViewport
-  PIPE  ==> String
-  NNI ==> NonNegativeInteger
-  GVCOLOR ==> Record(red:SF,green:SF,blue:SF,alpha:SF)
-  GVOPTS ==> Record(ptsize:NNI, ptcolor:GVCOLOR, drawID:String)
-  DRAWCFUN ==> TopLevelDrawFunctionsForCompiledFunctions
-  
-  Exports == with
-    gvColor : (SF,SF,SF,SF) -> GVCOLOR
-      ++ gvColor(r,g,b,a) provides a 4-component floating-point color, each 
-      ++ component in  ++ range 0..1. 
-      ++ The a (alpha) component represents opacity: 0 transparent, 1 opaque.
-    gvOpts : (NNI,GVCOLOR,String) -> GVOPTS
-
-    draw : (PIPE, PSC, SEG, NNI, LST) -> Void
-      ++ draw(p,curve(f, g, h), a..b, l) draws the graph of the parametric
-      ++ curve \spad{x = f(t), y = g(t), z = h(t)} as t ranges from
-      ++ \spad{min(a, b)} to \spad{max(a, b)}.
-
-    draw : (PIPE, (SF, SF) -> SF, SEG, SEG, NNI, LST) -> Void
-      ++ draw(p,f, a..b, c..d) draws the graph of \spad{z = f(x, y)}
-      ++ as x ranges from \spad{min(a, b)} to \spad{max(a, b)} and y ranges from
-      ++ \spad{min(c, d)} to \spad{max(c, d)}.
-
-    draw : (PIPE, PSF, SEG, SEG, NNI, LST) -> Void
-      ++ draw(p,surface(f, g, h), a..b, c..d) draws the
-      ++ graph of the parametric surface \spad{x = f(u, v)}, \spad{y = g(u, v)},
-      ++ \spad{z = h(u, v)} as u ranges from \spad{min(a, b)} to \spad{max(a, b)}
-      ++ and v ranges from \spad{min(c, d)} to \spad{max(c, d)};
+    --- draw functions
     
-    pipeExists? : PIPE -> Boolean
-    pipeAlive?  : PIPE -> Boolean
-    
-  Implementation == add
-    import from TopLevelDrawFunctionsForCompiledFunctions
-    import from ThreeSpace
-    import from GeomView
-    
-    pipeExists?(s:PIPE):B == 
-      not null?(PROBE_-FILE("/tmp/geomview/" s)$Lisp)$SExpression
-      
-    pipeAlive?(s:PIPE):B ==
-      bs:String:=runProgram("fuser /tmp/geomview/" s)$LispSupport
-      bs="" => false
-      true
-      
-    gvColor(r,g,b,a) == 
-      I01:=interval(0,1)$Interval(SF)
-      lsf:List SF:=[r,g,b,a]  
-      chk:SF->B:=(x:SF):B+->contains?(I01,x)
-      not every?(chk,lsf) => error "All args must be in [0,1]."
-      R:=[0,0,0,0]$GVCOLOR
-      R.red:=r
-      R.green:=g
-      R.blue:=b
-      R.alpha:=a
-      return R      
-    
-    err1:String:="Pipe exists but is not in use! Geomview cannot reopen "_
-      "existing pipes. Delete it manually or use another name."
-    
-    draw(p:PIPE, psc:PSC, seg:SEG, size:NNI, colour:LST) ==
-      sp := makeObject(psc, seg)$DRAWCFUN
-      not curve? sp => error "not a curve"  
-      l:L Pt:=curve(sp)
-      if not pipeExists? p then p:=makePipe(p)$Geomview
-      else if not pipeAlive? p then error err1
-      -- send the points ...
-      pts:=[[toString(r) for r in  entries(q)(1..3)] for q in l]
-      if empty? colour then
-        c0:=["1","0","0","1"] 
-      else
-        c0:=colour
-      cl:=[c0 for j in 1..#l]
-      f1:=mkPtsFmt("CURVE",size,pts,cl)
-      writePipe(p,f1)
+    drawPoint(p:%,name:STR,x:FL,y:FL,z:FL,color:Color,size:Integer):Void == 
+      hc:Integer:=hue(color)
+      c:LDF:=(hues.hc)
+      digits(3)$Float  -- otherwise float might make troubles/ "21_345"
+      cc:LF:=[convert(u)$DF for u in c]
+      ccc:COLOR:=[cc.1,cc.2,cc.3,cc.4]
+      pt:POINT:=[x,y,z,ccc,size]$POINT
+      drawPoint(p,name,pt)
 
-    draw(p:PIPE, f:(SF,SF)->SF, segx:SEG, segy:SEG, size:NNI,colour:LST) ==
-      sp := makeObject(f, segx, segy)$DRAWCFUN
-      not mesh? sp => error "not a mesh" 
-      l:L Pt:=concat mesh(sp)
-      if not pipeExists? p then p:=makePipe(p)$Geomview
-      else if not pipeAlive? p then error err1
-      -- send the points ...
-      pts:=[[toString(r) for r in  entries(q)(1..3)] for q in l]
-      if empty? colour then
-        c0:=["1","0","0","1"] 
-      else
-        c0:=colour
-      cl:=[c0 for j in 1..#l]
-      f1:=mkPtsFmt("FGRAPH",size,pts,cl)
-      writePipe(p,f1)      
-
-    draw(p:PIPE, sf:PSF, segx:SEG, segy:SEG, size:NNI,colour:LST) ==
-      sp := makeObject(sf, segx, segy)$DRAWCFUN
-      not mesh? sp => error "not a mesh" 
-      l:L Pt:=concat mesh(sp)
-      if not pipeExists? p then p:=makePipe(p)$Geomview
-      else if not pipeAlive? p then error err1
-      -- send the points ...
-      pts:=[[toString(r) for r in  entries(q)(1..3)] for q in l]
-      if empty? colour then
-        c0:=["1","0","0","1"] 
-      else
-        c0:=colour
-      cl:=[c0 for j in 1..#l]
-      f1:=mkPtsFmt("PSURF",size,pts,cl)
-      writePipe(p,f1)      
-
---  DF ==> DoubleFloat      
---  f(t:DF):DF==cos(t);g(t:DF):DF==sin(t);h(t:DF):DF==t
---  cc:=curve(f,g,h)
---  draw("draw1",cc,0::Float..2*%pi,[])$GVDRAW(DF)
-
--- todo: instead of List DropOption we'll use: size,color ...
---   mkColor(r,g,b,a) -> ["r","g","b","a"] (maybe range, indiv pt color?)
+    draw(p:%,f:R, sx:SBF,sy:SBF, o:LDO):Void == 
+      s:=makeObject(f,sx,sy,o)$TLD
+      not mesh? s => error "not a mesh?"
+      lps:=lp s
+      pts:LLS:=[[toString(u.i) for i in 1..3] for u in lps]
+      idx:=first lllip(s)
+      M:Matrix(NNI):=matrix(idx)
+      -- x direction
+      np:=nrows M
+      lines:=entries [row(M,i) for i in 1..np]
+      nv:=reduce(_+,[#u for u in lines])
+      nc:=np
+      nvp:=[#u for u in lines]
+      ncp:=[1::NNI for u in lines]
+      va:=concat [[pts.(u.i) for i in 1..#u]  for u in lines] 
+      ca:=[["0.0","0.0","1.0","1.0"] for i in 1..np] 
+      vec1:=mkVECT("draw1",2,np,nv,nc,nvp,ncp,va,ca,"all") 
+      -- y direction
+      M:=transpose(M)
+      np:=nrows M
+      lines:=entries [row(M,i) for i in 1..np]
+      nv:=reduce(_+,[#u for u in lines])
+      nc:=np
+      nvp:=[#u for u in lines]
+      ncp:=[1::NNI for u in lines]
+      va:=concat [[pts.(u.i) for i in 1..#u]  for u in lines] 
+      ca:=[["1.0","0.0","0.0","1.0"] for i in 1..np] 
+      vec2:=mkVECT("draw2",2,np,nv,nc,nvp,ncp,va,ca,"all")    
+      -- send
+      writePipe(p,vec1)
+      writePipe(p,vec2)      
 
 
+    drawQ(p:%,f:R, sx:SBF,sy:SBF, o:LDO):Void == 
+      s:=makeObject(f,sx,sy,o)$TLD
+      not mesh? s => error "not a mesh?"
+      m:=mesh2quad(s)
+      colFun:=(v:LDF):LDF+->[sin(v.1)^2,cos(v.2)^2,cosh(v.3),1.0]  --default?
+      ll:List List List DoubleFloat
+      ll:=[ [concat(pp:LDF:=[m.pts.i.j for j in 1..3],colFun pp) for i in q]_
+               for q in m.quads ] 
+      --
+      ss:=string format('NIL,fmtCQUAD,"A",ll,"all") 
+      writePipe(p,ss)  
+      --writeToFile(ss)
+      --load(p,"/tmp/geomviewtmp.gcl")      
 
+    -- drawQCF uses quads and fricas colors (4th component of point)
+    -- if option?(o,'colorFunction?123)
+    drawQCF(p:%,f:R, sx:SBF,sy:SBF, o:LDO):Void == 
+      s:=makeObject(f,sx,sy,o)$TLD
+      not mesh? s => error "not a mesh?"
+      m:=mesh2quad(s)
+      ll:List List List DoubleFloat
+      cc:LDF:=[m.pts.i.4 for i in 1..#m.pts]
+      minc:DF:=min(cc)
+      maxc:DF:=max(cc)
+      ll:=[ [concat([m.pts.i.j for j in 1..3],_
+        color2rgb(minc,maxc,m.pts.i.4)) for i in q] for q in m.quads ]
+      ss:=string format('NIL,fmtCQUAD,"A",ll,"all") 
+      writePipe(p,ss)      
 
+-- g:=new()$GEOMVIEW
+-- draw(g,x^2-y^2,x=-1..1,y=-1..1,[var1Steps(86),var2Steps(56)])
+-- draw(g,sin(x-y),x=-1..1,y=-1..1,[var1Steps(22),var2Steps(16),title("A")])
+-- setBackColor(g,"Camera",1.0,1.0,1.0) --> white
+-- g.gcl "(snapshot Camera snapshot.ps ps)"  --> todo in spad
+-- f1:=2*besselJ(1,%pi*sqrt(x^2+y^2))/%pi/sqrt(x^2+y^2)
+-- draw(g,f1,x=-3.0..3.0,y=-3.0..3.0,[])
+-- SHIFT-? --> keyboard commands ....
+-- g.close
+-----------------------
+
+---test drawQ
+--  fx:=2*besselJ(1,%pi*sqrt(x^2+y^2))/%pi/sqrt(x^2+y^2)
+--  g:=new()$GEOMVIEW
+--   drawQ(g,fx,x=-3.0..3,y=-3.0..3,[]::List DrawOption)
+--  g.close
+--  g:=new()$GEOMVIEW
+--  drawQ(g,fx,x=-3.0..3,y=-3.0..3,[var1Steps(55),var2Steps(67)])
+--  deleteObject(g,"[A]")
+--  drawQ(g,fx,x=-5.0..5,y=-5.0..5,[var1Steps(55),var2Steps(67)])

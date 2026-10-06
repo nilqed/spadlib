@@ -1,0 +1,19 @@
+)co ../src/gvdom
+
+DF ==> DoubleFloat
+
+ldo:List DrawOption
+
+fx:=2*besselJ(1,%pi*sqrt(x^2+y^2))/%pi/sqrt(x^2+y^2)
+g:=new()
+
+cf1:=(x:DF,y:DF,z:DF):DF+->sin(x)*cos(z)*y
+ldo:=[colorFunction(cf1),var1Steps(85),var2Steps(85)]
+
+
+drawQCF(g,fx,x=-3.0..3,y=-3.0..3,ldo)
+
+--drawQ(g,fx,x=-3.0..3,y=-3.0..3,ldo)
+
+
+
