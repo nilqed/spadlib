@@ -1,4 +1,4 @@
-quickLoad geomview
+quickLoad geomview0
 p:=makePipe "test"
 
 load(p,"dodec")
