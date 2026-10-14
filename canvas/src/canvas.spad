@@ -25,6 +25,32 @@ Canvas : Exports == Implementation where
     
     --elt : (%,Symbol) -> (STR->STR)
     elt : (%,SYM,STR) -> STR
+    
+    elt : (%,"fillStyle") -> (STR -> %)
+    elt : (%,"strokeStyle") -> (STR -> %)
+    elt : (%,"fillRect") -> (DF,DF,DF,DF) -> %
+    elt : (%,"clearRect") -> (DF,DF,DF,DF) -> %
+    elt : (%,"strokeRect") -> (DF,DF,DF,DF) -> %
+    elt : (%,"beginPath") -> %
+    elt : (%,"closePath") -> %
+    elt : (%,"stroke") -> %
+    elt : (%,"fill") -> %
+    elt : (%,"clip") -> %
+    elt : (%,"moveTo") -> (DF,DF) -> %
+    elt : (%,"lineTo") -> (DF,DF) -> %
+    elt : (%,"lineWidth") -> DF -> %
+    elt : (%,"arc") -> (DF,DF,DF,DF,DF) -> %
+    elt : (%,"arcCC") -> (DF,DF,DF,DF,DF) -> %
+    elt : (%,"arcTo") -> (DF,DF,DF,DF,DF) -> %
+    elt : (%,"bezierCurveTo") -> (DF,DF,DF,DF,DF,DF) -> %
+    elt : (%,"ellipse") -> (DF,DF,DF,DF,DF,DF,DF) -> %
+    elt : (%,"ellipseCC") -> (DF,DF,DF,DF,DF,DF,DF) -> %
+    elt : (%,"fillText") -> (STR,DF,DF) -> %
+    elt : (%,"setLineDash") -> List DF -> %
+    
+    
+    
+
 
     fillStyle : (%,STR) -> %
       ++ fillStyle(c,color), default:black. Color is a name like red/green/
@@ -331,6 +357,32 @@ Canvas : Exports == Implementation where
     ---
 
 
+    elt(c,"fillStyle") == (s:STR):%+->fillStyle(c,s)
+    elt(c,"strokeStyle") == (s:STR):%+->strokeStyle(c,s)
+    elt(c,"fillRect") == (r1:DF,r2:DF,r3:DF,r4:DF):%+->fillRect(c,r1,r2,r3,r4)
+    elt(c,"clearRect") == (r1:DF,r2:DF,r3:DF,r4:DF):%+->clearRect(c,r1,r2,r3,r4)
+    elt(c,"strokeRect") == (r1:DF,r2:DF,r3:DF,r4:DF):%+->strokeRect(c,r1,r2,r3,r4) 
+    elt(c,"beginPath") == beginPath(c)
+    elt(c,"closePath") == closePath(c)
+    elt(c,"stroke") == stroke(c)
+    elt(c,"fill") == fill(c)
+    elt(c,"clip") == clip(c)
+    elt(c,"moveTo") == (r1:DF,r2:DF):%+->moveTo(c,r1,r2)
+    elt(c,"lineTo") == (r1:DF,r2:DF):%+->lineTo(c,r1,r2)
+    elt(c,"lineWidth") == (r1:DF):%+->lineWidth(c,r1)
+    elt(c,"arc") == (r1:DF,r2:DF,r3:DF,r4:DF,r5:DF):%+->arc(c,r1,r2,r3,r4,r5)
+    elt(c,"arcCC") == (r1:DF,r2:DF,r3:DF,r4:DF,r5:DF):%+->arcCC(c,r1,r2,r3,r4,r5)
+    elt(c,"arcTo") == (r1:DF,r2:DF,r3:DF,r4:DF,r5:DF):%+->arcTo(c,r1,r2,r3,r4,r5)
+    elt(c,"bezierCurveTo") == 
+      (r1:DF,r2:DF,r3:DF,r4:DF,r5:DF,r6:DF):%+->bezierCurveTo(c,r1,r2,r3,r4,r5,r6)
+    elt(c,"ellipse") ==
+      (r1:DF,r2:DF,r3:DF,r4:DF,r5:DF,r6:DF,r7:DF):%+->ellipse(c,r1,r2,r3,r4,r5,r6,r7)
+    elt(c,"ellipseCC") ==
+      (r1:DF,r2:DF,r3:DF,r4:DF,r5:DF,r6:DF,r7:DF):%+->ellipseCC(c,r1,r2,r3,r4,r5,r6,r7)
+    elt(c,"fillText") == (s:STR,r1:DF,r2:DF):%+->fillText(c,s,r1,r2)
+    elt(c,"setLineDash") == (l:List DF):%+->setLineDash(c,l)   
+    ---
+    
     coerce(c:%):OutputForm == 
       js:=script concat reverse members(c.code)
       if initCanvas then 
